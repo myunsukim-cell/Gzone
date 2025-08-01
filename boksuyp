@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 국존 학생 대시보드 - 통합 학습 관리</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 전역 설정 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        body {
+            background: #f5f7fa;
+            min-height: 100vh;
+            color: #212529;
+            line-height: 1.6;
+        }
+        
+        /* 색상 변수 */
+        :root {
+            --primary: #2196f3;
+            --primary-dark: #1976d2;
+            --primary-light: #e3f2fd;
+            --secondary: #673ab7;
+            --secondary-light: #f3e5f5;
+            --success: #4caf50;
+            --success-light: #e8f5e9;
+            --warning: #ff9800;
+            --warning-light: #fff3e0;
+            --danger: #f44336;
+            --danger-light: #ffebee;
+            --info: #00bcd4;
+            --info-light: #e0f7fa;
+            --gray: #9e9e9e;
+            --gray-light: #f5f5f5;
+            --white: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+        }
+        
+        /* 헤더 */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 20px 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .header-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* 1교시 체크인 팝업 */
+        .checkin-popup {
+            display: block;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--white);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            max-width: 650px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 1001;
+        }
+
+        .checkin-overlay {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+        }
+
+        .checkin-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary-light);
+        }
+
+        .checkin-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .checkin-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .question-block {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--gray-light);
+            border-radius: 10px;
+        }
+
+        .question-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .slider-container {
+            position: relative;
+            margin: 15px 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+        }
+
+        .slider-value {
+            position: absolute;
+            top: -35px;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .option-item input[type="checkbox"], 
+        .option-item input[type="radio"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .option-item label {
+            font-size: 14px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .scale-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .scale-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid var(--gray);
+            background: var(--white);
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .scale-btn:hover {
+            background: var(--primary-light);
+        }
+
+        .scale-btn.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .tag-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .tag-btn {
+            padding: 6px 12px;
+            border: 2px solid var(--gray);
+            background: var(--white);
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tag-btn:hover {
+            background: var(--info-light);
+        }
+
+        .tag-btn.active {
+            background: var(--info);
+            color: var(--white);
+            border-color: var(--info);
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .week-day-inputs {
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .week-day-inputs.show {
+            display: grid;
+        }
+
+        .day-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .day-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .day-time {
+            width: 60px;
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .plan-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .plan-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .plan-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .plan-time {
+            width: 80px;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .plan-content {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .checkin-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--gray);
+            color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background: #757575;
+            transform: translateY(-2px);
+        }
+        
+        /* 4분면 그리드 레이아웃 */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            height: calc(100vh - 100px);
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .quadrant {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow-y: auto;
+        }
+        
+        /* 1사분면: 프로필 및 통계 */
+        .quadrant-1 {
+            grid-row: 1 / 2;
+            grid-column: 1 / 2;
+        }
+        
+        /* 2사분면: 7단계 학습 진도 */
+        .quadrant-2 {
+            grid-row: 1 / 2;
+            grid-column: 2 / 3;
+        }
+        
+        /* 3사분면: 1,2,3교시 시험 결과 */
+        .quadrant-3 {
+            grid-row: 2 / 3;
+            grid-column: 2 / 3;
+        }
+        
+        /* 4사분면: 메타인지 및 다음주 계획 */
+        .quadrant-4 {
+            grid-row: 2 / 3;
+            grid-column: 1 / 2;
+        }
+        
+        /* 섹션 타이틀 */
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        /* 프로필 섹션 */
+        .profile-section {
+            text-align: center;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 25px;
+        }
+
+        /* 체크인 완료 알림 */
+        .checkin-status {
+            background: var(--success-light);
+            border: 2px solid var(--success);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .checkin-status.pending {
+            background: var(--warning-light);
+            border-color: var(--warning);
+        }
+
+        .checkin-status h4 {
+            color: var(--success);
+            margin-bottom: 5px;
+        }
+
+        .checkin-status.pending h4 {
+            color: var(--warning);
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0 auto 15px;
+        }
+        
+        .profile-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+        
+        .profile-info {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        /* 통계 아이템 */
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* 나머지 기존 스타일들... (7단계 학습, 교시별 결과 등) */
+        .learning-stages {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 20px;
+            height: 100%;
+        }
+        
+        .unit-list {
+            background: var(--gray-light);
+            border-radius: 10px;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        
+        .unit-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: var(--white);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .unit-item:hover {
+            background: var(--primary-light);
+            transform: translateX(5px);
+        }
+        
+        .unit-item.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+        
+        .stage-content {
+            background: var(--gray-light);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .stage-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+        
+        .stage-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .stage-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stage-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .stage-name {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        
+        .stage-status {
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .status-complete {
+            background: var(--success-light);
+            color: var(--success);
+        }
+        
+        .status-progress {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+        
+        .status-locked {
+            background: var(--gray-light);
+            color: var(--gray);
+        }
+
+        /* 교시별 시험 결과 */
+        .period-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .period-tab {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            background: var(--white);
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .period-tab:hover {
+            background: var(--gray-light);
+        }
+        
+        .period-tab.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+        
+        .test-result-list {
+            display: none;
+        }
+        
+        .test-result-list.active {
+            display: block;
+        }
+        
+        .test-result-item {
+            background: var(--gray-light);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .test-result-item:hover {
+            background: var(--primary-light);
+            transform: translateX(5px);
+        }
+        
+        .test-result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .test-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .test-score {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .test-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        /* 메타인지 및 계획 수립 */
+        .metacognition-section {
+            margin-bottom: 25px;
+        }
+        
+        .meta-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+            margin-bottom: 15px;
+        }
+        
+        .meta-input:focus {
+            outline: none;
+            border-color: var(--info);
+        }
+        
+        /* 주간 계획표 */
+        .weekly-plan {
+            background: var(--info-light);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .plan-day {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: var(--white);
+            border-radius: 8px;
+        }
+        
+        .plan-day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .plan-day-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .plan-time-input {
+            width: 80px;
+            padding: 5px 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .plan-content-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+        
+        .btn-success:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- 1교시 체크인 팝업 -->
+    <div class="checkin-overlay" id="checkinOverlay"></div>
+    <div class="checkin-popup" id="checkinPopup">
+        <div class="checkin-header">
+            <div class="checkin-title">📝 오늘의 학습 체크인</div>
+            <div class="checkin-subtitle">1교시 시작 전 학습 상태를 점검해주세요 (3분 소요)</div>
+        </div>
+
+        <!-- 질문 1: 어제 과제 완료율 -->
+        <div class="question-block">
+            <div class="question-title">1. 어제 과제는 얼마나 완료했나요?</div>
+            <div class="slider-container">
+                <input type="range" min="0" max="100" value="50" class="slider" id="taskCompletion">
+                <div class="slider-value" id="taskValue">50%</div>
+            </div>
+        </div>
+
+        <!-- 질문 2: 이번 주 국어 학습 패턴 -->
+        <div class="question-block">
+            <div class="question-title">2. 이번 주 국어 학습은 언제 했나요?</div>
+            <div class="option-group">
+                <div class="option-item">
+                    <input type="radio" id="daily30" name="studyPattern" value="daily">
+                    <label for="daily30">매일 30분 이상</label>
+                </div>
+                <div class="option-item">
+                    <input type="radio" id="specificDay" name="studyPattern" value="specific">
+                    <label for="specificDay">특정 요일에 집중</label>
+                </div>
+                <div class="option-item">
+                    <input type="radio" id="beforeExam" name="studyPattern" value="exam">
+                    <label for="beforeExam">시험 전에만</label>
+                </div>
+                <div class="option-item">
+                    <input type="radio" id="rarely" name="studyPattern" value="rarely">
+                    <label for="rarely">거의 하지 못함</label>
+                </div>
+            </div>
+            <div class="week-day-inputs" id="weekDayInputs">
+                <div class="day-input">
+                    <div class="day-label">월</div>
+                    <input type="text" class="day-time" placeholder="시간">
+                </div>
+                <div class="day-input">
+                    <div class="day-label">화</div>
+                    <input type="text" class="day-time" placeholder="시간">
+                </div>
+                <div class="day-input">
+                    <div class="day-label">수</div>
+                    <input type="text" class="day-time" placeholder="시간">
+                </div>
+                <div class="day-input">
+                    <div class="day-label">목</div>
+                    <input type="text" class="day-time" placeholder="시간">
+                </div>
+                <div class="day-input">
+                    <div class="day-label">금</div>
+                    <input type="text" class="day-time" placeholder="시간">
+                </div>
+                <div class="day-input">
+                    <div class="day-label">토</div>
+                    <input type="text" class="day-time" placeholder="시간">
+                </div>
+                <div class="day-input">
+                    <div class="day-label">일</div>
+                    <input type="text" class="day-time" placeholder="시간">
+                </div>
+            </div>
+        </div>
+
+        <!-- 질문 3: 이번 주 과제량 체감 -->
+        <div class="question-block">
+            <div class="question-title">3. 이번 주 과제량은 어떻게 느꼈나요?</div>
+            <div class="scale-buttons">
+                <button class="scale-btn" data-value="1">매우 적다</button>
+                <button class="scale-btn" data-value="2">적다</button>
+                <button class="scale-btn" data-value="3">적당하다</button>
+                <button class="scale-btn" data-value="4">많다</button>
+                <button class="scale-btn" data-value="5">매우 많다</button>
+            </div>
+        </div>
+
+        <!-- 질문 4: 추가 학습 활동 -->
+        <div class="question-block">
+            <div class="question-title">4. 과제 외에 추가로 한 학습이 있다면?</div>
+            <div class="option-group">
+                <div class="option-item">
+                    <input type="checkbox" id="extraBook" value="문제집">
+                    <label for="extraBook">시중 문제집 추가 학습</label>
+                </div>
+                <div class="option-item">
+                    <input type="checkbox" id="noteMemory" value="단권노트">
+                    <label for="noteMemory">단권 노트 암기하기</label>
+                </div>
+                <div class="option-item">
+                    <input type="checkbox" id="textAnalysis" value="본문분석">
+                    <label for="textAnalysis">본문 분석 다시 보기</label>
+                </div>
+                <div class="option-item">
+                    <input type="checkbox" id="mockTest" value="모의고사">
+                    <label for="mockTest">모의고사 풀기</label>
+                </div>
+                <div class="option-item">
+                    <input type="checkbox" id="reading" value="독서">
+                    <label for="reading">독서(책읽기)</label>
+                </div>
+                <div class="option-item">
+                    <input type="checkbox" id="otherStudy" value="기타">
+                    <label for="otherStudy">기타:</label>
+                    <input type="text" class="text-input" style="width: 150px; margin-left: 8px;" placeholder="직접 입력">
+                </div>
+            </div>
+        </div>
+
+        <!-- 질문 5: 어려웠던 부분 -->
+        <div class="question-block">
+            <div class="question-title">5. 어제/이번 주 과제에서 어려웠던 부분은?</div>
+            <div class="tag-container">
+                <button class="tag-btn" data-tag="독서">독서</button>
+                <button class="tag-btn" data-tag="문학">문학</button>
+                <button class="tag-btn" data-tag="문법">문법</button>
+                <button class="tag-btn" data-tag="화작">화작</button>
+            </div>
+            <textarea class="text-input" rows="2" placeholder="구체적인 어려운 내용을 적어주세요"></textarea>
+        </div>
+
+        <!-- 질문 6: 오늘 1교시 집중 목표 -->
+        <div class="question-block">
+            <div class="question-title">6. 오늘 1교시에서 가장 집중하고 싶은 부분은?</div>
+            <textarea class="text-input" rows="2" placeholder="오늘 학습 목표를 구체적으로 적어주세요"></textarea>
+        </div>
+
+        <!-- 질문 7: 과제 미달 이유 -->
+        <div class="question-block">
+            <div class="question-title">7. 과제가 덜 끝났다면, 그 이유는?</div>
+            <div class="option-group">
+                <div class="option-item">
+                    <input type="checkbox" id="importance" value="중요성모름">
+                    <label for="importance">중요성을 잘 모르겠다</label>
+                </div>
+                <div class="option-item">
+                    <input type="checkbox" id="timeManage" value="시간관리실패">
+                    <label for="timeManage">시간 관리에 실패했다</label>
+                </div>
+                <div class="option-item">
+                    <input type="checkbox" id="difficulty" value="난이도높음">
+                    <label for="difficulty">과제가 어려워서 예상보다 오래 걸렸다</label>
+                </div>
+                <div class="option-item">
+                    <input type="checkbox" id="otherSubject" value="타과목">
+                    <label for="otherSubject">다른 과목/활동 때문에 시간이 부족했다</label>
+                </div>
+                <div class="option-item">
+                    <input type="checkbox" id="motivation" value="동기부족">
+                    <label for="motivation">동기부여가 안 되었다</label>
+                </div>
+                <div class="option-item">
+                    <input type="checkbox" id="unclear" value="지시불명확">
+                    <label for="unclear">과제 지시사항이 불명확했다</label>
+                </div>
+                <div class="option-item">
+                    <input type="checkbox" id="otherReason" value="기타">
+                    <label for="otherReason">기타:</label>
+                    <input type="text" class="text-input" style="width: 200px; margin-left: 8px;" placeholder="직접 입력">
+                </div>
+            </div>
+        </div>
+
+        <!-- 질문 8: 오늘/내일 학습 계획 -->
+        <div class="question-block">
+            <div class="question-title">8. 오늘/내일 국어 학습 계획</div>
+            <div class="plan-inputs">
+                <div class="plan-item">
+                    <div class="plan-label">오늘</div>
+                    <input type="text" class="plan-time" placeholder="시간">
+                    <textarea class="plan-content" rows="2" placeholder="학습 내용"></textarea>
+                </div>
+                <div class="plan-item">
+                    <div class="plan-label">내일</div>
+                    <input type="text" class="plan-time" placeholder="시간">
+                    <textarea class="plan-content" rows="2" placeholder="학습 내용"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 질문 9: 선생님 중간 확인 -->
+        <div class="question-block">
+            <div class="question-title">9. 선생님께 중간 확인을 받고 싶다면?</div>
+            <div class="option-group">
+                <div class="option-item">
+                    <input type="radio" id="noNeed" name="teacherCheck" value="필요없음">
+                    <label for="noNeed">필요없음</label>
+                </div>
+                <div class="option-item">
+                    <input type="radio" id="breakTime" name="teacherCheck" value="쉬는시간">
+                    <label for="breakTime">오늘 쉬는시간</label>
+                </div>
+                <div class="option-item">
+                    <input type="radio" id="afterClass" name="teacherCheck" value="수업후">
+                    <label for="afterClass">오늘 수업 후</label>
+                </div>
+                <div class="option-item">
+                    <input type="radio" id="beforeTomorrow" name="teacherCheck" value="내일수업전">
+                    <label for="beforeTomorrow">내일 수업 전</label>
+                </div>
+                <div class="option-item">
+                    <input type="radio" id="online" name="teacherCheck" value="온라인">
+                    <label for="online">온라인으로</label>
+                    <input type="text" class="text-input" style="width: 100px; margin-left: 8px;" placeholder="시간">
+                </div>
+                <div class="option-item">
+                    <input type="radio" id="otherTime" name="teacherCheck" value="기타">
+                    <label for="otherTime">기타:</label>
+                    <input type="text" class="text-input" style="width: 150px; margin-left: 8px;" placeholder="직접 입력">
+                </div>
+            </div>
+        </div>
+
+        <div class="checkin-actions">
+            <button class="btn btn-primary" onclick="submitCheckin()">체크인 완료</button>
+            <button class="btn btn-secondary" onclick="closeCheckin()">나중에 하기</button>
+        </div>
+    </div>
+
+    <!-- 헤더 -->
+    <header class="header">
+        <div>
+            <h1>🎓 국존 학생 대시보드</h1>
+            <div class="header-subtitle">김민수 학생 - 송도고등학교 2학년</div>
+        </div>
+        <div class="header-actions">
+            <button class="header-btn" onclick="openCheckin()">📝 학습체크인</button>
+            <button class="header-btn" onclick="viewSchedule()">📅 학습일정</button>
+            <button class="header-btn" onclick="viewAnalysis()">📊 성적분석</button>
+            <button class="header-btn" onclick="logout()">로그아웃</button>
+        </div>
+    </header>
+    
+    <!-- 4분면 대시보드 -->
+    <div class="dashboard-grid">
+        <!-- 1사분면: 프로필 및 통계 -->
+        <div class="quadrant quadrant-1">
+            <!-- 체크인 상태 표시 -->
+            <div class="checkin-status pending" id="checkinStatus">
+                <h4>📝 오늘의 학습 체크인</h4>
+                <p>1교시 시작 전 체크인을 완료해주세요</p>
+                <button class="btn btn-primary" onclick="openCheckin()" style="margin-top: 10px;">지금 체크인하기</button>
+            </div>
+
+            <div class="profile-section">
+                <div class="profile-avatar">김</div>
+                <h2 class="profile-name">김민수</h2>
+                <p class="profile-info">송도고등학교 2학년<br>담당: 김선생님</p>
+            </div>
+            
+            <h3 class="section-title">
+                <span>📊</span> 이번 주 학습 현황
+            </h3>
+            <div class="stat-item">
+                <span class="stat-label">출석률</span>
+                <span class="stat-value">95%</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">과제 완료율</span>
+                <span class="stat-value">88%</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">평균 점수</span>
+                <span class="stat-value">82.5점</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">전체 등수</span>
+                <span class="stat-value">15/42명</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">이번 주 학습시간</span>
+                <span class="stat-value">12시간 35분</span>
+            </div>
+        </div>
+        
+        <!-- 2사분면: 7단계 학습 진도 -->
+        <div class="quadrant quadrant-2">
+            <h3 class="section-title">
+                <span>📚</span> 7단계 학습 진도
+            </h3>
+            
+            <div class="learning-stages">
+                <!-- 왼쪽: 단원 목록 -->
+                <div class="unit-list">
+                    <div class="unit-item active" onclick="selectUnit(1)">화법과 작문 - 논설문</div>
+                    <div class="unit-item" onclick="selectUnit(2)">문학개념 - 현대시</div>
+                    <div class="unit-item" onclick="selectUnit(3)">독서와 문법 - 비문학</div>
+                    <div class="unit-item" onclick="selectUnit(4)">고전문학 - 시조</div>
+                </div>
+                
+                <!-- 오른쪽: 7단계 진도 -->
+                <div class="stage-content">
+                    <div class="stage-grid">
+                        <div class="stage-card" onclick="openStage(1)">
+                            <div class="stage-number">1</div>
+                            <div class="stage-name">개념학습</div>
+                            <div class="stage-status status-complete">완료</div>
+                        </div>
+                        <div class="stage-card" onclick="openStage(2)">
+                            <div class="stage-number">2</div>
+                            <div class="stage-name">기본문제</div>
+                            <div class="stage-status status-complete">완료</div>
+                        </div>
+                        <div class="stage-card" onclick="openStage(3)">
+                            <div class="stage-number">3</div>
+                            <div class="stage-name">심화문제</div>
+                            <div class="stage-status status-complete">완료</div>
+                        </div>
+                        <div class="stage-card" onclick="openStage(4)">
+                            <div class="stage-number">4</div>
+                            <div class="stage-name">실전응용</div>
+                            <div class="stage-status status-progress">진행중</div>
+                        </div>
+                        <div class="stage-card" onclick="openStage(5)">
+                            <div class="stage-number">5</div>
+                            <div class="stage-name">오답정리</div>
+                            <div class="stage-status status-locked">대기</div>
+                        </div>
+                        <div class="stage-card" onclick="openStage(6)">
+                            <div class="stage-number">6</div>
+                            <div class="stage-name">종합평가</div>
+                            <div class="stage-status status-locked">대기</div>
+                        </div>
+                        <div class="stage-card" onclick="openStage(7)">
+                            <div class="stage-number">7</div>
+                            <div class="stage-name">완전학습</div>
+                            <div class="stage-status status-locked">대기</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 20px; background: var(--white); border-radius: 10px;">
+                        <h4 style="margin-bottom: 10px;">현재 진행 중: 4단계 - 실전응용</h4>
+                        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 15px;">
+                            논설문 작성의 실제 적용 연습 중입니다. 다양한 주제로 논설문을 작성하고 있습니다.
+                        </p>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-primary" onclick="continueStudy()">학습 계속하기</button>
+                            <button class="btn btn-success" onclick="viewProgress()">진도 상세보기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 3사분면: 1,2,3교시 시험 결과 -->
+        <div class="quadrant quadrant-3">
+            <h3 class="section-title">
+                <span>📝</span> 교시별 시험 결과
+            </h3>
+            
+            <!-- 교시 탭 -->
+            <div class="period-tabs">
+                <button class="period-tab active" onclick="switchPeriod(1)">1교시</button>
+                <button class="period-tab" onclick="switchPeriod(2)">2교시</button>
+                <button class="period-tab" onclick="switchPeriod(3)">3교시</button>
+            </div>
+            
+            <!-- 1교시 결과 -->
+            <div id="period-1" class="test-result-list active">
+                <div class="test-result-item" onclick="showTestDetail('KLEA 현대시 종합평가 #12', 85, 1)">
+                    <div class="test-result-header">
+                        <span class="test-name">KLEA 현대시 종합평가 #12</span>
+                        <span class="test-score">85점</span>
+                    </div>
+                    <div class="test-meta">2024.07.22 • 20문항 • 오답 3문항</div>
+                </div>
+                
+                <div class="test-result-item" onclick="showTestDetail('주간 복습테스트 - 문법', 92, 1)">
+                    <div class="test-result-header">
+                        <span class="test-name">주간 복습테스트 - 문법</span>
+                        <span class="test-score">92점</span>
+                    </div>
+                    <div class="test-meta">2024.07.20 • 15문항 • 오답 1문항</div>
+                </div>
+                
+                <div class="test-result-item" onclick="showTestDetail('고전시가 이해도 평가', 78, 1)">
+                    <div class="test-result-header">
+                        <span class="test-name">고전시가 이해도 평가</span>
+                        <span class="test-score">78점</span>
+                    </div>
+                    <div class="test-meta">2024.07.18 • 10문항 • 오답 2문항</div>
+                </div>
+            </div>
+            
+            <!-- 2교시 결과 -->
+            <div id="period-2" class="test-result-list">
+                <div class="test-result-item" onclick="showTestDetail('SEPL 독서논리 심화 #25', 82, 2)">
+                    <div class="test-result-header">
+                        <span class="test-name">SEPL 독서논리 심화 #25</span>
+                        <span class="test-score">82점</span>
+                    </div>
+                    <div class="test-meta">2024.07.22 • 25문항 • 오답 4문항</div>
+                </div>
+            </div>
+            
+            <!-- 3교시 결과 -->
+            <div id="period-3" class="test-result-list">
+                <div class="test-result-item" onclick="showTestDetail('ESPEL 종합평가 #45', 88, 3)">
+                    <div class="test-result-header">
+                        <span class="test-name">ESPEL 종합평가 #45</span>
+                        <span class="test-score">88점</span>
+                    </div>
+                    <div class="test-meta">2024.07.20 • 30문항 • 오답 3문항</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 4사분면: 메타인지 및 다음주 계획 -->
+        <div class="quadrant quadrant-4">
+            <h3 class="section-title">
+                <span>🧠</span> 메타인지 & 학습계획
+            </h3>
+            
+            <!-- 메타인지 기록 -->
+            <div class="metacognition-section">
+                <h4 style="margin-bottom: 10px; color: var(--info);">이번 주 학습 성찰</h4>
+                <textarea class="meta-input" placeholder="이번 주 학습에서 어려웠던 점, 새롭게 깨달은 점, 개선할 점을 작성하세요.">고전시가에서 '임'의 의미를 파악하는 것이 어려웠습니다. 시대적 배경과 화자의 정서를 함께 고려하는 방법을 배웠습니다.</textarea>
+            </div>
+            
+            <!-- 다음 주 학습 계획 -->
+            <div class="weekly-plan">
+                <h4 style="margin-bottom: 15px; color: var(--info);">다음 주 학습 계획</h4>
+                
+                <div class="plan-day">
+                    <div class="plan-day-header">
+                        <span class="plan-day-name">월요일</span>
+                        <input type="text" class="plan-time-input" placeholder="시간" value="2시간">
+                    </div>
+                    <input type="text" class="plan-content-input" placeholder="학습 내용" value="고전시가 주요 시어 정리 및 암기">
+                </div>
+                
+                <div class="plan-day">
+                    <div class="plan-day-header">
+                        <span class="plan-day-name">화요일</span>
+                        <input type="text" class="plan-time-input" placeholder="시간" value="1.5시간">
+                    </div>
+                    <input type="text" class="plan-content-input" placeholder="학습 내용" value="논설문 4단계 실전응용 완료">
+                </div>
+                
+                <div class="plan-day">
+                    <div class="plan-day-header">
+                        <span class="plan-day-name">수요일</span>
+                        <input type="text" class="plan-time-input" placeholder="시간" value="2시간">
+                    </div>
+                    <input type="text" class="plan-content-input" placeholder="학습 내용" value="독서 비문학 기출문제 풀이">
+                </div>
+                
+                <div class="plan-day">
+                    <div class="plan-day-header">
+                        <span class="plan-day-name">목요일</span>
+                        <input type="text" class="plan-time-input" placeholder="시간" value="1시간">
+                    </div>
+                    <input type="text" class="plan-content-input" placeholder="학습 내용" value="문법 오답노트 정리">
+                </div>
+                
+                <div class="plan-day">
+                    <div class="plan-day-header">
+                        <span class="plan-day-name">금요일</span>
+                        <input type="text" class="plan-time-input" placeholder="시간" value="2.5시간">
+                    </div>
+                    <input type="text" class="plan-content-input" placeholder="학습 내용" value="주간 복습 및 모의고사">
+                </div>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <button class="btn btn-success" onclick="savePlan()">계획 저장하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 페이지 로드 시 체크인 팝업 자동 표시
+        window.onload = function() {
+            // 실제로는 체크인 완료 여부를 서버에서 확인
+            const isCheckedIn = localStorage.getItem('todayCheckedIn');
+            if (!isCheckedIn || isCheckedIn !== new Date().toDateString()) {
+                document.getElementById('checkinPopup').style.display = 'block';
+                document.getElementById('checkinOverlay').style.display = 'block';
+            } else {
+                updateCheckinStatus(true);
+            }
+        };
+
+        // 슬라이더 값 업데이트
+        document.getElementById('taskCompletion').oninput = function() {
+            document.getElementById('taskValue').textContent = this.value + '%';
+        };
+
+        // 학습 패턴 선택 시 요일별 입력 표시/숨김
+        document.querySelectorAll('input[name="studyPattern"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const weekInputs = document.getElementById('weekDayInputs');
+                if (this.value === 'specific') {
+                    weekInputs.classList.add('show');
+                } else {
+                    weekInputs.classList.remove('show');
+                }
+            });
+        });
+
+        // 척도 버튼 선택
+        document.querySelectorAll('.scale-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.parentElement.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 태그 버튼 선택
+        document.querySelectorAll('.tag-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+
+        // 체크인 완료
+        function submitCheckin() {
+            // 실제로는 서버에 데이터 전송
+            const formData = gatherCheckinData();
+            console.log('체크인 데이터:', formData);
+            
+            // 로컬스토리지에 완료 표시
+            localStorage.setItem('todayCheckedIn', new Date().toDateString());
+            
+            closeCheckin();
+            updateCheckinStatus(true);
+            alert('오늘의 학습 체크인이 완료되었습니다!\n선생님께 전달되었습니다.');
+        }
+
+        // 체크인 데이터 수집
+        function gatherCheckinData() {
+            const data = {
+                taskCompletion: document.getElementById('taskCompletion').value,
+                studyPattern: document.querySelector('input[name="studyPattern"]:checked')?.value,
+                weeklyStudyTimes: {},
+                taskAmount: document.querySelector('.scale-btn.active')?.dataset.value,
+                extraStudy: [],
+                difficultParts: {
+                    tags: [],
+                    details: document.querySelector('.question-block:nth-child(6) textarea').value
+                },
+                todayGoal: document.querySelector('.question-block:nth-child(7) textarea').value,
+                incompleteReasons: [],
+                studyPlan: {
+                    today: {
+                        time: document.querySelector('.plan-item:first-child .plan-time').value,
+                        content: document.querySelector('.plan-item:first-child .plan-content').value
+                    },
+                    tomorrow: {
+                        time: document.querySelector('.plan-item:last-child .plan-time').value,
+                        content: document.querySelector('.plan-item:last-child .plan-content').value
+                    }
+                },
+                teacherCheck: document.querySelector('input[name="teacherCheck"]:checked')?.value
+            };
+
+            // 요일별 학습시간 수집
+            if (data.studyPattern === 'specific') {
+                document.querySelectorAll('.day-time').forEach((input, index) => {
+                    const days = ['월', '화', '수', '목', '금', '토', '일'];
+                    if (input.value) {
+                        data.weeklyStudyTimes[days[index]] = input.value;
+                    }
+                });
+            }
+
+            // 추가 학습 활동 수집
+            document.querySelectorAll('.question-block:nth-child(5) input[type="checkbox"]:checked').forEach(cb => {
+                data.extraStudy.push(cb.value);
+            });
+
+            // 어려운 부분 태그 수집
+            document.querySelectorAll('.tag-btn.active').forEach(tag => {
+                data.difficultParts.tags.push(tag.dataset.tag);
+            });
+
+            // 과제 미달 이유 수집
+            document.querySelectorAll('.question-block:nth-child(8) input[type="checkbox"]:checked').forEach(cb => {
+                data.incompleteReasons.push(cb.value);
+            });
+
+            return data;
+        }
+
+        // 체크인 상태 업데이트
+        function updateCheckinStatus(completed) {
+            const statusDiv = document.getElementById('checkinStatus');
+            if (completed) {
+                statusDiv.classList.remove('pending');
+                statusDiv.innerHTML = '<h4>✅ 오늘의 학습 체크인 완료</h4><p>1교시 준비가 완료되었습니다!</p>';
+            } else {
+                statusDiv.classList.add('pending');
+            }
+        }
+
+        // 체크인 팝업 열기
+        function openCheckin() {
+            document.getElementById('checkinPopup').style.display = 'block';
+            document.getElementById('checkinOverlay').style.display = 'block';
+        }
+
+        // 체크인 팝업 닫기
+        function closeCheckin() {
+            document.getElementById('checkinPopup').style.display = 'none';
+            document.getElementById('checkinOverlay').style.display = 'none';
+        }
+
+        // 기존 함수들...
+        function selectUnit(unitId) {
+            document.querySelectorAll('.unit-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            updateStageStatus(unitId);
+        }
+        
+        function openStage(stage) {
+            console.log(`${stage}단계 학습 시작`);
+        }
+        
+        function switchPeriod(period) {
+            document.querySelectorAll('.period-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.period-tab')[period-1].classList.add('active');
+            
+            document.querySelectorAll('.test-result-list').forEach(list => {
+                list.classList.remove('active');
+            });
+            document.getElementById(`period-${period}`).classList.add('active');
+        }
+        
+        function showTestDetail(testName, score, period) {
+            alert(`${testName} 상세 결과: ${score}점`);
+        }
+        
+        function savePlan() {
+            alert('다음 주 학습 계획이 저장되었습니다.\n선생님께 전달됩니다.');
+        }
+          
+        function continueStudy() {
+            console.log('4단계 학습 계속');
+        }
+        
+        function viewProgress() {
+            console.log('진도 상세 정보 표시');
+        }
+        
+        function updateStageStatus(unitId) {
+            console.log(`단원 ${unitId}의 진도 상태 업데이트`);
+        }
+
+        function viewSchedule() {
+            console.log('학습일정 보기');
+        }
+
+        function viewAnalysis() {
+            console.log('성적분석 보기');
+        }
+
+        function logout() {
+            console.log('로그아웃');
+        }
+    </script>
+</body>
+</html>  
