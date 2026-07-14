@@ -1,0 +1,222 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>국존 통합 플랫폼 · 3계층 설계 (특징→UC→작동)</title><style>/* ============================================================
+   국존 통합 플랫폼 · 화면 공통 규격 v1 (2026-07-13)
+   출처: 확정 정본 3장 (연구노트 1249 학생홈 v4 · 1239 학부모 v2.4 · 1250 흐름시연)
+   원칙: 이 파일 하나를 <link>하면 모든 화면이 같은 얼굴이 된다.
+   ============================================================ */
+
+/* ── 1. 색 — 다섯 가지뿐. 여섯 번째 색을 쓰고 싶으면 설계가 틀린 것 ── */
+:root{
+  --pine:#1E4D3B;   /* 소나무 녹 — 주조. 신뢰·완료·제목·주 행동 버튼 */
+  --pine-d:#143528; /* 짙은 녹 — 어두운 판 위 보조 */
+  --gold:#B8892E;   /* 황금 — '지금 할 것' 단 한 곳. 화면당 1회 원칙 */
+  --ink:#22291F;    /* 먹 — 본문 글 */
+  --paper:#FAFAF7;  /* 종이 — 바탕 */
+  --sage:#EDF3EE;   /* 세이지 — 옅은 강조 바탕·선택됨 배경 */
+  --line:#DCE5DD;   /* 회녹 — 모든 선 */
+  --muted:#6B756D;  /* 흐린 녹회 — 보조 글·잠김 */
+  --warn:#A4472F;   /* 감빛 — 결석 등 예외 상태에만. 장식 금지 */
+}
+
+/* ── 2. 글꼴 — 고딕은 기계 문장, 명조는 사람 문장 ──
+   기계 문장: 라벨·숫자·버튼·목록 = Pretendard(고딕)
+   사람 문장: 선생님이 말하듯 쓰는 서술 문단(주간 이야기·피드백 본문)만 .serif
+   명조를 라벨이나 버튼에 쓰면 위반 */
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  line-height:1.55; margin:0 auto; padding:0 0 48px;
+  max-width:430px; /* 학생·학부모권 = 모바일 1열 고정 */
+}
+.serif{font-family:'Noto Serif KR','Nanum Myeongjo',serif; line-height:1.85; word-break:keep-all}
+.wide{max-width:1080px} /* 교사·관리자권만 허용 */
+
+/* ── 3. 뼈대 ── */
+header.gz{padding:22px 22px 6px; display:flex; justify-content:space-between; align-items:baseline}
+header.gz .who b{font-size:17px}
+header.gz .date{font-size:12px; color:var(--muted)}
+.card{margin:14px 18px 0; background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 20px}
+.card.tinted{background:var(--sage)}
+.card h2{font-size:14px; font-weight:700; color:var(--pine)}
+.card .eyebrow{font-size:12px; color:var(--pine); font-weight:700; margin-bottom:10px}
+footer.gz{margin:24px 18px 0; font-size:12px; color:var(--muted); text-align:center; line-height:1.7}
+
+/* ── 4. 버튼 3계급 — 학생권 규칙 R1: 타이핑 0, 모든 회신은 탭 ──
+   ① 주 행동(화면당 1개): 녹 바탕 흰 글. '오늘 공부 시작' 급만
+   ② 탭 회신(2~3개 나란히): 흰 바탕 테두리, 선택되면 녹 테두리+세이지
+   ③ 지금 표지(1곳): 황금. 버튼이 아니라 '여기'라는 손가락 */
+.btn-main{display:block; width:calc(100% - 36px); margin:14px 18px 0; background:var(--pine);
+  color:#fff; border:none; border-radius:12px; padding:14px; font-size:15px; font-weight:800; cursor:pointer; text-align:center}
+.btn-tap{flex:1; border:1.5px solid var(--line); background:#fff; border-radius:10px;
+  padding:11px 4px; font-size:13.5px; font-weight:700; color:var(--ink); cursor:pointer}
+.btn-tap.sel{border-color:var(--pine); background:var(--sage); color:var(--pine)}
+.btn-row{display:flex; gap:8px; margin-top:10px}
+.now-pill{color:#fff; background:var(--gold); border-radius:999px; padding:3px 10px; font-size:12.5px; font-weight:700}
+.conf{display:flex; gap:8px; margin-top:12px}
+.conf button{flex:1; border:1.5px solid var(--line); background:#fff; border-radius:999px;
+  padding:9px 4px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--muted)}
+.conf button.sel{border-color:var(--gold); color:var(--gold); background:#FDF8EE}
+
+/* ── 5. 순서·목록 행 ── */
+.t-row{display:flex; align-items:center; gap:12px; padding:12px 20px; border-top:1px solid var(--line); font-size:14.5px}
+.t-row .num{width:22px; height:22px; border-radius:50%; background:var(--sage); color:var(--pine);
+  font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none}
+.t-row.done .num{background:var(--pine); color:#fff}
+.t-row.done .name{color:var(--muted); text-decoration:line-through}
+.t-row .st{margin-left:auto; font-size:12.5px; font-weight:700}
+.t-row.done .st{color:var(--pine)}
+.t-row.wait .st{color:var(--muted)}
+
+/* ── 6. 사슬(STEP)·도장·상태 배지 ── */
+.step{width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+  font-size:11.5px; font-weight:800; border:1.5px solid var(--line); color:var(--muted); position:relative}
+.step.ok{background:var(--pine); border-color:var(--pine); color:#fff}
+.step.cur{border-color:var(--gold); color:var(--gold)}
+.stamp{width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  text-align:center; font-size:12.5px; font-weight:800; line-height:1.25; transform:rotate(-6deg)}
+.stamp.g{border:2.5px solid var(--pine); color:var(--pine); background:rgba(30,77,59,.04)}
+.stamp.y{border:2.5px solid var(--gold); color:var(--gold); background:rgba(184,137,46,.05); transform:rotate(4deg)}
+.badge{font-size:11px; font-weight:800; border-radius:999px; padding:2px 9px; border:1px solid var(--pine); color:var(--pine)}
+.badge.gold{border-color:var(--gold); color:var(--gold); background:#FDF3E2}
+
+/* ── 7. 문장 규격 (CSS가 아니라 규칙 — 검수 기준)
+   · 학생권: 존대 구어. "눌러 보세요" ○ / "클릭하십시오" ×
+   · 학부모권: 완곡체. "다지는 중입니다" ○ / "부진합니다" ×
+   · 잠김 문구는 항상 열리는 조건으로: "6 끝나면 열려요" ○ / "잠김" ×
+   · 내부 용어 화면 노출 금지: FROG·SPARK·groad → 치환 사전(노트 1106) 경유
+   · 상태는 행위의 결과로 자동 표시. 학생이 상태를 스스로 바꾸는 스위치 금지 */
+
+body{max-width:820px}
+.wrap{padding:24px 20px 60px}
+h1{font-size:20px;color:var(--pine)}
+.sub{font-size:13px;color:var(--muted);margin:4px 0 18px;line-height:1.7}
+.tally{display:flex;gap:10px;margin:14px 0 22px}
+.tally div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 15px;font-size:12px;color:var(--muted)}
+.tally b{display:block;font-size:19px}
+.feat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.feat-h{display:flex;align-items:center;gap:10px}
+.feat-code{font-family:monospace;font-size:11px;font-weight:800;background:var(--pine);color:#fff;padding:2px 8px;border-radius:6px}
+.feat-h h2{font-size:16px;color:var(--pine);flex:1}
+.feat-n{font-size:11px;color:var(--muted)}
+.feat-def{font-size:12.5px;color:var(--muted);margin:6px 0 12px;padding-left:2px}
+.uc{border-left:2px solid var(--sage);padding:8px 0 8px 14px;margin:8px 0}
+.uc-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.uc-code{font-family:monospace;font-size:12px;font-weight:800;color:var(--pine);white-space:nowrap}
+.uc-desc{font-size:13.5px;flex:1}
+.badge{font-size:10.5px;font-weight:800;border:1px solid;border-radius:999px;padding:1px 8px;white-space:nowrap}
+.seq{margin:6px 0 0 0;padding-left:20px}
+.seq li{font-size:11.5px;color:var(--muted);line-height:1.7;font-family:'Pretendard',sans-serif}
+</style></head><body><div class="wrap">
+<h1>국존 통합 플랫폼 · 3계층 설계</h1>
+<div class="sub"><b>특징(9) → 유스케이스(UC) → 작동(시퀀스)</b>. 책의 모델 ①(특징 아래 UC, UC 아래 작동)을 우리 시스템에 적용.<br>작동은 실제 구현물(화면·RPC·트리거·DB)에서 역추출.</div>
+<div class="tally">
+  <div>특징<b style="color:var(--pine)">9</b></div>
+  <div>UC<b style="color:var(--ink)">25</b></div>
+  <div>완료<b style="color:#1E4D3B">17</b></div>
+  <div>부분<b style="color:#B8892E">3</b></div>
+  <div>예정<b style="color:#A4472F">5</b></div>
+</div>
+<div class="feat">
+      <div class="feat-h"><span class="feat-code">ATT</span><h2>출결</h2><span class="feat-n">3 UC</span></div>
+      <div class="feat-def">누가 언제 왔는가를 기록·축적</div>
+      <div class="uc">
+          <div class="uc-h"><span class="uc-code">T-ATT-01</span><span class="uc-desc">교사가 오늘 출결을 기록한다</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>학생 선택(화면)</li><li>출/지각/보충/결 버튼 탭</li><li>gzone_att_log 호출(RPC)</li><li>attendance_logs 저장(DB)</li></ol></div><div class="uc">
+          <div class="uc-h"><span class="uc-code">SYS-ATT-01</span><span class="uc-desc">출결이 수업기록에 자동 복제된다</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>attendance_logs INSERT</li><li>trg_attlog_to_timeline 발화(트리거)</li><li>lesson_timeline '출결' 생성</li></ol></div><div class="uc">
+          <div class="uc-h"><span class="uc-code">SYS-ATT-02</span><span class="uc-desc">태그(전화뒷자리)로 출결 자동 인식한다</span>
+          <span class="badge" style="border-color:#B8892E;color:#B8892E">부분</span></div>
+          <ol class="seq"><li>전화뒷자리 입력·스캔</li><li>gzone_att_by_tag 호출(RPC)</li><li>tag_code로 학생 조회→기록</li></ol></div></div><div class="feat">
+      <div class="feat-h"><span class="feat-code">STU</span><h2>인원·재원</h2><span class="feat-n">3 UC</span></div>
+      <div class="feat-def">시간표 기준 재원(123)·신입·퇴원</div>
+      <div class="uc">
+          <div class="uc-h"><span class="uc-code">M-STU-01</span><span class="uc-desc">원장이 재원 인원(123)을 확인한다</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>경영 화면 진입</li><li>gzone_headcount 호출(RPC)</li><li>v_jaewon 집계(뷰)→123 표시</li></ol></div><div class="uc">
+          <div class="uc-h"><span class="uc-code">M-STU-03</span><span class="uc-desc">원장이 신입·퇴원 추이를 본다</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>enrolled_at/withdrawn_at 집계</li><li>경영 KPI 표시</li></ol></div><div class="uc">
+          <div class="uc-h"><span class="uc-code">T-STU-01</span><span class="uc-desc">교사가 오늘 등원 명단을 본다</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>요일 자동 판별</li><li>gzone_today_roster 호출(RPC)</li><li>schedule∩students 정규 명단</li></ol></div></div><div class="feat">
+      <div class="feat-h"><span class="feat-code">LES</span><h2>수업·코칭</h2><span class="feat-n">2 UC</span></div>
+      <div class="feat-def">수업 기록·메모·피드백 축적</div>
+      <div class="uc">
+          <div class="uc-h"><span class="uc-code">T-LES-01</span><span class="uc-desc">교사가 코칭·수업 메모를 남긴다</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>학생 선택</li><li>메모 입력·저장</li><li>student_memos/coaching_logs INSERT</li></ol></div><div class="uc">
+          <div class="uc-h"><span class="uc-code">SYS-LES-01</span><span class="uc-desc">메모·코칭이 수업기록에 자동 축적된다</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>INSERT 발생</li><li>trg_memo/coaching_to_timeline(트리거)</li><li>lesson_timeline 생성</li></ol></div></div><div class="feat">
+      <div class="feat-h"><span class="feat-code">ASN</span><h2>자료·과제</h2><span class="feat-n">3 UC</span></div>
+      <div class="feat-def">자료 배정·전달·완료 관리</div>
+      <div class="uc">
+          <div class="uc-h"><span class="uc-code">T-ASN-01</span><span class="uc-desc">교사가 자료·과제를 배정한다</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>자료 유형·학생 선택</li><li>gzone_assign 호출(RPC)</li><li>assignments INSERT→'자료전달' 타임라인</li></ol></div><div class="uc">
+          <div class="uc-h"><span class="uc-code">T-ASN-02</span><span class="uc-desc">교사가 과제 완료를 확인한다</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>완료 버튼</li><li>gzone_assign_done 호출(RPC)</li><li>status=done→'과제완료' 타임라인</li></ol></div><div class="uc">
+          <div class="uc-h"><span class="uc-code">SYS-ASN-01</span><span class="uc-desc">학생 풀이 시 과제 상태 자동 전이</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>student_answers INSERT</li><li>trg_answers_to_assignment(트리거)</li><li>pending→in_progress</li></ol></div></div><div class="feat">
+      <div class="feat-h"><span class="feat-code">EXM</span><h2>시험·오답</h2><span class="feat-n">3 UC</span></div>
+      <div class="feat-def">시험범위·오답(FROG)·성적</div>
+      <div class="uc">
+          <div class="uc-h"><span class="uc-code">T-EXM-01</span><span class="uc-desc">교사가 시험범위를 등록·관제한다</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>학교·시험 선택</li><li>gzone_register_scope 호출(RPC)</li><li>exam_scope 저장</li></ol></div><div class="uc">
+          <div class="uc-h"><span class="uc-code">T-EXM-02</span><span class="uc-desc">교사가 오답을 입력한다(FROG)</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>문항 칩 토글</li><li>저장→frog_wrong_nums UPSERT</li></ol></div><div class="uc">
+          <div class="uc-h"><span class="uc-code">T-EXM-03</span><span class="uc-desc">교사가 논술을 첨삭한다</span>
+          <span class="badge" style="border-color:#A4472F;color:#A4472F">예정</span></div>
+          <ol class="seq"><li>(미구현) 접수 큐→작업대→발행</li></ol></div></div><div class="feat">
+      <div class="feat-h"><span class="feat-code">CON</span><h2>교안·콘텐츠</h2><span class="feat-n">2 UC</span></div>
+      <div class="feat-def">교안 생성·검색·배정·생산갭</div>
+      <div class="uc">
+          <div class="uc-h"><span class="uc-code">T-CON-01</span><span class="uc-desc">교사가 교안을 검색·배정한다</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>키워드 검색</li><li>gzone_find_content 호출(RPC)</li><li>lecture_contents 조회→배정</li></ol></div><div class="uc">
+          <div class="uc-h"><span class="uc-code">M-CON-01</span><span class="uc-desc">원장이 교안 생산갭을 본다</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>gzone_content_plan 호출(RPC)</li><li>생산 계획 대비 실적</li></ol></div></div><div class="feat">
+      <div class="feat-h"><span class="feat-code">RPT</span><h2>리포트</h2><span class="feat-n">3 UC</span></div>
+      <div class="feat-def">학생·학부모 대상 소식·오답노트</div>
+      <div class="uc">
+          <div class="uc-h"><span class="uc-code">P-RPT-01</span><span class="uc-desc">학부모가 주간 소식을 열람한다</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>링크 접속</li><li>groad_records 조회</li><li>p07 학부모 화면 표시</li></ol></div><div class="uc">
+          <div class="uc-h"><span class="uc-code">P-RPT-02</span><span class="uc-desc">열람 확인이 교사에 전달된다</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>열람 버튼</li><li>확인 저장→교사 화면 반영</li></ol></div><div class="uc">
+          <div class="uc-h"><span class="uc-code">U-RPT-01</span><span class="uc-desc">학생이 오답노트를 확인한다</span>
+          <span class="badge" style="border-color:#A4472F;color:#A4472F">예정</span></div>
+          <ol class="seq"><li>(미구현) 04장 오답노트</li></ol></div></div><div class="feat">
+      <div class="feat-h"><span class="feat-code">PRG</span><h2>진도·STEP</h2><span class="feat-n">2 UC</span></div>
+      <div class="feat-def">강좌 사슬·오늘의 순서·P-PAT</div>
+      <div class="uc">
+          <div class="uc-h"><span class="uc-code">U-PRG-01</span><span class="uc-desc">학생이 오늘의 순서를 수행한다</span>
+          <span class="badge" style="border-color:#1E4D3B;color:#1E4D3B">완료</span></div>
+          <ol class="seq"><li>p01 홈 진입</li><li>오늘 할 일 사슬 표시</li><li>탭→다음 STEP 열림</li></ol></div><div class="uc">
+          <div class="uc-h"><span class="uc-code">T-PRG-01</span><span class="uc-desc">교사가 P-PAT 약점처방을 배정한다</span>
+          <span class="badge" style="border-color:#B8892E;color:#B8892E">부분</span></div>
+          <ol class="seq"><li>gzone_ppat_assign 호출(RPC)</li><li>약점 진단→처방 배정</li></ol></div></div><div class="feat">
+      <div class="feat-h"><span class="feat-code">FIN</span><h2>회계·수납</h2><span class="feat-n">4 UC</span></div>
+      <div class="feat-def">수납·미납·매출 (인원과 별개, 돈의 축) — student_payments 1,060건</div>
+      <div class="uc">
+          <div class="uc-h"><span class="uc-code">M-FIN-01</span><span class="uc-desc">원장이 미납을 확인한다</span>
+          <span class="badge" style="border-color:#A4472F;color:#A4472F">예정</span></div>
+          <ol class="seq"><li>student_payments status 조회</li><li>미납(status≠완납) 명단 표시</li></ol></div><div class="uc">
+          <div class="uc-h"><span class="uc-code">M-FIN-02</span><span class="uc-desc">원장이 월 매출을 집계한다</span>
+          <span class="badge" style="border-color:#B8892E;color:#B8892E">부분</span></div>
+          <ol class="seq"><li>pay_month별 amount 합계</li><li>경영 매출 카드</li></ol></div><div class="uc">
+          <div class="uc-h"><span class="uc-code">M-FIN-03</span><span class="uc-desc">원장이 수납 현황을 본다</span>
+          <span class="badge" style="border-color:#A4472F;color:#A4472F">예정</span></div>
+          <ol class="seq"><li>납부/미납 비율·방법별 집계</li></ol></div><div class="uc">
+          <div class="uc-h"><span class="uc-code">T-FIN-01</span><span class="uc-desc">교사가 담당 학생 수납상태를 본다</span>
+          <span class="badge" style="border-color:#A4472F;color:#A4472F">예정</span></div>
+          <ol class="seq"><li>teacher별 student_payments 필터</li></ol></div></div>
+</div></body></html>
