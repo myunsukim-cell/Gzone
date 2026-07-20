@@ -1,0 +1,11 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>씨앤에이 독서논술 · 답안 제출</title></head>
+<body style="font-family:sans-serif">
+<p id="m" style="padding:30px;text-align:center;color:#5a6a60">불러오는 중…</p>
+<script>
+fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/apps/essay.html?v='+Date.now(),{cache:'no-store'})
+ .then(function(r){return r.text();})
+ .then(function(t){document.open();document.write(t);document.close();})
+ .catch(function(e){document.getElementById('m').textContent='로드 실패: 인터넷 연결을 확인해 주세요.';});
+</script></body></html>
