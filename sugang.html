@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>국존 KLEA 콘텐츠 엔진 — 수강신청</title>
+</head>
+<body style="background:#0d1b2a;margin:0;height:100vh;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif">
+<div id="ld" style="color:#e0a93b;font-weight:800;font-size:15px">국존 강좌 카탈로그 불러오는 중…</div>
+<script>
+(async function(){
+ try{
+  const r=await fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/apps/sugang.html?v='+Date.now(),{cache:'no-store'});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  const t=await r.text();
+  document.open(); document.write(t); document.close();
+ }catch(e){
+  document.getElementById('ld').innerHTML='로딩 실패 — 새로고침(F5) 해주세요<br><span style="font-size:11px;opacity:.6">'+e+'</span>';
+ }
+})();
+</script>
+</body></html>
