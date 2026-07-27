@@ -1,20 +1,16 @@
-<!DOCTYPE html>
-<html lang="ko"><head><meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>국존 통합 MAP v4 — 단일 GMAP(완전판+정식키 시험범위) · 백오피스</title>
-</head>
-<body style="background:#0d1b2a;margin:0;height:100vh;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif">
-<div id="ld" style="color:#e0a93b;font-weight:800;font-size:15px">국존 MAP 불러오는 중…</div>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>국존 MAP</title></head>
+<body style="margin:0;background:#0d1b2a;color:#e6edf3;font-family:'Pretendard',sans-serif">
+<div id="ld" style="display:flex;align-items:center;justify-content:center;height:100vh;font-size:14px">국존 MAP 불러오는 중…</div>
 <script>
 (async function(){
+ var SB='https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/apps/map.html';
  try{
-  const r=await fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/apps/map.html?v='+Date.now(),{cache:'no-store'});
-  if(!r.ok)throw new Error('HTTP '+r.status);
-  const t=await r.text();
-  document.open(); document.write(t); document.close();
+  var r=await fetch(SB+'?v='+Date.now(),{cache:'no-store'});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  var t=await r.text();
+  document.open();document.write(t);document.close();
  }catch(e){
-  document.getElementById('ld').innerHTML='로딩 실패 — 새로고침(F5) 해주세요<br><span style="font-size:11px;opacity:.6">'+e+'</span>';
+  document.getElementById('ld').innerHTML='불러오기 실패: '+e.message+'<br>잠시 후 새로고침(F5) 해주세요.';
  }
 })();
-</script>
-</body></html>
+</script></body></html>
