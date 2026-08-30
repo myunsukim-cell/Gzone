@@ -58,7 +58,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 1파 · v0.6 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 1파 · v0.7 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -133,16 +133,21 @@ function renderCoachBody(){
         <button onclick="selP1(this,'해옴')">해옴</button><button onclick="selP1(this,'부분')">부분만</button><button onclick="selP1(this,'안해옴')">안 해옴</button>
       </div>
       <input type="text" id="hwreason" placeholder="사유 (부분·안 해옴일 때)" style="display:none;margin-top:5px;"></div>
-    <div class="zone"><h3><span class="zn">3</span>수업 내용 · 메모</h3>
-      <textarea id="lesson" placeholder="오늘 수업 내용 (필수)"></textarea>
+    <div class="zone"><h3><span class="zn">3</span>교시 기록 <span class="mini" id="plabels"></span></h3>
+      <textarea id="lesson" placeholder="1교시 — 과제 확인 평가 (필수)"></textarea>
       <div style="height:6px"></div>
-      <textarea id="memo" placeholder="교사 메모 (선택)"></textarea></div>
+      <div class="row"><textarea id="p2c" placeholder="2교시 — 내용" style="min-height:40px;"></textarea><input type="text" id="p2paper" placeholder="2교시 자료(지문·교안)" style="max-width:220px;"></div>
+      <div style="height:6px"></div>
+      <div class="row"><textarea id="p3c" placeholder="3교시 — 내용" style="min-height:40px;"></textarea><input type="text" id="p3paper" placeholder="3교시 자료" style="max-width:220px;"></div>
+      <div style="height:6px"></div>
+      <textarea id="memo" placeholder="교사 메모 (선택)" style="min-height:40px;"></textarea></div>
     <div class="zone"><h3><span class="zn">4</span>판정 회로 — 시험지·오답 (선택이지만, 이 칸이 1번 과제)</h3>
       <input type="text" id="wq" placeholder="작품·교재 검색 (제목 2자 이상)" oninput="searchWork(this.value)">
       <div class="wres" id="wres" style="display:none"></div>
       <div class="wtag" id="wtag"></div>
       <div style="height:6px"></div>
       <div class="row">
+        <select id="pno" style="max-width:110px;"><option value="1">1교시</option><option value="2">2교시</option><option value="3">3교시</option></select>
         <input type="number" id="round" min="1" max="9" placeholder="회차 1~9">
         <input type="number" id="totq" min="1" placeholder="총 문항수">
         <input type="text" id="wrongs" placeholder="오답 번호 예: 3,7,12"></div>
@@ -172,7 +177,11 @@ async function loadPrefill(){
 }
 let P1='';
 function selP1(btn,v){P1=v;document.querySelectorAll('#p1 button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');
-  document.getElementById('hwreason').style.display=(v==='해옴')?'none':'block';}
+  document.getElementById('hwreason').style.display=(v==='해옴')?'none':'block';
+  /* 함수 v_lesson 라벨 규칙 미러 */
+  const l1=(v==='안해옴')?'1교시=미이행 기록':(v==='해옴'?'1교시=과제 확인 평가':'1교시=과제 확인 평가');
+  const l2=(v==='안해옴')?'2교시=강의 진도':(v==='부분'?'2교시=남은 과제 소화':'2교시=심화 훈련');
+  document.getElementById('plabels').textContent='('+l1+' · '+l2+' — 첫질문 답에 따라 서버가 라벨 조립)';}
 function searchWork(q){
   const box=document.getElementById('wres');
   if((q||'').trim().length<2){box.style.display='none';return;}
@@ -193,7 +202,10 @@ async function saveCard(){
   try{
     /* 함수 실계약(원문 실측): hw_status=3택(해옴/부분/안해옴), p1_eval=1교시 내용 텍스트 → lesson_note 자동 조립 */
     const res=await rpc('gz_save_coach_card',{p:{student_id:COACH_SID,log_date:new Date().toISOString().slice(0,10),
-      p1_eval:lesson,hw_status:P1||null,memo:document.getElementById('memo').value.trim()||null,
+      p1_eval:lesson,hw_status:P1||null,
+      p2:{content:document.getElementById('p2c').value.trim()||null,paper:document.getElementById('p2paper').value.trim()||null},
+      p3:{content:document.getElementById('p3c').value.trim()||null,paper:document.getElementById('p3paper').value.trim()||null},
+      memo:document.getElementById('memo').value.trim()||null,
       homework_text:document.getElementById('hw').value.trim()||null,hw_due:document.getElementById('hwdue').value||null,hw_reason:document.getElementById('hwreason').value.trim()||null,
       next_strategy:document.getElementById('nexts').value.trim()||null}});
     /* 기계적 검증: SECURITY DEFINER RPC의 자체 되읽기 반환(v_created·id) — anon REST는 RLS로 차단되므로 반환이 정본 */
@@ -207,7 +219,7 @@ async function saveWrong(){
   if(!COACH_SID||!WORK||!round||!wrongs){receipt(false,'판정 필수: 학생·작품·회차·오답 번호');return;}
   try{
     const res=await rpc('gz_save_period_wrong',{p:{student_id:COACH_SID,log_date:new Date().toISOString().slice(0,10),
-      period_no:1,round_no:round,work_id:WORK.id,wrong_nums:wrongs,total_questions:totq||null}});
+      period_no:+document.getElementById('pno').value||1,round_no:round,work_id:WORK.id,wrong_nums:wrongs,total_questions:totq||null}});
     const ok=res&&(res.ok===true||res.id||res.item_id||res.saved);
     receipt(!!ok,ok?('오답 저장 검증 ✓ — KLEA 매칭 파이프 진입 '+JSON.stringify(res).slice(0,80)):'서버 반환 확인 필요: '+JSON.stringify(res).slice(0,80));
   }catch(e){receipt(false,'판정 저장 실패: '+e.message);}
