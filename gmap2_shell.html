@@ -58,7 +58,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 1파 · v0.8 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 1파 · v0.9 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -126,7 +126,8 @@ function renderCoachBody(){
   if(!COACH_SID){c.innerHTML='<div class="placeholder">학생을 선택하면 카드가 열립니다</div>';return;}
   c.innerHTML=`
   <div class="ccard">
-    <div class="zone"><h3><span class="zn">1</span>${COACH_NAME} — ${new Date().toISOString().slice(0,10)}</h3></div>
+    <div class="zone"><h3><span class="zn">1</span>${COACH_NAME} — ${new Date().toISOString().slice(0,10)}</h3>
+      <div id="cycband" class="mini">시기 띠 불러오는 중…</div></div>
     <div class="zone"><h3><span class="zn">2</span>오늘의 첫 질문 — 지난 과제 해왔나요?</h3>
       <div id="prevband" class="mini" style="margin-bottom:5px;">지난 과제 불러오는 중…</div>
       <div class="p1" id="p1">
@@ -168,7 +169,20 @@ function renderCoachBody(){
       <button class="btn grn" onclick="saveWrong()">오답 저장(판정)</button>
       <span id="rcpt"></span></div>
   </div>`;
-  ACTS={p1:[],p2:[],p3:[]};TAGS=[];CAT='';drawActs();drawTags();loadPrefill();
+  ACTS={p1:[],p2:[],p3:[]};TAGS=[];CAT='';drawActs();drawTags();loadPrefill();loadCycle();
+}
+async function loadCycle(){
+  const band=document.getElementById('cycband');
+  try{
+    const r=await rpc('gz_student_plan_card',{p_sid:COACH_SID});
+    const e=r&&r.exam;
+    if(!e){band.textContent='시험 사이클 미설정';return;}
+    let t=(e.jeolgi?'🌾'+e.jeolgi+' · ':'')+(e.exam_name||'')+' '+(e.exam_date?e.exam_date.slice(5).replace('-','/'):'')
+      +' · D-'+e.d_day+' · '+(e.phase||'')+(e.exam_block?' · '+e.exam_block:'')+(e.track_ab?' · 내신:수능 '+e.track_ab:'');
+    if(r.gaps&&r.gaps.length) t+=' · <span style="color:var(--warn);font-weight:bold;">보완 '+r.gaps.length+'건</span>';
+    band.innerHTML=t;
+    band.title=(r.gaps||[]).join(' / ');
+  }catch(x){band.textContent='시기 띠 회선 오류';}
 }
 async function loadPrefill(){
   const band=document.getElementById('prevband');
