@@ -58,7 +58,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.10 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.11 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -91,6 +91,7 @@ async function render(){
   if(TAB==='4') return renderTT(m);
   if(TAB==='4p') return renderCoach(m);
   if(TAB==='3') return renderPrep(m);
+  if(TAB==='3p') return renderExam(m);
   m.innerHTML='<div class="placeholder">「'+JOURNEY.find(x=>x[0]===TAB)[1]+'」 — 다음 파에서 배포됩니다</div>';
 }
 async function renderTT(m){
@@ -267,6 +268,30 @@ async function saveWrong(){
     const ok=res&&(res.ok===true||res.id||res.item_id||res.saved);
     receipt(!!ok,ok?('오답 저장 검증 ✓ — KLEA 매칭 파이프 진입 '+JSON.stringify(res).slice(0,80)):'서버 반환 확인 필요: '+JSON.stringify(res).slice(0,80));
   }catch(e){receipt(false,'판정 저장 실패: '+e.message);}
+}
+async function renderExam(m){
+  m.innerHTML='<div class="pick" id="exmat">전 학교 시험 매트릭스 불러오는 중…</div><div class="pick" id="exrcpt">저장 영수증 불러오는 중…</div>';
+  try{
+    const rows=await rpc('gzone_exam_scope_schools');
+    const P=['mid1','fin1','mid2','fin2'], PN=['1중간','1기말','2중간','2기말'];
+    const head='<tr><th style="text-align:left">학교·학년</th><th>출판사</th>'+PN.map(n=>'<th>'+n+'</th>').join('')+'</tr>';
+    const body=(rows||[]).map(r=>{
+      return '<tr><td style="text-align:left"><b>'+r.school+'</b> '+r.grade+'</td><td>'+(r.pub||'—')+'</td>'
+        +P.map(k=>{
+          const p=(r.periods||{})[k]||{};
+          if(!p.id) return '<td style="text-align:center;color:#bbc">—</td>';
+          const warn=!(p.sc>0);
+          return '<td style="text-align:center">'+(p.date?p.date.slice(5):'날짜?')+'<br><small style="color:'+(warn?'var(--warn)':'var(--new)')+';font-weight:bold">'+(warn?'범위 ✕':'범위 '+p.sc)+'</small></td>';
+        }).join('')+'</tr>';
+    }).join('');
+    document.getElementById('exmat').innerHTML='<b>전 학교 시험 축</b> — 4시기 · 날짜/범위 등록 상태 ('+(rows||[]).length+'행)<div style="max-height:420px;overflow:auto;margin-top:5px"><table class="tb">'+head+body+'</table></div>';
+  }catch(e){document.getElementById('exmat').innerHTML='<span class="err">매트릭스 회선 오류: '+e.message+'</span>';}
+  try{
+    const rc=await rest('v_exam_save_receipt?select=exam_id,exam_name,grade,작품수,누락,완전&order=exam_id.desc&limit=200');
+    const bad=rc.filter(x=>!x['완전']);
+    document.getElementById('exrcpt').innerHTML='<b>저장 영수증</b> — 최근 '+rc.length+'건 중 <span style="color:var(--new);font-weight:bold">완전 '+(rc.length-bad.length)+'</span> · <span style="color:var(--warn);font-weight:bold">불완전 '+bad.length+'</span>'
+      +(bad.length?'<table class="tb" style="margin-top:5px"><tr><th>시험</th><th>학년</th><th>작품수</th><th>누락</th></tr>'+bad.slice(0,10).map(x=>'<tr><td>'+x.exam_name+'</td><td>'+x.grade+'</td><td>'+x['작품수']+'</td><td style="color:var(--warn)">'+(x['누락']||'')+'</td></tr>').join('')+'</table>':'');
+  }catch(e){document.getElementById('exrcpt').innerHTML='<span class="err">영수증 회선 오류</span>';}
 }
 let PIN=null; /* 검색 결과를 코칭에 꽂기 */
 async function renderPrep(m){
