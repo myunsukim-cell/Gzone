@@ -63,7 +63,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.13 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.14 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -100,6 +100,36 @@ function openCoach(sid,name){COACH_SID=sid;COACH_NAME=name;
   } else go('4p');
 }
 function closeSlide(){document.getElementById('slide').classList.remove('open');}
+let ENR=null;
+async function openEnroll(){
+  document.getElementById('slide').classList.add('open');
+  const sb=document.getElementById('slidebody');
+  sb.innerHTML='<div class="load">배정 현황 불러오는 중…</div>';
+  try{
+    ENR=await rpc('gz2_enroll_list');
+    const byK={};
+    ENR.forEach(e=>{(byK[e.k]=byK[e.k]||[]).push(e);});
+    const uniq={}; (TT&&TT.solo||[]).forEach(s=>{uniq[s.sid]=s;});
+    ENR.forEach(e=>{if(!uniq[e.sid])uniq[e.sid]={sid:e.sid,n:e.name};});
+    const opts=Object.values(uniq).sort((a,b)=>a.n.localeCompare(b.n)).map(s=>`<option value="${s.sid}">${s.n}</option>`).join('');
+    sb.innerHTML='<h3 style="font-size:14px;">반 배정 관리 <span class="mini">('+ENR.length+'건 배정)</span></h3>'
+      +Object.keys(byK).sort().map(k=>
+        '<div class="pick"><b>'+k+'</b> <span class="mini">'+byK[k].length+'명</span><div style="margin-top:4px;">'
+        +byK[k].map(e=>'<span style="border:1px solid var(--line);border-radius:8px;padding:1px 7px;font-size:11px;margin:1px;display:inline-block;">'+e.name+(e.pri?' ★':'')+' <b style="cursor:pointer;color:var(--warn)" onclick="enrSet(\'remove\','+e.sid+',\''+k+'\')">✕</b></span>').join('')
+        +'</div><div style="margin-top:5px;display:flex;gap:5px;"><select id="add_'+btoa(unescape(encodeURIComponent(k))).replace(/[^a-zA-Z0-9]/g,'')+'" style="max-width:170px;font-size:11px;">'+opts+'</select><button class="btn" style="padding:2px 9px;font-size:11px;" onclick="enrAdd(this,\''+k+'\')">추가</button></div></div>').join('');
+  }catch(e){sb.innerHTML='<div class="err">배정 회선 오류: '+e.message+'</div>';}
+}
+async function enrAdd(btn,k){
+  const sel=btn.previousElementSibling;
+  await enrSet('add',+sel.value,k);
+}
+async function enrSet(act,sid,k){
+  try{
+    const r=await rpc('gz2_enroll_set',{p:{action:act,student_id:sid,k_code:k}});
+    if(r&&r.ok){TT=null;openEnroll();} /* 시간표 roster 갱신 위해 TT 리로드 */
+    else alert('처리 실패');
+  }catch(e){alert('오류: '+e.message.slice(0,80));}
+}
 async function render(){
   const m=document.getElementById('main');
   if(TAB==='4') return renderTT(m);
@@ -124,7 +154,7 @@ async function renderTT(m){
       solos.forEach(s=>{cols+=`<div class="card"><span class="t">${(s.st||'').slice(0,5)}</span> <b onclick="openCoach(${s.sid},'${s.n}')">${s.n} ▶</b><div class="roster">${s.sch||''} ${s.gr||''} · ${s.t||''}</div></div>`;});
       cols+='</div>';
     }
-    m.innerHTML='<div class="mini" style="max-width:1080px;margin:0 auto 6px;">학생 이름 ▶ 클릭 = 코칭 카드</div><div class="ttwrap"><div class="tt">'+cols+'</div></div>';
+    m.innerHTML='<div style="max-width:1080px;margin:0 auto 6px;display:flex;gap:8px;align-items:center;"><span class="mini">학생 이름 ▶ 클릭 = 코칭 카드</span><button class="btn" style="padding:3px 10px;font-size:11px;margin-left:auto;" onclick="openEnroll()">반 배정 관리</button></div><div class="ttwrap"><div class="tt">'+cols+'</div></div>';
   }catch(e){m.innerHTML='<div class="err">회선 오류: '+e.message+'</div>';}
 }
 async function renderCoach(m){
