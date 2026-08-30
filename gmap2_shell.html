@@ -58,7 +58,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 1파 · v0.4 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 1파 · v0.5 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -129,7 +129,7 @@ function renderCoachBody(){
     <div class="zone"><h3><span class="zn">1</span>${COACH_NAME} — ${new Date().toISOString().slice(0,10)}</h3></div>
     <div class="zone"><h3><span class="zn">2</span>오늘의 첫 질문 — 지난 과제 해왔나요?</h3>
       <div class="p1" id="p1">
-        <button onclick="selP1(this,'해옴')">해옴</button><button onclick="selP1(this,'부분')">부분만</button><button onclick="selP1(this,'안함')">안 해옴</button>
+        <button onclick="selP1(this,'해옴')">해옴</button><button onclick="selP1(this,'부분')">부분만</button><button onclick="selP1(this,'안해옴')">안 해옴</button>
       </div></div>
     <div class="zone"><h3><span class="zn">3</span>수업 내용 · 메모</h3>
       <textarea id="lesson" placeholder="오늘 수업 내용 (필수)"></textarea>
@@ -175,8 +175,9 @@ async function saveCard(){
   const lesson=document.getElementById('lesson').value.trim();
   if(!COACH_SID||!lesson){receipt(false,'학생·수업 내용은 필수');return;}
   try{
+    /* 함수 실계약(원문 실측): hw_status=3택(해옴/부분/안해옴), p1_eval=1교시 내용 텍스트 → lesson_note 자동 조립 */
     const res=await rpc('gz_save_coach_card',{p:{student_id:COACH_SID,log_date:new Date().toISOString().slice(0,10),
-      lesson_note:lesson,p1_eval:P1||null,memo:document.getElementById('memo').value.trim()||null,
+      p1_eval:lesson,hw_status:P1||null,memo:document.getElementById('memo').value.trim()||null,
       homework_text:document.getElementById('hw').value.trim()||null,hw_due:document.getElementById('hwdue').value||null,
       next_strategy:document.getElementById('nexts').value.trim()||null}});
     /* 기계적 검증: SECURITY DEFINER RPC의 자체 되읽기 반환(v_created·id) — anon REST는 RLS로 차단되므로 반환이 정본 */
