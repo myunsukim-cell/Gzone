@@ -54,17 +54,23 @@ textarea{min-height:52px;resize:vertical;}
 .wres div{padding:4px 8px;font-size:11.5px;cursor:pointer;border-bottom:1px solid #f0f0f5;}
 .wres div:hover{background:#f4f8fe;}
 .wtag{font-size:11px;color:var(--new);font-weight:bold;margin-top:3px;}
+/* 슬라이드 패널 — 시간표<->코칭 왕복(현행 UX 계승) */
+#slide{position:fixed;top:0;right:-560px;width:540px;max-width:92vw;height:100vh;background:#fff;border-left:2px solid var(--ink);box-shadow:-6px 0 18px rgba(0,0,0,.12);transition:right .25s;z-index:50;overflow-y:auto;padding:12px;}
+#slide.open{right:0;}
+#slide .close{position:sticky;top:0;background:#fff;padding:4px 0;text-align:right;z-index:2;}
+#slide .close button{border:1px solid #99a;background:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:12px;}
 </style>
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.12 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.13 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="director">분원 원장</option><option value="hq">총관리</option>
   </select></div>
 </header>
 <main id="main"><div class="load">불러오는 중…</div></main>
+<div id="slide"><div class="close"><button onclick="closeSlide()">✕ 시간표로</button></div><div id="slidebody"></div></div>
 <script>
 /* G-MAP 2.0 — 클린 규약: publishable 키만 · 전용 RPC+REST 읽기만 · 지층 금지 · 저장은 쓰고→되읽기 검증 */
 const SB='https://qcnsadcpsonuxnjyrlez.supabase.co';
@@ -84,8 +90,16 @@ async function rest(path){
 const JOURNEY=[['1','경영'],['2','학부모'],['2p','상담'],['3','수업준비'],['3p','시험범위'],['4','수업'],['4p','코칭'],['5','공유']];
 let TAB='4', TT=null, COACH_SID=null, COACH_NAME='', WORK=null;
 function drawTabs(){document.getElementById('tabs').innerHTML=JOURNEY.map(([k,n])=>`<button class="${k===TAB?'on':''}" onclick="go('${k}')">${n}</button>`).join('');}
-function go(k){TAB=k;drawTabs();render();}
-function openCoach(sid,name){COACH_SID=sid;COACH_NAME=name;go('4p');}
+function go(k){TAB=k;closeSlide();drawTabs();render();}
+function openCoach(sid,name){COACH_SID=sid;COACH_NAME=name;
+  if(TAB==='4'){ /* 시간표에서는 슬라이드 — 인원<->코칭 왕복(현행 UX 계승) */
+    document.getElementById('slide').classList.add('open');
+    const sb=document.getElementById('slidebody');
+    sb.innerHTML='<div id="cbody"></div>';
+    renderCoachBody();
+  } else go('4p');
+}
+function closeSlide(){document.getElementById('slide').classList.remove('open');}
 async function render(){
   const m=document.getElementById('main');
   if(TAB==='4') return renderTT(m);
