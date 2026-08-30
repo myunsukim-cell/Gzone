@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G-MAP 2.0 · 테스트</title>
+<style>
+:root{--ink:#1a1a2e;--line:#d8d8e4;--acc:#2b6cb0;--new:#2f855a;--warn:#A4472F;--bg:#f7f8fb;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;}
+header{background:#fff;border-bottom:2px solid var(--ink);padding:8px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+header h1{font-size:15px;} .v{font-size:10px;color:#889;}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;}
+.tabs button{border:1px solid #99a;background:#fff;border-radius:8px;padding:3px 10px;font-size:11.5px;cursor:pointer;color:#445;}
+.tabs button.on{background:var(--acc);border-color:var(--acc);color:#fff;}
+.role{margin-left:auto;display:flex;gap:4px;align-items:center;font-size:11px;white-space:nowrap;}
+main{padding:12px;max-width:1280px;margin:0 auto;}
+.ttwrap{overflow-x:auto;}
+.tt{display:grid;grid-template-columns:repeat(7,minmax(150px,1fr));gap:6px;min-width:1080px;}
+.dh{background:#eef1f7;border-radius:6px;padding:5px;text-align:center;font-weight:bold;font-size:12px;}
+.dh small{display:block;font-weight:normal;color:#667;font-size:10px;}
+.dh.today{background:var(--acc);color:#fff;} .dh.today small{color:#dce8f8;}
+.col{display:flex;flex-direction:column;gap:4px;}
+.card{border:1px solid var(--line);border-radius:6px;background:#fff;padding:4px 6px;font-size:11px;line-height:1.35;}
+.card.grp{border-color:var(--acc);background:#f4f8fe;}
+.card .t{color:#889;font-size:10px;}
+.card b{cursor:pointer;} .card b:hover{color:var(--acc);}
+.roster{color:#556;font-size:10px;}
+.err{color:var(--warn);padding:12px;font-weight:bold;}
+.load{color:#889;padding:16px;}
+.placeholder{color:#889;padding:30px;text-align:center;font-size:13px;}
+/* 코칭 카드 */
+.ccard{background:#fff;border:2px solid var(--ink);border-radius:10px;padding:14px;max-width:860px;margin:0 auto;}
+.zone{border-top:1px solid var(--line);padding:10px 0;}
+.zone:first-child{border-top:none;padding-top:0;}
+.zone h3{font-size:13px;margin-bottom:6px;}
+.zone h3 .zn{display:inline-flex;width:19px;height:19px;border-radius:50%;background:var(--acc);color:#fff;font-size:10.5px;align-items:center;justify-content:center;margin-right:5px;}
+.p1{display:flex;gap:6px;}
+.p1 button{border:1.5px solid #99a;background:#fff;border-radius:8px;padding:5px 14px;font-size:12px;cursor:pointer;}
+.p1 button.sel{border-color:var(--new);background:#effaf3;color:var(--new);font-weight:bold;}
+textarea,input[type=text],input[type=number],input[type=date],select{width:100%;border:1px solid var(--line);border-radius:6px;padding:6px;font-size:12px;font-family:inherit;}
+textarea{min-height:52px;resize:vertical;}
+.row{display:flex;gap:8px;} .row>*{flex:1;}
+.mini{font-size:10.5px;color:#667;margin-top:3px;}
+.savebar{display:flex;gap:8px;align-items:center;margin-top:12px;}
+.btn{border:none;background:var(--acc);color:#fff;border-radius:7px;padding:8px 18px;font-size:13px;cursor:pointer;font-weight:bold;}
+.btn.grn{background:var(--new);}
+.receipt{font-size:11.5px;padding:6px 9px;border-radius:6px;}
+.receipt.ok{background:#effaf3;color:var(--new);border:1px solid var(--new);}
+.receipt.bad{background:#fdf3f0;color:var(--warn);border:1px solid var(--warn);}
+.pick{max-width:860px;margin:0 auto 10px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:12px;}
+.pick select{max-width:340px;}
+.wres{border:1px solid var(--line);border-radius:6px;margin-top:4px;max-height:130px;overflow:auto;}
+.wres div{padding:4px 8px;font-size:11.5px;cursor:pointer;border-bottom:1px solid #f0f0f5;}
+.wres div:hover{background:#f4f8fe;}
+.wtag{font-size:11px;color:var(--new);font-weight:bold;margin-top:3px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>G-MAP 2.0 <span class="v">테스트 1파 · v0.4 · 실동</span></h1>
+  <nav class="tabs" id="tabs"></nav>
+  <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
+    <option value="teacher">교사</option><option value="director">분원 원장</option><option value="hq">총관리</option>
+  </select></div>
+</header>
+<main id="main"><div class="load">불러오는 중…</div></main>
+<script>
+/* G-MAP 2.0 — 클린 규약: publishable 키만 · 전용 RPC+REST 읽기만 · 지층 금지 · 저장은 쓰고→되읽기 검증 */
+const SB='https://qcnsadcpsonuxnjyrlez.supabase.co';
+const PK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
+const H={apikey:PK, Authorization:'Bearer '+PK, 'Content-Type':'application/json'};
+async function rpc(fn,payload){
+  const r=await fetch(SB+'/rest/v1/rpc/'+fn,{method:'POST',headers:H,body:JSON.stringify(payload||{})});
+  const tx=await r.text();
+  if(!r.ok) throw new Error(fn+' '+r.status+' '+tx.slice(0,120));
+  return tx?JSON.parse(tx):null;
+}
+async function rest(path){
+  const r=await fetch(SB+'/rest/v1/'+path,{headers:H});
+  if(!r.ok) throw new Error('REST '+r.status);
+  return r.json();
+}
+const JOURNEY=[['1','경영'],['2','학부모'],['2p','상담'],['3','수업준비'],['3p','시험범위'],['4','수업'],['4p','코칭'],['5','공유']];
+let TAB='4', TT=null, COACH_SID=null, COACH_NAME='', WORK=null;
+function drawTabs(){document.getElementById('tabs').innerHTML=JOURNEY.map(([k,n])=>`<button class="${k===TAB?'on':''}" onclick="go('${k}')">${n}</button>`).join('');}
+function go(k){TAB=k;drawTabs();render();}
+function openCoach(sid,name){COACH_SID=sid;COACH_NAME=name;go('4p');}
+async function render(){
+  const m=document.getElementById('main');
+  if(TAB==='4') return renderTT(m);
+  if(TAB==='4p') return renderCoach(m);
+  m.innerHTML='<div class="placeholder">「'+JOURNEY.find(x=>x[0]===TAB)[1]+'」 — 다음 파에서 배포됩니다</div>';
+}
+async function renderTT(m){
+  m.innerHTML='<div class="load">시간표 불러오는 중…</div>';
+  try{
+    if(!TT) TT=await rpc('gz_tt_data');
+    const days=['일','월','화','수','목','금','토'];
+    const todayD=new Date().getDay()+1;
+    let cols='';
+    for(const dd of [2,3,4,5,6,7,1]){ /* 월 시작 — full_page 정본 */
+      const solos=(TT.solo||[]).filter(x=>x.d===dd).sort((a,b)=>(a.st||'').localeCompare(b.st||''));
+      const grps=(TT.groups||[]).filter(x=>x.d===dd).sort((a,b)=>(a.st||'').localeCompare(b.st||''));
+      cols+=`<div class="col"><div class="dh ${dd===todayD?'today':''}">${days[dd-1]}<small>반 ${grps.length} · 개별 ${solos.length}</small></div>`;
+      grps.forEach(g=>{cols+=`<div class="card grp"><span class="t">${(g.st||'').slice(0,5)}</span> <b>${g.k||''}</b> ${g.gl||''}<div class="roster">${(g.roster||[]).length}명 · ${g.t||''}</div></div>`;});
+      solos.forEach(s=>{cols+=`<div class="card"><span class="t">${(s.st||'').slice(0,5)}</span> <b onclick="openCoach(${s.sid},'${s.n}')">${s.n} ▶</b><div class="roster">${s.sch||''} ${s.gr||''} · ${s.t||''}</div></div>`;});
+      cols+='</div>';
+    }
+    m.innerHTML='<div class="mini" style="max-width:1080px;margin:0 auto 6px;">학생 이름 ▶ 클릭 = 코칭 카드</div><div class="ttwrap"><div class="tt">'+cols+'</div></div>';
+  }catch(e){m.innerHTML='<div class="err">회선 오류: '+e.message+'</div>';}
+}
+async function renderCoach(m){
+  let pick='';
+  try{
+    if(!TT) TT=await rpc('gz_tt_data');
+    const uniq={}; (TT.solo||[]).forEach(s=>{uniq[s.sid]=s;});
+    pick='<select id="stuSel" onchange="COACH_SID=+this.value;COACH_NAME=this.selectedOptions[0].dataset.n;renderCoachBody()"><option value="">학생 선택…</option>'+
+      Object.values(uniq).sort((a,b)=>a.n.localeCompare(b.n)).map(s=>`<option value="${s.sid}" data-n="${s.n}" ${s.sid===COACH_SID?'selected':''}>${s.n} · ${s.sch||''} ${s.gr||''}</option>`).join('')+'</select>';
+  }catch(e){pick='<span class="err">'+e.message+'</span>';}
+  m.innerHTML='<div class="pick">코칭 대상: '+pick+'</div><div id="cbody"></div>';
+  renderCoachBody();
+}
+function renderCoachBody(){
+  const c=document.getElementById('cbody');
+  if(!COACH_SID){c.innerHTML='<div class="placeholder">학생을 선택하면 카드가 열립니다</div>';return;}
+  c.innerHTML=`
+  <div class="ccard">
+    <div class="zone"><h3><span class="zn">1</span>${COACH_NAME} — ${new Date().toISOString().slice(0,10)}</h3></div>
+    <div class="zone"><h3><span class="zn">2</span>오늘의 첫 질문 — 지난 과제 해왔나요?</h3>
+      <div class="p1" id="p1">
+        <button onclick="selP1(this,'해옴')">해옴</button><button onclick="selP1(this,'부분')">부분만</button><button onclick="selP1(this,'안함')">안 해옴</button>
+      </div></div>
+    <div class="zone"><h3><span class="zn">3</span>수업 내용 · 메모</h3>
+      <textarea id="lesson" placeholder="오늘 수업 내용 (필수)"></textarea>
+      <div style="height:6px"></div>
+      <textarea id="memo" placeholder="교사 메모 (선택)"></textarea></div>
+    <div class="zone"><h3><span class="zn">4</span>판정 회로 — 시험지·오답 (선택이지만, 이 칸이 1번 과제)</h3>
+      <input type="text" id="wq" placeholder="작품·교재 검색 (제목 2자 이상)" oninput="searchWork(this.value)">
+      <div class="wres" id="wres" style="display:none"></div>
+      <div class="wtag" id="wtag"></div>
+      <div style="height:6px"></div>
+      <div class="row">
+        <input type="number" id="round" min="1" max="9" placeholder="회차 1~9">
+        <input type="number" id="totq" min="1" placeholder="총 문항수">
+        <input type="text" id="wrongs" placeholder="오답 번호 예: 3,7,12"></div>
+      <div class="mini">저장 시 서버가 번호 정규화(규칙 26) 후 KLEA 문항 매칭·처방 큐 생성</div></div>
+    <div class="zone"><h3><span class="zn">5</span>과제 · 다음 전략</h3>
+      <div class="row"><input type="text" id="hw" placeholder="과제 내용"><input type="date" id="hwdue"></div>
+      <div style="height:6px"></div>
+      <input type="text" id="nexts" placeholder="다음 수업 전략 (F168 3줄 요지)"></div>
+    <div class="savebar">
+      <button class="btn" onclick="saveCard()">카드 저장</button>
+      <button class="btn grn" onclick="saveWrong()">오답 저장(판정)</button>
+      <span id="rcpt"></span></div>
+  </div>`;
+}
+let P1='';
+function selP1(btn,v){P1=v;document.querySelectorAll('#p1 button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
+function searchWork(q){
+  const box=document.getElementById('wres');
+  if((q||'').trim().length<2){box.style.display='none';return;}
+  clearTimeout(window._wt);
+  window._wt=setTimeout(async()=>{
+    try{
+      const rows=await rest('works?select=id,title,author&title=ilike.*'+encodeURIComponent(q.trim())+'*&limit=8');
+      box.innerHTML=rows.length?rows.map(w=>`<div onclick='pickWork(${w.id},${JSON.stringify(w.title)})'>W${w.id} · ${w.title} ${w.author?'— '+w.author:''}</div>`).join(''):'<div>결과 없음</div>';
+      box.style.display='block';
+    }catch(e){box.innerHTML='<div>검색 오류</div>';box.style.display='block';}
+  },250);
+}
+function pickWork(id,title){WORK={id,title};document.getElementById('wtag').textContent='선택: W'+id+' · '+title;document.getElementById('wres').style.display='none';}
+function receipt(ok,msg){const r=document.getElementById('rcpt');r.className='receipt '+(ok?'ok':'bad');r.textContent=msg;}
+async function saveCard(){
+  const lesson=document.getElementById('lesson').value.trim();
+  if(!COACH_SID||!lesson){receipt(false,'학생·수업 내용은 필수');return;}
+  try{
+    const res=await rpc('gz_save_coach_card',{p:{student_id:COACH_SID,log_date:new Date().toISOString().slice(0,10),
+      lesson_note:lesson,p1_eval:P1||null,memo:document.getElementById('memo').value.trim()||null,
+      homework_text:document.getElementById('hw').value.trim()||null,hw_due:document.getElementById('hwdue').value||null,
+      next_strategy:document.getElementById('nexts').value.trim()||null}});
+    /* 기계적 검증: SECURITY DEFINER RPC의 자체 되읽기 반환(v_created·id) — anon REST는 RLS로 차단되므로 반환이 정본 */
+    const ok=res&&(res.ok===true||res.created===true||res.v_created===true||res.id||res.log_id);
+    receipt(!!ok,ok?('저장 검증 ✓ '+JSON.stringify(res).slice(0,90)):'서버 반환에 검증 필드 없음: '+JSON.stringify(res).slice(0,90));
+  }catch(e){receipt(false,'저장 실패: '+e.message);}
+}
+async function saveWrong(){
+  const round=+document.getElementById('round').value, totq=+document.getElementById('totq').value;
+  const wrongs=document.getElementById('wrongs').value.trim();
+  if(!COACH_SID||!WORK||!round||!wrongs){receipt(false,'판정 필수: 학생·작품·회차·오답 번호');return;}
+  try{
+    const res=await rpc('gz_save_period_wrong',{p:{student_id:COACH_SID,log_date:new Date().toISOString().slice(0,10),
+      period_no:1,round_no:round,work_id:WORK.id,wrong_nums:wrongs,total_questions:totq||null}});
+    const ok=res&&(res.ok===true||res.id||res.item_id||res.saved);
+    receipt(!!ok,ok?('오답 저장 검증 ✓ — KLEA 매칭 파이프 진입 '+JSON.stringify(res).slice(0,80)):'서버 반환 확인 필요: '+JSON.stringify(res).slice(0,80));
+  }catch(e){receipt(false,'판정 저장 실패: '+e.message);}
+}
+document.getElementById('role').value=localStorage.getItem('g2role')||'teacher';
+drawTabs();render();
+</script>
+</body>
+</html>
