@@ -70,7 +70,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.21 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.22 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -154,8 +154,9 @@ function openMakeup(sid, origDate){
   document.getElementById('slidebody').innerHTML=`
   <h3 style="font-size:14px;">보충·추가 일정 등록 <span class="mini">(현행 G-MAP1 워크플로 계승)</span></h3>
   <div class="pick">
-    <div class="row"><div><div class="mini">학생</div><select id="mkSid">${opts}</select></div>
-    <div><div class="mini">원 결석일 (미연결 = 추가 보충)</div><input type="date" id="mkOrig" value="${origDate||''}"></div></div>
+    <div id="mkWarn"></div>
+    <div class="row"><div><div class="mini">학생</div><select id="mkSid" onchange="mkDupWarn(+this.value);mkAbsCheck()">${opts}</select></div>
+    <div><div class="mini">원 결석일 (미연결 = 추가 보충) <span id="mkAbs"></span></div><input type="date" id="mkOrig" value="${origDate||''}" onchange="mkAbsCheck()"></div></div>
     <div class="row" style="margin-top:6px;"><div><div class="mini">보충일 — 교사가 직접 지정(자동 배정 없음, 현행 정본)</div><input type="date" id="mkDate"></div>
     <div><div class="mini">시각</div><input type="text" id="mkTime" placeholder="18:00"></div></div>
     <div class="mini" style="margin-top:6px;">사유</div>
@@ -163,8 +164,42 @@ function openMakeup(sid, origDate){
     <input type="text" id="mkNote" placeholder="메모 (선택)" style="margin-top:6px;">
     <div class="savebar"><button class="btn grn" onclick="saveMakeup()">보충 저장</button><span id="mkRcpt"></span></div>
   </div>`;
+  if(sid){mkDupWarn(sid);mkAbsCheck();}
 }
 let MK_WHY='';
+async function mkCancel(id,name,dt){ /* F101 현행 확인 문구 계승 */
+  if(!confirm(name+' '+dt+' 보충을 취소합니다. 원 결석 기록은 그대로 둡니다. 진행할까요?'))return;
+  try{
+    const r=await rpc('gz_rest_write',{p:{op:'del', tbl:'schedule_exceptions', match:'id=eq.'+id}});
+    if(r&&r.ok!==false){EXC=[];render();}else alert('취소 실패: '+JSON.stringify(r).slice(0,80));
+  }catch(e){alert('오류: '+e.message.slice(0,60));}
+}
+async function mkTime(id,cur){
+  const t=prompt('새 시각 (HH:MM)', (cur||'').slice(0,5));
+  if(!t)return;
+  try{
+    const r=await rpc('gz_rest_write',{p:{op:'patch', tbl:'schedule_exceptions', match:'id=eq.'+id, body:{start_time:t}}});
+    if(r&&r.ok!==false){EXC=[];render();}else alert('수정 실패');
+  }catch(e){alert('오류: '+e.message.slice(0,60));}
+}
+async function mkDupWarn(sid){ /* 현행 중복 경고 계승: 덮어쓰지 않고 새 보충으로 등록됨 안내 */
+  const el=document.getElementById('mkWarn'); if(!el)return;
+  try{
+    const wide=await rpc('gz2_week_exceptions',{p_from:localDate(null,-30),p_to:localDate(null,60)});
+    const mine=(wide||[]).filter(x=>x.sid===sid&&x.type==='보충');
+    el.innerHTML=mine.length?('<div style="background:#fff3e0;border:1px solid #e0a800;color:#8a5a00;border-radius:6px;padding:5px 8px;font-size:11px;">이 학생은 이미 보충 '+mine.length+'건이 있습니다 — '+mine.slice(0,3).map(x=>x.d.slice(5).replace('-','/')+(x.od?('(원 '+x.od.slice(5).replace('-','/')+')'):'')).join(', ')+'<br>이번 건은 <b>덮어쓰지 않고 새 보충으로 따로 등록</b>됩니다</div>'):'';
+  }catch(e){}
+}
+async function mkAbsCheck(){ /* 현행 결석 확인 계승 */
+  const el=document.getElementById('mkAbs'); if(!el)return;
+  const od=document.getElementById('mkOrig').value, sid=+document.getElementById('mkSid').value;
+  if(!od){el.textContent='';return;}
+  try{
+    const a=await rpc('gz_att_day',{p_date:od});
+    const st=(a||{})[String(sid)];
+    el.innerHTML=st==='결'?'<span style="color:var(--new);font-weight:bold;">✓ 결석 확인</span>':(st?('<span style="color:#8a5a00;">해당일 상태: '+st+' (결석 표시 없음)</span>'):'<span style="color:#889;">해당일 출결 기록 없음(결석 행 미생성)</span>');
+  }catch(e){el.textContent='';}
+}
 function selWhy(btn,v){MK_WHY=v;document.querySelectorAll('#mkWhy button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
 async function saveMakeup(){
   const sid=+document.getElementById('mkSid').value, dt=document.getElementById('mkDate').value, tm=document.getElementById('mkTime').value.trim();
@@ -226,6 +261,7 @@ async function renderTT(m){
     try{ const a=await rpc('gz_att_day',{}); ATT={}; Object.entries(a||{}).forEach(([k,v])=>{ATT[k]=v;}); }catch(e){ATT={};} /* 계약 실측: {sid: '출'|'결'} */
     const wd=weekDates(WEEK_OFF);
     try{ EXC=await rpc('gz2_week_exceptions',{p_from:wd[0],p_to:wd[6]}); }catch(e){EXC=[];}
+    let EXAMW=[]; try{ EXAMW=await rpc('gz2_exam_week_students',{p_from:wd[0],p_to:wd[6]}); }catch(e){}
     const days=['일','월','화','수','목','금','토'];
     const todayD=new Date().getDay()+1;
     let cols='';
@@ -236,8 +272,19 @@ async function renderTT(m){
       const isToday=(WEEK_OFF===0&&dd===todayD);
       const excDay=(EXC||[]).filter(x=>x.d===dateStr);
       const excOrig=(EXC||[]).filter(x=>x.od===dateStr);
+      /* R-11 결정본(사장님): 시험 직전일 = 자동 직전대비 수업 세팅(배너 아님) */
+      const preExam=(EXAMW||[]).filter(x=>localDate(x.ed,-1)===dateStr);
+      const examToday=(EXAMW||[]).filter(x=>x.ed===dateStr);
       cols+=`<div class="col"><div class="dh ${isToday?'today':''}">${days[dd-1]} <small style="display:inline">${dateStr.slice(5).replace('-','/')}</small><small>반 ${grps.length} · 개별 ${solos.length}${excDay.length?' · 보충/휴강 '+excDay.length:''}</small></div>`;
-      excDay.forEach(x=>{cols+=`<div class="card" style="border-color:${x.type==='보충'?'var(--new)':'#bbb'};background:${x.type==='보충'?'#effaf3':'#f4f4f6'};"><span class="t">${(x.st||'').slice(0,5)}</span> <b>${x.type==='보충'?'+':''}${x.name}</b> <small style="color:${x.type==='보충'?'var(--new)':'#889'};font-weight:bold">${x.type}</small><div class="roster">${(x.note||'').slice(0,26)}</div></div>`;});
+      if(preExam.length){
+        cols+=`<div class="card" style="border-color:#B8892E;background:#fffaf0;"><b>🧲 직전대비 ${preExam.length}명</b> <small style="color:#8a5a00;">(내일 ${(preExam[0].exam||'').slice(0,14)}…)</small><div class="roster">${preExam.slice(0,8).map(x=>x.name).join('·')}${preExam.length>8?' 외 '+(preExam.length-8)+'명':''}</div></div>`;
+      }
+      if(examToday.length){
+        cols+=`<div class="card" style="border-color:#99a;background:#f4f4f6;"><b>📝 시험일 ${examToday.length}명</b><div class="roster">${(examToday[0].exam||'').slice(0,22)}</div></div>`;
+      }
+      excDay.forEach(x=>{cols+=`<div class="card" style="border-color:${x.type==='보충'?'var(--new)':'#bbb'};background:${x.type==='보충'?'#effaf3':'#f4f4f6'};"><span class="t">${(x.st||'').slice(0,5)}</span> <b>${x.type==='보충'?'+':''}${x.name}</b> <small style="color:${x.type==='보충'?'var(--new)':'#889'};font-weight:bold">${x.type}</small>
+        <span style="float:right;">${x.id?`<b style="cursor:pointer;" title="시간 수정" onclick="mkTime(${x.id},'${x.st||''}')">⏰</b> <b style="cursor:pointer;color:var(--warn);" title="취소" onclick="mkCancel(${x.id},'${x.name}','${x.d}')">✕</b>`:''}</span>
+        <div class="roster">${x.od?('원 '+x.od.slice(5).replace('-','/')+' · '):''}${(x.note||'').slice(0,24)}</div></div>`;});
       grps.forEach(g=>{cols+=`<div class="card grp"><span class="t">${(g.st||'').slice(0,5)}</span> <b>${g.k||''}</b> ${g.gl||''}<div class="roster">${(g.roster||[]).length}명 · ${g.t||''}</div></div>`;});
       solos.forEach(s=>{
         const moved=excOrig.find(x=>x.sid===s.sid);
