@@ -70,10 +70,10 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.19 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.20 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
-    <option value="teacher">교사</option><option value="director">분원 원장</option><option value="hq">총관리</option>
+    <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
   </select></div>
 </header>
 <main id="main"><div class="load">불러오는 중…</div></main>
@@ -124,7 +124,11 @@ async function attCycle(sid){
     dot.style.opacity='1'; /* 이 점 하나만 갱신 — 전체 리렌더·폴링 0 (현행 setInterval 27개 반면교사) */
   }catch(e){alert('출결 오류: '+e.message.slice(0,60));dot.style.opacity='1';}
 }
-function drawTabs(){document.getElementById('tabs').innerHTML=JOURNEY.map(([k,n])=>`<button class="${k===TAB?'on':''}" onclick="go('${k}')">${n}</button>`).join('');}
+function drawTabs(){
+  let h=JOURNEY.map(([k,n])=>`<button class="${k===TAB?'on':''}" onclick="go('${k}')">${n}</button>`).join('');
+  h+=`<button style="border-color:#B8892E;color:#B8892E;" onclick="window.open('https://myunsukim-cell.github.io/Gzone/gmap2_student.html','_blank')">학생 페이지 ↗</button>`; /* 현행 실물 편입(사장님 원칙: G-MAP1 DB·페이지 준수) */
+  document.getElementById('tabs').innerHTML=h;
+}
 function go(k){TAB=k;closeSlide();drawTabs();render();}
 function openCoach(sid,name){COACH_SID=sid;COACH_NAME=name;
   if(TAB==='4'){ /* 시간표에서는 슬라이드 — 인원<->코칭 왕복(현행 UX 계승) */
