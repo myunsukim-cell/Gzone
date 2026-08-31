@@ -63,7 +63,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.17 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.18 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -88,7 +88,8 @@ async function rest(path){
   return r.json();
 }
 const JOURNEY=[['1','경영'],['2','학부모'],['2p','상담'],['3','수업준비'],['3p','시험범위'],['4','수업'],['4p','코칭'],['5','공유']];
-let TAB='4', TT=null, COACH_SID=null, COACH_NAME='', WORK=null, ATT={}, WEEK_OFF=0, EXC=[];
+let TAB='4', TT=null, COACH_SID=null, COACH_NAME='', WORK=null, ATT={}, WEEK_OFF=0, EXC=[], TT_VIEW='week', RAIL_D=null;
+function setView(v){TT_VIEW=v;render();}
 function weekDates(off){ /* 월 시작 주의 날짜 7개 */
   const now=new Date(); const dow=(now.getDay()+6)%7; /* 0=월 */
   const mon=new Date(now); mon.setDate(now.getDate()-dow+off*7);
@@ -162,6 +163,7 @@ async function render(){
   m.innerHTML='<div class="placeholder">「'+JOURNEY.find(x=>x[0]===TAB)[1]+'」 — 다음 파에서 배포됩니다</div>';
 }
 async function renderTT(m){
+  if(TT_VIEW==='rail') return renderRail(m);
   m.innerHTML='<div class="load">시간표 불러오는 중…</div>';
   try{
     if(!TT) TT=await rpc('gz_tt_data');
@@ -188,7 +190,7 @@ async function renderTT(m){
         cols+=`<div class="card" style="${moved?'opacity:.55;':''}"><span class="t">${(s.st||'').slice(0,5)}</span> ${att}<b onclick="openCoach(${s.sid},'${s.n}')">${s.n} ▶</b>${mv}<div class="roster">${s.sch||''} ${s.gr||''} · ${s.t||''}</div></div>`;});
       cols+='</div>';
     }
-    m.innerHTML='<div style="max-width:1080px;margin:0 auto 6px;display:flex;gap:8px;align-items:center;"><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="moveWeek(-1)">◀ 지난주</button><b style="font-size:12px;">'+wd[0].slice(5).replace('-','/')+' ~ '+wd[6].slice(5).replace('-','/')+(WEEK_OFF===0?' (이번 주)':'')+'</b><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="moveWeek(1)">다음주 ▶</button><span class="mini">학생 이름 ▶ 클릭 = 코칭 카드</span><button class="btn" style="padding:3px 10px;font-size:11px;margin-left:auto;" onclick="openEnroll()">반 배정 관리</button></div><div class="ttwrap"><div class="tt">'+cols+'</div></div>';
+    m.innerHTML='<div style="max-width:1080px;margin:0 auto 6px;display:flex;gap:8px;align-items:center;"><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="moveWeek(-1)">◀ 지난주</button><b style="font-size:12px;">'+wd[0].slice(5).replace('-','/')+' ~ '+wd[6].slice(5).replace('-','/')+(WEEK_OFF===0?' (이번 주)':'')+'</b><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="moveWeek(1)">다음주 ▶</button><span class="mini">학생 이름 ▶ 클릭 = 코칭 카드</span><span style="margin-left:auto;display:flex;gap:4px;"><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="setView(\'week\')">주간</button><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="setView(\'rail\')">교사 레일</button><button class="btn" style="padding:3px 10px;font-size:11px;" onclick="openEnroll()">반 배정 관리</button></span></div><div class="ttwrap"><div class="tt">'+cols+'</div></div>';
   }catch(e){m.innerHTML='<div class="err">회선 오류: '+e.message+'</div>';}
 }
 async function renderCoach(m){
@@ -427,6 +429,39 @@ async function renderPrep(m){
     }).join('');
     document.getElementById('queue').innerHTML='<b>작업 대기열</b> — 안 된 것에만 ✕ · 영향 학생수 내림차순 (상위 25 / 전체 '+rows.length+')<table class="tb" style="margin-top:5px">'+head+body+'</table><div class="mini">정보│영상 2칸 정밀 판정은 회선 확장 후(결선 명기)</div>';
   }catch(e){document.getElementById('queue').innerHTML='<span class="err">대기열 회선 오류: '+e.message+'</span>';}
+}
+async function renderRail(m){
+  m.innerHTML='<div class="load">교사 레일 불러오는 중…</div>';
+  try{
+    if(!TT) TT=await rpc('gz_tt_data');
+    try{ const a=await rpc('gz_att_day',{}); ATT={}; Object.entries(a||{}).forEach(([k,v])=>{ATT[k]=v;}); }catch(e){ATT={};}
+    const today=new Date().toISOString().slice(0,10);
+    const dsel=RAIL_D||today;
+    const dow=new Date(dsel+'T12:00:00').getDay()+1;
+    const solos=(TT.solo||[]).filter(x=>x.d===dow), grps=(TT.groups||[]).filter(x=>x.d===dow);
+    const ts=[...new Set([...solos.map(s=>s.t),...grps.map(g=>g.t)])].filter(Boolean).sort();
+    let exc=[]; try{exc=await rpc('gz2_week_exceptions',{p_from:dsel,p_to:dsel});}catch(e){}
+    let html='<div style="max-width:1200px;margin:0 auto 8px;display:flex;gap:8px;align-items:center;"><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="railMove(-1)">◀</button><b style="font-size:12.5px;">'+dsel+' ('+['일','월','화','수','목','금','토'][dow-1]+')'+(dsel===today?' 오늘':'')+'</b><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="railMove(1)">▶</button><span style="margin-left:auto"><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="setView(\'week\')">주간 보기</button></span></div>';
+    html+='<div style="display:grid;grid-template-columns:repeat('+Math.max(ts.length,1)+',minmax(170px,1fr));gap:8px;max-width:1200px;margin:0 auto;overflow-x:auto;">';
+    ts.forEach(t=>{
+      const my=[...grps.filter(g=>g.t===t).map(g=>({k:1,st:g.st,label:g.k,sub:(g.roster||[]).length+'명'})),
+                ...solos.filter(s=>s.t===t).map(s=>({k:0,st:s.st,sid:s.sid,label:s.n,sub:(s.sch||'')+' '+(s.gr||'')}))].sort((a,b)=>(a.st||'').localeCompare(b.st||''));
+      html+='<div><div class="dh">'+t+'<small>'+my.length+'건</small></div>';
+      my.forEach(c=>{
+        const att=(c.k===0&&dsel===today)?('<span class="attdot" id="att_'+c.sid+'" onclick="event.stopPropagation();attCycle('+c.sid+')" style="cursor:pointer;display:inline-block;width:13px;height:13px;border-radius:50%;vertical-align:middle;margin-right:3px;border:1.5px solid #99a;background:'+(ATT[c.sid]==='출'?'var(--new)':(ATT[c.sid]==='결'?'var(--warn)':'#fff'))+'"></span>'):'';
+        html+='<div class="card'+(c.k?' grp':'')+'" style="margin-top:4px;"><span class="t">'+(c.st||'').slice(0,5)+'</span> '+att+(c.k?('<b>'+c.label+'</b>'):('<b onclick="openCoach('+c.sid+',\''+c.label+'\')">'+c.label+' ▶</b>'))+'<div class="roster">'+c.sub+'</div></div>';
+      });
+      html+='</div>';
+    });
+    html+='</div>';
+    if(exc.length) html+='<div class="pick" style="max-width:1200px;margin:8px auto;">이 날 보충·휴강 '+exc.length+'건: '+exc.map(x=>x.name+'('+x.type+')').join(' · ')+'</div>';
+    m.innerHTML=html;
+  }catch(e){m.innerHTML='<div class="err">레일 회선 오류: '+e.message+'</div>';}
+}
+function railMove(dir){
+  const cur=RAIL_D||new Date().toISOString().slice(0,10);
+  const x=new Date(cur+'T12:00:00'); x.setDate(x.getDate()+dir);
+  RAIL_D=x.toISOString().slice(0,10); render();
 }
 function gsearch(q){
   const box=document.getElementById('gres');
