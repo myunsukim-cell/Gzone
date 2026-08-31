@@ -63,7 +63,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.15 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.16 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -88,7 +88,23 @@ async function rest(path){
   return r.json();
 }
 const JOURNEY=[['1','경영'],['2','학부모'],['2p','상담'],['3','수업준비'],['3p','시험범위'],['4','수업'],['4p','코칭'],['5','공유']];
-let TAB='4', TT=null, COACH_SID=null, COACH_NAME='', WORK=null;
+let TAB='4', TT=null, COACH_SID=null, COACH_NAME='', WORK=null, ATT={};
+async function attCycle(sid){
+  const cur=ATT[sid]||'';
+  const next=(cur==='')?'출':(cur==='출'?'결':'');
+  const dot=document.getElementById('att_'+sid);
+  dot.style.opacity='.4'; /* 저장 중 표시 — 리렌더 없음 */
+  try{
+    let r;
+    if(next==='') r=await rpc('gz_att_revoke_absence',{}).catch(()=>null); /* 해제 회선 시그니처 결선 전 — 실패 시 안내 */
+    if(next!=='') r=await rpc('gz_att_set',{p:{student_id:sid,status:next,date:new Date().toISOString().slice(0,10)}});
+    if(next!==''&&!(r&&r.ok!==false)){alert('출결 저장 실패');dot.style.opacity='1';return;}
+    if(next===''&&!r){alert('해제 회선은 다음 배포 — 출/결만 우선');ATT[sid]='출';dot.style.background='var(--new)';dot.style.opacity='1';return;}
+    ATT[sid]=next;
+    dot.style.background=next==='출'?'var(--new)':(next==='결'?'var(--warn)':'#fff');
+    dot.style.opacity='1'; /* 이 점 하나만 갱신 — 전체 리렌더·폴링 0 (현행 setInterval 27개 반면교사) */
+  }catch(e){alert('출결 오류: '+e.message.slice(0,60));dot.style.opacity='1';}
+}
 function drawTabs(){document.getElementById('tabs').innerHTML=JOURNEY.map(([k,n])=>`<button class="${k===TAB?'on':''}" onclick="go('${k}')">${n}</button>`).join('');}
 function go(k){TAB=k;closeSlide();drawTabs();render();}
 function openCoach(sid,name){COACH_SID=sid;COACH_NAME=name;
@@ -143,6 +159,7 @@ async function renderTT(m){
   m.innerHTML='<div class="load">시간표 불러오는 중…</div>';
   try{
     if(!TT) TT=await rpc('gz_tt_data');
+    try{ const a=await rpc('gz_att_day',{}); ATT={}; Object.entries(a||{}).forEach(([k,v])=>{ATT[k]=v;}); }catch(e){ATT={};} /* 계약 실측: {sid: '출'|'결'} */
     const days=['일','월','화','수','목','금','토'];
     const todayD=new Date().getDay()+1;
     let cols='';
@@ -151,7 +168,9 @@ async function renderTT(m){
       const grps=(TT.groups||[]).filter(x=>x.d===dd).sort((a,b)=>(a.st||'').localeCompare(b.st||''));
       cols+=`<div class="col"><div class="dh ${dd===todayD?'today':''}">${days[dd-1]}<small>반 ${grps.length} · 개별 ${solos.length}</small></div>`;
       grps.forEach(g=>{cols+=`<div class="card grp"><span class="t">${(g.st||'').slice(0,5)}</span> <b>${g.k||''}</b> ${g.gl||''}<div class="roster">${(g.roster||[]).length}명 · ${g.t||''}</div></div>`;});
-      solos.forEach(s=>{cols+=`<div class="card"><span class="t">${(s.st||'').slice(0,5)}</span> <b onclick="openCoach(${s.sid},'${s.n}')">${s.n} ▶</b><div class="roster">${s.sch||''} ${s.gr||''} · ${s.t||''}</div></div>`;});
+      solos.forEach(s=>{
+        const att=(dd===todayD)?`<span class="attdot" id="att_${s.sid}" data-st="${(ATT[s.sid]||'')}" onclick="event.stopPropagation();attCycle(${s.sid})" title="출결: 클릭=출→결→해제" style="cursor:pointer;display:inline-block;width:13px;height:13px;border-radius:50%;vertical-align:middle;margin-right:3px;border:1.5px solid #99a;background:${ATT[s.sid]==='출'?'var(--new)':(ATT[s.sid]==='결'?'var(--warn)':'#fff')}"></span>`:'';
+        cols+=`<div class="card"><span class="t">${(s.st||'').slice(0,5)}</span> ${att}<b onclick="openCoach(${s.sid},'${s.n}')">${s.n} ▶</b><div class="roster">${s.sch||''} ${s.gr||''} · ${s.t||''}</div></div>`;});
       cols+='</div>';
     }
     m.innerHTML='<div style="max-width:1080px;margin:0 auto 6px;display:flex;gap:8px;align-items:center;"><span class="mini">학생 이름 ▶ 클릭 = 코칭 카드</span><button class="btn" style="padding:3px 10px;font-size:11px;margin-left:auto;" onclick="openEnroll()">반 배정 관리</button></div><div class="ttwrap"><div class="tt">'+cols+'</div></div>';
