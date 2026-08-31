@@ -63,7 +63,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.16 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.17 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -88,7 +88,13 @@ async function rest(path){
   return r.json();
 }
 const JOURNEY=[['1','경영'],['2','학부모'],['2p','상담'],['3','수업준비'],['3p','시험범위'],['4','수업'],['4p','코칭'],['5','공유']];
-let TAB='4', TT=null, COACH_SID=null, COACH_NAME='', WORK=null, ATT={};
+let TAB='4', TT=null, COACH_SID=null, COACH_NAME='', WORK=null, ATT={}, WEEK_OFF=0, EXC=[];
+function weekDates(off){ /* 월 시작 주의 날짜 7개 */
+  const now=new Date(); const dow=(now.getDay()+6)%7; /* 0=월 */
+  const mon=new Date(now); mon.setDate(now.getDate()-dow+off*7);
+  return [0,1,2,3,4,5,6].map(i=>{const x=new Date(mon);x.setDate(mon.getDate()+i);return x.toISOString().slice(0,10);});
+}
+function moveWeek(dir){WEEK_OFF+=dir;render();}
 async function attCycle(sid){
   const cur=ATT[sid]||'';
   const next=(cur==='')?'출':(cur==='출'?'결':'');
@@ -160,20 +166,29 @@ async function renderTT(m){
   try{
     if(!TT) TT=await rpc('gz_tt_data');
     try{ const a=await rpc('gz_att_day',{}); ATT={}; Object.entries(a||{}).forEach(([k,v])=>{ATT[k]=v;}); }catch(e){ATT={};} /* 계약 실측: {sid: '출'|'결'} */
+    const wd=weekDates(WEEK_OFF);
+    try{ EXC=await rpc('gz2_week_exceptions',{p_from:wd[0],p_to:wd[6]}); }catch(e){EXC=[];}
     const days=['일','월','화','수','목','금','토'];
     const todayD=new Date().getDay()+1;
     let cols='';
     for(const dd of [2,3,4,5,6,7,1]){ /* 월 시작 — full_page 정본 */
       const solos=(TT.solo||[]).filter(x=>x.d===dd).sort((a,b)=>(a.st||'').localeCompare(b.st||''));
       const grps=(TT.groups||[]).filter(x=>x.d===dd).sort((a,b)=>(a.st||'').localeCompare(b.st||''));
-      cols+=`<div class="col"><div class="dh ${dd===todayD?'today':''}">${days[dd-1]}<small>반 ${grps.length} · 개별 ${solos.length}</small></div>`;
+      const dateStr=wd[(dd+5)%7]; /* dd:2(월)->wd[0] ... dd:1(일)->wd[6] */
+      const isToday=(WEEK_OFF===0&&dd===todayD);
+      const excDay=(EXC||[]).filter(x=>x.d===dateStr);
+      const excOrig=(EXC||[]).filter(x=>x.od===dateStr);
+      cols+=`<div class="col"><div class="dh ${isToday?'today':''}">${days[dd-1]} <small style="display:inline">${dateStr.slice(5).replace('-','/')}</small><small>반 ${grps.length} · 개별 ${solos.length}${excDay.length?' · 보충/휴강 '+excDay.length:''}</small></div>`;
+      excDay.forEach(x=>{cols+=`<div class="card" style="border-color:${x.type==='보충'?'var(--new)':'#bbb'};background:${x.type==='보충'?'#effaf3':'#f4f4f6'};"><span class="t">${(x.st||'').slice(0,5)}</span> <b>${x.type==='보충'?'+':''}${x.name}</b> <small style="color:${x.type==='보충'?'var(--new)':'#889'};font-weight:bold">${x.type}</small><div class="roster">${(x.note||'').slice(0,26)}</div></div>`;});
       grps.forEach(g=>{cols+=`<div class="card grp"><span class="t">${(g.st||'').slice(0,5)}</span> <b>${g.k||''}</b> ${g.gl||''}<div class="roster">${(g.roster||[]).length}명 · ${g.t||''}</div></div>`;});
       solos.forEach(s=>{
-        const att=(dd===todayD)?`<span class="attdot" id="att_${s.sid}" data-st="${(ATT[s.sid]||'')}" onclick="event.stopPropagation();attCycle(${s.sid})" title="출결: 클릭=출→결→해제" style="cursor:pointer;display:inline-block;width:13px;height:13px;border-radius:50%;vertical-align:middle;margin-right:3px;border:1.5px solid #99a;background:${ATT[s.sid]==='출'?'var(--new)':(ATT[s.sid]==='결'?'var(--warn)':'#fff')}"></span>`:'';
-        cols+=`<div class="card"><span class="t">${(s.st||'').slice(0,5)}</span> ${att}<b onclick="openCoach(${s.sid},'${s.n}')">${s.n} ▶</b><div class="roster">${s.sch||''} ${s.gr||''} · ${s.t||''}</div></div>`;});
+        const moved=excOrig.find(x=>x.sid===s.sid);
+        const mv=moved?`<small style="color:#889;font-weight:bold"> →${moved.type} ${(moved.d||'').slice(5).replace('-','/')}</small>`:'';
+        const att=(WEEK_OFF===0&&dd===todayD)?`<span class="attdot" id="att_${s.sid}" data-st="${(ATT[s.sid]||'')}" onclick="event.stopPropagation();attCycle(${s.sid})" title="출결: 클릭=출→결→해제" style="cursor:pointer;display:inline-block;width:13px;height:13px;border-radius:50%;vertical-align:middle;margin-right:3px;border:1.5px solid #99a;background:${ATT[s.sid]==='출'?'var(--new)':(ATT[s.sid]==='결'?'var(--warn)':'#fff')}"></span>`:'';
+        cols+=`<div class="card" style="${moved?'opacity:.55;':''}"><span class="t">${(s.st||'').slice(0,5)}</span> ${att}<b onclick="openCoach(${s.sid},'${s.n}')">${s.n} ▶</b>${mv}<div class="roster">${s.sch||''} ${s.gr||''} · ${s.t||''}</div></div>`;});
       cols+='</div>';
     }
-    m.innerHTML='<div style="max-width:1080px;margin:0 auto 6px;display:flex;gap:8px;align-items:center;"><span class="mini">학생 이름 ▶ 클릭 = 코칭 카드</span><button class="btn" style="padding:3px 10px;font-size:11px;margin-left:auto;" onclick="openEnroll()">반 배정 관리</button></div><div class="ttwrap"><div class="tt">'+cols+'</div></div>';
+    m.innerHTML='<div style="max-width:1080px;margin:0 auto 6px;display:flex;gap:8px;align-items:center;"><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="moveWeek(-1)">◀ 지난주</button><b style="font-size:12px;">'+wd[0].slice(5).replace('-','/')+' ~ '+wd[6].slice(5).replace('-','/')+(WEEK_OFF===0?' (이번 주)':'')+'</b><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="moveWeek(1)">다음주 ▶</button><span class="mini">학생 이름 ▶ 클릭 = 코칭 카드</span><button class="btn" style="padding:3px 10px;font-size:11px;margin-left:auto;" onclick="openEnroll()">반 배정 관리</button></div><div class="ttwrap"><div class="tt">'+cols+'</div></div>';
   }catch(e){m.innerHTML='<div class="err">회선 오류: '+e.message+'</div>';}
 }
 async function renderCoach(m){
