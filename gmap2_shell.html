@@ -70,7 +70,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.24 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.25 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -101,7 +101,7 @@ async function rest(path){
   if(!r.ok) throw new Error('REST '+r.status);
   return r.json();
 }
-const JOURNEY=[['1','경영'],['2','학부모'],['2p','상담'],['3','수업준비'],['3p','시험범위'],['4','수업'],['4p','코칭'],['5','공유']];
+const JOURNEY=[['1','경영'],['2','학부모'],['2p','상담'],['3','수업준비'],['3p','시험범위'],['4','수업'],['4p','코칭'],['5','오거나이저']];
 let TAB='4', TT=null, COACH_SID=null, COACH_NAME='', WORK=null, ATT={}, WEEK_OFF=0, EXC=[], TT_VIEW='week', RAIL_D=null;
 function setView(v){TT_VIEW=v;render();}
 function weekDates(off){ /* 월 시작 주의 날짜 7개 */
@@ -246,6 +246,7 @@ async function enrSet(act,sid,k){
     else alert('처리 실패');
   }catch(e){alert('오류: '+e.message.slice(0,80));}
 }
+async function renderOrg(m){const rv=document.getElementById('role').value;const role=(rv==='director'||rv==='hq')?'director':'teacher';m.innerHTML='<div class="load">내 기록 불러오는 중…</div>';try{const B2='https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/apps/';const t=await (await fetch(B2+'orp2_director.html?v='+Date.now(),{cache:'no-store'})).text();const fr=document.createElement('iframe');fr.style.cssText='width:100%;height:calc(100vh - 90px);border:0;background:#f7f6f2';fr.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-modals');fr.srcdoc=t.replace(/<head[^>]*>/i,x=>x+'<base href="'+B2+'"><script>window.__EMBED_QS="?embed=1&role='+role+'";<\/script>');m.innerHTML='';m.appendChild(fr);}catch(e){m.innerHTML='<div class="placeholder">내 기록 적재 실패 '+e.message+'</div>';}}
 async function render(){
   const m=document.getElementById('main');
   if(TAB==='4') return renderTT(m);
@@ -253,6 +254,7 @@ async function render(){
   if(TAB==='3') return renderPrep(m);
   if(TAB==='3p') return renderExam(m);
   if(TAB==='2') return renderParent(m);
+  if(TAB==='5') return renderOrg(m);
   m.innerHTML='<div class="placeholder">「'+JOURNEY.find(x=>x[0]===TAB)[1]+'」 — 다음 파에서 배포됩니다</div>';
 }
 async function renderTT(m){
