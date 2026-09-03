@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
+<head><script>/* 2.0 진입 게이트 — sid+k(md5 토큰) 서버 검증. 실패 시 본문 비표시 (2026-09-04) */
+(function(){var m=(location.search||'').match(/[?&]sid=(\d+)/),k=(location.search||'').match(/[?&]k=([a-f0-9]{32})/);
+ if(!m||!k){document.addEventListener('DOMContentLoaded',function(){document.body.innerHTML='<div style="font-family:sans-serif;padding:40px;text-align:center;color:#555"><h2>국존 학생 페이지</h2><p>이 페이지는 학원에서 보내드린 링크로만 열립니다.<br>링크가 만료되었거나 잘못되었으면 담당 선생님께 문의해 주세요.</p></div>';});return;}
+ fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_entry_check',{method:'POST',headers:{'apikey':'sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0','Authorization':'Bearer sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0','Content-Type':'application/json'},body:JSON.stringify({p_sid:+m[1],p_k:k[1]})}).then(function(r){return r.json();}).then(function(ok){if(ok!==true){document.body.innerHTML='<div style="font-family:sans-serif;padding:40px;text-align:center;color:#555"><h2>국존 학생 페이지</h2><p>링크가 유효하지 않습니다. 담당 선생님께 문의해 주세요.</p></div>';}}).catch(function(){});})();
+</script>
 <!-- gzx-f158-student-page · 국존 학생 페이지 결선본 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
