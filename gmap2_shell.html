@@ -70,7 +70,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.25 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.26 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -327,7 +327,7 @@ function renderCoachBody(){
       <input type="text" id="hwreason" placeholder="사유 (부분·안 해옴일 때)" style="display:none;margin-top:5px;"></div>
     <div class="zone"><h3><span class="zn">3</span>교시 기록 <span class="mini" id="plabels"></span></h3>
       <div class="mini" style="margin-bottom:4px;">교시 활동 체크: <span id="acts"></span></div>
-      <textarea id="lesson" placeholder="1교시 — 과제 확인 평가 (필수)"></textarea>
+      <div style="margin:6px 0"><label style="font-size:12px;font-weight:700">잘한 점 한 줄 <span style="color:#8a8577;font-weight:400">리추얼 「사랑」 재료 — 이 학생이 오늘 잘한 것 하나</span></label><input id="praise" placeholder="예: 오답노트 형태소 정리 꼼꼼함" style="width:100%;padding:6px;border:1px solid #d8d4c8;border-radius:5px;font-family:inherit"></div><textarea id="lesson" placeholder="1교시 — 과제 확인 평가 (필수)"></textarea>
       <div style="height:6px"></div>
       <div class="row"><textarea id="p2c" placeholder="2교시 — 내용" style="min-height:40px;"></textarea><input type="text" id="p2paper" placeholder="2교시 자료(지문·교안)" style="max-width:220px;"></div>
       <div style="height:6px"></div>
@@ -436,7 +436,7 @@ async function saveCard(){
       p1_eval:lesson,hw_status:P1||null,
       p2:{content:document.getElementById('p2c').value.trim()||null,paper:document.getElementById('p2paper').value.trim()||null},
       p3:{content:document.getElementById('p3c').value.trim()||null,paper:document.getElementById('p3paper').value.trim()||null},
-      memo:document.getElementById('memo').value.trim()||null,
+      memo:document.getElementById('memo').value.trim()||null, praise_note:(document.getElementById('praise')||{value:''}).value.trim()||null,
       memo_tags:TAGS.length?TAGS.join(','):null,
       period_acts:(ACTS.p1.length||ACTS.p2.length||ACTS.p3.length)?ACTS:null,
       coach_chips:(CAT&&document.getElementById('chiptext').value.trim())?{[CAT_KEY[CAT]]:document.getElementById('chiptext').value.trim()}:null,
