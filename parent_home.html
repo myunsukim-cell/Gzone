@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>국존 — 학부모 페이지</title>
+<style>:root{--deep:#1E4D3B;--gold:#B8892E;--line:#e3dfd3;--dim:#8a8577;--band:#f4f8f5}*{box-sizing:solid;box-sizing:border-box;margin:0;padding:0}body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#f7f6f2;color:#1f2a24;font-size:14px;max-width:560px;margin:auto;padding:14px}
+.top{background:var(--deep);color:#fff;border-radius:10px;padding:14px 16px}.top h1{font-size:18px;margin-bottom:2px}.top .m{font-size:12px;opacity:.85}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:10px}.card h2{font-size:14px;color:var(--deep);margin-bottom:8px}.kpis{display:flex;gap:8px}.kpi{flex:1;background:var(--band);border-radius:8px;padding:8px;text-align:center}.kpi b{display:block;font-size:18px;color:var(--deep)}.kpi span{font-size:11px;color:var(--dim)}
+.row{padding:8px 0;border-bottom:1px solid #f0ede4;font-size:13px}.row:last-child{border:0}.row .d{color:var(--dim);font-size:11.5px}.btn{display:inline-block;background:var(--deep);color:#fff;border-radius:6px;padding:6px 12px;text-decoration:none;font-weight:700;font-size:13px}.hl{background:#fff8ea;border-left:3px solid var(--gold);padding:8px 10px;border-radius:6px;font-size:13px;line-height:1.55}
+.tag{font-size:11px;border-radius:4px;padding:1px 6px;background:var(--band);color:var(--deep)}.foot{text-align:center;color:var(--dim);font-size:11px;margin:16px 0}.dd{font-weight:800;color:#A4472F}
+</style></head><body>
+<div id="app"><p style="color:#8a8577;padding:30px;text-align:center">불러오는 중…</p></div>
+<div class="foot">국존 국어전문학원 · 이 페이지는 학원에서 보내드린 링크로만 열립니다. 문의는 담당 선생님께.</div>
+<script>
+const U='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};const G='https://myunsukim-cell.github.io/Gzone/';const DAYS=['일','월','화','수','목','금','토'];
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+(async()=>{const qs=new URLSearchParams(window.__EMBED_QS||location.search);const sid=+qs.get('sid'),k=qs.get('k')||'';const app=document.getElementById('app');
+ if(!sid||!k){app.innerHTML='<div class="card"><h2>국존 학부모 페이지</h2><p style="font-size:13px;color:#555">학원에서 보내드린 링크로 열어 주세요. 링크가 없으시면 담당 선생님께 요청해 주세요.</p></div>';return;}
+ let d;try{d=await (await fetch(U+'gz2_parent_home',{method:'POST',headers:H,body:JSON.stringify({p_sid:sid,p_k:k})})).json();}catch(e){app.innerHTML='<div class="card">불러오기 실패</div>';return;}
+ if(!d||!d.ok){app.innerHTML='<div class="card"><h2>국존 학부모 페이지</h2><p style="font-size:13px;color:#555">링크가 유효하지 않습니다. 담당 선생님께 문의해 주세요.</p></div>';return;}
+ const s=d.student||{},h=d.home||{},a=d.attendance||{};const wk=h.week_label?h.week_label:'';
+ let html='<div class="top"><h1>'+esc(s.name)+' 학생 학부모님, 안녕하세요</h1><div class="m">'+esc(s.school||'')+' '+esc(s.grade||'')+' · 담당 '+esc(s.teacher||'')+' 선생님 · '+esc(s.division||'')+'</div></div>';
+ if(h.headline)html+='<div class="card"><h2>이번 주 한 줄 <span class="tag">'+esc(wk)+'</span></h2><div class="hl">'+esc(h.headline)+'</div>'+(h['이번주과제']?'<div class="row"><b>이번 주 과제</b> '+esc(h['이번주과제'])+'</div>':'')+'</div>';
+ html+='<div class="card"><h2>최근 4주</h2><div class="kpis"><div class="kpi"><b>'+(a.present||0)+'</b><span>출석</span></div><div class="kpi"><b>'+(a.absent||0)+'</b><span>결석</span></div><div class="kpi"><b>'+(d.recent||[]).length+'</b><span>수업 기록</span></div></div>'+((d.recent||[]).length?(d.recent||[]).slice(0,5).map(r=>'<div class="row"><span class="d">'+String(r.date).slice(5)+'</span> '+esc(r.note||'(기록 없음)')+(r.hw?' <span class="tag">과제 '+esc(r.hw)+'</span>':'')+'</div>').join(''):'<div class="row" style="color:#8a8577">아직 이번 달 수업 기록이 없습니다</div>')+'</div>';
+ html+='<div class="card"><h2>리포트</h2>'+((d.reports||[]).length?(d.reports||[]).map(r=>'<div class="row"><span class="d">'+String(r.issued||'').slice(0,10)+'</span> '+esc(r.type)+' <a class="btn" style="float:right;padding:3px 10px;font-size:12px" href="'+G+'rpt.html?id='+r.id+'&t='+r.t+'" target="_blank">열기</a></div>').join(''):'<div class="row" style="color:#8a8577">발송된 리포트가 아직 없습니다</div>')+'</div>';
+ html+='<div class="card"><h2>다가올 시험</h2>'+((d.exams||[]).length?(d.exams||[]).slice(0,3).map(e=>'<div class="row"><span class="dd">D-'+e.dd+'</span> '+String(e.date).slice(5)+' '+esc(e.name||'')+'</div>').join(''):'<div class="row" style="color:#8a8577">등록된 시험 일정이 없습니다</div>')+'</div>';
+ html+='<div class="card"><h2>수업 시간</h2>'+((d.schedule||[]).length?(d.schedule||[]).map(x=>'<div class="row">'+DAYS[x.dow%7]+' '+String(x.start||'').slice(0,5)+'~'+String(x.end||'').slice(0,5)+' <span class="d">'+esc(x.k||'')+'</span></div>').join(''):'<div class="row" style="color:#8a8577">—</div>')+'</div>';
+ if((d.weak||[]).length)html+='<div class="card"><h2>지금 넘고 있는 과제</h2>'+(d.weak||[]).slice(0,3).map(w=>'<div class="row">'+w.rank+'. '+esc(w.label)+' <span class="d">오답 '+w.n+'</span></div>').join('')+'</div>';
+ app.innerHTML=html;})();
+</script></body></html>
