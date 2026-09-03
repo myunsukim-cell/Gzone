@@ -70,7 +70,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.23 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.24 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -79,6 +79,8 @@ textarea{min-height:52px;resize:vertical;}
 <main id="main"><div class="load">불러오는 중…</div></main>
 <div id="slide"><div class="close"><button onclick="closeSlide()">✕ 시간표로</button></div><div id="slidebody"></div></div>
 <script>
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){const s=document.getElementById('slide');if(s&&s.classList.contains('open'))closeSlide();}});
+document.addEventListener('click',e=>{const s=document.getElementById('slide');if(!s||!s.classList.contains('open'))return;if(s.contains(e.target))return;if(e.target.closest('[onclick*="openCoach"],[onclick*="openEnroll"],[onclick*="openMakeup"],[onclick*="openTray"],#tabs'))return;closeSlide();},true);
 /* G-MAP 2.0 — 클린 규약: publishable 키만 · 전용 RPC+REST 읽기만 · 지층 금지 · 저장은 쓰고→되읽기 검증 */
 const SB='https://qcnsadcpsonuxnjyrlez.supabase.co';
 function localDate(base,addDays){ /* UTC 밀림 방지 — 현행 노트 처방 계승 */
@@ -108,17 +110,17 @@ function weekDates(off){ /* 월 시작 주의 날짜 7개 */
   return [0,1,2,3,4,5,6].map(i=>{const x=new Date(mon);x.setDate(mon.getDate()+i);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');});
 }
 function moveWeek(dir){WEEK_OFF+=dir;render();}
-async function attCycle(sid){
+async function attCycle(sid,dd){
   const cur=ATT[sid]||'';
   const next=(cur==='')?'출':(cur==='출'?'결':'');
   const dot=document.getElementById('att_'+sid);
   dot.style.opacity='.4'; /* 저장 중 표시 — 리렌더 없음 */
   try{
     let r;
-    if(next==='') r=await rpc('gz_att_revoke_absence',{}).catch(()=>null); /* 해제 회선 시그니처 결선 전 — 실패 시 안내 */
-    if(next!=='') r=await rpc('gz_att_set',{p:{student_id:sid,status:next,date:localDate()}});
+    if(next==='') r=await rpc('gz_att_set',{p:{student_id:sid,status:'',date:(dd||localDate())}}); /* 해제 회선 시그니처 결선 전 — 실패 시 안내 */
+    if(next!=='') r=await rpc('gz_att_set',{p:{student_id:sid,status:next,date:(dd||localDate())}});
     if(next!==''&&!(r&&r.ok!==false)){alert('출결 저장 실패');dot.style.opacity='1';return;}
-    if(next===''&&!r){alert('해제 회선은 다음 배포 — 출/결만 우선');ATT[sid]='출';dot.style.background='var(--new)';dot.style.opacity='1';return;}
+    if(next===''&&!(r&&r.ok!==false)){alert('출결 해제 실패');dot.style.opacity='1';return;}
     ATT[sid]=next;
     dot.style.background=next==='출'?'var(--new)':(next==='결'?'var(--warn)':'#fff');
     dot.style.opacity='1'; /* 이 점 하나만 갱신 — 전체 리렌더·폴링 0 (현행 setInterval 27개 반면교사) */
@@ -289,7 +291,7 @@ async function renderTT(m){
       solos.forEach(s=>{
         const moved=excOrig.find(x=>x.sid===s.sid);
         const mv=moved?`<small style="color:#889;font-weight:bold"> →${moved.type} ${(moved.d||'').slice(5).replace('-','/')}</small>`:'';
-        const att=(WEEK_OFF===0&&dd===todayD)?`<span class="attdot" id="att_${s.sid}" data-st="${(ATT[s.sid]||'')}" onclick="event.stopPropagation();attCycle(${s.sid})" title="출결: 클릭=출→결→해제" style="cursor:pointer;display:inline-block;width:13px;height:13px;border-radius:50%;vertical-align:middle;margin-right:3px;border:1.5px solid #99a;background:${ATT[s.sid]==='출'?'var(--new)':(ATT[s.sid]==='결'?'var(--warn)':'#fff')}"></span>`:'';
+        const att=(dateStr<=localDate())?`<span class="attdot" id="att_${s.sid}" data-st="${(ATT[s.sid]||'')}" onclick="event.stopPropagation();attCycle(${s.sid},'${dateStr}')" title="출결: 클릭=출→결→해제" style="cursor:pointer;display:inline-block;width:13px;height:13px;border-radius:50%;vertical-align:middle;margin-right:3px;border:1.5px solid #99a;background:${ATT[s.sid]==='출'?'var(--new)':(ATT[s.sid]==='결'?'var(--warn)':'#fff')}"></span>`:'';
         cols+=`<div class="card" style="${moved?'opacity:.55;':''}"><span class="t">${(s.st||'').slice(0,5)}</span> ${att}<b onclick="openCoach(${s.sid},'${s.n}')">${s.n} ▶</b>${mv}<span style="float:right;cursor:pointer;color:#889;" title="일정 조정(보충·이동)" onclick="event.stopPropagation();openMakeup(${s.sid},null)">↗</span><div class="roster">${s.sch||''} ${s.gr||''} · ${s.t||''}</div></div>`;});
       cols+='</div>';
     }
@@ -318,7 +320,7 @@ function renderCoachBody(){
     <div class="zone"><h3><span class="zn">2</span>오늘의 첫 질문 — 지난 과제 해왔나요?</h3>
       <div id="prevband" class="mini" style="margin-bottom:5px;">지난 과제 불러오는 중…</div>
       <div class="p1" id="p1">
-        <button onclick="selP1(this,'해옴')">해옴</button><button onclick="selP1(this,'부분')">부분만</button><button onclick="selP1(this,'안해옴')">안 해옴</button>
+        <button onclick="selP1(this,'해옴')">해옴</button><button onclick="selP1(this,'부분')">부분만</button><button onclick="selP1(this,'안해옴')">안 해옴</button><button onclick="selP1(this,'과제없음')">과제없음</button>
       </div>
       <input type="text" id="hwreason" placeholder="사유 (부분·안 해옴일 때)" style="display:none;margin-top:5px;"></div>
     <div class="zone"><h3><span class="zn">3</span>교시 기록 <span class="mini" id="plabels"></span></h3>
@@ -425,7 +427,7 @@ function pickWork(id,title){WORK={id,title};document.getElementById('wtag').text
 function receipt(ok,msg){const r=document.getElementById('rcpt');r.className='receipt '+(ok?'ok':'bad');r.textContent=msg;}
 async function saveCard(){
   const lesson=document.getElementById('lesson').value.trim();
-  if(!COACH_SID||!lesson){receipt(false,'학생·수업 내용은 필수');return;}
+  if(!COACH_SID||!lesson){receipt(false,'학생·수업 내용은 필수');return;} if(!P1){receipt(false,'지난 과제 상태(해옴/부분만/안 해옴/과제없음) 선택 필수');document.getElementById('p1').style.outline='2px solid #A4472F';setTimeout(()=>document.getElementById('p1').style.outline='',2500);return;}
   try{
     /* 함수 실계약(원문 실측): hw_status=3택(해옴/부분/안해옴), p1_eval=1교시 내용 텍스트 → lesson_note 자동 조립 */
     const res=await rpc('gz_save_coach_card',{p:{student_id:COACH_SID,log_date:localDate(),
