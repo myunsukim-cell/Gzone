@@ -274,7 +274,8 @@ async function render(){
 
 /* 담당 교사 선별(1.0 선별 칩 계승) — 원장: 전원 선택 / 교사(로그인 후): 본인 고정 */
 let TFILT=localStorage.getItem('g2tfilt')||'';const TALIAS={'진섭':'서아','지원T':'지원','현수T':'현수','정아T':'정아','서정T':'서정','서아T':'서아','면수T':'김면수','안진섭':'서아','김면수':'김면수'};
-function tnorm(t){t=String(t||'').trim();return TALIAS[t]||t;}
+let TNAME={};async function loadTNames(){try{const r=await fetch(SB+'/rest/v1/v_orp_myrecord?select=teacher,nick&sec=eq.학생',{headers:{apikey:PK,Authorization:'Bearer '+PK}});(await r.json()).forEach(x=>{if(x.teacher&&x.nick)TNAME[x.teacher]=x.nick;});}catch(e){}}
+function tnorm(t){t=String(t||'').trim();return TALIAS[t]||TNAME[t]||t;}
 function tmatch(t){if(!TFILT)return true;return tnorm(t)===TFILT;}
 function teacherChips(){const cnt={};(TT.groups||[]).forEach(g=>{const t=tnorm(g.t);if(t)cnt[t]=(cnt[t]||0)+(g.roster||[]).length;});(TT.solo||[]).forEach(x=>{const t=tnorm(x.t);cnt[t]=(cnt[t]||0)+1;});const div={'김면수':'국존','정규철':'국존','현수':'시원','지원':'시원','서아':'시원','정아':'시원','서정':'시원'};const names=Object.keys(cnt).filter(t=>t&&t!=='미배정').sort((a,b)=>(div[a]||'')===(div[b]||'')?cnt[b]-cnt[a]:(div[a]||'').localeCompare(div[b]||''));
  const locked=(document.getElementById('role').value==='teacher'&&localStorage.getItem('g2me'));
@@ -285,7 +286,7 @@ async function renderTT(m){
   if(TT_VIEW==='rail') return renderRail(m);
   m.innerHTML='<div class="load">시간표 불러오는 중…</div>';
   try{
-    if(!TT) TT=await rpc('gz_tt_data');
+    if(!TT) TT=await rpc('gz_tt_data'); if(!Object.keys(TNAME).length) await loadTNames();
     try{ const a=await rpc('gz_att_day',{}); ATT={}; Object.entries(a||{}).forEach(([k,v])=>{ATT[k]=v;}); }catch(e){ATT={};} /* 계약 실측: {sid: '출'|'결'} */
     const wd=weekDates(WEEK_OFF);
     try{ EXC=await rpc('gz2_week_exceptions',{p_from:wd[0],p_to:wd[6]}); }catch(e){EXC=[];}
