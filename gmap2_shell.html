@@ -66,11 +66,12 @@ textarea{min-height:52px;resize:vertical;}
 #slide.open{right:0;}
 #slide .close{position:sticky;top:0;background:#fff;padding:4px 0;text-align:right;z-index:2;}
 #slide .close button{border:1px solid #99a;background:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:12px;}
+.tchips .tb{border:1px solid #1E4D3B;background:#fff;color:#1E4D3B;border-radius:14px;padding:2px 9px;cursor:pointer;font-family:inherit;font-size:12px}.tchips .tb.on{background:#1E4D3B;color:#fff}.tchips small{opacity:.7}
 </style>
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.27 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.28 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -270,6 +271,16 @@ async function render(){
   if(TAB==='5') return renderOrg(m);
   m.innerHTML='<div class="placeholder">「'+JOURNEY.find(x=>x[0]===TAB)[1]+'」 — 다음 파에서 배포됩니다</div>';
 }
+
+/* 담당 교사 선별(1.0 선별 칩 계승) — 원장: 전원 선택 / 교사(로그인 후): 본인 고정 */
+let TFILT=localStorage.getItem('g2tfilt')||'';const TALIAS={'진섭':'서아','지원T':'지원','현수T':'현수','정아T':'정아','서정T':'서정','서아T':'서아','면수T':'김면수','안진섭':'서아','김면수':'김면수'};
+function tnorm(t){t=String(t||'').trim();return TALIAS[t]||t;}
+function tmatch(t){if(!TFILT)return true;return tnorm(t)===TFILT;}
+function teacherChips(){const cnt={};(TT.groups||[]).forEach(g=>{const t=tnorm(g.t);if(t)cnt[t]=(cnt[t]||0)+(g.roster||[]).length;});(TT.solo||[]).forEach(x=>{const t=tnorm(x.t);cnt[t]=(cnt[t]||0)+1;});const div={'김면수':'국존','정규철':'국존','현수':'시원','지원':'시원','서아':'시원','정아':'시원','서정':'시원'};const names=Object.keys(cnt).filter(t=>t&&t!=='미배정').sort((a,b)=>(div[a]||'')===(div[b]||'')?cnt[b]-cnt[a]:(div[a]||'').localeCompare(div[b]||''));
+ const locked=(document.getElementById('role').value==='teacher'&&localStorage.getItem('g2me'));
+ return '<div class="tchips" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin:4px 0 6px;font-size:12px"><span class="mini">선생님</span>'+(locked?'<span class="chip on">'+TFILT+' (본인)</span>':'<button class="tb'+(TFILT?'':' on')+'" onclick="setTF(\'\')">전체</button>'+names.map(t=>'<button class="tb'+(TFILT===t?' on':'')+'" onclick="setTF(\''+t+'\')">'+t+'·'+(div[t]||'')+' <small>'+cnt[t]+'</small></button>').join('')+(cnt['미배정']?'<button class="tb'+(TFILT==='미배정'?' on':'')+'" onclick="setTF(\'미배정\')">미배정 <small>'+cnt['미배정']+'</small></button>':''))+'</div>';}
+function setTF(t){TFILT=t;localStorage.setItem('g2tfilt',t);render();}
+
 async function renderTT(m){
   if(TT_VIEW==='rail') return renderRail(m);
   m.innerHTML='<div class="load">시간표 불러오는 중…</div>';
@@ -283,8 +294,8 @@ async function renderTT(m){
     const todayD=new Date().getDay()+1;
     let cols='';
     for(const dd of [2,3,4,5,6,7,1]){ /* 월 시작 — full_page 정본 */
-      const solos=(TT.solo||[]).filter(x=>x.d===dd).sort((a,b)=>(a.st||'').localeCompare(b.st||''));
-      const grps=(TT.groups||[]).filter(x=>x.d===dd).sort((a,b)=>(a.st||'').localeCompare(b.st||''));
+      const solos=(TT.solo||[]).filter(x=>x.d===dd&&tmatch(x.t)).sort((a,b)=>(a.st||'').localeCompare(b.st||''));
+      const grps=(TT.groups||[]).filter(x=>x.d===dd&&tmatch(x.t)).sort((a,b)=>(a.st||'').localeCompare(b.st||''));
       const dateStr=wd[(dd+5)%7]; /* dd:2(월)->wd[0] ... dd:1(일)->wd[6] */
       const isToday=(WEEK_OFF===0&&dd===todayD);
       const excDay=(EXC||[]).filter(x=>x.d===dateStr);
@@ -310,7 +321,7 @@ async function renderTT(m){
         cols+=`<div class="card" style="${moved?'opacity:.55;':''}"><span class="t">${(s.st||'').slice(0,5)}</span> ${att}<b onclick="openCoach(${s.sid},'${s.n}')">${s.n} ▶</b>${mv}<span style="float:right;cursor:pointer;color:#889;" title="일정 조정(보충·이동)" onclick="event.stopPropagation();openMakeup(${s.sid},null)">↗</span><div class="roster">${s.sch||''} ${s.gr||''} · ${s.t||''}</div></div>`;});
       cols+='</div>';
     }
-    m.innerHTML='<div style="max-width:1080px;margin:0 auto 6px;display:flex;gap:8px;align-items:center;"><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="moveWeek(-1)">◀ 지난주</button><b style="font-size:12px;">'+wd[0].slice(5).replace('-','/')+' ~ '+wd[6].slice(5).replace('-','/')+(WEEK_OFF===0?' (이번 주)':'')+'</b><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="moveWeek(1)">다음주 ▶</button><span class="mini">학생 이름 ▶ 클릭 = 코칭 카드</span><span id="mkTray" class="mini" style="color:var(--warn);"></span><span style="margin-left:auto;display:flex;gap:4px;"><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="setView(\'week\')">주간</button><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="setView(\'rail\')">교사 레일</button><button class="btn" style="padding:3px 10px;font-size:11px;" onclick="openEnroll()">반 배정 관리</button></span></div><div class="ttwrap"><div class="tt">'+cols+'</div></div>';
+    m.innerHTML=teacherChips()+'<div style="max-width:1080px;margin:0 auto 6px;display:flex;gap:8px;align-items:center;"><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="moveWeek(-1)">◀ 지난주</button><b style="font-size:12px;">'+wd[0].slice(5).replace('-','/')+' ~ '+wd[6].slice(5).replace('-','/')+(WEEK_OFF===0?' (이번 주)':'')+'</b><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="moveWeek(1)">다음주 ▶</button><span class="mini">학생 이름 ▶ 클릭 = 코칭 카드</span><span id="mkTray" class="mini" style="color:var(--warn);"></span><span style="margin-left:auto;display:flex;gap:4px;"><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="setView(\'week\')">주간</button><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="setView(\'rail\')">교사 레일</button><button class="btn" style="padding:3px 10px;font-size:11px;" onclick="openEnroll()">반 배정 관리</button></span></div><div class="ttwrap"><div class="tt">'+cols+'</div></div>';
     loadTray();
   }catch(e){m.innerHTML='<div class="err">회선 오류: '+e.message+'</div>';}
 }
