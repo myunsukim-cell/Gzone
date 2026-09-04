@@ -71,7 +71,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.35 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.36 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -157,6 +157,17 @@ async function loadHw(sid){try{const h=await rpc('gz2_card_hw',{p_sid:sid});cons
  el.innerHTML='<b>이행률</b> 4주 '+badge(h.rate4)+' <span class="mini">('+(h.n4||0)+'회 기준)</span> · 8주 '+badge(h.rate8)+' <span class="mini">해옴 1 · 부분 0.5 · 안 해옴 0 · 과제없음 제외</span><div style="margin-top:3px">'+(rec||'<span class="mini">과제 기록 없음 — 지난주 낸 과제를 한 번만 적어 주세요</span>')+'</div>'+warn;
  const ch=document.getElementById('hwchips');if(ch)ch.innerHTML='<span class="mini">사유</span> '+HW_REASONS.map(r=>'<button type="button" onclick="document.getElementById(\'hwreason\').value=\''+r+'\';document.getElementById(\'hwreason\').style.display=\'block\'" style="font-size:11px;margin:1px">'+r+'</button>').join('');}catch(e){}}
 
+
+let F1={cur:null,since:null,min:{'진도':0,'정리':0,'점검':0},test:null,tick:null};
+function f1go(a){f1flush();F1.cur=a;F1.since=Date.now();document.querySelectorAll('.f1').forEach(b=>b.style.background=(b.dataset.a===a)?'#1E4D3B':'',);document.querySelectorAll('.f1').forEach(b=>b.style.color=(b.dataset.a===a)?'#fff':'');document.getElementById('f1now').innerHTML=a+' 진행 중 · 누적 <b id="f1tot">'+f1total()+'</b>분';if(!F1.tick)F1.tick=setInterval(f1render,15000);}
+function f1flush(){if(F1.cur&&F1.since){F1.min[F1.cur]+=(Date.now()-F1.since)/60000;F1.since=Date.now();}}
+function f1pause(){f1flush();F1.cur=null;F1.since=null;document.querySelectorAll('.f1').forEach(b=>{b.style.background='';b.style.color='';});f1render();document.getElementById('f1now').innerHTML='일시정지 · 누적 <b id="f1tot">'+f1total()+'</b>분';}
+function f1total(){return Math.round(Object.values(F1.min).reduce((a,b)=>a+b,0)+(F1.cur&&F1.since?(Date.now()-F1.since)/60000:0));}
+function f1render(){['진도','정리','점검'].forEach(a=>{const e=document.getElementById('f1m'+a);if(e)e.textContent=Math.round(F1.min[a]+(F1.cur===a&&F1.since?(Date.now()-F1.since)/60000:0));});const t=document.getElementById('f1tot');if(t)t.textContent=f1total();}
+let F1T=null;async function f1search(){const qv=document.getElementById('f1q').value.trim();if(qv.length<2){document.getElementById('f1list').innerHTML='';return;}clearTimeout(F1T);F1T=setTimeout(async()=>{const r=await rpc('gz2_review_tests_search',{p_q:qv,p_grade:null});document.getElementById('f1list').innerHTML=(r||[]).slice(0,8).map(t=>'<span style="display:inline-block;border:1px solid #d8d4c8;border-radius:4px;padding:1px 6px;margin:2px;cursor:pointer" onclick="f1sel('+t.id+',\''+String(t.name||'').replace(/\'/g,'')+'\','+(t.n||0)+')">'+(t.unit||'')+' '+(t.name||'')+' <small>'+(t.publisher||'')+' '+(t.n||'')+'문항</small></span>').join('')||'<span>없음</span>';},300);}
+function f1sel(id,name,n){F1.test={id:id,name:name,n:n};document.getElementById('f1pick').textContent='선택: '+name+' ('+n+'문항) — 저장 시 1교시 점검 기록';if(F1.cur!=='점검')f1go('점검');const wk=document.getElementById('totq');if(wk&&!wk.value)wk.value=n;}
+function f1payload(){f1flush();const out=[];['진도','정리'].forEach(a=>{const m=Math.round(F1.min[a]);const p=(document.getElementById('f1p'+a)||{}).value||'';if(m>0||p)out.push({act:a,min:m,pages:p});});if(Math.round(F1.min['점검'])>0||F1.test)out.push({act:'점검',min:Math.round(F1.min['점검']),test_id:F1.test?F1.test.id:null,test:F1.test?F1.test.name:null});return out;}
+
 async function loadCardCtx(sid){try{const c=await rpc('gz2_card_context',{p_sid:sid});const st=c.student||{},ex=c.exam,h=c.hist||{},a=c.att||{},pre=c.pre;
  const ph={'준비기':'#B8892E','직전기':'#A4472F','시험 중':'#1f2a24','결과 분석':'#33567a','평시':'#8a8577'};
  const band=['준비기 D-49~22','직전기 D-21~1','시험 중','결과 분석 +1~+14','평시'].map(x=>{const on=ex&&x.startsWith(ex.phase);return '<span style="flex:1;text-align:center;font-size:10px;padding:2px 0;border-radius:3px;'+(on?'background:'+(ph[ex.phase]||'#888')+';color:#fff;font-weight:800':'background:#eee;color:#999')+'">'+x+'</span>';}).join('');
@@ -173,7 +184,7 @@ function openCoach(sid,name){COACH_SID=sid;COACH_NAME=name;
   if(TAB==='4'){ /* 시간표에서는 슬라이드 — 인원<->코칭 왕복(현행 UX 계승) */
     document.getElementById('slide').classList.add('open');
     const sb=document.getElementById('slidebody');
-    sb.innerHTML='<div id="chead" class="mini">헤더 적재 중…</div><div id="cattbox" style="background:#fff;border:1px solid var(--line,#d8d4c8);border-radius:8px;padding:8px 10px;margin-bottom:8px"></div><div id="cbody"></div><div id="cprog" style="background:#fff;border:1px solid var(--line,#d8d4c8);border-radius:8px;padding:8px 10px;margin-top:8px"></div><div id="cpre"></div>'; CARD_ST='REG'; renderCardAtt(sid); loadProgress(sid); loadHw(sid);
+    sb.innerHTML='<div id="chead" class="mini">헤더 적재 중…</div><div id="cattbox" style="background:#fff;border:1px solid var(--line,#d8d4c8);border-radius:8px;padding:8px 10px;margin-bottom:8px"></div><div id="cbody"></div><div id="cprog" style="background:#fff;border:1px solid var(--line,#d8d4c8);border-radius:8px;padding:8px 10px;margin-top:8px"></div><div id="cpre"></div>'; CARD_ST='REG'; F1={cur:null,since:null,min:{'진도':0,'정리':0,'점검':0},test:null,tick:null}; renderCardAtt(sid); loadProgress(sid); loadHw(sid);
     renderCoachBody(); loadCardCtx(sid);
   } else go('4p');
 }
@@ -374,7 +385,10 @@ function renderCoachBody(){
       </div>
       <div id="hwchips" style="display:none;margin-top:5px"></div><input type="text" id="hwreason" placeholder="사유 (부분·안 해옴일 때)" style="display:none;margin-top:5px;"><div id="hwrate" class="mini" style="margin-top:6px">이행률 적재 중…</div></div>
     <div class="zone"><h3><span class="zn">3</span>교시 기록 <span class="mini" id="plabels"></span></h3>
-      <div class="mini" style="margin-bottom:4px;">교시 활동 체크: <span id="acts"></span></div>
+      <div id="p1acts" style="border:1px solid #d8d4c8;border-radius:8px;padding:8px 10px;margin:6px 0;background:#fff"><b style="font-size:12.5px">1교시 — 활동 3종 · 타이머 <span class="mini">(M02-f: 활동 전환 = 타이머 분기 · 진도·정리는 페이지, 점검은 시험지)</span></b>
+<div style="display:flex;gap:6px;align-items:center;margin-top:5px;flex-wrap:wrap"><button type="button" class="f1" data-a="진도" onclick="f1go('진도')">진도 <span id="f1m진도">0</span>분</button><button type="button" class="f1" data-a="정리" onclick="f1go('정리')">정리 <span id="f1m정리">0</span>분</button><button type="button" class="f1" data-a="점검" onclick="f1go('점검')">점검 <span id="f1m점검">0</span>분</button><button type="button" onclick="f1pause()" style="font-size:11px">⏸ 일시정지</button><span class="mini" id="f1now">활동을 누르면 타이머 시작 · 누적 <b id="f1tot">0</b>분</span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px"><label class="mini">진도 페이지 <input id="f1p진도" placeholder="예: 12~15" style="width:100%"></label><label class="mini">정리 페이지 <input id="f1p정리" placeholder="예: 16~17" style="width:100%"></label></div>
+<div style="margin-top:5px"><span class="mini">점검 — 시험지 선택</span> <input id="f1q" placeholder="단원·작품·교재 검색 (2자+)" oninput="f1search()" style="width:60%"><div id="f1list" class="mini"></div><div id="f1pick" class="mini" style="color:#1E4D3B;font-weight:700"></div></div></div><div class="mini" style="margin-bottom:4px;">교시 활동 체크: <span id="acts"></span></div>
       <div style="margin:6px 0"><label style="font-size:12px;font-weight:700">잘한 점 한 줄 <span style="color:#8a8577;font-weight:400">리추얼 「사랑」 재료 — 이 학생이 오늘 잘한 것 하나</span></label><input id="praise" placeholder="예: 오답노트 형태소 정리 꼼꼼함" style="width:100%;padding:6px;border:1px solid #d8d4c8;border-radius:5px;font-family:inherit"></div><textarea id="lesson" placeholder="1교시 — 과제 확인 평가 (필수)"></textarea>
       <div style="height:6px"></div>
       <div class="row"><textarea id="p2c" placeholder="2교시 — 내용" style="min-height:40px;"></textarea><input type="text" id="p2paper" placeholder="2교시 자료(지문·교안)" style="max-width:220px;"></div>
@@ -486,7 +500,7 @@ async function saveCard(){
       p3:{content:document.getElementById('p3c').value.trim()||null,paper:document.getElementById('p3paper').value.trim()||null},
       session_type:CARD_ST, memo:document.getElementById('memo').value.trim()||null, praise_note:(document.getElementById('praise')||{value:''}).value.trim()||null,
       memo_tags:TAGS.length?TAGS.join(','):null,
-      period_acts:(ACTS.p1.length||ACTS.p2.length||ACTS.p3.length)?ACTS:null,
+      period_acts:(function(){const f=f1payload();const a={p1:[...ACTS.p1,...f],p2:ACTS.p2,p3:ACTS.p3};return (a.p1.length||a.p2.length||a.p3.length)?a:null;})(),
       coach_chips:(CAT&&document.getElementById('chiptext').value.trim())?{[CAT_KEY[CAT]]:document.getElementById('chiptext').value.trim()}:null,
       homework_text:document.getElementById('hw').value.trim()||null,hw_due:document.getElementById('hwdue').value||null,hw_reason:document.getElementById('hwreason').value.trim()||null,
       next_strategy:document.getElementById('nexts').value.trim()||null}});
