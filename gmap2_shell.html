@@ -71,7 +71,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.28 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.29 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -134,6 +134,11 @@ function drawTabs(){
 }
 function go(k){TAB=k;closeSlide();drawTabs();render();}
 
+
+let CARD_ST='REG';
+async function cardAtt(sid,st){try{const r=await rpc('gz_att_set',{p:{student_id:sid,status:st,date:localDate()}});if(r&&r.ok===false)throw new Error(r.error||'');ATT[sid]=st;renderCardAtt(sid);const dot=document.getElementById('att_'+sid);if(dot){dot.dataset.st=st;dot.style.background=st==='출'?'var(--new)':(st==='결'?'var(--warn)':'#ccc');}}catch(e){alert('출결 저장 실패: '+e.message);}}
+function renderCardAtt(sid){const st=ATT[sid]||'';const el=document.getElementById('cattbox');if(!el)return;el.innerHTML='<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><b style="font-size:13px">출결</b><button onclick="cardAtt('+sid+',\'출\')" style="'+(st==='출'?'background:#1E4D3B;color:#fff;':'')+'font-size:12px">출석'+(st==='출'?' ✓':'')+'</button><button onclick="cardAtt('+sid+',\'결\')" style="'+(st==='결'?'background:#A4472F;color:#fff;':'')+'font-size:12px">결석'+(st==='결'?' ✓':'')+'</button>'+(st==='결'?'<button onclick="openMakeup('+sid+',localDate())" style="font-size:12px">🔁 보충 잡기</button>':'')+'<span class="mini">'+(st?'저장됨 '+new Date().toTimeString().slice(0,5):'아직 입력 없음')+'</span><span style="margin-left:auto" class="mini">수업 유형 <select id="cst" onchange="CARD_ST=this.value"><option value="REG">정규</option><option value="SPC">특강(SPC)</option><option value="SUP">대체 수업(결석 보강)</option><option value="HW">확인 보완</option><option value="EXAM">시험 대비</option></select></span></div><div class="mini" style="margin-top:3px">1클릭 저장 · 결석은 보충 미정 큐로 · 특강은 정규와 분리 집계(M02-b)</div>';const sel=document.getElementById('cst');if(sel)sel.value=CARD_ST;}
+
 async function loadCardCtx(sid){try{const c=await rpc('gz2_card_context',{p_sid:sid});const st=c.student||{},ex=c.exam,h=c.hist||{},a=c.att||{},pre=c.pre;
  const ph={'준비기':'#B8892E','직전기':'#A4472F','시험 중':'#1f2a24','결과 분석':'#33567a','평시':'#8a8577'};
  const band=['준비기 D-49~22','직전기 D-21~1','시험 중','결과 분석 +1~+14','평시'].map(x=>{const on=ex&&x.startsWith(ex.phase);return '<span style="flex:1;text-align:center;font-size:10px;padding:2px 0;border-radius:3px;'+(on?'background:'+(ph[ex.phase]||'#888')+';color:#fff;font-weight:800':'background:#eee;color:#999')+'">'+x+'</span>';}).join('');
@@ -150,7 +155,7 @@ function openCoach(sid,name){COACH_SID=sid;COACH_NAME=name;
   if(TAB==='4'){ /* 시간표에서는 슬라이드 — 인원<->코칭 왕복(현행 UX 계승) */
     document.getElementById('slide').classList.add('open');
     const sb=document.getElementById('slidebody');
-    sb.innerHTML='<div id="chead" class="mini">헤더 적재 중…</div><div id="cbody"></div><div id="cpre"></div>';
+    sb.innerHTML='<div id="chead" class="mini">헤더 적재 중…</div><div id="cattbox" style="background:#fff;border:1px solid var(--line,#d8d4c8);border-radius:8px;padding:8px 10px;margin-bottom:8px"></div><div id="cbody"></div><div id="cpre"></div>'; CARD_ST='REG'; renderCardAtt(sid);
     renderCoachBody(); loadCardCtx(sid);
   } else go('4p');
 }
@@ -461,7 +466,7 @@ async function saveCard(){
       p1_eval:lesson,hw_status:P1||null,
       p2:{content:document.getElementById('p2c').value.trim()||null,paper:document.getElementById('p2paper').value.trim()||null},
       p3:{content:document.getElementById('p3c').value.trim()||null,paper:document.getElementById('p3paper').value.trim()||null},
-      memo:document.getElementById('memo').value.trim()||null, praise_note:(document.getElementById('praise')||{value:''}).value.trim()||null,
+      session_type:CARD_ST, memo:document.getElementById('memo').value.trim()||null, praise_note:(document.getElementById('praise')||{value:''}).value.trim()||null,
       memo_tags:TAGS.length?TAGS.join(','):null,
       period_acts:(ACTS.p1.length||ACTS.p2.length||ACTS.p3.length)?ACTS:null,
       coach_chips:(CAT&&document.getElementById('chiptext').value.trim())?{[CAT_KEY[CAT]]:document.getElementById('chiptext').value.trim()}:null,
