@@ -71,7 +71,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.37 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.38 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -158,7 +158,7 @@ async function loadHw(sid){try{const h=await rpc('gz2_card_hw',{p_sid:sid});cons
  const ch=document.getElementById('hwchips');if(ch)ch.innerHTML='<span class="mini">사유</span> '+HW_REASONS.map(r=>'<button type="button" onclick="document.getElementById(\'hwreason\').value=\''+r+'\';document.getElementById(\'hwreason\').style.display=\'block\'" style="font-size:11px;margin:1px">'+r+'</button>').join('');}catch(e){}}
 
 
-var F1={cur:null,since:null,min:{'진도':0,'정리':0,'점검':0},test:null,tick:null}; P2={work:null,items:[],picked:new Set()};
+var F1={cur:null,since:null,min:{'진도':0,'정리':0,'점검':0},test:null,tick:null};
 function f1go(a){f1flush();F1.cur=a;F1.since=Date.now();document.querySelectorAll('.f1').forEach(b=>b.style.background=(b.dataset.a===a)?'#1E4D3B':'',);document.querySelectorAll('.f1').forEach(b=>b.style.color=(b.dataset.a===a)?'#fff':'');document.getElementById('f1now').innerHTML=a+' 진행 중 · 누적 <b id="f1tot">'+f1total()+'</b>분';if(!F1.tick)F1.tick=setInterval(f1render,15000);}
 function f1flush(){if(F1.cur&&F1.since){F1.min[F1.cur]+=(Date.now()-F1.since)/60000;F1.since=Date.now();}}
 function f1pause(){f1flush();F1.cur=null;F1.since=null;document.querySelectorAll('.f1').forEach(b=>{b.style.background='';b.style.color='';});f1render();document.getElementById('f1now').innerHTML='일시정지 · 누적 <b id="f1tot">'+f1total()+'</b>분';}
@@ -170,6 +170,7 @@ function f1payload(){f1flush();const out=[];['진도','정리'].forEach(a=>{cons
 
 
 var P2={work:null,items:[],picked:new Set()};var P2T=null;
+async function p2suggest(sid){try{const r=await rpc('gz2_p2_suggest',{p_sid:sid});const el=document.getElementById('p2sug');if(!el)return;el.innerHTML=(r&&r.length)?'<span class="mini">추천 —</span> '+r.map(w=>'<span style="display:inline-block;border:1px solid '+(w.src==='시험범위'?'#A4472F':(w.src==='최근 수업'?'#1E4D3B':'#d8d4c8'))+';border-radius:4px;padding:1px 6px;margin:2px;cursor:pointer" title="'+w.src+'" onclick="p2open('+w.work_id+',\''+String(w.title).replace(/\'/g,'')+'\')">'+(w.src==='시험범위'?'📋 ':(w.src==='최근 수업'?'🕘 ':''))+w.title+' <small>'+w.n+'</small></span>').join(''):'<span class="mini">추천 없음 — 시험범위를 등록하면 범위 작품이 여기 뜹니다</span>';}catch(e){}}
 async function p2search(){const qv=document.getElementById('p2q').value.trim();if(qv.length<2){document.getElementById('p2works').innerHTML='';return;}clearTimeout(P2T);P2T=setTimeout(async()=>{const r=await rpc('gz2_p2_search',{p_q:qv});document.getElementById('p2works').innerHTML=(r||[]).map(w=>'<span style="display:inline-block;border:1px solid #d8d4c8;border-radius:4px;padding:1px 6px;margin:2px;cursor:pointer" onclick="p2open('+w.work_id+',\''+String(w.title).replace(/\'/g,'')+'\')">'+w.title+(w.author?' · '+w.author:'')+' <small>'+w.n+'문항 · 난도 '+(w.avg_lv||'—')+'</small></span>').join('')||'<span>없음</span>';},300);}
 async function p2open(wid,title){P2.work={id:wid,title:title};P2.picked=new Set();const r=await rpc('gz2_p2_items',{p_work_id:wid});P2.items=r.items||[];const g=r.grid||[];const kars=[...new Set(g.map(x=>x.kar))].sort(),klas=[...new Set(g.map(x=>x.kla))].sort();const cell=(a,b)=>{const f=g.find(x=>x.kar===a&&x.kla===b);return f?f.n:'';};
  document.getElementById('p2grid').innerHTML='<div class="mini"><b>'+title+'</b> — KAR × KLA 격자 (칸=문항 수)</div><table style="border-collapse:collapse;font-size:10.5px;text-align:center"><tr><th></th>'+klas.map(k=>'<th style="padding:1px 5px">'+k+'</th>').join('')+'</tr>'+kars.map(a=>'<tr><td style="text-align:left;padding:1px 5px"><b>'+a+'</b></td>'+klas.map(k=>'<td style="padding:1px 5px;background:'+(cell(a,k)?'#e9f1ec':'')+'">'+cell(a,k)+'</td>').join('')+'</tr>').join('')+'</table>';
@@ -194,7 +195,7 @@ function openCoach(sid,name){COACH_SID=sid;COACH_NAME=name;
   if(TAB==='4'){ /* 시간표에서는 슬라이드 — 인원<->코칭 왕복(현행 UX 계승) */
     document.getElementById('slide').classList.add('open');
     const sb=document.getElementById('slidebody');
-    sb.innerHTML='<div id="chead" class="mini">헤더 적재 중…</div><div id="cattbox" style="background:#fff;border:1px solid var(--line,#d8d4c8);border-radius:8px;padding:8px 10px;margin-bottom:8px"></div><div id="cbody"></div><div id="cprog" style="background:#fff;border:1px solid var(--line,#d8d4c8);border-radius:8px;padding:8px 10px;margin-top:8px"></div><div id="cpre"></div>'; CARD_ST='REG'; F1={cur:null,since:null,min:{'진도':0,'정리':0,'점검':0},test:null,tick:null}; renderCardAtt(sid); loadProgress(sid); loadHw(sid);
+    sb.innerHTML='<div id="chead" class="mini">헤더 적재 중…</div><div id="cattbox" style="background:#fff;border:1px solid var(--line,#d8d4c8);border-radius:8px;padding:8px 10px;margin-bottom:8px"></div><div id="cbody"></div><div id="cprog" style="background:#fff;border:1px solid var(--line,#d8d4c8);border-radius:8px;padding:8px 10px;margin-top:8px"></div><div id="cpre"></div>'; CARD_ST='REG'; F1={cur:null,since:null,min:{'진도':0,'정리':0,'점검':0},test:null,tick:null}; P2={work:null,items:[],picked:new Set()}; renderCardAtt(sid); p2suggest(sid); loadProgress(sid); loadHw(sid);
     renderCoachBody(); loadCardCtx(sid);
   } else go('4p');
 }
@@ -400,7 +401,7 @@ function renderCoachBody(){
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px"><label class="mini">진도 페이지 <input id="f1p진도" placeholder="예: 12~15" style="width:100%"></label><label class="mini">정리 페이지 <input id="f1p정리" placeholder="예: 16~17" style="width:100%"></label></div>
 <div style="margin-top:5px"><span class="mini">점검 — 시험지 선택</span> <input id="f1q" placeholder="단원·작품·교재 검색 (2자+)" oninput="f1search()" style="width:60%"><div id="f1list" class="mini"></div><div id="f1pick" class="mini" style="color:#1E4D3B;font-weight:700"></div></div></div><div class="mini" style="margin-bottom:4px;">교시 활동 체크: <span id="acts"></span></div><div id="p2sel" style="border:1px solid #d8d4c8;border-radius:8px;padding:8px 10px;margin:6px 0;background:#fff"><b style="font-size:12.5px">2교시 — 검색기 · 문항표 · KAR×KLA <span class="mini">(M02-g: 작품·저자 검색 → 문항표(난도·KAR·KLA·요약) → 격자 → 2교시 자료로 저장)</span></b>
 <div style="margin-top:5px"><input id="p2q" placeholder="작품·저자·교재 검색 (2자+)" oninput="p2search()" style="width:60%"> <span id="p2res" class="mini"></span></div>
-<div id="p2works" class="mini" style="margin-top:4px"></div><div id="p2grid" style="margin-top:4px"></div><div id="p2table" style="margin-top:4px;max-height:220px;overflow:auto"></div><div id="p2pick" class="mini" style="color:#1E4D3B;font-weight:700"></div></div>
+<div id="p2sug" class="mini" style="margin-top:4px"></div><div id="p2works" class="mini" style="margin-top:4px"></div><div id="p2grid" style="margin-top:4px"></div><div id="p2table" style="margin-top:4px;max-height:220px;overflow:auto"></div><div id="p2pick" class="mini" style="color:#1E4D3B;font-weight:700"></div></div>
       <div style="margin:6px 0"><label style="font-size:12px;font-weight:700">잘한 점 한 줄 <span style="color:#8a8577;font-weight:400">리추얼 「사랑」 재료 — 이 학생이 오늘 잘한 것 하나</span></label><input id="praise" placeholder="예: 오답노트 형태소 정리 꼼꼼함" style="width:100%;padding:6px;border:1px solid #d8d4c8;border-radius:5px;font-family:inherit"></div><textarea id="lesson" placeholder="1교시 — 과제 확인 평가 (필수)"></textarea>
       <div style="height:6px"></div>
       <div class="row"><textarea id="p2c" placeholder="2교시 — 내용" style="min-height:40px;"></textarea><input type="text" id="p2paper" placeholder="2교시 자료(지문·교안)" style="max-width:220px;"></div>
