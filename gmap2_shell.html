@@ -70,7 +70,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.26 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.27 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -132,12 +132,25 @@ function drawTabs(){
   document.getElementById('tabs').innerHTML=h;
 }
 function go(k){TAB=k;closeSlide();drawTabs();render();}
+
+async function loadCardCtx(sid){try{const c=await rpc('gz2_card_context',{p_sid:sid});const st=c.student||{},ex=c.exam,h=c.hist||{},a=c.att||{},pre=c.pre;
+ const ph={'준비기':'#B8892E','직전기':'#A4472F','시험 중':'#1f2a24','결과 분석':'#33567a','평시':'#8a8577'};
+ const band=['준비기 D-49~22','직전기 D-21~1','시험 중','결과 분석 +1~+14','평시'].map(x=>{const on=ex&&x.startsWith(ex.phase);return '<span style="flex:1;text-align:center;font-size:10px;padding:2px 0;border-radius:3px;'+(on?'background:'+(ph[ex.phase]||'#888')+';color:#fff;font-weight:800':'background:#eee;color:#999')+'">'+x+'</span>';}).join('');
+ document.getElementById('chead').innerHTML='<div style="background:#fff;border:1px solid var(--line,#d8d4c8);border-radius:8px;padding:8px 10px;margin-bottom:8px"><div style="display:flex;gap:8px;align-items:baseline"><b style="font-size:15px">'+(st.name||'')+'</b><span class="mini">'+(st.school||'')+' '+(st.grade||'')+' · '+(st.division||'')+' · 담당 '+(st.teacher||'')+' · '+st.weeks+'주차</span></div>'
+ +'<div style="display:flex;gap:3px;margin:6px 0">'+band+'</div>'+(ex?'<div class="mini">'+(ex.dd>=0?'D-'+ex.dd:'+'+(-ex.dd))+' '+ex.name+' ('+String(ex.date).slice(5)+') · <b>'+ex.phase+'</b></div>':'<div class="mini">등록된 다음 시험 없음 · 평시</div>')
+ +'<div class="mini" style="margin-top:4px">최근 4주 — 수업 '+(h.n||0)+'회 · 과제 해옴 '+(h.hw_ok||0)+' / 부분 '+(h.hw_part||0)+' / 안 해옴 '+(h.hw_no||0)+' · 출석 '+(a.present||0)+' 결석 '+(a.absent||0)+'</div></div>';
+ const p=pre||{};const r=p.routines||{},m=p.methods||{},ch=p.challenge||{},mi=p.mindset||{};const today=localDate();const isToday=p.created_at&&String(p.created_at).slice(0,10)===today;
+ document.getElementById('cpre').innerHTML='<div style="background:#fff;border:1px solid var(--line,#d8d4c8);border-radius:8px;padding:8px 10px;margin-top:8px"><b style="font-size:13px">사전 메타인지 5문항 <span class="mini">(수업 시작 전 학생 답 · M02-e · self_evaluations)</span></b>'+(pre?'<div class="mini" style="margin:4px 0 6px">'+(isToday?'오늘 답':'마지막 답 '+String(p.created_at).slice(0,10))+' — 과제 완료율 <b>'+(r.hw_done_pct==null?'—':r.hw_done_pct+'%')+'</b> · 과제량 '+(m.amount||'—')+' · 난이도 '+(m.difficulty||'—')+' · 어려웠던 것 <b>'+(p.weaknesses||'—')+'</b> · 오늘 목표 <b>'+(ch.today_goal||'—')+'</b> · 자신감 '+(mi.confidence==null?'—':mi.confidence+'/5')+'</div>':'<div class="mini" style="margin:4px 0 6px">아직 답 없음 — 학생이 학생 페이지에서 답하거나 아래에 대신 입력</div>')
+ +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:12px"><label>1 과제 완료율 <select id="pm1"><option value="">—</option><option value="15">0~30%</option><option value="50">~70%</option><option value="80">~90%</option><option value="100">100%</option></select></label><label>2 과제량 <select id="pm2a"><option value="">—</option><option>적음</option><option>적정</option><option>많음</option></select> 난이도 <select id="pm2b"><option value="">—</option><option>쉬움</option><option>적정</option><option>어려움</option></select></label><label>5 자신감 <select id="pm5"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label></div>'
+ +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px;font-size:12px"><label>3 가장 어려웠던 개념·유형 <input id="pm3" style="width:100%"></label><label>4 오늘 반드시 해결할 목표 하나 <input id="pm4" style="width:100%"></label></div><div style="margin-top:6px"><button onclick="savePreMeta('+sid+')" style="font-size:12px">사전 메타 저장</button> <span class="mini" id="pmr"></span></div></div>';}catch(e){document.getElementById('chead').textContent='헤더 실패 '+e.message;}}
+async function savePreMeta(sid){const g=id=>document.getElementById(id).value;const r=await rpc('gz2_pre_meta_save',{p:{student_id:sid,hw_done_pct:g('pm1'),amount:g('pm2a'),difficulty:g('pm2b'),weakness:g('pm3'),today_goal:g('pm4'),confidence:g('pm5'),by:'교사 대신 입력'}});document.getElementById('pmr').textContent=r.ok?'저장 ✓':'거부 '+(r.reason||'');if(r.ok)loadCardCtx(sid);}
+
 function openCoach(sid,name){COACH_SID=sid;COACH_NAME=name;
   if(TAB==='4'){ /* 시간표에서는 슬라이드 — 인원<->코칭 왕복(현행 UX 계승) */
     document.getElementById('slide').classList.add('open');
     const sb=document.getElementById('slidebody');
-    sb.innerHTML='<div id="cbody"></div>';
-    renderCoachBody();
+    sb.innerHTML='<div id="chead" class="mini">헤더 적재 중…</div><div id="cbody"></div><div id="cpre"></div>';
+    renderCoachBody(); loadCardCtx(sid);
   } else go('4p');
 }
 function closeSlide(){document.getElementById('slide').classList.remove('open');}
