@@ -71,7 +71,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.34 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.35 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -391,9 +391,9 @@ function renderCoachBody(){
         <select id="pno" style="max-width:110px;"><option value="1">1교시</option><option value="2">2교시</option><option value="3">3교시</option></select>
         <input type="number" id="round" min="1" max="9" placeholder="회차 1~9">
         <input type="number" id="totq" min="1" placeholder="총 문항수">
-        <input type="text" id="wrongs" placeholder="오답 번호 예: 3,7,12"></div>
+        <input type="text" id="wrongs" placeholder="오답 번호 예: 3,7,12"></div><div id="wcause" style="margin-top:4px"><span class="mini">오답 이유(M02-g)</span> <button type="button" class="wc" onclick="setWC(this,'사실 오인')">사실 오인</button><button type="button" class="wc" onclick="setWC(this,'범위 과장')">범위 과장</button><button type="button" class="wc" onclick="setWC(this,'단어 바꿈')">단어 바꿈</button><button type="button" class="wc" onclick="setWC(this,'관계 섞음')">관계 섞음</button><button type="button" class="wc" onclick="setWC(this,'')">없음</button> <span class="mini" id="wcv"></span></div>
       <div class="mini">저장 시 서버가 번호 정규화(규칙 26) 후 KLEA 문항 매칭·처방 큐 생성</div></div>
-    <div class="zone"><h3><span class="zn">C</span>1:1 코칭 — 4 카테고리 (매뉴얼 정본: 한 가지에 집중)</h3>
+    <div class="zone"><h3><span class="zn">C</span>1:1 코칭 — 4 카테고리 (매뉴얼 정본: 한 가지에 집중) <button type="button" onclick="coachDraft()" style="font-size:11px;margin-left:6px">4칩 초안(기록 기반)</button></h3>
       <div class="p1" id="chipcat">
         <button onclick="selCat(this,'학습전략')">학습전략</button><button onclick="selCat(this,'과제평가')">과제평가</button><button onclick="selCat(this,'동기부여')">동기부여</button><button onclick="selCat(this,'연습방법')">연습방법</button>
       </div>
@@ -454,7 +454,7 @@ function drawTags(){
 }
 function tgTag(t){const i=TAGS.indexOf(t);if(i>-1)TAGS.splice(i,1);else TAGS.push(t);drawTags();}
 const CAT_KEY={'학습전략':'strategy','과제평가':'task_eval','동기부여':'motivation','연습방법':'practice'}; /* DB CHECK chk_cl_coach_chips 4키 정본 */
-function selCat(btn,v){CAT=v;document.querySelectorAll('#chipcat button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
+function selCat(btn,v){CAT=v;document.querySelectorAll('#chipcat button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');if(DRAFT){const m={'학습전략':'strategy','과제평가':'task','동기부여':'motive','연습방법':'practice'};const el=document.getElementById('chiptext');if(el&&m[v]&&!el.value.trim())el.value=DRAFT[m[v]]||'';}}
 function selP1(btn,v){P1=v;const hc=document.getElementById('hwchips');if(hc)hc.style.display=(v==='부분'||v==='안해옴')?'block':'none';document.querySelectorAll('#p1 button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');
   document.getElementById('hwreason').style.display=(v==='해옴')?'none':'block';
   /* 함수 v_lesson 라벨 규칙 미러 */
@@ -495,13 +495,15 @@ async function saveCard(){
     receipt(!!ok,ok?('저장 검증 ✓ '+JSON.stringify(res).slice(0,90)):'서버 반환에 검증 필드 없음: '+JSON.stringify(res).slice(0,90));
   }catch(e){receipt(false,'저장 실패: '+e.message);}
 }
+let WCAUSE='';function setWC(b,v){WCAUSE=v;document.querySelectorAll('.wc').forEach(x=>x.classList.toggle('sel',x===b));document.getElementById('wcv').textContent=v?('선택: '+v):'';}
+let DRAFT=null;async function coachDraft(){try{DRAFT=await rpc('gz2_coach_draft',{p_sid:COACH_SID});const box=document.getElementById('chipdraft')||(()=>{const d=document.createElement('div');d.id='chipdraft';d.className='mini';d.style.margin='4px 0';document.getElementById('chipcat').parentNode.insertBefore(d,document.getElementById('chipcat').nextSibling);return d;})();box.innerHTML='<b>초안</b> <span style="color:#8a8577">'+DRAFT.source+'</span><br>학습전략 — '+DRAFT.strategy+'<br>과제평가 — '+DRAFT.task+'<br>동기부여 — '+DRAFT.motive+'<br>연습방법 — '+DRAFT.practice+'<br><span style="color:#8a8577">카테고리 칩을 누르면 해당 초안이 코칭 한 줄에 들어갑니다 — 교사 수정 후 저장</span>';}catch(e){alert('초안 실패 '+e.message);}}
 async function saveWrong(){
   const round=+document.getElementById('round').value, totq=+document.getElementById('totq').value;
   const wrongs=document.getElementById('wrongs').value.trim();
   if(!COACH_SID||!WORK||!round||!wrongs){receipt(false,'판정 필수: 학생·작품·회차·오답 번호');return;}
   try{
     const res=await rpc('gz_save_period_wrong',{p:{student_id:COACH_SID,log_date:localDate(),
-      period_no:+document.getElementById('pno').value||1,round_no:round,work_id:WORK.id,wrong_nums:wrongs,total_questions:totq||null}});
+      period_no:+document.getElementById('pno').value||1,round_no:round,work_id:WORK.id,wrong_nums:wrongs,total_questions:totq||null,cause_tag:WCAUSE||null}});
     const ok=res&&(res.ok===true||res.id||res.item_id||res.saved);
     receipt(!!ok,ok?('오답 저장 검증 ✓ — KLEA 매칭 파이프 진입 '+JSON.stringify(res).slice(0,80)):'서버 반환 확인 필요: '+JSON.stringify(res).slice(0,80));
   }catch(e){receipt(false,'판정 저장 실패: '+e.message);}
