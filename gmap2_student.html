@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><script>/* 2.0 진입 게이트 — sid+k(md5 토큰) 서버 검증. 실패 시 본문 비표시 (2026-09-04) */
+<head><!-- 2.0 학생 페이지 · 보안 교체 gz_read→gz2_student_read 2026-09-05 #5911 결재① --><script>/* 2.0 진입 게이트 — sid+k(md5 토큰) 서버 검증. 실패 시 본문 비표시 (2026-09-04) */
 (function(){var m=(location.search||'').match(/[?&]sid=(\d+)/),k=(location.search||'').match(/[?&]k=([a-f0-9]{32})/);
  if(!m||!k){document.addEventListener('DOMContentLoaded',function(){document.body.innerHTML='<div style="font-family:sans-serif;padding:40px;text-align:center;color:#555"><h2>국존 학생 페이지</h2><p>이 페이지는 학원에서 보내드린 링크로만 열립니다.<br>링크가 만료되었거나 잘못되었으면 담당 선생님께 문의해 주세요.</p></div>';});return;}
  fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_entry_check',{method:'POST',headers:{'apikey':'sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0','Authorization':'Bearer sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0','Content-Type':'application/json'},body:JSON.stringify({p_sid:+m[1],p_k:k[1]})}).then(function(r){return r.json();}).then(function(ok){if(ok!==true){document.body.innerHTML='<div style="font-family:sans-serif;padding:40px;text-align:center;color:#555"><h2>국존 학생 페이지</h2><p>링크가 유효하지 않습니다. 담당 선생님께 문의해 주세요.</p></div>';}}).catch(function(){});})();
@@ -446,7 +446,7 @@ function setHw(k, btn){
 <script>
 /* ── 국존 학생 페이지 실데이터 결선 (목업 v11 마크업 무변형 · 값만 주입) ──
    식별: window.__DESK_Q('sid=NN') 또는 주소의 ?sid=NN
-   조회: gz_read(공개키) — 없는 값은 지어내지 않고 「기록 없음」으로 둔다. */
+   조회: gz2_student_read(sid+k 토큰·허용 형태만, 2026-09-05 결재①) — 없는 값은 지어내지 않고 「기록 없음」으로 둔다. */
 (function(){
   var BASE='https://qcnsadcpsonuxnjyrlez.supabase.co';
   var AK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
@@ -455,9 +455,9 @@ function setHw(k, btn){
     m=(location.search||'').match(/[?&]sid=(\d+)/); return m?m[1]:'';
   }
   function q(sql){
-    return fetch(BASE+'/rest/v1/rpc/gz_read',{method:'POST',
+    return fetch(BASE+'/rest/v1/rpc/gz2_student_read',{method:'POST',
       headers:{'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json'},
-      body:JSON.stringify({p_sql:sql})}).then(function(r){return r.json();})
+      body:JSON.stringify({p_sid:Number(((location.search||'').match(/[?&]sid=(\d+)/)||[])[1]||(((window.__DESK_Q||'').match(/sid=(\d+)/)||[])[1])||0),p_k:(((location.search||'').match(/[?&]k=([a-f0-9]{32})/)||[])[1]||(((window.__DESK_Q||'').match(/k=([a-f0-9]{32})/)||[])[1])||''),p_sql:sql})}).then(function(r){return r.json();})
       .then(function(d){return Array.isArray(d)?d:[];}).catch(function(){return [];});
   }
   function set(id,txt){ var e=document.getElementById(id); if(e)e.textContent=txt; }
@@ -1192,9 +1192,9 @@ gzLoadFill();
   var AK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
   function sid(){ var m=(window.__DESK_Q||'').match(/sid=(\d+)/); if(m)return m[1];
     m=(location.search||'').match(/[?&]sid=(\d+)/); return m?m[1]:''; }
-  function q(sql){ return fetch(BASE+'/rest/v1/rpc/gz_read',{method:'POST',
+  function q(sql){ return fetch(BASE+'/rest/v1/rpc/gz2_student_read',{method:'POST',
       headers:{'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json'},
-      body:JSON.stringify({p_sql:sql})}).then(function(r){return r.json();})
+      body:JSON.stringify({p_sid:Number(((location.search||'').match(/[?&]sid=(\d+)/)||[])[1]||(((window.__DESK_Q||'').match(/sid=(\d+)/)||[])[1])||0),p_k:(((location.search||'').match(/[?&]k=([a-f0-9]{32})/)||[])[1]||(((window.__DESK_Q||'').match(/k=([a-f0-9]{32})/)||[])[1])||''),p_sql:sql})}).then(function(r){return r.json();})
       .then(function(d){return Array.isArray(d)?d:[];}).catch(function(){return [];}); }
   function esc(s){ return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
   function el(id){ return document.getElementById(id); }
@@ -1287,9 +1287,9 @@ gzLoadFill();
   var AK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
   function sid(){ var m=(window.__DESK_Q||'').match(/sid=(\d+)/); if(m)return m[1];
     m=(location.search||'').match(/[?&]sid=(\d+)/); return m?m[1]:''; }
-  function q(sql){ return fetch(BASE+'/rest/v1/rpc/gz_read',{method:'POST',
+  function q(sql){ return fetch(BASE+'/rest/v1/rpc/gz2_student_read',{method:'POST',
       headers:{'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json'},
-      body:JSON.stringify({p_sql:sql})}).then(function(r){return r.json();})
+      body:JSON.stringify({p_sid:Number(((location.search||'').match(/[?&]sid=(\d+)/)||[])[1]||(((window.__DESK_Q||'').match(/sid=(\d+)/)||[])[1])||0),p_k:(((location.search||'').match(/[?&]k=([a-f0-9]{32})/)||[])[1]||(((window.__DESK_Q||'').match(/k=([a-f0-9]{32})/)||[])[1])||''),p_sql:sql})}).then(function(r){return r.json();})
       .then(function(d){return Array.isArray(d)?d:[];}).catch(function(){return [];}); }
   function esc(s){ return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
   function fill(id,h){ var e=document.getElementById(id); if(e)e.innerHTML=h; }
@@ -1351,9 +1351,9 @@ gzLoadFill();
   var AK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
   function sid(){ var m=(window.__DESK_Q||'').match(/sid=(\d+)/); if(m)return m[1];
     m=(location.search||'').match(/[?&]sid=(\d+)/); return m?m[1]:''; }
-  function q(sql){ return fetch(BASE+'/rest/v1/rpc/gz_read',{method:'POST',
+  function q(sql){ return fetch(BASE+'/rest/v1/rpc/gz2_student_read',{method:'POST',
       headers:{'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json'},
-      body:JSON.stringify({p_sql:sql})}).then(function(r){return r.json();})
+      body:JSON.stringify({p_sid:Number(((location.search||'').match(/[?&]sid=(\d+)/)||[])[1]||(((window.__DESK_Q||'').match(/sid=(\d+)/)||[])[1])||0),p_k:(((location.search||'').match(/[?&]k=([a-f0-9]{32})/)||[])[1]||(((window.__DESK_Q||'').match(/k=([a-f0-9]{32})/)||[])[1])||''),p_sql:sql})}).then(function(r){return r.json();})
       .then(function(d){return Array.isArray(d)?d:[];}).catch(function(){return [];}); }
   function esc(v){ return String(v==null?'':v).replace(/[&<>"]/g,function(c){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
