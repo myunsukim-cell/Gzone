@@ -200,7 +200,20 @@ footer{max-width:1280px;margin:0 auto;padding:14px 26px 40px;color:var(--dim);fo
     <span>받은 코칭 <b id="gzCoach">–</b></span> <span>🔥 <b id="gzStreak">–</b>일 연속</span> <span>누적 <b id="gzFaces">–</b>면</span>
     <span id="gzScore" class="mini">성적 기록이 등록되면 여기에 표시됩니다</span>
   </div>
-</header>
+</header><section id="premeta" style="margin:10px 12px;padding:12px 14px;border:1.5px solid #B8892E;border-radius:10px;background:#fff8ea;font-size:13px">
+<b style="font-size:14px">오늘 수업 전 5문항</b> <span style="font-size:11px;color:#8a8577">수업 시작 전에 답해 두면 선생님 코칭 카드에 바로 뜹니다</span>
+<div id="pmDone" style="display:none;margin-top:6px;color:#1E4D3B;font-weight:700"></div>
+<div id="pmForm" style="margin-top:8px;display:grid;gap:6px">
+<label>1. 지난 과제를 얼마나 했나요? <select id="pm1"><option value="">—</option><option value="15">0~30%</option><option value="50">~70%</option><option value="80">~90%</option><option value="100">100%</option></select></label>
+<label>2. 과제 양은? <select id="pm2a"><option value="">—</option><option>적음</option><option>적정</option><option>많음</option></select> 난이도는? <select id="pm2b"><option value="">—</option><option>쉬움</option><option>적정</option><option>어려움</option></select></label>
+<label>3. 가장 어려웠던 개념·유형 하나 <input id="pm3" style="width:100%;padding:5px" placeholder="예: 형태소 분석"></label>
+<label>4. 오늘 반드시 해결할 목표 하나 <input id="pm4" style="width:100%;padding:5px" placeholder="예: 품사 구분 5문항 맞히기"></label>
+<label>5. 오늘 수업 자신감 <select id="pm5"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select> /5</label>
+<div><button id="pmBtn" type="button" style="padding:6px 12px;background:#1E4D3B;color:#fff;border:0;border-radius:6px;font-weight:700">보내기</button> <span id="pmR" style="font-size:12px;color:#8a8577"></span></div></div>
+<script>(function(){var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};var m=(location.search||'').match(/[?&]sid=(\d+)/);var sid=m?+m[1]:0;if(!sid)return;
+function g(i){return document.getElementById(i).value;}
+fetch(B+'gz2_card_context',{method:'POST',headers:H,body:JSON.stringify({p_sid:sid})}).then(function(r){return r.json();}).then(function(c){var p=c&&c.pre;var today=new Date(Date.now()+9*36e5).toISOString().slice(0,10);if(p&&String(p.created_at).slice(0,10)===today){document.getElementById('pmDone').style.display='block';document.getElementById('pmDone').textContent='오늘 답 완료 ✓ — 과제 '+((p.routines||{}).hw_done_pct==null?'—':(p.routines||{}).hw_done_pct+'%')+' · 어려웠던 것 '+(p.weaknesses||'—')+' · 목표 '+((p.challenge||{}).today_goal||'—')+' · 자신감 '+((p.mindset||{}).confidence||'—')+'/5';document.getElementById('pmForm').style.display='none';}}).catch(function(){});
+document.getElementById('pmBtn').onclick=function(){if(!g('pm4')){document.getElementById('pmR').textContent='4번 오늘 목표는 꼭 적어 주세요';return;}fetch(B+'gz2_pre_meta_save',{method:'POST',headers:H,body:JSON.stringify({p:{student_id:sid,hw_done_pct:g('pm1'),amount:g('pm2a'),difficulty:g('pm2b'),weakness:g('pm3'),today_goal:g('pm4'),confidence:g('pm5'),by:'학생 페이지'}})}).then(function(r){return r.json();}).then(function(r){document.getElementById('pmR').textContent=r.ok?'보냈어요 ✓ 선생님 카드에 표시됩니다':'실패 '+(r.reason||'');if(r.ok){document.getElementById('pmForm').style.display='none';document.getElementById('pmDone').style.display='block';document.getElementById('pmDone').textContent='오늘 답 완료 ✓';}});};})();</script></section>
 
 <nav class="toptabs">
   <a href="#gzPos">내 위치</a><a href="#gzFill" style="font-weight:800">내 공부</a><a href="#pA">수업</a><a href="#pC">내 기록</a>
@@ -1276,7 +1289,7 @@ gzLoadFill();
   var S=sid(); if(!S)return;
 
   /* ── 내 강좌 · 진도 ── */
-  q("SELECT k_code AS kc, is_primary AS pri, to_char(enrolled_on,'MM/DD') AS d FROM student_class_enroll WHERE student_id="+S+" ORDER BY is_primary DESC, id")
+  q("SELECT cg.group_key AS kc, coalesce(cm.is_primary,true) AS pri, to_char(cm.joined_on,'MM/DD') AS d FROM class_members cm JOIN class_groups cg ON cg.id=cm.group_id WHERE cm.is_active AND cm.student_id="+S+" ORDER BY cm.is_primary DESC, cm.id")
   /* STEP 집계 조회 철거(2026-08-27): lecture_contents.lecture_id 8,467행 전건 NULL 이고
      lectures.id(bigint) ↔ lecture_contents.lecture_id(uuid) 형 불일치라 조인 자체가 불성립.
      매 로드마다 404(42883)를 냈고 결과값은 렌더에 쓰이지도 않았음. 학생 귀속 경로가 생기면 재개통. */
