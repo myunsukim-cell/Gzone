@@ -71,7 +71,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.40 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.41 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -667,6 +667,8 @@ function gsearch(q){
 }
 function pinIt(s){PIN=JSON.parse(s);document.getElementById('gres').style.display='none';document.getElementById('gpin').textContent='꽂힌 자료: '+PIN.title.slice(0,50)+' — 코칭 카드 2교시 자료칸에 자동 입력';}
 document.getElementById('role').value=localStorage.getItem('g2role')||'teacher';
+/* 로그인 관문(2026-09-05 계획표 9): 관문에서 주입된 __GZ_ME로 역할·본인 고정 */
+if(window.__GZ_ME&&window.__GZ_ME.teacher_id){const me=window.__GZ_ME;const rv=me.role==='원장'?'director':me.role==='데스크'?'director':'teacher';document.getElementById('role').value=rv;localStorage.setItem('g2role',rv);if(rv==='teacher'){localStorage.setItem('g2me',me.nick);TFILT=me.nick;localStorage.setItem('g2tfilt',me.nick);}else{localStorage.removeItem('g2me');}document.getElementById('role').disabled=true;document.getElementById('role').title='로그인 계정 '+me.name+' ('+me.role+') — 역할 고정';}
 drawTabs();render();
 </script>
 </body>
