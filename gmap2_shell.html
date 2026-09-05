@@ -71,7 +71,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.41 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.42 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -184,7 +184,7 @@ function gotoScope(){try{const st=(CARD_CTX&&CARD_CTX.student)||{};window.parent
 async function loadCardCtx(sid){try{const c=await rpc('gz2_card_context',{p_sid:sid});CARD_CTX=c;const st=c.student||{},ex=c.exam,h=c.hist||{},a=c.att||{},pre=c.pre;
  const ph={'준비기':'#B8892E','직전기':'#A4472F','시험 중':'#1f2a24','결과 분석':'#33567a','평시':'#8a8577'};
  const band=['준비기 D-49~22','직전기 D-21~1','시험 중','결과 분석 +1~+14','평시'].map(x=>{const on=ex&&x.startsWith(ex.phase);return '<span style="flex:1;text-align:center;font-size:10px;padding:2px 0;border-radius:3px;'+(on?'background:'+(ph[ex.phase]||'#888')+';color:#fff;font-weight:800':'background:#eee;color:#999')+'">'+x+'</span>';}).join('');
- document.getElementById('chead').innerHTML='<div style="background:#fff;border:1px solid var(--line,#d8d4c8);border-radius:8px;padding:8px 10px;margin-bottom:8px"><div style="display:flex;gap:8px;align-items:baseline"><b style="font-size:15px">'+(st.name||'')+'</b><span class="mini">'+(st.school||'')+' '+(st.grade||'')+' · '+(st.division||'')+' · 담당 '+(st.teacher||'')+' · '+st.weeks+'주차</span></div>'
+ document.getElementById('chead').innerHTML='<div style="background:#fff;border:1px solid var(--line,#d8d4c8);border-radius:8px;padding:8px 10px;margin-bottom:8px"><div style="display:flex;gap:8px;align-items:baseline"><b style="font-size:15px">'+(st.name||'')+'</b>'+(c.score_cls==='하락'?'<span style="background:#A4472F;color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:800;margin-right:6px">📉 성적 하락 — 최우선 개입</span>':c.score_cls==='향상'?'<span style="background:#1E4D3B;color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:800;margin-right:6px">📈 향상</span>':'')+'<span class="mini">'+(st.school||'')+' '+(st.grade||'')+' · '+(st.division||'')+' · 담당 '+(st.teacher||'')+' · '+st.weeks+'주차</span></div>'
  +'<div style="display:flex;gap:3px;margin:6px 0">'+band+'</div>'+(ex?'<div class="mini">'+(ex.dd>=0?'D-'+ex.dd:'+'+(-ex.dd))+' '+ex.name+' ('+String(ex.date).slice(5)+') · <b>'+ex.phase+'</b></div>':'<div class="mini">등록된 다음 시험 없음 · 평시</div>')
  +'<div class="mini" style="margin-top:4px">최근 4주 — 수업 '+(h.n||0)+'회 · 과제 해옴 '+(h.hw_ok||0)+' / 부분 '+(h.hw_part||0)+' / 안 해옴 '+(h.hw_no||0)+' · 출석 '+(a.present||0)+' 결석 '+(a.absent||0)+'</div></div>';
  const p=pre||{};const r=p.routines||{},m=p.methods||{},ch=p.challenge||{},mi=p.mindset||{};const today=localDate();const isToday=p.created_at&&String(p.created_at).slice(0,10)===today;
