@@ -71,7 +71,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.46 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.47 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -362,13 +362,13 @@ async function renderTT(m){
     const wd=weekDates(WEEK_OFF);
     try{ EXC=await rpc('gz2_week_exceptions',{p_from:wd[0],p_to:wd[6]}); }catch(e){EXC=[];}
     let EXAMW=[]; try{ EXAMW=await rpc('gz2_exam_week_students',{p_from:wd[0],p_to:wd[6]}); }catch(e){}
-    const days=['일','월','화','수','목','금','토'];
-    const todayD=new Date().getDay()+1;
+    const days=['월','화','수','목','금','토','일']; /* 정본: schedule.day_of_week 1=월…7=일 (1.0 gzx 규약, 2026-09-06 정정) */
+    const todayD=((new Date().getDay()+6)%7)+1;
     let cols='';
-    for(const dd of [2,3,4,5,6,7,1]){ /* 월 시작 — full_page 정본 */
+    for(const dd of [1,2,3,4,5,6,7]){ /* 월 시작 */
       const solos=(TT.solo||[]).filter(x=>x.d===dd&&tmatch(x.t)).sort((a,b)=>(a.st||'').localeCompare(b.st||''));
       const grps=(TT.groups||[]).filter(x=>x.d===dd&&tmatch(x.t)).sort((a,b)=>(a.st||'').localeCompare(b.st||''));
-      const dateStr=wd[(dd+5)%7]; /* dd:2(월)->wd[0] ... dd:1(일)->wd[6] */
+      const dateStr=wd[dd-1]; /* 1(월)->wd[0] … 7(일)->wd[6] */
       const isToday=(WEEK_OFF===0&&dd===todayD);
       const excDay=(EXC||[]).filter(x=>x.d===dateStr);
       const excOrig=(EXC||[]).filter(x=>x.od===dateStr);
@@ -648,11 +648,11 @@ async function renderRail(m){
     try{ const a=await rpc('gz_att_day',{}); ATT={}; Object.entries(a||{}).forEach(([k,v])=>{ATT[k]=v;}); }catch(e){ATT={};}
     const today=localDate();
     const dsel=RAIL_D||today;
-    const dow=new Date(dsel+'T12:00:00').getDay()+1;
+    const dow=((new Date(dsel+'T12:00:00').getDay()+6)%7)+1; /* ISO 1=월…7=일 */
     const solos=(TT.solo||[]).filter(x=>x.d===dow), grps=(TT.groups||[]).filter(x=>x.d===dow);
     const ts=[...new Set([...solos.map(s=>s.t),...grps.map(g=>g.t)])].filter(Boolean).sort();
     let exc=[]; try{exc=await rpc('gz2_week_exceptions',{p_from:dsel,p_to:dsel});}catch(e){}
-    let html='<div style="max-width:1200px;margin:0 auto 8px;display:flex;gap:8px;align-items:center;"><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="railMove(-1)">◀</button><b style="font-size:12.5px;">'+dsel+' ('+['일','월','화','수','목','금','토'][dow-1]+')'+(dsel===today?' 오늘':'')+'</b><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="railMove(1)">▶</button><span style="margin-left:auto"><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="setView(\'week\')">주간 보기</button></span></div>';
+    let html='<div style="max-width:1200px;margin:0 auto 8px;display:flex;gap:8px;align-items:center;"><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="railMove(-1)">◀</button><b style="font-size:12.5px;">'+dsel+' ('+['월','화','수','목','금','토','일'][dow-1]+')'+(dsel===today?' 오늘':'')+'</b><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="railMove(1)">▶</button><span style="margin-left:auto"><button class="btn2" style="border:1px solid #99a;border-radius:6px;padding:2px 9px;font-size:11px;cursor:pointer;background:#fff;" onclick="setView(\'week\')">주간 보기</button></span></div>';
     html+='<div style="display:grid;grid-template-columns:repeat('+Math.max(ts.length,1)+',minmax(170px,1fr));gap:8px;max-width:1200px;margin:0 auto;overflow-x:auto;">';
     ts.forEach(t=>{
       const my=[...grps.filter(g=>g.t===t).map(g=>({k:1,st:g.st,label:g.k,sub:(g.roster||[]).length+'명'})),
