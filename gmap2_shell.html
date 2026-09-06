@@ -71,7 +71,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.49 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.50 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -227,7 +227,7 @@ function cardTimeShift(sid){const st=((TT&&TT.solo)||[]).find(s=>s.sid===sid);co
  tsAddSlot(cur);tsLoadRows(sid);}
 function tsMode(m){document.getElementById('tsM1').classList.toggle('on',m===1);document.getElementById('tsM2').classList.toggle('on',m===2);document.getElementById('tsOnce').style.display=m===1?'block':'none';document.getElementById('tsPerm').style.display=m===2?'block':'none';}
 async function tsLoadRows(sid){const DN=['월','화','수','목','금','토','일'];const rows=(TT.solo||[]).filter(x=>x.sid===sid).map(x=>({rid:x.rid,d:x.d,st:String(x.st||'').slice(0,5),t:x.t,tp:'개별'}));(TT.groups||[]).forEach(g=>(g.members||[]).forEach(m=>{if(m.sid===sid)rows.push({rid:m.rid,d:g.d,st:String(g.st||'').slice(0,5),t:g.t,tp:'반 '+(g.k||'')});}));const sel=document.getElementById('tpRow');sel.innerHTML=rows.map(r=>'<option value="'+r.rid+'" data-d="'+r.d+'" data-st="'+r.st+'">'+DN[r.d-1]+' '+r.st+' · '+(r.t||'')+' · '+r.tp+'</option>').join('')||'<option value="">활성 시간표 없음</option>';if(rows.length){document.getElementById('tpDow').value=rows[0].d;document.getElementById('tpTime').value=rows[0].st;}sel.onchange=()=>{const o=sel.selectedOptions[0];if(o){document.getElementById('tpDow').value=o.dataset.d;document.getElementById('tpTime').value=o.dataset.st;}};}
-async function savePermChange(sid){const rid=document.getElementById('tpRow').value,dow=document.getElementById('tpDow').value,tm=document.getElementById('tpTime').value,why=document.getElementById('tpWhy').value.trim();const el=document.getElementById('tpRcpt');if(!rid||!dow||!tm){el.className='receipt bad';el.textContent='행·요일·시각 필수';return;}try{const r=await rpc('gz2_schedule_change',{p:{schedule_id:+rid,dow:+dow,time:tm,reason:why,notify:true}});const ok=r&&r.ok;el.className='receipt '+(ok?'ok':'bad');el.textContent=ok?('변경 ✓ '+['월','화','수','목','금','토','일'][r.readback.dow-1]+' '+String(r.readback.st).slice(0,5)+' · 알림 #'+((r.notify||{}).id||'—')):('실패: '+((r||{}).reason||JSON.stringify(r).slice(0,80)));if(ok){TT=await rpc('gz_tt_data',{});render();}}catch(e){el.className='receipt bad';el.textContent='오류 '+e.message.slice(0,60);}}
+async function savePermChange(sid){const rid=document.getElementById('tpRow').value,dow=document.getElementById('tpDow').value,tm=document.getElementById('tpTime').value,why=document.getElementById('tpWhy').value.trim();const el=document.getElementById('tpRcpt');if(!rid||!dow||!tm){el.className='receipt bad';el.textContent='행·요일·시각 필수';return;}try{const r=await rpc('gz2_schedule_change',{p:{schedule_id:+rid,dow:+dow,time:tm,reason:why,notify:true}});const ok=r&&r.ok;el.className='receipt '+(ok?'ok':'bad');el.textContent=ok?('변경 ✓ '+['월','화','수','목','금','토','일'][r.readback.dow-1]+' '+String(r.readback.st).slice(0,5)+' · 알림 #'+((r.notify||{}).id||'—')):('실패: '+((r||{}).reason||JSON.stringify(r).slice(0,80)));if(ok){try{await rpc('gz2_schedule_expire',{});}catch(_){}TT=await rpc('gz_tt_data',{});render();}}catch(e){el.className='receipt bad';el.textContent='오류 '+e.message.slice(0,60);}}
 function tsAddSlot(t){const box=document.getElementById('tsSlots');if(!box||box.children.length>=3)return;const d=document.createElement('div');d.className='row';d.style.marginTop='4px';d.innerHTML='<div><input type="date" class="tsD" value="'+localDate()+'"></div><div><input type="time" class="tsT" value="'+(t||'')+'" step="300" style="width:110px"></div><div><button onclick="this.closest(\'.row\').remove()" style="font-size:11px" title="이 줄 삭제">✕</button></div>';box.appendChild(d);}
 let TS_WHY='';function tsSel(b,w){TS_WHY=w;[...b.parentElement.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');}
 async function saveTimeShift(sid){const od=document.getElementById('tsOrig').value,ty=document.getElementById('tsType').value,note=document.getElementById('tsNote').value.trim();const slots=[...document.querySelectorAll('#tsSlots .row')].map(r=>({date:r.querySelector('.tsD').value,time:r.querySelector('.tsT').value})).filter(x=>x.date&&x.time);const el=document.getElementById('tsRcpt');if(!od||!slots.length){el.className='receipt bad';el.textContent='원 수업일·새 일시(1개 이상) 필수';return;}try{const r=await rpc('gz2_time_shift',{p:{student_id:sid,orig_date:od,lesson_type:ty,why:TS_WHY,note:note,slots:slots,by:'2.0 카드'}});const ok=r&&r.ok;el.className='receipt '+(ok?'ok':'bad');el.textContent=ok?('저장 ✓ '+r.n+'건 · 학부모 알림 #'+((r.notify||{}).id||'—')+' 대기'):('실패: '+((r||{}).reason||JSON.stringify(r).slice(0,80)));if(ok){document.getElementById('tsMsg').textContent='알림 문안: '+r.message;EXC=[];render();}}catch(e){el.className='receipt bad';el.textContent='오류 '+e.message.slice(0,60);}}
@@ -256,9 +256,11 @@ function openMakeup(sid, origDate){
   const uniq={}; (TT&&TT.solo||[]).forEach(s=>{uniq[s.sid]=s;});
   const opts=Object.values(uniq).sort((a,b)=>a.n.localeCompare(b.n)).map(s=>`<option value="${s.sid}" ${s.sid===sid?'selected':''}>${s.n}</option>`).join('');
   document.getElementById('slidebody').innerHTML=`
-  <h3 style="font-size:14px;">보충·추가 일정 등록 <span class="mini">(현행 G-MAP1 워크플로 계승)</span></h3>
+  <h3 style="font-size:14px;">보충·추가 일정 등록 <span class="mini">종류(결석/학습관리) × 기간(1회/지속) 구별 등록</span></h3>
   <div class="pick">
     <div id="mkWarn"></div>
+    <div class="row"><div><div class="mini">종류</div><div class="p1"><button class="on" id="mkK1" onclick="mkKind('결석')">결석 보충</button><button id="mkK2" onclick="mkKind('학습관리')">학습관리 보충</button></div></div><div><div class="mini">기간</div><div class="p1"><button class="on" id="mkP1" onclick="mkPeriod('once')">1회</button><button id="mkP2" onclick="mkPeriod('recurring')">지속(매주)</button></div></div></div>
+    <div id="mkRec" style="display:none;margin-top:6px;border:1px dashed #d8d4c8;border-radius:6px;padding:6px"><div class="row"><div><div class="mini">요일</div><select id="mkDow">${['월','화','수','목','금','토','일'].map((d,i)=>'<option value="'+(i+1)+'">'+d+'</option>').join('')}</select></div><div><div class="mini">시작일</div><input type="date" id="mkFrom" value="${localDate()}"></div><div><div class="mini">종료일(필수)</div><input type="date" id="mkUntil"></div><div><div class="mini">길이(분)</div><input type="number" id="mkMin" placeholder="결석 60 · 학습관리 90" style="width:90px"></div></div><div class="mini">지속 보충 = 시간표에 매주 뜨고 종료일 지나면 자동 종료</div></div>
     <div class="row"><div><div class="mini">학생</div><select id="mkSid" onchange="mkDupWarn(+this.value);mkAbsCheck()">${opts}</select></div>
     <div><div class="mini">원 결석일 (미연결 = 추가 보충) <span id="mkAbs"></span></div><input type="date" id="mkOrig" value="${origDate||''}" onchange="mkAbsCheck()"></div></div>
     <div class="row" style="margin-top:6px;"><div><div class="mini">보충일 — 교사가 직접 지정(자동 배정 없음, 현행 정본)</div><input type="date" id="mkDate"></div>
@@ -268,6 +270,7 @@ function openMakeup(sid, origDate){
     <input type="text" id="mkNote" placeholder="메모 (선택)" style="margin-top:6px;">
     <div class="savebar"><button class="btn grn" onclick="saveMakeup()">보충 저장</button><span id="mkRcpt"></span></div>
   </div>`;
+  MK_KIND='결석';MK_MODE='once';
   if(sid){mkDupWarn(sid);mkAbsCheck();}
 }
 let MK_WHY='';
@@ -305,18 +308,19 @@ async function mkAbsCheck(){ /* 현행 결석 확인 계승 */
   }catch(e){el.textContent='';}
 }
 function selWhy(btn,v){MK_WHY=v;document.querySelectorAll('#mkWhy button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
+let MK_KIND='결석', MK_MODE='once';
+function mkKind(k){MK_KIND=k;document.getElementById('mkK1').classList.toggle('on',k==='결석');document.getElementById('mkK2').classList.toggle('on',k==='학습관리');}
+function mkPeriod(m){MK_MODE=m;document.getElementById('mkP1').classList.toggle('on',m==='once');document.getElementById('mkP2').classList.toggle('on',m==='recurring');document.getElementById('mkRec').style.display=m==='recurring'?'block':'none';}
 async function saveMakeup(){
   const sid=+document.getElementById('mkSid').value, dt=document.getElementById('mkDate').value, tm=document.getElementById('mkTime').value.trim();
-  if(!sid||!dt){document.getElementById('mkRcpt').className='receipt bad';document.getElementById('mkRcpt').textContent='학생·보충일 필수';return;}
-  try{
-    const body={student_id:sid, exc_type:'보충', exc_date:dt, orig_date:document.getElementById('mkOrig').value||null,
-      start_time:tm||null, note:((MK_WHY?MK_WHY+' — ':'')+document.getElementById('mkNote').value.trim())||MK_WHY||null};
-    const r=await rpc('gz_rest_write',{p:{op:'post', tbl:'schedule_exceptions', body:body}});
-    const ok=r&&(r.ok!==false);
-    const el=document.getElementById('mkRcpt'); el.className='receipt '+(ok?'ok':'bad');
-    el.textContent=ok?('저장 ✓ '+JSON.stringify(r).slice(0,60)):('실패: '+JSON.stringify(r).slice(0,80));
-    if(ok){EXC=[];loadTray();} /* 표시 회선 즉시 반영 */
-  }catch(e){document.getElementById('mkRcpt').className='receipt bad';document.getElementById('mkRcpt').textContent='오류: '+e.message.slice(0,60);}
+  const el=document.getElementById('mkRcpt'); const note=document.getElementById('mkNote').value.trim();
+  const p={student_id:sid,kind:MK_KIND,mode:MK_MODE,why:MK_WHY,note:note,by:'2.0 카드'};
+  if(MK_MODE==='once'){if(!sid||!dt||!tm){el.className='receipt bad';el.textContent='학생·보충일·시각 필수';return;}p.date=dt;p.time=tm;p.orig_date=document.getElementById('mkOrig').value||null;}
+  else{const dw=document.getElementById('mkDow').value,un=document.getElementById('mkUntil').value,fr=document.getElementById('mkFrom').value,mn=document.getElementById('mkMin').value;if(!sid||!dw||!tm||!un){el.className='receipt bad';el.textContent='학생·요일·시각·종료일 필수(지속)';return;}p.dow=+dw;p.time=tm;p.until=un;p.from=fr;p.minutes=mn||null;p.orig_date=document.getElementById('mkOrig').value||null;}
+  try{const r=await rpc('gz2_makeup_save',{p});const ok=r&&r.ok;el.className='receipt '+(ok?'ok':'bad');
+    el.textContent=ok?(MK_MODE==='once'?('저장 ✓ '+MK_KIND+' 보충 1회 '+dt+' '+tm):('저장 ✓ '+MK_KIND+' 보충 매주 '+['월','화','수','목','금','토','일'][r.readback.dow-1]+' '+String(r.readback.st).slice(0,5)+' ~'+r.readback.until)):('실패: '+((r||{}).reason||JSON.stringify(r).slice(0,80)));
+    if(ok){MK_WHY='';EXC=[];if(MK_MODE==='recurring'){TT=await rpc('gz_tt_data',{});}render();}
+  }catch(e){el.className='receipt bad';el.textContent='오류 '+e.message.slice(0,60);}
 }
 let ENR=null;
 async function openEnroll(){
