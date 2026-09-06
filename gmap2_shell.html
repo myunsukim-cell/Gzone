@@ -71,7 +71,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.50 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.51 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -455,7 +455,7 @@ function renderCoachBody(){
       <div style="height:6px"></div>
       <div id="p3sel" style="border:1px solid #d8d4c8;border-radius:8px;padding:8px 10px;margin:6px 0;background:#fff"><b style="font-size:12.5px">3교시 — 메타인지 · 사후 15문항 <span class="mini">(M02-h: 정리·점검 후 학생이 학생 페이지에서 15문항 → 카드 표시 · 교사는 핵심 5 대신 입력 가능)</span></b><div class="row" style="margin-top:6px"><textarea id="p3c" placeholder="3교시 — 내용(정리·점검)" style="min-height:40px;"></textarea><input type="text" id="p3paper" placeholder="3교시 자료" style="max-width:220px;"></div><div id="cpost" class="mini" style="margin-top:4px"></div></div>
       <div style="height:6px"></div>
-      <textarea id="memo" placeholder="교사 메모 (선택)" style="min-height:40px;"></textarea></div>
+      <textarea id="memo" placeholder="교사 메모 (선택) — 「[원장 준비] ① … ② …」로 적으면 오거나이저 ⑩ 내 할 일에 항목별 자동 등재" style="min-height:40px;"></textarea></div>
     <div class="zone"><h3><span class="zn">4</span>판정 회로 — 시험지·오답 (선택이지만, 이 칸이 1번 과제)</h3>
       <input type="text" id="wq" placeholder="작품·교재 검색 (제목 2자 이상)" oninput="searchWork(this.value)">
       <div class="wres" id="wres" style="display:none"></div>
