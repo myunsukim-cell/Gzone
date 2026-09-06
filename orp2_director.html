@@ -253,7 +253,7 @@ loadCal();
 loadPub();
 load().catch(e=>{document.getElementById('loading').textContent='적재 실패: '+e.message;});
 
-/* ===== 탭 재편 v0.51 (2026-09-06) — 오거나이저 9섹션 + ⑩ 내 할 일 신설 + 경험여정 11탭 흡수 ===== */
+/* ===== 탭 재편 v0.52 (2026-09-06, 인라인 display 잔존 결함 정정) — 오거나이저 9섹션 + ⑩ 내 할 일 신설 + 경험여정 11탭 흡수 ===== */
 const APPS_='https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/apps/';
 const JNLB={'pg-struct':'G-ZONE 구조','pg-journey':'경험여정','pg-asset':'자산·아키텍처','pg-rnd':'정부과제','pg-rnd2':'정부과제 2','pg-bizc':'사업계획 B2C','pg-bizb':'사업계획 B2B','pg-notes':'연구노트','pg-axes':'판독 현황','pg-mock2':'목업','pg-refs':'📖 참고문헌'};
 let OP={}, JNSRC=null, JNCUR=null, S9DONE=false;
@@ -262,7 +262,8 @@ function oInit(){
   OP={p1:secOf('s1'),p2:secOf('s2'),p3:secOf('s3'),p4:document.getElementById('s8box'),
       p5:secOf('s4'),p6:secOf('s5'),p7:document.getElementById('s5b'),p8:secOf('s6'),
       p9:document.getElementById('s7box'),p10:document.getElementById('s9box')};
-  Object.values(OP).forEach(e=>{if(e){e.classList.add('opane');e.classList.remove('on');}});
+  Object.values(OP).forEach(e=>{if(e){e.classList.add('opane');e.classList.remove('on');e.style.display='';}});
+  if(typeof ROLE2!=='undefined'&&ROLE2==='teacher'){const b9=document.querySelector('#otabs button[data-p="p9"]');if(b9)b9.style.display='none';}
   document.querySelectorAll('#otabs button').forEach(b=>{b.onclick=()=>oTab(b.dataset.p);});
   const rp=document.querySelector('.report'); if(rp) rp.style.display='none';
   oTab(sessionStorage.getItem('orp_tab')||'p1');
@@ -270,11 +271,11 @@ function oInit(){
 function oTab(k){
   sessionStorage.setItem('orp_tab',k);
   document.querySelectorAll('#otabs button').forEach(b=>b.classList.toggle('on',b.dataset.p===k));
-  Object.values(OP).forEach(e=>{if(e)e.classList.remove('on');});
-  const jn=document.getElementById('pjn'); jn.classList.remove('on');
+  Object.values(OP).forEach(e=>{if(e){e.classList.remove('on');e.style.display='';}});
+  const jn=document.getElementById('pjn'); jn.classList.remove('on'); jn.style.display='';
   const rp=document.querySelector('.report'); if(rp) rp.style.display=(k==='p9'||k==='p8')?'block':'none';
   if(k.indexOf('jn:')===0){ jn.classList.add('on'); jnLoad(k.slice(3)); return; }
-  const e=OP[k]; if(e){e.classList.add('on'); e.style.display='block';}
+  const e=OP[k]; if(e){e.classList.add('on');}
   if(k==='p10') loadTodos(0);
 }
 async function jnLoad(pg){
