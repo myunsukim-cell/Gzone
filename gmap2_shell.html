@@ -71,7 +71,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.52 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.53 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -251,12 +251,17 @@ async function loadTray(){
   }catch(e){}
 }
 const MK_PRESET=['결석 보충','학생 요청','학부모 요청','원장 휴가 대체','시험 대비 추가','추가 수업']; /* 현행 gzx_04 PRESET 정본 */
+
+/* v0.53 추가 일정 종료 (gz2_slot_list/gz2_slot_end) — 사장님 「보충이 끝났는데 삭제 버튼 없음」 2026-09-07 */
+async function loadSlots(sid){const box=document.getElementById('slotList');if(!box)return;const sel=document.getElementById('mkSid');const id=sid||(sel?+sel.value:null);if(!id){box.textContent='학생 선택';return;}try{const r=await rpc('gz2_slot_list',{p:{student_id:id}});const rows=(r&&r.rows||[]).filter(x=>x.type!=='정규');if(!rows.length){box.innerHTML='추가 일정 없음 (정규만)';return;}const D=['월','화','수','목','금','토','일'];box.innerHTML=rows.map(x=>'<div style="display:flex;gap:6px;align-items:center;margin-top:4px"><span class="tag">'+x.type+'</span><span>'+D[x.dow-1]+' '+x.st+'-'+x.et+(x.from?' · '+String(x.from).slice(5)+'~':'')+(x.to?String(x.to).slice(5):'')+'</span><button class="btn o" style="padding:2px 8px;font-size:11px" onclick="endSlot('+x.id+',\''+x.type+'\')">종료</button></div>').join('');}catch(e){box.textContent='오류 '+e.message.slice(0,60);}}
+async function endSlot(id,type){const d=prompt(type+' 슬롯 종료일 (YYYY-MM-DD, 비우면 오늘)','');if(d===null)return;const reason=prompt('사유 (선택)','보충 종료')||'';try{const r=await rpc('gz2_slot_end',{p:{slot_id:id,end_date:d||null,reason:reason,by:'원장'}});if(r&&r.ok){try{await rpc('gz2_schedule_expire',{});}catch(_){}TT=await rpc('gz_tt_data',{});render();loadSlots(null);alert('종료 처리 — '+r.end_date+(r.is_active?' (종료일까지 표시)':' (시간표에서 내려감)'));}else alert('실패: '+((r||{}).reason||''));}catch(e){alert('오류 '+e.message);}}
 function openMakeup(sid, origDate){
   document.getElementById('slide').classList.add('open');
   const uniq={}; (TT&&TT.solo||[]).forEach(s=>{uniq[s.sid]=s;});
   const opts=Object.values(uniq).sort((a,b)=>a.n.localeCompare(b.n)).map(s=>`<option value="${s.sid}" ${s.sid===sid?'selected':''}>${s.n}</option>`).join('');
   document.getElementById('slidebody').innerHTML=`
   <h3 style="font-size:14px;">보충·추가 일정 등록 <span class="mini">종류(결석/학습관리) × 기간(1회/지속) 구별 등록</span></h3>
+  <div class="pick" id="slotBox" style="margin-bottom:8px"><div class="mini">이 학생의 현재 추가 일정(학습관리·보충) — <b>종료</b>를 누르면 오늘부로 시간표에서 내려갑니다</div><div id="slotList" class="mini">적재 중…</div></div>
   <div class="pick">
     <div id="mkWarn"></div>
     <div class="row"><div><div class="mini">종류</div><div class="p1"><button class="on" id="mkK1" onclick="mkKind('결석')">결석 보충</button><button id="mkK2" onclick="mkKind('학습관리')">학습관리 보충</button></div></div><div><div class="mini">기간</div><div class="p1"><button class="on" id="mkP1" onclick="mkPeriod('once')">1회</button><button id="mkP2" onclick="mkPeriod('recurring')">지속(매주)</button></div></div></div>
@@ -270,6 +275,7 @@ function openMakeup(sid, origDate){
     <input type="text" id="mkNote" placeholder="메모 (선택)" style="margin-top:6px;">
     <div class="savebar"><button class="btn grn" onclick="saveMakeup()">보충 저장</button><span id="mkRcpt"></span></div>
   </div>`;
+  loadSlots(sid);
   MK_KIND='결석';MK_MODE='once';
   if(sid){mkDupWarn(sid);mkAbsCheck();}
 }
