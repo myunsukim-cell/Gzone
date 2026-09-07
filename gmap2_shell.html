@@ -71,7 +71,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.53 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.54 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -461,7 +461,7 @@ function renderCoachBody(){
       <div style="height:6px"></div>
       <div id="p3sel" style="border:1px solid #d8d4c8;border-radius:8px;padding:8px 10px;margin:6px 0;background:#fff"><b style="font-size:12.5px">3교시 — 메타인지 · 사후 15문항 <span class="mini">(M02-h: 정리·점검 후 학생이 학생 페이지에서 15문항 → 카드 표시 · 교사는 핵심 5 대신 입력 가능)</span></b><div class="row" style="margin-top:6px"><textarea id="p3c" placeholder="3교시 — 내용(정리·점검)" style="min-height:40px;"></textarea><input type="text" id="p3paper" placeholder="3교시 자료" style="max-width:220px;"></div><div id="cpost" class="mini" style="margin-top:4px"></div></div>
       <div style="height:6px"></div>
-      <textarea id="memo" placeholder="교사 메모 (선택) — [원장 준비] ① … ② … → 원장 할 일 / [특이사항] … 또는 [보고] … → 메모함(⑫)에 접수·피드백 회신" style="min-height:40px;"></textarea><div id="memoFb" style="font-size:11px;margin-top:4px"></div></div>
+      <textarea id="memo" placeholder="교사 메모 (선택) — [원장 준비] ① … ② … → 원장 할 일 / [특이사항] … 또는 [보고] … → 메모함(⑫)에 접수·피드백 회신" style="min-height:40px;"></textarea><div id="memoFb" style="font-size:11px;margin-top:4px"></div><div id="bookMini" style="font-size:11px;margin-top:6px"></div></div>
     <div class="zone"><h3><span class="zn">4</span>판정 회로 — 시험지·오답 (선택이지만, 이 칸이 1번 과제)</h3>
       <input type="text" id="wq" placeholder="작품·교재 검색 (제목 2자 이상)" oninput="searchWork(this.value)">
       <div class="wres" id="wres" style="display:none"></div>
@@ -507,6 +507,8 @@ async function loadPrefill(){
   const band=document.getElementById('prevband');
   try{
     const pf=await rpc('gz_coach_prefill',{p_sid:COACH_SID});
+    /* v0.54 내 교재 미니판 (gz_book_flow) — 주문·6램프·강좌 진도, 클릭 → 3 수업준비 교재 흐름판 */
+    try{const bm=document.getElementById('bookMini');if(bm){bm.innerHTML='';const bj=await rpc('gz_book_flow',{p:{student_id:COACH_SID}});if(bj&&bj.ok&&bj.n){const L=['klea_p','questions','spark','lc_step','materials','published'];bm.innerHTML='<div style="padding:4px 6px;border:1px solid #d8d4c8;border-radius:6px;background:#fbfaf6"><b>📚 내 교재</b> '+bj.orders.map(o=>{const c=o.check||[];const tot=c.length*6;const set=c.reduce((a,w)=>a+L.filter(k=>(w[k]===true)||(typeof w[k]==='number'&&w[k]>0)).length,0);return '주문 #'+o.id+' <span style="padding:0 5px;border-radius:3px;background:#eef1ea">'+o.status+'</span> 세팅 <span style="color:'+(set<tot?'#A4472F':'#1E4D3B')+';font-weight:700">'+set+'/'+tot+'</span> · '+(o.lectures||[]).map(l=>l.title.replace(/^.*\) /,'')+' '+(l.taught?l.taught+'회':'0회')).join(' · ');}).join('<br>')+'<div style="color:#8a8577">↳ 3 수업준비 → 교재 흐름판에서 주문·세팅·배정 관리</div></div>';}}}catch(_){}
     /* v0.52 메모함 피드백 노출 (staff_memos, note 6142) — 이 학생 관련 특이사항·보고와 원장 피드백 */
     try{const fb=document.getElementById('memoFb');if(fb){fb.innerHTML='';const mj=await rpc('gz_memo_list',{p:{student_id:COACH_SID,limit:5}});if(mj&&mj.ok&&mj.n){fb.innerHTML=mj.rows.map(m=>'<div style="padding:3px 6px;margin-top:3px;border-left:3px solid '+(m.feedback?'#1E4D3B':'#b8b2a3')+';background:#f7f5ee"><b>'+m.status+'</b> '+(m.body||'').slice(0,80)+(m.feedback?'<br><span style="color:#1E4D3B">↳ 피드백: '+m.feedback+' — '+(m.feedback_by||'')+'</span>':'')+'</div>').join('');}}}catch(_){}
 
