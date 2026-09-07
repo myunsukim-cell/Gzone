@@ -201,7 +201,8 @@ footer{max-width:1280px;margin:0 auto;padding:14px 26px 40px;color:var(--dim);fo
     <span>받은 코칭 <b id="gzCoach">–</b></span> <span>🔥 <b id="gzStreak">–</b>일 연속</span> <span>누적 <b id="gzFaces">–</b>면</span>
     <span id="gzScore" class="mini">성적 기록이 등록되면 여기에 표시됩니다</span>
   </div>
-</header><section id="premeta" style="margin:10px 12px;padding:12px 14px;border:1.5px solid #B8892E;border-radius:10px;background:#fff8ea;font-size:13px">
+</header><section id="firstSec" style="display:none;margin:10px 12px;padding:12px 14px;border:2px solid #8a6d1f;border-radius:10px;background:#fffdf5;font-size:13px"></section>
+<section id="premeta" style="margin:10px 12px;padding:12px 14px;border:1.5px solid #B8892E;border-radius:10px;background:#fff8ea;font-size:13px">
 <b style="font-size:14px">오늘 수업 전 5문항</b> <span style="font-size:11px;color:#8a8577">수업 시작 전에 답해 두면 선생님 코칭 카드에 바로 뜹니다</span>
 <div id="pmDone" style="display:none;margin-top:6px;color:#1E4D3B;font-weight:700"></div>
 <div id="pmForm" style="margin-top:8px;display:grid;gap:6px">
@@ -1608,5 +1609,24 @@ gzLoadFill();
 })();
 </script>
 
+
+<script>/* v1 첫수업 모드(학생) — 신입 D+0~7: 첫 수업 안내 + 내 교재 + 내 계획표 (gz2_first_lesson_student) 2026-09-07 */
+(function(){try{
+ var m=(location.search||'').match(/[?&]sid=(\d+)/),k=((location.search||'').match(/[?&]k=([a-f0-9]+)/)||[])[1];if(!m||!k)return;
+ var AK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
+ fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_first_lesson_student',{method:'POST',headers:{'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json'},body:JSON.stringify({p_sid:+m[1],p_k:k})})
+ .then(function(r){return r.json();}).then(function(j){
+   if(!j||!j.ok||!j.is_new)return; var sec=document.getElementById('firstSec'); if(!sec)return;
+   var D=['월','화','수','목','금','토','일']; var o=(j.orders||[])[0]; var slots=(j.slots||[]);
+   var reg=slots.filter(function(s){return s.type==='정규';}).map(function(s){return D[s.dow-1]+' '+s.st;}).join('·'); var hw=slots.filter(function(s){return s.type!=='정규';}).map(function(s){return D[s.dow-1]+' '+s.st;}).join('·');
+   var plan=(j.plan||[]);
+   sec.innerHTML='<b style="font-size:15px">🆕 첫 수업에 오신 것을 환영합니다</b> <span style="font-size:11px;color:#8a8577">입학 '+String(j.enrolled_at).slice(5)+' · D+'+j.d_plus+'</span>'
+    +'<div style="margin-top:6px;line-height:1.7"><b>내 수업</b> — 본수업(확인 보완) <b>'+(reg||'—')+'</b>'+(hw?' · 과제관리 시간 <b>'+hw+'</b>':'')+'<br>첫 수업 순서: ① 확인 시험 1시간(현재 실력 확인) → ② 내 교재로 진도 계획표 만들기 → ③ 이 페이지 사용법 → ④ 주간 계획표·루틴 정하기</div>'
+    +'<div style="margin-top:8px;padding:8px;border:1px solid #d8d4c8;border-radius:8px;background:#fff"><b>📚 내 교재</b> '+(o?('<span style="font-size:11px;color:#8a8577">'+o.status+'</span><div style="margin-top:4px">'+(o.lectures||[]).map(function(l,i){return l.title;}).join(' → ')+'</div>'):'<div style="color:#8a8577">아직 주문된 교재가 없어요 — 선생님이 첫 수업에서 정해 드려요</div>')+'</div>'
+    +'<div style="margin-top:8px;padding:8px;border:1px solid #d8d4c8;border-radius:8px;background:#fff"><b>📅 내 계획표</b> '+(plan.length?('<span style="font-size:11px;color:#8a8577">'+plan.length+'회</span><table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:4px">'+plan.map(function(r){var d=new Date(r.date+'T00:00:00');return '<tr><td style="padding:2px 4px;border-bottom:1px solid #eee">'+String(r.date).slice(5)+' '+D[(d.getDay()+6)%7]+'</td><td style="padding:2px 4px;border-bottom:1px solid #eee">'+((r.type||'').indexOf('SPARK')>=0?'<span style="background:#f7f0d8;color:#8a6d1f;padding:0 5px;border-radius:3px;font-size:11px">과제관리</span>':'<span style="background:#e3efe8;color:#1E4D3B;padding:0 5px;border-radius:3px;font-size:11px">본수업</span>')+'</td><td style="padding:2px 4px;border-bottom:1px solid #eee">'+(r.title||'')+'</td><td style="padding:2px 4px;border-bottom:1px solid #eee;color:#8a8577">'+String(r.note||'').replace(' (초기 계획)','')+'</td></tr>';}).join('')+'</table>'):'<div style="color:#8a8577">첫 수업에서 선생님과 함께 만들어요</div>')+'</div>';
+   sec.style.display='block';
+ }).catch(function(){});
+}catch(e){}})();
+</script>
 </body>
 </html>
