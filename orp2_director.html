@@ -87,7 +87,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
     <div class="rule">비교 없음 · 본인 수신 · 온보딩 첫 달 무평가 · 질=시장 평가 · 주지표=유지·재등록 · 조망(G-ZONE·여정) 하단 접이 ▾</div>
     <div id="loading">DB 적재 중 — rituals · ritual_runs · v_orp_myrecord · v_orp_myday</div>
     <div id="app" style="display:none">
-      <nav class="otabs" id="otabs"><span class="lb">오거나이저</span><button data-p="p1">① 년간 계획표</button><button data-p="p2">② 리추얼</button><button data-p="p3">③ 이 달 목표</button><button data-p="p4">④ 달력</button><button data-p="p5">⑤ 회의·교육</button><button data-p="p6">⑥ 내 성과물</button><button data-p="p7">⑦ 주간 발행판</button><button data-p="p8">⑧ 담당 학생</button><button data-p="p9">⑨ 교사 통계판</button><button data-p="p10">⑩ 내 할 일</button><span class="gp"></span><span class="lb">조망(경험여정)</span><button data-p="jn:pg-struct">G-ZONE 구조</button><button data-p="jn:pg-journey">경험여정</button><button data-p="jn:pg-asset">자산·아키텍처</button><button data-p="jn:pg-rnd">정부과제</button><button data-p="jn:pg-rnd2">정부과제 2</button><button data-p="jn:pg-bizc">사업계획 B2C</button><button data-p="jn:pg-bizb">사업계획 B2B</button><button data-p="jn:pg-notes">연구노트</button><button data-p="jn:pg-axes">판독 현황</button><button data-p="jn:pg-mock2">목업</button><button data-p="jn:pg-refs">📖 참고문헌</button></nav>
+      <nav class="otabs" id="otabs"><span class="lb">오거나이저</span><button data-p="p1">① 년간 계획표</button><button data-p="p2">② 리추얼</button><button data-p="p3">③ 이 달 목표</button><button data-p="p4">④ 달력</button><button data-p="p5">⑤ 회의·교육</button><button data-p="p6">⑥ 내 성과물</button><button data-p="p7">⑦ 주간 발행판</button><button data-p="p8">⑧ 담당 학생</button><button data-p="p9">⑨ 교사 통계판</button><button data-p="p10">⑩ 내 할 일</button><button data-p="p11">⑪ 월요 점검</button><span class="gp"></span><span class="lb">조망(경험여정)</span><button data-p="jn:pg-struct">G-ZONE 구조</button><button data-p="jn:pg-journey">경험여정</button><button data-p="jn:pg-asset">자산·아키텍처</button><button data-p="jn:pg-rnd">정부과제</button><button data-p="jn:pg-rnd2">정부과제 2</button><button data-p="jn:pg-bizc">사업계획 B2C</button><button data-p="jn:pg-bizb">사업계획 B2B</button><button data-p="jn:pg-notes">연구노트</button><button data-p="jn:pg-axes">판독 현황</button><button data-p="jn:pg-mock2">목업</button><button data-p="jn:pg-refs">📖 참고문헌</button></nav>
       <div class="sec"><div class="h"><b>① 년간 계획표 — 학원 + 내 행</b><span class="tag">이행</span></div><div id="s1"></div></div>
       <div class="sec"><div class="h"><b>② 리추얼</b><span class="tag">체크</span><span class="m" id="s2c" style="font-size:11px;color:var(--dim)"></span></div><div id="s2"></div></div>
       <div class="sec"><div class="h"><b id="s3t">③ 이 달 목표</b><span class="tag">기여</span></div><div id="s3"></div></div><div class="sec" id="s8box"><div class="h"><b>⑧ 달력</b><span class="tag" id="calMode" style="cursor:pointer" onclick="toggleCal()">월간 ▾</span><span class="tag">회의·마감·시험·절기·리추얼</span><span class="m" style="font-size:11px;color:var(--dim)" id="s8c">적재 중…</span></div><div id="s8"></div></div>
@@ -96,6 +96,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
       <div class="sec"><div class="h"><b>⑥ 담당 학생</b><span class="tag">주지표: 유지·재등록</span></div><div id="s6"></div></div>
       <div class="sec" id="s7box" style="border:2px solid var(--gold)"><div class="h"><b>⑦ 교사 통계판 <span style="color:var(--gold)">(원장판)</span></b><span class="tag">교사판 ①~⑥을 교사별 한 줄로</span><span class="m" style="font-size:11px;color:var(--dim)" id="s7c">적재 중…</span></div><div id="s7"></div></div><div class="drawer" id="drawer"><div class="dh"><b id="drawerT">발행판</b><span class="m" style="color:var(--dim)">오거나이저 서랍 — 닫으면 ⑤·⑦ 재적재</span><button class="btn o" style="margin-left:auto" onclick="closeDrawer()">✕ 닫기</button></div><iframe id="drawerFr" sandbox="allow-scripts allow-same-origin allow-forms allow-modals"></iframe></div><div class="report"><b id="rp1">내 활동 리포트 — 월간 · 본인 수신 → 62(교사 - 성장·재등록) 면담에서만 공유</b><div class="m" id="rp2"></div></div>
       <div class="sec opane" id="s9box"><div class="h"><b>⑩ 내 할 일 — 주간</b><span class="tag">weekly_todos</span><span class="m" style="font-size:11px;color:var(--dim)" id="s9c">적재 전</span><span class="tag" style="margin-left:auto;cursor:pointer" onclick="loadTodos(1)">↻ 새로고침</span></div><div id="s9"><div style="color:var(--dim);font-size:12px">탭을 열면 적재합니다.</div></div></div>
+      <div class="sec opane" id="s11box"><div class="h"><b>⑪ 월요 마케팅 점검 — 12주 퍼널</b><span class="tag">v_mkt_funnel_weekly</span><span class="m" style="font-size:11px;color:var(--dim)" id="s11c">적재 전</span><span class="tag" style="margin-left:auto;cursor:pointer" onclick="loadFunnel(1)">↻ 새로고침</span></div><div class="m" style="font-size:11px;color:var(--dim);margin:4px 0 8px">기록 규격: {바꾼 것}, {같은 조건 대비} {수치}, {이유}. 다음 주 실험 {한 줄}. (DX desc_system)</div><div id="s11"><div style="color:var(--dim);font-size:12px">탭을 열면 적재합니다.</div></div></div>
       <div class="sec opane" id="pjn"><iframe id="jnFr" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"></iframe></div>
     </div>
     <div class="foot">v3 — M01 문법 준수: 레일 6그룹 원형 + ⑦ 내 기록 신설 · 상단 리추얼 칩 실기록(ritual_runs) · 실데이터(v_orp_myrecord·v_orp_myday·rituals) · 비교 표시 없음</div>
@@ -253,7 +254,7 @@ loadCal();
 loadPub();
 load().catch(e=>{document.getElementById('loading').textContent='적재 실패: '+e.message;});
 
-/* ===== 탭 재편 v0.52 (2026-09-06, 인라인 display 잔존 결함 정정) — 오거나이저 9섹션 + ⑩ 내 할 일 신설 + 경험여정 11탭 흡수 ===== */
+/* ===== 탭 재편 v0.53 (2026-09-07, ⑪ 월요 점검 신설) — 오거나이저 9섹션 + ⑩ 내 할 일 신설 + 경험여정 11탭 흡수 ===== */
 const APPS_='https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/apps/';
 const JNLB={'pg-struct':'G-ZONE 구조','pg-journey':'경험여정','pg-asset':'자산·아키텍처','pg-rnd':'정부과제','pg-rnd2':'정부과제 2','pg-bizc':'사업계획 B2C','pg-bizb':'사업계획 B2B','pg-notes':'연구노트','pg-axes':'판독 현황','pg-mock2':'목업','pg-refs':'📖 참고문헌'};
 let OP={}, JNSRC=null, JNCUR=null, S9DONE=false;
@@ -261,7 +262,7 @@ function secOf(id){const e=document.getElementById(id);return e?e.closest('.sec'
 function oInit(){
   OP={p1:secOf('s1'),p2:secOf('s2'),p3:secOf('s3'),p4:document.getElementById('s8box'),
       p5:secOf('s4'),p6:secOf('s5'),p7:document.getElementById('s5b'),p8:secOf('s6'),
-      p9:document.getElementById('s7box'),p10:document.getElementById('s9box')};
+      p9:document.getElementById('s7box'),p10:document.getElementById('s9box'),p11:document.getElementById('s11box')};
   Object.values(OP).forEach(e=>{if(e){e.classList.add('opane');e.classList.remove('on');e.style.display='';}});
   if(typeof ROLE2!=='undefined'&&ROLE2==='teacher'){const b9=document.querySelector('#otabs button[data-p="p9"]');if(b9)b9.style.display='none';}
   document.querySelectorAll('#otabs button').forEach(b=>{b.onclick=()=>oTab(b.dataset.p);});
@@ -277,6 +278,7 @@ function oTab(k){
   if(k.indexOf('jn:')===0){ jn.classList.add('on'); jnLoad(k.slice(3)); return; }
   const e=OP[k]; if(e){e.classList.add('on');}
   if(k==='p10') loadTodos(0);
+  if(k==='p11') loadFunnel(0);
 }
 async function jnLoad(pg){
   if(JNCUR===pg) return; JNCUR=pg;
@@ -305,6 +307,19 @@ async function loadTodos(force){
       +rs.map(r=>'<tr class="'+(r.is_done?'dn':'')+'" id="td'+r.id+'"><td><input type="checkbox" '+(r.is_done?'checked':'')+' onclick="todoDone('+r.id+',this.checked)"></td>'
       +'<td><span class="ct">'+(r.category||'')+'</span></td><td>'+(r.student_name||'—')+'</td>'
       +'<td>'+(r.is_urgent?'<span class="ug">긴급</span> ':'')+(r.content||'')+'</td></tr>').join('')+'</tbody></table>';
+  }catch(e){box.innerHTML='<div style="color:#A4472F;font-size:12px">적재 실패: '+e.message+'</div>';}
+}
+let S11DONE=false;
+async function loadFunnel(force){
+  if(S11DONE&&!force) return; S11DONE=true;
+  const box=document.getElementById('s11'), cnt=document.getElementById('s11c'); const H2=todoAuth();
+  if(!H2){box.innerHTML='<div style="color:#A4472F;font-size:12px">관문 로그인(직원) 상태에서만 표시됩니다.</div>';cnt.textContent='미인증';return;}
+  box.innerHTML='<div style="color:var(--dim);font-size:12px">적재 중…</div>';
+  try{ const r=await fetch(URL_.replace(/rest\/v1\/$/,'rest/v1/')+'rpc/gz_mkt_funnel',{method:'POST',headers:H2,body:'{}'}); const j=await r.json();
+    if(!j||!j.ok){box.innerHTML='<div style="color:#A4472F;font-size:12px">적재 실패: '+((j&&j.reason)||r.status)+'</div>';return;}
+    const rs=j.rows; cnt.textContent='최근 '+j.n+'주 · 이번 주 '+(rs[0]?rs[0].week_start:'-');
+    const cols=[['week_start','주(월)'],['published','발행'],['views','유입'],['clicks','클릭'],['inquiries','문의'],['consults','상담'],['enrolled','등록'],['cancelled_plans','취소'],['cancel_rate','취소율']];
+    box.innerHTML='<table id="s9tb"><thead><tr>'+cols.map(c=>'<th>'+c[1]+'</th>').join('')+'</tr></thead><tbody>'+rs.map(x=>'<tr>'+cols.map(c=>{let v=x[c[0]];if(c[0]==='cancel_rate')v=(v==null?'—':Math.round(v*100)+'%');if(c[0]==='week_start')v=String(v).slice(5);return '<td'+(c[0]==='cancel_rate'&&x.cancel_rate>=0.5?' style="color:#A4472F;font-weight:700"':'')+'>'+v+'</td>';}).join('')+'</tr>').join('')+'</tbody></table>';
   }catch(e){box.innerHTML='<div style="color:#A4472F;font-size:12px">적재 실패: '+e.message+'</div>';}
 }
 async function todoDone(id,v){
