@@ -255,7 +255,7 @@ loadCal();
 loadPub();
 load().catch(e=>{document.getElementById('loading').textContent='적재 실패: '+e.message;});
 
-/* ===== 탭 재편 v0.54 (2026-09-07, ⑫ 메모·보고 + ⑩ 메모 칸) — 오거나이저 9섹션 + ⑩ 내 할 일 신설 + 경험여정 11탭 흡수 ===== */
+/* ===== 탭 재편 v0.55 (2026-09-07, ⑩ 교사 담당 학생 필터 · 90일 삭제 회선) — 오거나이저 9섹션 + ⑩ 내 할 일 신설 + 경험여정 11탭 흡수 ===== */
 const APPS_='https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/apps/';
 const JNLB={'pg-struct':'G-ZONE 구조','pg-journey':'경험여정','pg-asset':'자산·아키텍처','pg-rnd':'정부과제','pg-rnd2':'정부과제 2','pg-bizc':'사업계획 B2C','pg-bizb':'사업계획 B2B','pg-notes':'연구노트','pg-axes':'판독 현황','pg-mock2':'목업','pg-refs':'📖 참고문헌'};
 let OP={}, JNSRC=null, JNCUR=null, S9DONE=false;
@@ -269,6 +269,7 @@ function oInit(){
   document.querySelectorAll('#otabs button').forEach(b=>{b.onclick=()=>oTab(b.dataset.p);});
   const rp=document.querySelector('.report'); if(rp) rp.style.display='none';
   oTab(sessionStorage.getItem('orp_tab')||'p1');
+  try{const dk='orp_purge_'+new Date().toISOString().slice(0,10);if(typeof ROLE2!=='undefined'&&ROLE2!=='teacher'&&!sessionStorage.getItem(dk)){sessionStorage.setItem(dk,'1');rpcJ('gz_consult_uploads_purge',{}).then(j=>{if(j&&j.ok&&j.deleted)console.log('consult-uploads 만료 삭제',j.deleted);});}}catch(e){}
 }
 function oTab(k){
   sessionStorage.setItem('orp_tab',k);
@@ -300,9 +301,8 @@ async function loadTodos(force){
   if(!H2){box.innerHTML='<div style="color:#A4472F;font-size:12px">로그인이 필요합니다 — weekly_todos는 직원 계정(authenticated)만 읽습니다. 관문에서 로그인 후 다시 여세요.</div>';cnt.textContent='미인증';return;}
   box.innerHTML='<div style="color:var(--dim);font-size:12px">적재 중…</div>';
   try{
-    const wk=await (await fetch(URL_+'weekly_meta?select=id,week_label,monday_date&order=id.desc&limit=1',{headers:H2})).json();
-    const wid=(wk&&wk[0])?wk[0].id:4, lbl=(wk&&wk[0])?wk[0].week_label:'';
-    const rs=await (await fetch(URL_+'weekly_todos?select=*&week_id=eq.'+wid+'&order=is_done.asc,is_urgent.desc,id.asc',{headers:H2})).json();
+    const tj=await rpcJ('gz_todo_list',{}); if(!tj||!tj.ok){box.innerHTML='<div style="color:#A4472F;font-size:12px">적재 실패: '+((tj&&tj.reason)||'')+'</div>';return;}
+    const rs=tj.rows, lbl=tj.week_label+(tj.role==='교사'?' · 담당 학생 '+tj.my_students+'명 항목만':'');
     const open_=rs.filter(r=>!r.is_done).length, urg=rs.filter(r=>r.is_urgent&&!r.is_done).length;
     cnt.textContent=lbl+' · 전체 '+rs.length+' · 미완료 '+open_+' · 긴급 '+urg;
     box.innerHTML='<table id="s9tb"><thead><tr><th style="width:26px"></th><th style="width:78px">분류</th><th style="width:74px">학생</th><th>내용</th><th style="width:220px">메모</th></tr></thead><tbody>'
