@@ -73,7 +73,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.57 · 실동</span></h1>
+  <h1>G-MAP 2.0 <span class="v">테스트 2파 · v0.58 · 실동</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -242,6 +242,36 @@ async function saveTimeShift(sid){const od=document.getElementById('tsOrig').val
 async function cardWithdraw(sid){const st=((TT&&TT.solo)||[]).find(s=>s.sid===sid);const nm=st?st.n:('#'+sid);const on=prompt(nm+' 퇴원 처리 — 퇴원일(YYYY-MM-DD). 활성 시간표가 함께 종료됩니다. 취소하려면 빈칸.',localDate());if(!on)return;const reason=prompt('퇴원 사유(선택)')||'';try{const r=await rpc('gz2_student_withdraw',{p:{student_id:sid,on:on,reason:reason}});if(r&&r.ok){alert('퇴원 처리 ✓ '+r.readback.name+' · '+r.readback.withdrawn_on+' · 활성 시간표 '+r.readback.active_schedule);document.getElementById('slide').classList.remove('open');render();}else alert('실패: '+((r||{}).reason||''));}catch(e){alert('오류 '+e.message);}}
 async function savePreMeta(sid){const g=id=>document.getElementById(id).value;const r=await rpc('gz2_pre_meta_save',{p:{student_id:sid,hw_done_pct:g('pm1'),amount:g('pm2a'),difficulty:g('pm2b'),weakness:g('pm3'),today_goal:g('pm4'),confidence:g('pm5'),by:'교사 대신 입력'}});document.getElementById('pmr').textContent=r.ok?'저장 ✓':'거부 '+(r.reason||'');if(r.ok)loadCardCtx(sid);}
 
+
+let FL=null, FL_DRAFT=null;
+async function firstLessonBlock(sid){
+  let blk=document.getElementById('firstBlk'); if(blk) blk.remove();
+  const j=await rpc('gz_first_lesson',{p:{student_id:sid}}); if(!j||!j.ok||!j.is_new){FL=null;return;} FL=j;
+  const cp=c=>(j.cps||[]).find(x=>x.cp===c)||{};
+  const tk=(c,lbl)=>{const x=cp(c);return '<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;background:'+(x.done?'#e3efe8':'#fbe9e4')+';color:'+(x.done?'#1E4D3B':'#A4472F')+'">'+(x.done?'✓ ':'')+lbl+(x.due?' <span style="opacity:.7">~'+String(x.due).slice(5)+'</span>':'')+'</span>';};
+  const o=(j.orders||[])[0]; const L=['klea_p','questions','spark','lc_step','materials','published'];
+  const lamps=o?(o.check||[]).map(w=>L.filter(k=>(w[k]===true)||(typeof w[k]==='number'&&w[k]>0)).length+'/6').join(','):'주문 없음';
+  const planRows=(j.plan||[]);
+  blk=document.createElement('div'); blk.id='firstBlk';
+  blk.style.cssText='margin:6px 0 10px;padding:10px;border:2px solid #8a6d1f;border-radius:10px;background:#fffdf5';
+  blk.innerHTML='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b style="font-size:14px">🆕 첫수업 모드</b><span class="mini">입학 '+String(j.enrolled_at).slice(5)+' · D+'+j.d_plus+' · 신입 7일 창</span><span style="margin-left:auto">'+tk('F1','F1 확인 시험')+' '+tk('F2','F2 커리큘럼')+' '+tk('F3','F3 사용법')+' '+tk('F4','F4 계획표·루틴')+'</span></div>'
+   +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;font-size:12px">'
+   +'<div style="padding:8px;border:1px solid #d8d4c8;border-radius:8px;background:#fff"><b>F1 확인 시험 1h</b> <span class="mini">(KED · entrance_tests)</span><div style="margin-top:4px">'+(j.test?('최근: '+j.test.date+' · '+(j.test.code||'')+(j.test.kmd!=null?' · KMD '+j.test.kmd:'')):'기록 없음')+'</div>'+(cp('F1').done?'':'<button class="btn o" style="margin-top:4px;font-size:11px" onclick="flTestStart()">확인 시험 시작 기록</button>')+'</div>'
+   +'<div style="padding:8px;border:1px solid #d8d4c8;border-radius:8px;background:#fff"><b>F3·F4 사용법 · 계획표·루틴</b><div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap">'+(cp('F3').done?'':'<button class="btn o" style="font-size:11px" onclick="flCp(\'F3\')">F3 사용법 안내 완료</button>')+(cp('F4').done?'':'<button class="btn o" style="font-size:11px" onclick="flCp(\'F4\')">F4 계획표·루틴 완료</button>')+'</div><div class="mini" style="margin-top:4px">D+1 학부모 문자 · D+7 리포트 · D+14 상담 · D+30 재등록은 신입 여정 판에서 자동 판정</div></div>'
+   +'</div>'
+   +'<div style="margin-top:8px;padding:8px;border:1px solid #d8d4c8;border-radius:8px;background:#fff;font-size:12px"><b>F2 커리큘럼 — 초기 진도 계획표</b> <span class="mini">주문 교재 강좌 × 주차 × 본수업/과제관리 · 교재 세팅 '+lamps+'</span>'
+   +'<div style="margin-top:4px">📚 '+(o?(o.lectures||[]).map(l=>l.title).join(' → '):'교재 주문 없음 — 3 수업준비 교재 흐름판에서 주문')+'</div>'
+   +'<div id="flPlan" style="margin-top:6px">'+(planRows.length?flPlanTable(planRows,false):'<div class="mini">계획표 없음 — 초안을 만들어 저장하면 아래 「진도·커리큘럼」과 학생 페이지에 바로 뜹니다</div>')+'</div>'
+   +'<div style="margin-top:6px;display:flex;gap:6px;align-items:center"><button class="btn o" style="font-size:11px" onclick="flDraft()">초안 만들기</button><span id="flMsg" class="mini"></span></div></div>';
+  const ty=document.getElementById('tyLine'); const head=document.getElementById('chead');
+  (ty||head).insertAdjacentElement('afterend',blk);
+  try{const pr=document.getElementById('cprog'); if(pr&&pr.parentElement){blk.insertAdjacentElement('afterend',pr);}}catch(_){}
+}
+function flPlanTable(rows,draft){const D=['월','화','수','목','금','토','일'];return '<table style="width:100%;border-collapse:collapse;font-size:11.5px"><tr><th style="text-align:left">주차</th><th style="text-align:left">날짜</th><th style="text-align:left">종류</th><th style="text-align:left">강좌</th><th style="text-align:left">내용</th>'+(draft?'':'<th>상태</th>')+'</tr>'+rows.map(r=>'<tr><td>'+(r.week||'')+'</td><td>'+String(r.date).slice(5)+(r.dow?' '+D[r.dow-1]:'')+'</td><td>'+((r.slot||r.type||'').indexOf('SPARK')>=0||r.slot==='학습관리'?'<span class="tybadge">과제관리</span>':'<span class="tag">본수업</span>')+'</td><td>'+(r.title||'')+'</td><td>'+(r.note||r.content_type||'')+'</td>'+(draft?'':'<td>'+(r.status||'')+'</td>')+'</tr>').join('')+'</table>';}
+async function flDraft(){const m=document.getElementById('flMsg');m.textContent='초안 생성 중…';const d=await rpc('gz_first_plan_draft',{p:{student_id:COACH_SID}});if(!d||!d.ok||!d.n){m.textContent='초안 실패: '+((d&&d.reason)||'주문 강좌·시간표 필요');return;}FL_DRAFT=d;document.getElementById('flPlan').innerHTML='<div class="mini">초안 '+d.weeks+'주 · '+d.n+'행 — 확인 후 저장</div>'+flPlanTable(d.rows,true)+'<button class="btn grn" style="margin-top:6px;font-size:11px" onclick="flSave()">계획표 저장 (F2 완료)</button>';m.textContent='';}
+async function flSave(){if(!FL_DRAFT)return;const r=await rpc('gz_first_plan_save',{p:{student_id:COACH_SID,rows:FL_DRAFT.rows,replace:true}});if(r&&r.ok){document.getElementById('flMsg').textContent='저장 '+r.inserted+'행';await firstLessonBlock(COACH_SID);try{loadProg&&loadProg();}catch(_){}}else alert('저장 실패: '+((r||{}).reason||''));}
+async function flTestStart(){const r=await rpc('gz_first_test_start',{p:{student_id:COACH_SID}});if(r&&r.ok){await firstLessonBlock(COACH_SID);}else alert('실패: '+((r||{}).reason||''));}
+async function flCp(c){const note=prompt(c+' 완료 메모 (선택)','')||'';const r=await rpc('gz_first_cp',{p:{student_id:COACH_SID,cp:c,done:true,note:note}});if(r&&r.ok){await firstLessonBlock(COACH_SID);}else alert('실패: '+((r||{}).reason||''));}
 function openCoach(sid,name,ty,rid){
   window.COACH_TY=ty||'정규'; window.COACH_RID=rid||0;
   setTimeout(()=>{try{const sel=document.getElementById('cst');if(sel){const opt=[...sel.options].find(o=>o.value==='HW');if(opt)opt.textContent='과제관리(학습관리 시간)';sel.value=(window.COACH_TY==='학습관리')?'HW':(window.COACH_TY==='보충'||window.COACH_TY==='대체수업')?'SUP':(window.COACH_TY==='특강')?'SPC':'REG';}
@@ -520,6 +550,8 @@ async function loadPrefill(){
   const band=document.getElementById('prevband');
   try{
     const pf=await rpc('gz_coach_prefill',{p_sid:COACH_SID});
+    /* v0.58 첫수업 모드 (gz_first_lesson·gz_first_plan_draft/save·gz_first_test_start·gz_first_cp) — 신입 D+0~7이면 카드 맨 위 「첫 시간 4단」 */
+    try{ await firstLessonBlock(COACH_SID); }catch(_){}
     /* v0.54 내 교재 미니판 (gz_book_flow) — 주문·6램프·강좌 진도, 클릭 → 3 수업준비 교재 흐름판 */
     try{const bm=document.getElementById('bookMini');if(bm){bm.innerHTML='';const bj=await rpc('gz_book_flow',{p:{student_id:COACH_SID}});if(bj&&bj.ok&&bj.n){const L=['klea_p','questions','spark','lc_step','materials','published'];bm.innerHTML='<div style="padding:4px 6px;border:1px solid #d8d4c8;border-radius:6px;background:#fbfaf6"><b>📚 내 교재</b> '+bj.orders.map(o=>{const c=o.check||[];const tot=c.length*6;const set=c.reduce((a,w)=>a+L.filter(k=>(w[k]===true)||(typeof w[k]==='number'&&w[k]>0)).length,0);return '주문 #'+o.id+' <span style="padding:0 5px;border-radius:3px;background:#eef1ea">'+o.status+'</span> 세팅 <span style="color:'+(set<tot?'#A4472F':'#1E4D3B')+';font-weight:700">'+set+'/'+tot+'</span> · '+(o.lectures||[]).map(l=>l.title.replace(/^.*\) /,'')+' '+(l.taught?l.taught+'회':'0회')).join(' · ');}).join('<br>')+'<div style="color:#8a8577">↳ 3 수업준비 → 교재 흐름판에서 주문·세팅·배정 관리</div></div>';}}}catch(_){}
     /* v0.52 메모함 피드백 노출 (staff_memos, note 6142) — 이 학생 관련 특이사항·보고와 원장 피드백 */
@@ -735,6 +767,9 @@ document.getElementById('role').value=localStorage.getItem('g2role')||'teacher';
 /* 로그인 관문(2026-09-05 계획표 9): 관문에서 주입된 __GZ_ME로 역할·본인 고정 */
 if(window.__GZ_ME&&window.__GZ_ME.teacher_id){const me=window.__GZ_ME;const rv=me.role==='원장'?'director':me.role==='데스크'?'director':'teacher';document.getElementById('role').value=rv;localStorage.setItem('g2role',rv);if(rv==='teacher'){localStorage.setItem('g2me',me.nick);TFILT=me.nick;localStorage.setItem('g2tfilt',me.nick);}else{localStorage.removeItem('g2me');}document.getElementById('role').disabled=true;document.getElementById('role').title='로그인 계정 '+me.name+' ('+me.role+') — 역할 고정';}
 drawTabs();render();
+
+/* 신입 판 → 코치 카드 자동 오픈 (sessionStorage gz_open_coach) */
+setTimeout(()=>{try{const sid=+sessionStorage.getItem('gz_open_coach');if(sid){sessionStorage.removeItem('gz_open_coach');const st=((TT&&TT.solo)||[]).find(x=>x.sid===sid);openCoach(sid,st?st.n:('#'+sid),st?st.ty:'정규',st?st.rid:0);}}catch(_){}},3000);
 </script>
 </body>
 </html>
