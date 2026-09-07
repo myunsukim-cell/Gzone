@@ -1,0 +1,83 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>목업 — 교재 흐름판 v1 (주문→점검→할 일→세팅→배정→진도)</title>
+<style>
+:root{--deep:#1E4D3B;--gold:#8a6d1f;--red:#A4472F;--line:#d8d4c8;--dim:#6b665b;--bg:#fbfaf6;--card:#fff}
+body{margin:0;background:var(--bg);font:13px/1.5 Pretendard,-apple-system,"Malgun Gothic",sans-serif;color:#2a2a26}
+.top{background:var(--deep);color:#fff;padding:10px 18px;display:flex;gap:14px;align-items:center}.top b{font-size:16px}.top .m{opacity:.8;font-size:12px}
+.wrap{padding:14px 18px;max-width:1400px}
+.lane{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin:10px 0 16px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;position:relative}
+.step .n{position:absolute;top:-9px;left:10px;background:var(--deep);color:#fff;border-radius:10px;font-size:10.5px;padding:1px 7px}
+.step h4{margin:6px 0 4px;font-size:12.5px}.step .src{font-size:10.5px;color:var(--dim)}
+.step.on{border-color:var(--gold);box-shadow:0 0 0 2px #f1e8cf inset}
+.step.bad{border-color:var(--red)}
+.arrow{text-align:center;color:var(--dim);font-size:18px;margin-top:-10px;letter-spacing:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:12px}
+.card h3{margin:0 0 8px;font-size:14px;display:flex;gap:8px;align-items:center}.tag{font-size:10.5px;padding:1px 7px;border-radius:4px;background:#eef1ea;color:#3d5245}
+.tag.r{background:#fbe9e4;color:var(--red)}.tag.g{background:#e3efe8;color:var(--deep)}.tag.y{background:#f7f0d8;color:var(--gold)}
+table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;background:#f2efe6;padding:5px 7px;border-bottom:1px solid var(--line);font-size:11px;color:var(--dim)}td{padding:5px 7px;border-bottom:1px solid #eee;vertical-align:top}
+.lamp{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:middle}.lamp.r{background:var(--red)}.lamp.g{background:var(--deep)}.lamp.y{background:var(--gold)}.lamp.x{background:#ccc}
+.btn{font:inherit;font-size:11.5px;padding:4px 10px;border:1px solid var(--deep);border-radius:6px;background:#fff;color:var(--deep);cursor:pointer}.btn.p{background:var(--deep);color:#fff}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.note{font-size:11px;color:var(--dim);border-left:3px solid var(--gold);padding:4px 8px;background:#fbf7ea;margin-top:6px}
+.bar{height:8px;background:#eee;border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--deep)}
+</style></head><body>
+<div class="top"><b>교재 흐름판</b><span class="m">목업 v1 · 2.0 「3 수업준비」 탭 첫 카드 + 코치 카드 학생 탭 링크 · 실데이터: 김준기(570) 2026-09-07 주문</span><span class="m" style="margin-left:auto">1.0 ③ 수업준비(교안 결손 실황)를 학생·주문에 묶어 2.0으로 이어 붙임</span></div>
+<div class="wrap">
+
+<div class="lane">
+ <div class="step on"><span class="n">1</span><h4>주문</h4><div class="src">book_orders +student_id·lecture_ids</div><div>학생·강좌·수량·상태<br>접수→승인→제작출고→도착</div></div>
+ <div class="step bad"><span class="n">2</span><h4>교재 DB 점검 <span class="tag r">자동</span></h4><div class="src">트리거 gz_book_order_check</div><div>강좌→work 커버리지 6램프<br>지문·문항·SPARK·교안·자료·발행</div></div>
+ <div class="step"><span class="n">3</span><h4>할 일 자동 <span class="tag r">자동</span></h4><div class="src">weekly_todos(긴급)·staff_memos</div><div>결손 항목마다 1행<br>⑩ 내 할 일·⑫ 메모함 접수</div></div>
+ <div class="step"><span class="n">4</span><h4>세팅 진행</h4><div class="src">각 방 회신 → steps_done</div><div>방별 작업 → 램프 소등<br>진행률 %</div></div>
+ <div class="step"><span class="n">5</span><h4>수업 배정</h4><div class="src">enroll_steps(강좌×STEP/SPARK×교시)</div><div>세팅된 것만 배정 가능<br>미세팅 = 회색 잠금</div></div>
+ <div class="step"><span class="n">6</span><h4>진도</h4><div class="src">coaching_logs × 강좌</div><div>강좌별 완료 %·마지막 수업일<br>코치 카드에 표시</div></div>
+ <div class="step"><span class="n">7</span><h4>도착·노출</h4><div class="src">book_orders 도착확인 → 학생 페이지</div><div>교재 도착 시 학생·학부모 페이지에 「내 교재」</div></div>
+</div>
+
+<div class="row">
+<div class="card"><h3>① 주문 — 김준기 <span class="tag">연송고 고2</span><span class="tag y">접수 9/7</span></h3>
+<table><tr><th>교재</th><th>강좌</th><th>쪽</th><th>work</th></tr>
+<tr><td rowspan="3">세플 G독 독서 독해법 기본편 1권<br><span class="src">예비고1 기본 커리큘럼_독서편 · 제작 · 1권</span></td><td>1. 문장 읽기 <span class="src">#1139</span></td><td>82</td><td rowspan="3">5434 독서 독해법</td></tr>
+<tr><td>2. 단락 읽기 <span class="src">#1138</span></td><td>76</td></tr><tr><td>3. 지문 읽기 <span class="src">#1137</span></td><td>70</td></tr></table>
+<div style="margin-top:8px;display:flex;gap:6px"><button class="btn p">주문 저장</button><button class="btn">강좌 찾기</button><span class="src" style="align-self:center">저장 순간 ②③이 자동으로 돕니다</span></div>
+<div class="note">입력 위치: 코치 카드 학생 탭 「교재 주문」 칸(학생이 선택돼 있음) / 3 수업준비 탭에서도 동일 칸. 1.0처럼 강좌명 붙여넣기 → 강좌 자동 매칭.</div></div>
+
+<div class="card"><h3>② 교재 DB 점검 — work 5434 <span class="tag r">결손 6/6</span></h3>
+<table><tr><th>항목</th><th>실측</th><th>기준</th><th>담당 방</th></tr>
+<tr><td><i class="lamp r"></i>지문(klea_p)</td><td>0</td><td>강좌 3 × 지문 ≥1</td><td>klea5460p</td></tr>
+<tr><td><i class="lamp r"></i>문항(questions)</td><td>0</td><td>강좌당 ≥5</td><td>step3</td></tr>
+<tr><td><i class="lamp r"></i>연습 세트(SPARK·mock_items)</td><td>0</td><td>SPARK1~5 중 ≥1</td><td>step4</td></tr>
+<tr><td><i class="lamp r"></i>교안(lecture_contents STEP)</td><td>0</td><td>STEP1~3 ≥1</td><td>step3·5</td></tr>
+<tr><td><i class="lamp r"></i>자료(materials)</td><td>0</td><td>≥1</td><td>교안</td></tr>
+<tr><td><i class="lamp r"></i>발행(lectures.is_published)</td><td>false</td><td>true</td><td>DB방</td></tr></table>
+<div class="note">1.0 ③ 수업준비의 「교안 결손 실황」이 바로 이 표 — 지금은 학생·주문과 끊겨 있어 찾아보지 않게 됨. 주문이 이 표를 끌어와 학생 이름 밑에 붙임.</div></div>
+</div>
+
+<div class="row">
+<div class="card"><h3>③ 할 일 자동 생성 <span class="tag g">트리거</span></h3>
+<table><tr><th>어디</th><th>내용(예)</th><th>상태</th></tr>
+<tr><td>⑩ 내 할 일</td><td>🔴 김준기 · 교재 DB 세팅 — 5434 지문 0·문항 0·SPARK 0 → 1.문장 읽기부터</td><td>week 5 · 긴급 (실물: id 48)</td></tr>
+<tr><td>⑫ 메모함</td><td>[교재] 김준기 주문 → work 5434 결손 6 → 「가공」 대기</td><td>접수</td></tr>
+<tr><td>⑫ 가공 후</td><td>정교화: [klea5460p방] 5434 문장 읽기 지문 82p 라벨링 / [step3] 문항 / [step4] SPARK1</td><td>방전달 → 작업중</td></tr></table>
+<div class="note">「가공」에서 클로드가 결손 6을 방별 요청문으로 쪼개고, 회신이 오면 ④ 램프가 하나씩 꺼짐.</div></div>
+
+<div class="card"><h3>④ 세팅 진행 · ⑤ 수업 배정 · ⑥ 진도</h3>
+<div style="display:flex;gap:10px;align-items:center;margin-bottom:6px"><span style="width:90px">세팅 진행</span><div class="bar" style="flex:1"><i style="width:0%"></i></div><span>0/6</span></div>
+<table><tr><th>강좌</th><th>세팅</th><th>배정(교시)</th><th>진도</th><th>마지막 수업</th></tr>
+<tr><td>1. 문장 읽기</td><td><i class="lamp r"></i>미세팅</td><td><span class="tag" style="background:#eee;color:#999">잠금</span></td><td><div class="bar"><i style="width:0%"></i></div>0%</td><td>—</td></tr>
+<tr><td>2. 단락 읽기</td><td><i class="lamp r"></i>미세팅</td><td><span class="tag" style="background:#eee;color:#999">잠금</span></td><td><div class="bar"><i style="width:0%"></i></div>0%</td><td>—</td></tr>
+<tr><td>3. 지문 읽기</td><td><i class="lamp r"></i>미세팅</td><td><span class="tag" style="background:#eee;color:#999">잠금</span></td><td><div class="bar"><i style="width:0%"></i></div>0%</td><td>—</td></tr>
+<tr style="color:var(--dim)"><td colspan="5">예시(세팅 완료 시): <i class="lamp g"></i>세팅 됨 → 배정 「1교시 STEP1 · 과제 SPARK1」 → 진도 = 코칭 기록에서 이 강좌 STEP/SPARK 완료 수 ÷ 배정 수</td></tr></table>
+<div class="note">세팅 안 된 강좌는 배정 버튼이 잠겨서 「준비 안 된 교재로 수업」이 구조적으로 막힘. 진도는 코치 카드 학생 탭 「내 교재」에 그대로 노출.</div></div>
+</div>
+
+<div class="card"><h3>⑦ 도착·노출 + 연결 경로</h3>
+<table><tr><th>화면</th><th>보이는 것</th><th>연결</th></tr>
+<tr><td>2.0 3 수업준비 (첫 카드)</td><td>이 흐름판 전체 — 학생 선택 시 그 학생 주문·램프·진도</td><td>1.0 ③ 수업준비 결손 실황을 흡수(같은 SELECT)</td></tr>
+<tr><td>코치 카드 학생 탭</td><td>「내 교재」 미니판: 주문 상태·램프 6·강좌 진도 3</td><td>클릭 → 흐름판</td></tr>
+<tr><td>⑩ 내 할 일 / ⑫ 메모함</td><td>결손 할 일·가공·회신</td><td>완료 시 램프 소등(트리거)</td></tr>
+<tr><td>학생·학부모 페이지</td><td>도착확인 후 「내 교재 · 진도 %」</td><td>book_orders 도착확인 → 노출</td></tr></table></div>
+
+<div class="src" style="text-align:right">DB방 2026-09-07 · 목업 v1 · 신규 열 2(book_orders.student_id·lecture_ids) + 트리거 1 + RPC 3(order_save·book_flow·lecture_progress) + 화면 2(prep_board 카드·코치 카드 미니판)</div>
+</div></body></html>
