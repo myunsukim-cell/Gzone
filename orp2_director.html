@@ -87,7 +87,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
     <div class="rule">비교 없음 · 본인 수신 · 온보딩 첫 달 무평가 · 질=시장 평가 · 주지표=유지·재등록 · 조망(G-ZONE·여정) 하단 접이 ▾</div>
     <div id="loading">DB 적재 중 — rituals · ritual_runs · v_orp_myrecord · v_orp_myday</div>
     <div id="app" style="display:none">
-      <nav class="otabs" id="otabs"><span class="lb">오거나이저</span><button data-p="p1">① 년간 계획표</button><button data-p="p2">② 리추얼</button><button data-p="p3">③ 이 달 목표</button><button data-p="p4">④ 달력</button><button data-p="p5">⑤ 회의·교육</button><button data-p="p6">⑥ 내 성과물</button><button data-p="p7">⑦ 주간 발행판</button><button data-p="p8">⑧ 담당 학생</button><button data-p="p9">⑨ 교사 통계판</button><button data-p="p10">⑩ 내 할 일</button><button data-p="p11">⑪ 월요 점검</button><span class="gp"></span><span class="lb">조망(경험여정)</span><button data-p="jn:pg-struct">G-ZONE 구조</button><button data-p="jn:pg-journey">경험여정</button><button data-p="jn:pg-asset">자산·아키텍처</button><button data-p="jn:pg-rnd">정부과제</button><button data-p="jn:pg-rnd2">정부과제 2</button><button data-p="jn:pg-bizc">사업계획 B2C</button><button data-p="jn:pg-bizb">사업계획 B2B</button><button data-p="jn:pg-notes">연구노트</button><button data-p="jn:pg-axes">판독 현황</button><button data-p="jn:pg-mock2">목업</button><button data-p="jn:pg-refs">📖 참고문헌</button></nav>
+      <nav class="otabs" id="otabs"><span class="lb">오거나이저</span><button data-p="p1">① 년간 계획표</button><button data-p="p2">② 리추얼</button><button data-p="p3">③ 이 달 목표</button><button data-p="p4">④ 달력</button><button data-p="p5">⑤ 회의·교육</button><button data-p="p6">⑥ 내 성과물</button><button data-p="p7">⑦ 주간 발행판</button><button data-p="p8">⑧ 담당 학생</button><button data-p="p9">⑨ 교사 통계판</button><button data-p="p10">⑩ 내 할 일</button><button data-p="p11">⑪ 월요 점검</button><button data-p="p12">⑫ 메모·보고<span id="p12q"></span></button><span class="gp"></span><span class="lb">조망(경험여정)</span><button data-p="jn:pg-struct">G-ZONE 구조</button><button data-p="jn:pg-journey">경험여정</button><button data-p="jn:pg-asset">자산·아키텍처</button><button data-p="jn:pg-rnd">정부과제</button><button data-p="jn:pg-rnd2">정부과제 2</button><button data-p="jn:pg-bizc">사업계획 B2C</button><button data-p="jn:pg-bizb">사업계획 B2B</button><button data-p="jn:pg-notes">연구노트</button><button data-p="jn:pg-axes">판독 현황</button><button data-p="jn:pg-mock2">목업</button><button data-p="jn:pg-refs">📖 참고문헌</button></nav>
       <div class="sec"><div class="h"><b>① 년간 계획표 — 학원 + 내 행</b><span class="tag">이행</span></div><div id="s1"></div></div>
       <div class="sec"><div class="h"><b>② 리추얼</b><span class="tag">체크</span><span class="m" id="s2c" style="font-size:11px;color:var(--dim)"></span></div><div id="s2"></div></div>
       <div class="sec"><div class="h"><b id="s3t">③ 이 달 목표</b><span class="tag">기여</span></div><div id="s3"></div></div><div class="sec" id="s8box"><div class="h"><b>⑧ 달력</b><span class="tag" id="calMode" style="cursor:pointer" onclick="toggleCal()">월간 ▾</span><span class="tag">회의·마감·시험·절기·리추얼</span><span class="m" style="font-size:11px;color:var(--dim)" id="s8c">적재 중…</span></div><div id="s8"></div></div>
@@ -97,6 +97,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
       <div class="sec" id="s7box" style="border:2px solid var(--gold)"><div class="h"><b>⑦ 교사 통계판 <span style="color:var(--gold)">(원장판)</span></b><span class="tag">교사판 ①~⑥을 교사별 한 줄로</span><span class="m" style="font-size:11px;color:var(--dim)" id="s7c">적재 중…</span></div><div id="s7"></div></div><div class="drawer" id="drawer"><div class="dh"><b id="drawerT">발행판</b><span class="m" style="color:var(--dim)">오거나이저 서랍 — 닫으면 ⑤·⑦ 재적재</span><button class="btn o" style="margin-left:auto" onclick="closeDrawer()">✕ 닫기</button></div><iframe id="drawerFr" sandbox="allow-scripts allow-same-origin allow-forms allow-modals"></iframe></div><div class="report"><b id="rp1">내 활동 리포트 — 월간 · 본인 수신 → 62(교사 - 성장·재등록) 면담에서만 공유</b><div class="m" id="rp2"></div></div>
       <div class="sec opane" id="s9box"><div class="h"><b>⑩ 내 할 일 — 주간</b><span class="tag">weekly_todos</span><span class="m" style="font-size:11px;color:var(--dim)" id="s9c">적재 전</span><span class="tag" style="margin-left:auto;cursor:pointer" onclick="loadTodos(1)">↻ 새로고침</span></div><div id="s9"><div style="color:var(--dim);font-size:12px">탭을 열면 적재합니다.</div></div></div>
       <div class="sec opane" id="s11box"><div class="h"><b>⑪ 월요 마케팅 점검 — 12주 퍼널</b><span class="tag">v_mkt_funnel_weekly</span><span class="m" style="font-size:11px;color:var(--dim)" id="s11c">적재 전</span><span class="tag" style="margin-left:auto;cursor:pointer" onclick="loadFunnel(1)">↻ 새로고침</span></div><div class="m" style="font-size:11px;color:var(--dim);margin:4px 0 8px">기록 규격: {바꾼 것}, {같은 조건 대비} {수치}, {이유}. 다음 주 실험 {한 줄}. (DX desc_system)</div><div id="s11"><div style="color:var(--dim);font-size:12px">탭을 열면 적재합니다.</div></div></div>
+      <div class="sec opane" id="s12box"><div class="h"><b>⑫ 메모·보고 — 원장·교사 공용 메모함</b><span class="tag">staff_memos</span><span class="m" style="font-size:11px;color:var(--dim)" id="s12c">적재 전</span><span class="tag" style="margin-left:auto;cursor:pointer" onclick="loadMemos(1)">↻ 새로고침</span></div><div class="m" style="font-size:11px;color:var(--dim);margin:4px 0 8px">흐름: 입력(여기·코치 카드 [특이사항]/[보고]·회의 확정) → 접수 → 사장님 「가공」(클로드: 경험여정 배정·우선순위·정교화) → 방 전달 → 작업 → 피드백(원장) → 여기서 확인</div><div style="display:flex;gap:6px;margin-bottom:8px"><textarea id="memoIn" placeholder="특이사항·업무 보고·메모 — 한 건씩 적고 저장" style="flex:1;min-height:44px;font:inherit;font-size:12px;padding:6px;border:1px solid var(--line);border-radius:6px"></textarea><button class="tag" style="cursor:pointer;align-self:flex-end" onclick="memoSave()">저장</button></div><div id="s12"><div style="color:var(--dim);font-size:12px">탭을 열면 적재합니다.</div></div></div>
       <div class="sec opane" id="pjn"><iframe id="jnFr" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"></iframe></div>
     </div>
     <div class="foot">v3 — M01 문법 준수: 레일 6그룹 원형 + ⑦ 내 기록 신설 · 상단 리추얼 칩 실기록(ritual_runs) · 실데이터(v_orp_myrecord·v_orp_myday·rituals) · 비교 표시 없음</div>
@@ -254,7 +255,7 @@ loadCal();
 loadPub();
 load().catch(e=>{document.getElementById('loading').textContent='적재 실패: '+e.message;});
 
-/* ===== 탭 재편 v0.53 (2026-09-07, ⑪ 월요 점검 신설) — 오거나이저 9섹션 + ⑩ 내 할 일 신설 + 경험여정 11탭 흡수 ===== */
+/* ===== 탭 재편 v0.54 (2026-09-07, ⑫ 메모·보고 + ⑩ 메모 칸) — 오거나이저 9섹션 + ⑩ 내 할 일 신설 + 경험여정 11탭 흡수 ===== */
 const APPS_='https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/apps/';
 const JNLB={'pg-struct':'G-ZONE 구조','pg-journey':'경험여정','pg-asset':'자산·아키텍처','pg-rnd':'정부과제','pg-rnd2':'정부과제 2','pg-bizc':'사업계획 B2C','pg-bizb':'사업계획 B2B','pg-notes':'연구노트','pg-axes':'판독 현황','pg-mock2':'목업','pg-refs':'📖 참고문헌'};
 let OP={}, JNSRC=null, JNCUR=null, S9DONE=false;
@@ -262,7 +263,7 @@ function secOf(id){const e=document.getElementById(id);return e?e.closest('.sec'
 function oInit(){
   OP={p1:secOf('s1'),p2:secOf('s2'),p3:secOf('s3'),p4:document.getElementById('s8box'),
       p5:secOf('s4'),p6:secOf('s5'),p7:document.getElementById('s5b'),p8:secOf('s6'),
-      p9:document.getElementById('s7box'),p10:document.getElementById('s9box'),p11:document.getElementById('s11box')};
+      p9:document.getElementById('s7box'),p10:document.getElementById('s9box'),p11:document.getElementById('s11box'),p12:document.getElementById('s12box')};
   Object.values(OP).forEach(e=>{if(e){e.classList.add('opane');e.classList.remove('on');e.style.display='';}});
   if(typeof ROLE2!=='undefined'&&ROLE2==='teacher'){const b9=document.querySelector('#otabs button[data-p="p9"]');if(b9)b9.style.display='none';}
   document.querySelectorAll('#otabs button').forEach(b=>{b.onclick=()=>oTab(b.dataset.p);});
@@ -279,6 +280,7 @@ function oTab(k){
   const e=OP[k]; if(e){e.classList.add('on');}
   if(k==='p10') loadTodos(0);
   if(k==='p11') loadFunnel(0);
+  if(k==='p12') loadMemos(0);
 }
 async function jnLoad(pg){
   if(JNCUR===pg) return; JNCUR=pg;
@@ -303,11 +305,38 @@ async function loadTodos(force){
     const rs=await (await fetch(URL_+'weekly_todos?select=*&week_id=eq.'+wid+'&order=is_done.asc,is_urgent.desc,id.asc',{headers:H2})).json();
     const open_=rs.filter(r=>!r.is_done).length, urg=rs.filter(r=>r.is_urgent&&!r.is_done).length;
     cnt.textContent=lbl+' · 전체 '+rs.length+' · 미완료 '+open_+' · 긴급 '+urg;
-    box.innerHTML='<table id="s9tb"><thead><tr><th style="width:26px"></th><th style="width:78px">분류</th><th style="width:74px">학생</th><th>내용</th></tr></thead><tbody>'
+    box.innerHTML='<table id="s9tb"><thead><tr><th style="width:26px"></th><th style="width:78px">분류</th><th style="width:74px">학생</th><th>내용</th><th style="width:220px">메모</th></tr></thead><tbody>'
       +rs.map(r=>'<tr class="'+(r.is_done?'dn':'')+'" id="td'+r.id+'"><td><input type="checkbox" '+(r.is_done?'checked':'')+' onclick="todoDone('+r.id+',this.checked)"></td>'
       +'<td><span class="ct">'+(r.category||'')+'</span></td><td>'+(r.student_name||'—')+'</td>'
-      +'<td>'+(r.is_urgent?'<span class="ug">긴급</span> ':'')+(r.content||'')+'</td></tr>').join('')+'</tbody></table>';
+      +'<td>'+(r.is_urgent?'<span class="ug">긴급</span> ':'')+(r.content||'')+'</td>'
+      +'<td style="width:220px"><input class="tdm" data-id="'+r.id+'" placeholder="메모(적고 벗어나면 저장)" style="width:100%;font:inherit;font-size:11px;padding:2px 4px;border:1px solid var(--line);border-radius:4px" onchange="todoMemo('+r.id+',this.value)"></td></tr>').join('')+'</tbody></table>';
+    todoMemoFill();
   }catch(e){box.innerHTML='<div style="color:#A4472F;font-size:12px">적재 실패: '+e.message+'</div>';}
+}
+/* ⑫ 메모함 + ⑩ 메모 칸 (staff_memos, note 6137 후속) */
+const RPC_=URL_.replace(/rest\/v1\/$/,'rest/v1/')+'rpc/';
+async function rpcJ(fn,p){const h=todoAuth();if(!h)return {ok:false,reason:'로그인 필요'};const r=await fetch(RPC_+fn,{method:'POST',headers:h,body:JSON.stringify({p:p||{}})});return await r.json();}
+async function todoMemo(id,v){v=(v||'').trim();if(!v)return;const j=await rpcJ('gz_memo_save',{source:'할일',source_ref:id,body:v});const el=document.querySelector('.tdm[data-id="'+id+'"]');if(el)el.style.borderColor=(j&&j.ok)?'#1E4D3B':'#A4472F';if(j&&j.ok)loadMemos(1);}
+async function todoMemoFill(){const j=await rpcJ('gz_memo_list',{source:'할일',limit:200});if(!j||!j.ok)return;const last={};j.rows.forEach(m=>{if(!last[m.source_ref])last[m.source_ref]=m;});document.querySelectorAll('.tdm').forEach(el=>{const m=last[el.dataset.id];if(m){el.value=m.body;el.title=(m.status||'')+(m.feedback?' · 피드백: '+m.feedback:'');}});}
+async function memoSave(){const ta=document.getElementById('memoIn');const v=(ta.value||'').trim();if(!v)return;const j=await rpcJ('gz_memo_save',{source:'오거나이저',body:v});if(j&&j.ok){ta.value='';loadMemos(1);}else alert('저장 실패: '+((j&&j.reason)||''));}
+async function memoFeedback(id){const v=prompt('피드백 한 줄 (교사 화면에 노출)');if(v==null)return;const j=await rpcJ('gz_memo_feedback',{id:id,feedback:v});if(j&&j.ok)loadMemos(1);else alert('실패: '+((j&&j.reason)||''));}
+function memoCopy(id){const el=document.getElementById('rf'+id);if(!el)return;navigator.clipboard.writeText(el.textContent).then(()=>{el.style.background='#eef1ea';});}
+let S12DONE=false;
+async function loadMemos(force){
+  if(S12DONE&&!force) return; S12DONE=true;
+  const box=document.getElementById('s12'), cnt=document.getElementById('s12c');
+  const j=await rpcJ('gz_memo_list',{limit:150});
+  if(!j||!j.ok){box.innerHTML='<div style="color:#A4472F;font-size:12px">'+((j&&j.reason)||'적재 실패')+' — 관문 로그인(직원) 상태에서 표시</div>';cnt.textContent='미인증';return;}
+  const q=document.getElementById('p12q'); if(q) q.textContent=(j.role==='원장'&&j.queue)?' '+j.queue:'';
+  cnt.textContent=(j.role==='원장'?'원장판 · 전체 ':'내 것 ')+j.n+'건 · 가공 대기 '+j.queue;
+  if(!j.n){box.innerHTML='<div style="color:var(--dim);font-size:12px">아직 없음</div>';return;}
+  const SC={'접수':'#A4472F','정교화됨':'#8a6d1f','방전달':'#3d5245','작업중':'#3d5245','완료':'#1E4D3B','피드백확인':'#1E4D3B'};
+  box.innerHTML='<table id="s9tb"><thead><tr><th style="width:70px">출처</th><th style="width:70px">작성</th><th>내용 / 정교화 / 피드백</th><th style="width:88px">상태</th>'+(j.role==='원장'?'<th style="width:110px"></th>':'')+'</tr></thead><tbody>'
+   +j.rows.map(m=>'<tr><td><span class="ct">'+m.source+'</span>'+(m.student_name?'<br>'+m.student_name:'')+'</td><td>'+(m.author||'')+'<br><span style="color:var(--dim);font-size:10px">'+String(m.created_at).slice(5,10)+'</span></td>'
+   +'<td>'+(m.body||'')+(m.refined?'<div style="margin-top:4px;padding:4px 6px;background:#f7f5ee;border-left:3px solid #8a6d1f;font-size:11.5px"><b>정교화</b> '+(m.journey_zone?'<span class="ct">'+m.journey_zone+'</span> ':'')+(m.priority?'<span class="ug">'+m.priority+'</span> ':'')+(m.target_room?'→ '+m.target_room+' ':'')+'<span id="rf'+m.id+'">'+m.refined+'</span></div>':'')
+   +(m.feedback?'<div style="margin-top:4px;padding:4px 6px;background:#eef1ea;border-left:3px solid #1E4D3B;font-size:11.5px"><b>피드백</b> '+m.feedback+' <span style="color:var(--dim)">— '+(m.feedback_by||'')+'</span></div>':'')+'</td>'
+   +'<td style="color:'+(SC[m.status]||'#333')+';font-weight:700">'+m.status+'</td>'
+   +(j.role==='원장'?'<td>'+(m.refined?'<button class="tag" style="cursor:pointer" onclick="memoCopy('+m.id+')">복사</button> ':'')+'<button class="tag" style="cursor:pointer" onclick="memoFeedback('+m.id+')">피드백</button></td>':'')+'</tr>').join('')+'</tbody></table>';
 }
 let S11DONE=false;
 async function loadFunnel(force){
