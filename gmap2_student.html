@@ -272,6 +272,27 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
 <!-- ═══ 구간 A · 오늘 ═══ -->
 <div class="phase" id="pA">
   <div class="phase-cap"><span class="pn" id="pnA">오늘</span><h2 id="h2A">지금 여기서 시작</h2><span class="nowbadge" id="nbA" style="display:none;font-size:13px;font-weight:800;background:var(--hl);border-radius:11px;padding:2px 9px;margin-left:4px">지금 이 구간</span><span class="jz">여정 27(수업 준비) → 34(수업 진입)</span></div>
+  <!-- [오리엔테이션 v1 · 2026-09-10 계획 #17 · 강좌 6405 · lecture_contents 오리엔테이션 1~7 · 읽음=gz2_student_write ot_page] -->
+  <div id="oriCard" style="margin:8px 0 12px;border:1px solid #e2ddd0;border-radius:14px;padding:13px 15px;background:#faf9f5;display:none">
+    <div style="font-size:12.5px;color:#6b6b7b">가장 먼저 하는 것</div>
+    <div style="font-size:18px;font-weight:700;margin:2px 0">국존 오리엔테이션</div>
+    <div style="font-size:13px;color:#6b6b7b" id="oriSub">—</div>
+    <div style="height:6px;background:#ebe7dc;border-radius:3px;overflow:hidden;margin:8px 0"><i id="oriBar" style="display:block;height:100%;width:0;background:#1E4D3B"></i></div>
+    <button id="oriGo" onclick="oriOpen()" style="background:#1E4D3B;color:#fff;border:0;border-radius:10px;padding:10px 18px;font:inherit;font-size:15px;min-height:44px;cursor:pointer">시작하기</button>
+    <span style="font-size:12.5px;color:#6b6b7b;margin-left:8px">다 봐도 사라지지 않고, 언제든 다시 볼 수 있어요</span>
+  </div>
+  <div id="oriView" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(20,20,30,.45)">
+    <div style="position:absolute;left:50%;top:0;transform:translateX(-50%);width:min(560px,100vw);height:100%;background:#fff;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #eee;font-size:13px;color:#6b6b7b">
+        <span id="oriPos">1 / 7</span><span id="oriDots" style="display:flex;gap:5px"></span><button onclick="oriClose()" style="border:0;background:none;color:#6b6b7b;font:inherit;font-size:14px;cursor:pointer">닫기</button>
+      </div>
+      <div style="flex:1;overflow:auto;padding:4px 14px"><div id="oriLoad" style="padding:30px;text-align:center;color:#888">여는 중…</div><iframe id="oriFrame" title="오리엔테이션 면" style="width:100%;border:0;display:block" scrolling="no"></iframe></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 16px;border-top:1px solid #eee">
+        <button id="oriPrev" onclick="oriStep(-1)" style="background:#fff;border:1px solid #c8c3b3;border-radius:10px;padding:10px 16px;font:inherit;font-size:15px;min-height:44px;cursor:pointer">← 이전</button>
+        <button id="oriNext" onclick="oriStep(1)" style="background:#1E4D3B;color:#fff;border:0;border-radius:10px;padding:10px 18px;font:inherit;font-size:15px;min-height:44px;cursor:pointer">다음 →</button>
+      </div>
+    </div>
+  </div>
   <div class="duo">
     <div>
       <p class="axcap">내가 하는 것</p>
@@ -1627,6 +1648,38 @@ gzLoadFill();
    sec.style.display='block';
  }).catch(function(){});
 }catch(e){}})();
+</script>
+<script>
+/* [오리엔테이션 v1 · 2026-09-10 · 계획 #17] 학생이 한 면씩 넘긴다. 면=lecture_contents(work 9747, content_type 오리엔테이션, variant_no 1~7), 읽음=newcomer_checkpoints OT1~OT7(gz2_student_write ot_page) */
+(function(){
+  var OB='https://qcnsadcpsonuxnjyrlez.supabase.co',OK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
+  var ORI={list:[],done:{},cur:0,cache:{}};
+  function sk(){var s=location.search||'',d=window.__DESK_Q||'';return {sid:Number((s.match(/[?&]sid=(\d+)/)||[])[1]||(d.match(/sid=(\d+)/)||[])[1]||0),k:((s.match(/[?&]k=([a-f0-9]{32})/)||[])[1]||(d.match(/k=([a-f0-9]{32})/)||[])[1]||'')};}
+  function rd(sql){var a=sk();return fetch(OB+'/rest/v1/rpc/gz2_student_read',{method:'POST',headers:{'apikey':OK,'Authorization':'Bearer '+OK,'Content-Type':'application/json'},body:JSON.stringify({p_sid:a.sid,p_k:a.k,p_sql:sql})}).then(function(r){return r.json();});}
+  function wr(n){var a=sk();return fetch(OB+'/rest/v1/rpc/gz2_student_write',{method:'POST',headers:{'apikey':OK,'Authorization':'Bearer '+OK,'Content-Type':'application/json'},body:JSON.stringify({p_sid:a.sid,p_k:a.k,p_kind:'ot_page',p_payload:{page:n}})}).then(function(r){return r.json();});}
+  function nDone(){return Object.keys(ORI.done).length;}
+  function card(){var n=nDone(),tot=ORI.list.reduce(function(s,x){return s+Number(x.fmin||0);},0);
+    document.getElementById('oriSub').textContent='7면 중 '+n+'면 · 약 '+Math.round(tot)+'분';
+    document.getElementById('oriBar').style.width=(n/7*100)+'%';
+    document.getElementById('oriGo').textContent=n===0?'시작하기':(n>=7?'다시 보기':'이어서 보기');
+    document.getElementById('oriCard').style.display='block';}
+  function dots(){var h='';for(var i=1;i<=7;i++){var c=i===ORI.cur?'#1a1a2e':(ORI.done[i]?'#1E4D3B':'#e3dfd3');h+='<b style="width:9px;height:9px;border-radius:50%;background:'+c+';display:block"></b>';}document.getElementById('oriDots').innerHTML=h;}
+  function show(n){ORI.cur=n;var it=ORI.list[n-1]||{};document.getElementById('oriPos').textContent=n+' / 7 · '+Math.round(it.fmin||0)+'분';dots();
+    document.getElementById('oriPrev').style.visibility=n===1?'hidden':'visible';document.getElementById('oriNext').textContent=n===7?'다 봤어요':'다음 →';
+    var fr=document.getElementById('oriFrame'),ld=document.getElementById('oriLoad');fr.style.display='none';ld.style.display='block';ld.textContent='여는 중…';
+    var put=function(html){fr.onload=function(){ld.style.display='none';fr.style.display='block';var fit=function(){try{var d=fr.contentDocument;fr.style.height=(Math.ceil(d.body.getBoundingClientRect().height)+28)+'px';}catch(e){fr.style.height='1600px';}};fit();setTimeout(fit,300);setTimeout(fit,1200);fr.parentNode.scrollTop=0;};fr.style.height='60px';fr.srcdoc=html;};
+    if(ORI.cache[n])put(ORI.cache[n]);else rd("select content_html from lecture_contents where work_id=9747 and content_type='오리엔테이션' and variant_no="+n).then(function(r){var h=((r||[])[0]||{}).content_html||'';if(!h){ld.textContent='이 면을 열지 못했어요';return;}ORI.cache[n]=h;if(ORI.cur===n)put(h);}).catch(function(){ld.textContent='이 면을 열지 못했어요';});
+    if(!ORI.done[n])wr(n).then(function(r){if(r&&r.ok){ORI.done[n]=1;dots();card();}}).catch(function(){});}
+  window.oriOpen=function(){var n=1;for(var i=1;i<=7;i++){if(!ORI.done[i]){n=i;break;}}if(nDone()>=7)n=1;document.getElementById('oriView').style.display='block';document.body.style.overflow='hidden';show(n);};
+  window.oriClose=function(){document.getElementById('oriView').style.display='none';document.body.style.overflow='';};
+  window.oriStep=function(d){var n=ORI.cur+d;if(n>7){var fr=document.getElementById('oriFrame');fr.style.display='none';var ld=document.getElementById('oriLoad');ld.style.display='block';ld.innerHTML='<div style="font-size:40px">✓</div><div style="font-size:20px;font-weight:700;margin:6px 0">7면 '+(nDone()>=7?'모두 봤어요':'중 '+nDone()+'면을 봤어요')+'</div><div style="font-size:13px;color:#6b6b7b">선생님 카드에도 표시됩니다. 언제든 다시 볼 수 있어요.</div>';document.getElementById('oriNext').textContent='학생 페이지로';ORI.cur=8;document.getElementById('oriNext').onclick=function(){this.onclick=function(){oriStep(1);};oriClose();};return;}if(n<1)return;show(n);};
+  function boot(){if(!sk().sid)return;
+    Promise.all([rd("select variant_no fno, meta_json->>'title' ftitle, est_minutes fmin from lecture_contents where work_id=9747 and content_type='오리엔테이션' order by variant_no"),
+                 rd("select cp_code, done_at from newcomer_checkpoints where student_id=1 and cp_code like 'OT%'")]).then(function(R){
+      ORI.list=Array.isArray(R[0])?R[0]:[];if(ORI.list.length<7)return;
+      (Array.isArray(R[1])?R[1]:[]).forEach(function(x){if(x.done_at){var n=Number(String(x.cp_code).replace('OT',''));if(n)ORI.done[n]=1;}});card();}).catch(function(){});}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
 </script>
 </body>
 </html>
