@@ -1200,12 +1200,12 @@ async function loadPrefill(){
     /* v0.92 추천 후보 검토 (seq 232 · note 6753) — gz_reco_open → 10줄 4단 → gz_reco_label. 학생 노출은 gz_reco_gate 통과 전 금지 */
     try{const rb=document.getElementById('recoBlock');if(rb){rb.innerHTML='';const ro=await rpc('gz_reco_open',{p_sid:COACH_SID});
       const REL=[['◎',3,'#1E4D3B'],['○',2,'#2b6cb0'],['△',1,'#b7791f'],['×',0,'#9b2c2c']];
-      if(!ro||!ro.ok){rb.innerHTML='<div style="padding:6px 8px;border:1px dashed #d8d4c8;border-radius:6px;background:#fbfaf6;font-size:12px"><b>🧭 추천 후보 검토</b> — '+((ro&&ro.reason)||'후보 없음')+(ro&&ro.action?' · <span style="color:#B8892E">'+ro.action+'</span>':'')+'</div>';}
+      if(!ro||!ro.ok){rb.innerHTML='<div style="padding:6px 8px;border:1px dashed #d8d4c8;border-radius:6px;background:#fbfaf6;font-size:12px"><b>🧩 문항 처방 검토</b> — '+((ro&&ro.reason)||'후보 없음')+(ro&&ro.action?' · <span style="color:#B8892E">'+ro.action+'</span>':'')+'</div>';}
       else{const g=ro.gate||{};const done=(ro.rows||[]).filter(x=>x.relevance!==null).length;
-        rb.innerHTML='<div style="padding:6px 8px;border:1px solid #d8d4c8;border-radius:6px;background:#fbfaf6"><div style="font-size:12px;margin-bottom:4px"><b>🧭 추천 후보 검토</b> <small style="color:#5f5b52">'+ro.trigger+' · 세션 #'+ro.session_id+' · 판정 '+done+'/'+(ro.rows||[]).length+' · 학생 화면 '+(g.student_visible?'노출':'비노출 (라벨 '+(g.labeled_sessions||0)+'/50)')+'</small></div>'
+        rb.innerHTML='<div style="padding:6px 8px;border:1px solid #d8d4c8;border-radius:6px;background:#fbfaf6"><div style="font-size:12px;margin-bottom:4px"><b>🧩 문항 처방 검토</b> <small style="color:#5f5b52">문제 추천 · '+ro.trigger+' · 세션 #'+ro.session_id+' · 판정 '+done+'/'+(ro.rows||[]).length+' · 학생 화면 '+(g.student_visible?'노출':'비노출 (라벨 '+(g.labeled_sessions||0)+'/50)')+'</small></div>'
           +(ro.rows||[]).map(x=>'<div id="rl'+x.rank+'" style="display:flex;align-items:center;gap:6px;padding:2px 0;border-top:1px solid #efece4;font-size:12px"><span style="width:16px;color:#8a8577">'+x.rank+'</span><span style="flex:1">'+(x.title||'')+'</span>'
             +REL.map(r=>'<button type="button" onclick="recoLabel('+ro.session_id+','+x.rank+','+r[1]+',this)" style="font-size:12px;padding:1px 7px;border-radius:9px;cursor:pointer;border:1px solid '+r[2]+';'+(x.relevance===r[1]?'background:'+r[2]+';color:#fff':'background:#fff;color:'+r[2])+'">'+r[0]+'</button>').join('')+'</div>').join('')
-          +'<div style="font-size:11px;color:#8a8577;margin-top:4px">◎ 꼭 필요 · ○ 도움됨 · △ 나중에 · × 필요 없음 — 후보는 참고, 처방은 선생님이 확정합니다</div></div>';}
+          +'<div style="font-size:11px;color:#8a8577;margin-top:4px">◎ 꼭 필요 · ○ 도움됨 · △ 나중에 · × 필요 없음 — 후보는 참고, 처방은 선생님이 확정합니다 · <a href="sugang.html?student_id='+COACH_SID+'" target="_blank" style="color:#B8892E">📚 강좌 추천은 수강신청에서 →</a></div></div>';}
     }}catch(e){const rb=document.getElementById('recoBlock');if(rb)rb.innerHTML='<div class="mini err">추천 후보 검토 로드 실패: '+e.message+'</div>';}
 
     let t='';
