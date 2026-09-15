@@ -1,20 +1,1200 @@
 <!DOCTYPE html>
-<html lang="ko"><head><meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>국존 KLEA 콘텐츠 엔진 — 수강신청</title>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KLEA 콘텐츠 엔진</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#faf9f7;--surface:#fff;--surface2:#f5f3ef;--surface3:#edeae4;
+  --border:#e8e4dd;--border2:#d4cfc6;
+  --text:#1a1815;--text2:#6b6560;--text3:#9e9790;
+  --gold:#c4920a;--gold-bg:#fef9ec;--gold-border:#f0dfa0;
+  --blue:#2563eb;--blue-bg:#eff6ff;--blue-border:#bfdbfe;
+  --green:#16a34a;--green-bg:#f0fdf4;
+  --red:#dc2626;--red-bg:#fef2f2;
+  --purple:#7c3aed;--purple-bg:#f5f3ff;
+  --navy:#0a1128;
+  --radius:10px;--accent:#2563eb;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh}
+
+/* ── 헤더 ── */
+.app-header{background:var(--navy);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.app-logo{display:flex;align-items:center;gap:10px}
+.app-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--gold),#e8a910);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:900;font-family:'IBM Plex Mono',monospace}
+.app-logo-text{font-size:18px;font-weight:900;color:#fff}
+.app-logo-sub{font-size:11px;color:rgba(255,255,255,.5);font-weight:400}
+.app-status{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,.5)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.main{max-width:1200px;margin:0 auto;padding:20px 24px}
+
+/* ── BIG 통계 대시보드 ── */
+.big-stats{background:var(--navy);padding:0 24px 24px;margin-bottom:0}
+.big-stats-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.big-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px 16px;text-align:center;transition:all .2s}
+.big-card:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.15)}
+.big-label{font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1.5px;font-weight:700}
+.big-value{font-size:30px;font-weight:900;margin-top:4px;font-family:'IBM Plex Mono',monospace}
+.big-value.white{color:#fff}.big-value.gold{color:var(--gold-light,#e8b730)}.big-value.cyan{color:#22d3ee}.big-value.pink{color:#f472b6}.big-value.green{color:#4ade80}.big-value.purple{color:#a78bfa}
+.big-sub{font-size:10px;color:rgba(255,255,255,.3);margin-top:2px;font-family:'IBM Plex Mono',monospace}
+
+/* ── 필터 박스 ── */
+.filter-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px 28px;margin-bottom:20px;border-top:3px solid var(--gold)}
+.filter-row{display:flex;align-items:flex-start;margin-bottom:16px;gap:16px}
+.filter-row:last-child{margin-bottom:0}
+.filter-row.hidden{display:none}
+.filter-label{font-size:14px;font-weight:700;color:var(--text);min-width:72px;padding-top:7px;flex-shrink:0}
+.filter-chips{display:flex;flex-wrap:wrap;gap:8px;flex:1}
+.chip{padding:7px 16px;border-radius:20px;border:1px solid var(--border2);background:var(--surface);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .15s;white-space:nowrap;user-select:none}
+.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--blue-bg)}
+.chip.active{background:var(--navy);color:#fff;border-color:var(--navy);font-weight:700;box-shadow:0 4px 12px rgba(10,17,40,.15)}
+.search-input-wrap{flex:1;position:relative}
+.search-input-wrap input{width:100%;padding:10px 16px;padding-right:44px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:'Noto Sans KR',sans-serif;background:var(--surface2);transition:all .2s}
+.search-input-wrap input:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+.search-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;border:none;background:var(--surface3);color:var(--text3);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.search-btn:hover{background:var(--accent);color:#fff}
+
+/* ── 학교 상세 카드 ── */
+.school-detail{background:var(--surface);border:1px solid var(--blue-border);border-radius:var(--radius);padding:20px 24px;margin-bottom:20px;display:none;border-left:4px solid var(--accent)}
+.school-detail.show{display:block}
+.school-name-big{font-size:22px;font-weight:900;color:var(--navy);margin-bottom:8px}
+.school-meta{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:12px}
+.school-meta-item{font-size:12px;color:var(--text2)}
+.school-meta-item strong{color:var(--text);font-weight:700}
+.school-stats{display:flex;gap:10px;flex-wrap:wrap}
+.school-stat{background:var(--surface2);border-radius:8px;padding:8px 14px;text-align:center;min-width:80px}
+.school-stat-val{font-size:20px;font-weight:900;font-family:'IBM Plex Mono',monospace}
+.school-stat-label{font-size:9px;color:var(--text3);font-weight:600;text-transform:uppercase}
+.school-trend{margin-top:12px;padding:10px 14px;background:var(--gold-bg);border-radius:8px;border:1px solid var(--gold-border);font-size:12px;color:var(--text)}
+.school-trend strong{color:var(--gold);font-weight:700}
+
+/* ── 결과 ── */
+.results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.results-count{font-size:13px;color:var(--text2);font-weight:600}
+.results-count strong{color:var(--accent);font-family:'IBM Plex Mono',monospace}
+.btn-primary{padding:8px 18px;font-size:12px;font-weight:700;background:var(--gold);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Noto Sans KR',sans-serif}
+.btn-primary:hover{background:#a87c08}
+
+/* ── 강좌 카드 ── */
+.lecture-list{display:flex;flex-direction:column;gap:8px}
+.lec-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all .2s}
+.lec-card:hover{border-color:var(--gold-border)}
+.lec-card.expanded{border-color:var(--gold);box-shadow:0 4px 20px rgba(196,146,10,.08)}
+.lec-row{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer}
+.lec-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.lec-id{font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;min-width:36px}
+.lec-info{flex:1;min-width:0}
+.lec-title{font-size:13px;color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lec-path{font-size:10px;color:var(--text3);margin-top:1px}
+.lec-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.lec-badge{font-size:9px;padding:2px 7px;border-radius:5px;font-weight:600;white-space:nowrap}
+.badge-published{background:var(--green-bg);color:var(--green);border:1px solid #bbf7d0}
+.badge-draft{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+.badge-free{background:var(--blue-bg);color:var(--blue);border:1px solid #bfdbfe}
+.badge-klea{background:var(--purple-bg);color:var(--purple);border:1px solid #ddd6fe}
+.completeness{display:flex;gap:3px;margin-right:8px}
+.comp-dot{width:8px;height:8px;border-radius:50%;background:var(--surface3)}
+.comp-dot.filled{background:var(--green)}
+
+/* ── 교재 진도표 ── */
+.lec-detail{display:none;border-top:1px solid var(--border);padding:18px 20px;background:var(--surface2)}
+.lec-card.expanded .lec-detail{display:block}
+.detail-work{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:16px}
+.detail-work-title{font-size:13px;font-weight:700}.detail-work-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.detail-work-empty{font-size:12px;color:var(--red);font-weight:600}
+.progress-table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.progress-table th{background:var(--gold);color:#fff;font-size:11px;font-weight:700;padding:8px 12px;text-align:center}
+.progress-table td{padding:8px 12px;font-size:12px;text-align:center;border-bottom:1px solid var(--border)}
+.progress-table tr:last-child td{border-bottom:none}
+.progress-table .row-group{font-weight:700;color:var(--text);background:var(--surface2);text-align:left;font-size:11px}
+.progress-table .item-name{text-align:left;font-weight:600;color:var(--text2)}
+.status-ok{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:var(--green-bg);color:var(--green);font-size:12px;font-weight:900}
+.status-no{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:var(--red-bg);color:var(--red);font-size:12px;font-weight:900}
+.count-val{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px}
+.count-val.has{color:var(--green)}.count-val.none{color:var(--text3)}
+.extra-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:12px}
+.extra-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+.extra-label{font-size:12px;font-weight:700;color:var(--text)}
+.extra-sub{font-size:10px;color:var(--text3)}
+.extra-badge{font-size:10px;padding:3px 8px;border-radius:5px;font-weight:600}
+.extra-badge.done{background:var(--green-bg);color:var(--green)}
+.extra-badge.undone{background:var(--red-bg);color:var(--red)}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-title{font-size:16px;font-weight:700;color:var(--text2)}
+
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:10px;font-size:12px;font-weight:600;color:#fff;z-index:300;transform:translateY(80px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}.toast.success{background:var(--green)}.toast.error{background:var(--red)}
+
+@media(max-width:768px){
+  .big-stats-inner{grid-template-columns:repeat(3,1fr)}
+  .filter-row{flex-direction:column;gap:8px}
+  .filter-label{min-width:auto;padding-top:0}
+  .extra-row{grid-template-columns:1fr}
+}
+
+/* ═══ CRUD 모달 ═══ */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border-radius:16px;width:90%;max-width:560px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-size:18px;font-weight:800;color:var(--text1)}
+.modal-close{width:32px;height:32px;border-radius:8px;border:none;background:var(--bg);color:var(--text2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:var(--red);color:#fff}
+.modal-body{padding:20px 24px}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.form-input,.form-select,.form-textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text1);font-size:13px;font-family:inherit;outline:none;box-sizing:border-box}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent)}
+.form-textarea{resize:vertical;min-height:70px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-hint{font-size:10px;color:var(--text3);margin-top:4px}
+.modal-footer{padding:16px 24px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+.btn-save{padding:10px 24px;border-radius:10px;border:none;background:var(--accent);color:var(--navy);font-weight:700;font-size:13px;cursor:pointer}
+.btn-save:hover{filter:brightness(1.1)}
+.btn-cancel{padding:10px 20px;border-radius:10px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-weight:600;font-size:13px;cursor:pointer}
+.btn-cancel:hover{background:var(--bg)}
+.btn-delete{padding:10px 20px;border-radius:10px;border:none;background:var(--red);color:#fff;font-weight:700;font-size:13px;cursor:pointer;margin-right:auto}
+.btn-delete:hover{filter:brightness(1.1)}
+</style>
 </head>
-<body style="background:#0d1b2a;margin:0;height:100vh;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif">
-<div id="ld" style="color:#e0a93b;font-weight:800;font-size:15px">국존 강좌 카탈로그 불러오는 중…</div>
+<body>
+
+<!-- ═══ 헤더 ═══ -->
+<div class="app-header">
+  <div class="app-logo">
+    <div class="app-logo-icon">K</div>
+    <div><div class="app-logo-text">KLEA <span class="app-logo-sub">콘텐츠 엔진</span></div></div>
+  </div>
+  <div class="app-status"><div class="status-dot"></div><span id="connStatus">CONNECTING...</span></div>
+</div>
+
+<!-- ═══ BIG 통계 ═══ -->
+<div class="big-stats">
+  <div class="big-stats-inner">
+    <div class="big-card"><div class="big-label">전체 강좌</div><div class="big-value white" id="bigTotal">—</div><div class="big-sub" id="bigTotalSub">로딩 중...</div></div>
+    <div class="big-card"><div class="big-label">수능</div><div class="big-value gold" id="bigSun">—</div><div class="big-sub" id="bigSunSub">—</div></div>
+    <div class="big-card"><div class="big-label">내신</div><div class="big-value cyan" id="bigNae">—</div><div class="big-sub" id="bigNaeSub">—</div></div>
+    <div class="big-card"><div class="big-label">논술</div><div class="big-value" style="color:#f59e0b" id="bigNon">—</div><div class="big-sub" id="bigNonSub">—</div></div>
+    <div class="big-card"><div class="big-label">책읽기</div><div class="big-value" style="color:#fb923c" id="bigBook">—</div><div class="big-sub" id="bigBookSub">—</div></div>
+    <div class="big-card"><div class="big-label">해설영상</div><div class="big-value pink" id="bigVid">—</div><div class="big-sub">전체 등록 영상</div></div>
+  </div>
+</div>
+
+<!-- ═══ 메인 ═══ -->
+<div class="main">
+  <!-- 필터 -->
+  <div class="filter-box">
+    <div class="filter-row"><div class="filter-label">분류</div><div class="filter-chips" id="chips-cur"></div></div>
+    <div class="filter-row" id="row-l1"><div class="filter-label" id="lbl-l1">공부순서</div><div class="filter-chips" id="chips-l1"></div></div>
+    <div class="filter-row hidden" id="row-l2"><div class="filter-label" id="lbl-l2">영역</div><div class="filter-chips" id="chips-l2"></div></div>
+    <div class="filter-row hidden" id="row-l3"><div class="filter-label" id="lbl-l3">영역구분</div><div class="filter-chips" id="chips-l3"></div></div>
+    <div class="filter-row hidden" id="row-l4"><div class="filter-label" id="lbl-l4">시험구간</div><div class="filter-chips" id="chips-l4"></div></div>
+    <div class="filter-row"><div class="filter-label">검색</div><div class="search-input-wrap"><input type="text" id="searchInput" placeholder="강좌명을 입력해 주세요." oninput="doRender()"><button class="search-btn" onclick="doRender()">🔍</button></div></div>
+  </div>
+
+  <!-- 학교 상세 (내신 선택 시) -->
+  <div class="school-detail" id="schoolDetail">
+    <div class="school-name-big" id="sdName">연송고</div>
+    <div class="school-meta">
+      <div class="school-meta-item"><strong>지역:</strong> <span id="sdRegion">인천 송도</span></div>
+      <div class="school-meta-item"><strong>교과서:</strong> <span id="sdTextbook">미래엔(신)</span></div>
+      <div class="school-meta-item"><strong>운영 학년:</strong> <span id="sdGrades">고1, 고2</span></div>
+    </div>
+    <div class="school-stats" id="schoolStats">
+    </div>
+    <div class="school-trend" id="sdTrend"><strong>출제 경향:</strong> 전용 부교재 변형 지문 출제 비중 높음 (45% 이상)</div>
+  </div>
+
+  <div class="results-header">
+    <div class="results-count" id="resCount"></div>
+    <button class="btn-primary" id="btnAdd" onclick="openAddModal()" style="display:none">+ 강의 등록</button>
+  </div>
+  <div id="list" class="lecture-list"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══ CRUD 모달 ═══ -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">강좌 등록</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="fId">
+      <div class="form-group">
+        <label class="form-label">강좌명 *</label>
+        <input class="form-input" id="fTitle" placeholder="강좌 제목을 입력하세요">
+      </div>
+
+      <!-- 카테고리 드릴다운 -->
+      <div style="background:var(--bg);border-radius:12px;padding:16px;margin-bottom:16px;border:1.5px solid var(--border)">
+        <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">📂 카테고리 지정</div>
+        <div class="form-group">
+          <label class="form-label">분류</label>
+          <select class="form-select" id="fCurriculum" onchange="onCurrChange()">
+            <option value="수능">수능</option>
+            <option value="내신">내신</option>
+          </select>
+        </div>
+        <div class="form-group" id="fL1wrap">
+          <label class="form-label" id="fL1label">L1</label>
+          <select class="form-select" id="fL1" onchange="onL1Change()"><option value="">선택...</option></select>
+        </div>
+        <div class="form-group" id="fL2wrap" style="display:none">
+          <label class="form-label" id="fL2label">L2</label>
+          <select class="form-select" id="fL2" onchange="onL2Change()"><option value="">선택...</option></select>
+        </div>
+        <div class="form-group" id="fL3wrap" style="display:none">
+          <label class="form-label" id="fL3label">L3</label>
+          <select class="form-select" id="fL3" onchange="updateCatResult()"><option value="">선택...</option></select>
+        </div>
+        <div id="fCatResult" style="font-size:11px;color:var(--text3);margin-top:4px"></div>
+      </div>
+
+      <!-- 간단 옵션 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">공개 여부</label>
+          <select class="form-select" id="fPublished">
+            <option value="0">비공개</option>
+            <option value="1">공개</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">태그 (쉼표 구분)</label>
+          <input class="form-input" id="fTags" placeholder="문학, 현대시">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-delete" id="btnDelete" onclick="deleteLecture()" style="display:none">삭제</button>
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-save" id="btnSave" onclick="saveLecture()">저장</button>
+    </div>
+  </div>
+</div>
+
 <script>
-(async function(){
- try{
-  const r=await fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/apps/sugang.html?v='+Date.now(),{cache:'no-store'});
-  if(!r.ok)throw new Error('HTTP '+r.status);
-  const t=await r.text();
-  document.open(); document.write(t); document.close();
- }catch(e){
-  document.getElementById('ld').innerHTML='로딩 실패 — 새로고침(F5) 해주세요<br><span style="font-size:11px;opacity:.6">'+e+'</span>';
- }
+async function loadBigStats(){
+  try{
+    // 카테고리 목록 먼저
+    const{data:allCats}=await sb.from('lecture_categories').select('id,curriculum');
+    const sunCatIds=(allCats||[]).filter(c=>c.curriculum==='수능').map(c=>c.id);
+    const naeCatIds=(allCats||[]).filter(c=>c.curriculum==='내신').map(c=>c.id);
+    const sunCatCount=sunCatIds.length;
+
+    // 전체 강좌 count
+    const{count:totalLec}=await sb.from('lectures').select('*',{count:'exact',head:true});
+    // 영상 count
+    const{count:vidCount}=await sb.from('lectures').select('*',{count:'exact',head:true}).eq('video_uploaded',true);
+
+    // 수능/내신 강좌 수 (카테고리 id로 필터)
+    let sunCount=0,naeCount=0;
+    if(sunCatIds.length){
+      const{count:sc}=await sb.from('lectures').select('*',{count:'exact',head:true}).in('category_id',sunCatIds);
+      sunCount=sc||0;
+    }
+    if(naeCatIds.length){
+      const{count:nc}=await sb.from('lectures').select('*',{count:'exact',head:true}).in('category_id',naeCatIds);
+      naeCount=nc||0;
+    }
+
+    // 내신 학교 수
+    const{data:naeSchools}=await sb.from('lecture_categories').select('l1_name').eq('curriculum','내신');
+    const naeSchoolCount=new Set((naeSchools||[]).map(r=>r.l1_name)).size;
+
+    // 논술/책읽기 목업
+    const nonCount=DSG.filter(l=>l.l1==='논술').length;
+    const bookCount=DSG.filter(l=>l.l1==='책읽기').length;
+    const total=sunCount+naeCount+nonCount+bookCount;
+
+    document.getElementById('bigTotal').textContent=total.toLocaleString();
+    document.getElementById('bigTotalSub').textContent='수능+내신+논술+책읽기';
+    document.getElementById('bigSun').textContent=sunCount.toLocaleString();
+    document.getElementById('bigSunSub').textContent=`${sunCatCount}개 카테고리`;
+    document.getElementById('bigNae').textContent=naeCount.toLocaleString();
+    document.getElementById('bigNaeSub').textContent=`${naeSchoolCount}개 학교`;
+    document.getElementById('bigNon').textContent=nonCount.toLocaleString();
+    document.getElementById('bigNonSub').textContent='24개 대학';
+    document.getElementById('bigBook').textContent=bookCount.toLocaleString();
+    document.getElementById('bigBookSub').textContent='중1~고2';
+    document.getElementById('bigVid').textContent=(vidCount||0).toLocaleString();
+
+    console.log(`✅ BIG: 전체${total} 수능${sunCount} 내신${naeCount}`);
+  }catch(e){
+    console.error('BIG 통계 실패:',e);
+    document.getElementById('bigTotal').textContent='—';
+    document.getElementById('bigTotalSub').textContent='연결 실패';
+  }
+}
+
+// ═══════════════════════════════════════════
+// 학교 데이터
+// ═══════════════════════════════════════════
+const SCHOOLS={
+  // 고등학교 24
+  '연송고':{region:'인천 송도',textbook:'미래엔(신)',grades:['고1','고2'],trend:'전용 부교재 변형 지문 출제 비중 높음 (45% 이상)',lec:48,vid:32,comp:18,spark:12},
+  '송도고':{region:'인천 송도',textbook:'천재(박)',grades:['고1','고2'],trend:'어휘 및 문법 개념의 정밀한 변별력과 독자 프린트 연계 강화',lec:42,vid:28,comp:15,spark:8},
+  '신송고':{region:'인천 송도',textbook:'미래엔(신)',grades:['고1','고2'],trend:'',lec:12,vid:6,comp:3,spark:1},
+  '박문여고':{region:'인천 송도',textbook:'비상(박영)',grades:['고1'],trend:'서술형 비중 높음, 문학 감상 관점 출제 특성',lec:16,vid:8,comp:4,spark:2},
+  '해송고':{region:'인천 송도',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '대건고':{region:'인천 연수',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '인천국제고':{region:'인천 송도',textbook:'',grades:['고1','고2'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '인천미추홀고':{region:'인천 미추홀',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '인천포스코고':{region:'인천 송도',textbook:'비상(강호)',grades:['고1'],trend:'과학고 특성상 독해 논리 중심 출제',lec:22,vid:14,comp:8,spark:5},
+  '하늘고':{region:'인천 송도',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '인천외고':{region:'인천 연수',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '인천과학고':{region:'인천 송도',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '연수여고':{region:'인천 연수',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '연수고':{region:'인천 연수',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '인명여고':{region:'인천 남동',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '인천예고':{region:'인천 연수',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '옥련여고':{region:'인천 연수',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '인천여고':{region:'인천 미추홀',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '학익고':{region:'인천 미추홀',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '학익여고':{region:'인천 미추홀',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '인천고':{region:'인천 미추홀',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '디지털미디어고':{region:'인천 남동',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '아라고':{region:'인천 서구',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '강화고':{region:'인천 강화',textbook:'',grades:['고1'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  // 중학교 11
+  '신송중':{region:'인천 송도',textbook:'',grades:['중1','중2','중3'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '신정중':{region:'인천 송도',textbook:'',grades:['중1','중2','중3'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '박문중':{region:'인천 송도',textbook:'',grades:['중1','중2','중3'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '현송중':{region:'인천 송도',textbook:'',grades:['중1','중2','중3'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '해송중':{region:'인천 송도',textbook:'',grades:['중1','중2','중3'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '능허대중':{region:'인천 연수',textbook:'',grades:['중1','중2','중3'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '예송중':{region:'인천 송도',textbook:'',grades:['중1','중2','중3'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '미송중':{region:'인천 송도',textbook:'',grades:['중1','중2','중3'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '인천여중':{region:'인천 미추홀',textbook:'',grades:['중1','중2','중3'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '가온중':{region:'인천 연수',textbook:'',grades:['중1','중2','중3'],trend:'',lec:0,vid:0,comp:0,spark:0},
+  '진산중':{region:'인천 연수',textbook:'',grades:['중1','중2','중3'],trend:'',lec:0,vid:0,comp:0,spark:0},
+};
+
+// ═══════════════════════════════════════════
+// Supabase 연결
+// ═══════════════════════════════════════════
+/* GZX 2026-07-22 모드 분리: 기본=공개 열람, ?mode=admin=관리, ?mode=teacher&student_id=N=배정 */
+const GZP=new URLSearchParams(location.search);
+const GZ_MODE=(GZP.get('mode')||'public').toLowerCase();
+const GZ_SID=GZP.get('student_id')?Number(GZP.get('student_id')):null;
+const GZ_CANWRITE=(GZ_MODE==='admin');
+/* GZX 2026-07-23 2단계 교사 배정층 — 적재축 students.course_codes 승계 (#1924 진단·#1925 next), postMessage 통지 */
+const GZ_CANASSIGN=(GZ_MODE==='teacher'&&!!GZ_SID);
+let GZ_STU=null, GZ_CODES=new Set();
+async function gzLoadStu(){ if(!GZ_CANASSIGN)return;
+  try{const{data,error}=await sb.rpc('gz_student_brief',{p_sid:GZ_SID});
+    if(error||!data||!data.ok)return; GZ_STU=data; GZ_CODES=new Set((data.course_codes||[]).map(String));
+    /* seq 233 (2026-09-15) 교사 모드 개인 추천 — gz_reco_sugang */ try{const rr=await sb.rpc('gz_reco_sugang',{p_sid:GZ_SID}); if(!rr.error&&rr.data&&rr.data.ok){GZ_RECO=rr.data;GZ_BROWSE=false;}}catch(e){}
+    /* GZX 2026-08-08 DB방: 교사 모드 초기 선택 = 학생의 학교·학년 (기존: 연송고·고1 고정 → 중등 학생에게 고1·고2만 노출되던 문제 교정) */
+    if(data.school){try{cur='내신';sSch=data.school;sGrade=(data.grade||null);if(typeof render==='function')render();}catch(_e){}}
+    var t=document.getElementById('gzModeBadge'); if(t)t.textContent='교사 모드 · '+data.name+(data.school?(' ('+data.school+' '+(data.grade||'')+')'):'');
+    if(typeof doRender==='function')doRender();
+  }catch(e){}}
+function gzAssignBtn(id){ if(!GZ_CANASSIGN)return'';
+  var on=GZ_CODES.has(String(id));
+  return '<button class="gz-assign" onclick="event.stopPropagation();gzToggleAssign('+id+',this)" style="margin-left:10px;border:none;border-radius:8px;padding:6px 12px;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap;color:#fff;background:'+(on?'#1E4D3B':'#B8892E')+'">'+(on?'✓ 배정됨':'＋ '+(GZ_STU?GZ_STU.name+'에게 ':'')+'배정')+'</button>';}
+async function gzToggleAssign(id,btn){ if(!GZ_CANASSIGN)return;
+  var key=String(id), was=GZ_CODES.has(key); btn.disabled=true;
+  try{
+    var r=await sb.rpc('gz_assign_course',{p_sid:GZ_SID,p_lec:id,p_action:was?'unassign':'assign'});
+    if(r.error)throw r.error;
+    if(!r.data||!r.data.ok)throw new Error((r.data&&r.data.error)||'저장 거부');
+    GZ_CODES=new Set((r.data.course_codes||[]).map(String));
+    btn.style.background=was?'#B8892E':'#1E4D3B';
+    btn.textContent=was?('＋ '+(GZ_STU?GZ_STU.name+'에게 ':'')+'배정'):'✓ 배정됨';
+    try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'gz_assign',student_id:GZ_SID,lecture_id:id,action:was?'unassign':'assign'},'*');}catch(e){}
+    if(typeof showToast==='function')showToast(was?'배정 해제됨':'배정 완료');
+  }catch(e){alert('배정 실패: '+(e.message||e));}
+  btn.disabled=false;}
+if(GZ_CANASSIGN)document.addEventListener('DOMContentLoaded',gzLoadStu);
+const SUPABASE_URL='https://qcnsadcpsonuxnjyrlez.supabase.co';
+const SUPABASE_KEY='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+// ═══════════════════════════════════════════
+// 수능 강의 데이터 (Supabase에서 로딩)
+// ═══════════════════════════════════════════
+let SUN=[];
+let SUN_LOADED=false;
+
+async function loadSuneungFromDB(){
+  if(SUN_LOADED) return;
+  try{
+    // 카테고리 로딩
+    const{data:cats,error:catErr}=await sb.from('lecture_categories').select('*').eq('curriculum','수능').order('sort_order');
+    if(catErr) throw catErr;
+    const catMap={};
+    cats.forEach(c=>{catMap[c.id]=c;});
+
+    // 강의 로딩 (수능 카테고리만)
+    const catIds=cats.map(c=>c.id);
+    let allLecs=[];
+    // 카테고리 id 배치로 필터 (50개씩)
+    for(let i=0;i<catIds.length;i+=50){
+      const batch=catIds.slice(i,i+50);
+      let offset=0;
+      const PAGE=1000;
+      while(true){
+        const{data,error}=await sb.from('lectures').select('*').in('category_id',batch).range(offset,offset+PAGE-1).order('sort_order');
+        if(error) throw error;
+        allLecs=allLecs.concat(data);
+        if(data.length<PAGE) break;
+        offset+=PAGE;
+      }
+    }
+
+    // SUN 배열로 변환
+    SUN=allLecs.map(l=>{
+      const cat=catMap[l.category_id]||{};
+      return {
+        id:l.id,
+        t:l.title,
+        l1:cat.l1_name||'',
+        l2:cat.l2_name||'',
+        l3:cat.l3_name||'',
+        p:l.is_published?1:0,
+        f:l.is_free?1:0,
+        k:l.work_id?1:0,
+        work:null,
+        p5460:l.p_count||0,
+        h5460:l.h_count||0,
+        edu:l.edu_types||[],
+        video:l.video_uploaded?1:0,
+        spark:l.spark_count||0,
+        clear:{c1:l.clear_c1?1:0,c2:l.clear_c2?1:0,c3:l.clear_c3?1:0,c4:l.clear_c4?1:0,c5:l.clear_c5?1:0}
+      };
+    });
+
+    SUN_LOADED=true;
+    console.log(`✅ 수능 강의 ${SUN.length}건 로딩 (카테고리 ${cats.length}개)`);
+    document.getElementById('connStatus').textContent=`LIVE · 수능 ${SUN.length}건`;
+    document.querySelector('.status-dot').style.background='var(--green)';
+
+    return true;
+  }catch(e){
+    console.error('❌ Supabase 로딩 실패:',e);
+    document.getElementById('connStatus').textContent='OFFLINE · 목업';
+    document.querySelector('.status-dot').style.background='var(--red)';
+    showToast('DB 연결 실패 — 목업 데이터로 전환','error');
+    return false;
+  }
+}
+
+let SCHOOLS_LOADED=false;
+
+async function loadSchoolsFromDB(){
+  if(SCHOOLS_LOADED) return;
+  try{
+    const{data,error}=await sb.from('schools').select('*').eq('is_active',true).order('id');
+    if(error) throw error;
+    // SCHOOLS 객체 재구성
+    Object.keys(SCHOOLS).forEach(k=>delete SCHOOLS[k]);
+    data.forEach(s=>{
+      SCHOOLS[s.name]={
+        id:s.id,
+        region:s.region||'',
+        textbook:s.textbook||'',
+        grades:s.grade_levels||[],
+        trend:s.notes||'',
+        lec:0,vid:0,comp:0,spark:0
+      };
+    });
+    SCHOOLS_LOADED=true;
+    console.log(`✅ 학교 ${data.length}개 로딩`);
+    // BIG 통계의 학교 수 업데이트 가능
+  }catch(e){
+    console.error('❌ 학교 로딩 실패:',e);
+  }
+}
+
+// ═══════════════════════════════════════════
+// 내신 강의 데이터 (DB에서 로딩)
+// ═══════════════════════════════════════════
+let NAE=[];
+let NAE_LOADED=false;
+let NAE_CATS=[];  // 내신 카테고리
+
+async function loadNaesinFromDB(){
+  if(NAE_LOADED) return;
+  try{
+    // 1) 내신 카테고리 로딩
+    const{data:cats,error:e1}=await sb.from('lecture_categories').select('*').eq('curriculum','내신').order('sort_order');
+    if(e1) throw e1;
+    NAE_CATS=cats;
+
+    // 2) 내신 강좌 로딩 (카테고리 id 목록으로)
+    const catIds=cats.map(c=>c.id);
+    let allLecs=[];
+    // 페이지네이션 (1000건씩)
+    for(let i=0;i<catIds.length;i+=50){
+      const batch=catIds.slice(i,i+50);
+      const{data:lecs,error:e2}=await sb.from('lectures').select('*').in('category_id',batch).order('sort_order');
+      if(e2) throw e2;
+      allLecs=allLecs.concat(lecs);
+    }
+
+    // 3) 카테고리 맵 생성
+    const catMap={};
+    cats.forEach(c=>catMap[c.id]=c);
+
+    // 4) NAE 배열 변환
+    NAE=allLecs.map(l=>{
+      const cat=catMap[l.category_id]||{};
+      return {
+        id:l.id,
+        t:l.title||'',
+        sch:cat.l1_name||'',      // 학교명
+        g:cat.grade||'',           // 고1, 고2, 중1 등
+        subj:cat.subject||'',      // 공통국어1, 문학, 화법과언어 등
+        ep:cat.exam_period||'',
+        p:l.is_published?1:0,
+        work:null,
+        p5460:l.p_count||0,
+        h5460:l.h_count||0,
+        edu:l.edu_types||[],
+        video:l.video_uploaded?1:0,
+        spark:l.spark_count||0,
+        clear:{c1:l.clear_c1?1:0,c2:l.clear_c2?1:0,c3:l.clear_c3?1:0,c4:l.clear_c4?1:0,c5:l.clear_c5?1:0},
+        tags:l.tags||[]
+      };
+    });
+
+    NAE_LOADED=true;
+    console.log(`✅ 내신 강좌 ${NAE.length}건 로딩 (카테고리 ${cats.length}개)`);
+    document.getElementById('connStatus').textContent=`LIVE · ${SUN.length+NAE.length}건`;
+    document.querySelector('.status-dot').style.background='var(--green)';
+  }catch(e){
+    console.error('❌ 내신 로딩 실패:',e);
+    showToast('내신 DB 로딩 실패','error');
+  }
+}
+
+// ═══════════════════════════════════════════
+// 독서글쓰기 데이터
+// ═══════════════════════════════════════════
+const DSG_L1S=['논술','책읽기'];
+const DSG_UNIS=['건국대','경희대','광운대','단국대','덕성여대','동국대','부산대','서강대','서울과학기술대','서울시립대','성균관대','세종대','숙명여대','숭실대','아주대','연세대','이화여대','인하대','중앙대','한국외대','한국항공대','한양대','한양대(ERICA)','홍익대'];
+const DSG_GRADES=['중1','중2','중3','고1','고2'];
+
+const L1_ORDER=['모의고사 기출','비문학 공부법','문학 공부법','EBS 수능특강/완성','문법 총정리','수능국어 입문'];
+
+function getL1S(){
+  if(!SUN.length) return L1_ORDER;
+  const fromData=[...new Set(SUN.map(l=>l.l1).filter(Boolean))];
+  // 기획 순서대로 정렬, 나머지는 뒤에
+  return L1_ORDER.filter(n=>fromData.includes(n)).concat(fromData.filter(n=>!L1_ORDER.includes(n)));
+}
+
+const DSG=[
+  // 논술 - 연세대
+  {id:8001,t:'연세대 논술 기출 2024 인문계열',l1:'논술',l2:'연세대',p:1,p5460:0,h5460:0,edu:['STEP3'],video:1,spark:0,clear:{c1:1,c2:1,c3:0,c4:0,c5:0}},
+  {id:8002,t:'연세대 논술 기출 2024 사회계열',l1:'논술',l2:'연세대',p:1,p5460:0,h5460:0,edu:['STEP3'],video:1,spark:0,clear:{c1:0,c2:0,c3:0,c4:0,c5:0}},
+  {id:8003,t:'연세대 논술 기출 2023 인문계열',l1:'논술',l2:'연세대',p:1,p5460:0,h5460:0,edu:['STEP3','STEP5'],video:1,spark:1,clear:{c1:1,c2:1,c3:1,c4:1,c5:1}},
+  // 논술 - 성균관대
+  {id:8010,t:'성균관대 논술 기출 2024 인문',l1:'논술',l2:'성균관대',p:1,p5460:0,h5460:0,edu:['STEP3'],video:1,spark:0,clear:{c1:0,c2:0,c3:0,c4:0,c5:0}},
+  {id:8011,t:'성균관대 논술 기출 2023 인문',l1:'논술',l2:'성균관대',p:1,p5460:0,h5460:0,edu:['STEP3'],video:0,spark:0,clear:{c1:0,c2:0,c3:0,c4:0,c5:0}},
+  // 논술 - 중앙대
+  {id:8020,t:'중앙대 논술 기출 2024 인문',l1:'논술',l2:'중앙대',p:1,p5460:0,h5460:0,edu:['STEP3'],video:1,spark:0,clear:{c1:0,c2:0,c3:0,c4:0,c5:0}},
+  // 논술 - 경희대
+  {id:8030,t:'경희대 논술 기출 2024 인문·체육',l1:'논술',l2:'경희대',p:1,p5460:0,h5460:0,edu:[],video:0,spark:0,clear:{c1:0,c2:0,c3:0,c4:0,c5:0}},
+  // 논술 - 한양대
+  {id:8040,t:'한양대 논술 기출 2024 인문',l1:'논술',l2:'한양대',p:0,p5460:0,h5460:0,edu:[],video:0,spark:0,clear:{c1:0,c2:0,c3:0,c4:0,c5:0}},
+  // 논술 - 이화여대
+  {id:8050,t:'이화여대 논술 기출 2024 인문I',l1:'논술',l2:'이화여대',p:1,p5460:0,h5460:0,edu:['STEP3'],video:1,spark:0,clear:{c1:0,c2:0,c3:0,c4:0,c5:0}},
+  // 논술 - 서강대
+  {id:8060,t:'서강대 논술 기출 2024 인문',l1:'논술',l2:'서강대',p:0,p5460:0,h5460:0,edu:[],video:0,spark:0,clear:{c1:0,c2:0,c3:0,c4:0,c5:0}},
+  // 논술 - 홍익대
+  {id:8070,t:'홍익대 논술 기출 2024 인문',l1:'논술',l2:'홍익대',p:0,p5460:0,h5460:0,edu:[],video:0,spark:0,clear:{c1:0,c2:0,c3:0,c4:0,c5:0}},
+  // 책읽기 - 중1
+  {id:8501,t:'[중1] 어린왕자 - 생텍쥐페리 (독서토론)',l1:'책읽기',l2:'중1',p:1,p5460:0,h5460:0,edu:['STEP3'],video:1,spark:1,clear:{c1:1,c2:1,c3:0,c4:0,c5:0}},
+  {id:8502,t:'[중1] 데미안 - 헤르만 헤세 (독서일지)',l1:'책읽기',l2:'중1',p:1,p5460:0,h5460:0,edu:['STEP3'],video:0,spark:0,clear:{c1:0,c2:0,c3:0,c4:0,c5:0}},
+  // 책읽기 - 중2
+  {id:8511,t:'[중2] 1984 - 조지 오웰 (비판적 읽기)',l1:'책읽기',l2:'중2',p:1,p5460:0,h5460:0,edu:['STEP3'],video:1,spark:1,clear:{c1:1,c2:1,c3:0,c4:0,c5:0}},
+  {id:8512,t:'[중2] 동물농장 - 조지 오웰 (풍자 읽기)',l1:'책읽기',l2:'중2',p:1,p5460:0,h5460:0,edu:[],video:0,spark:0,clear:{c1:0,c2:0,c3:0,c4:0,c5:0}},
+  // 책읽기 - 중3
+  {id:8521,t:'[중3] 멋진 신세계 - 올더스 헉슬리 (사회비평)',l1:'책읽기',l2:'중3',p:1,p5460:0,h5460:0,edu:['STEP3'],video:1,spark:0,clear:{c1:0,c2:0,c3:0,c4:0,c5:0}},
+  // 책읽기 - 고1
+  {id:8531,t:'[고1] 정의란 무엇인가 - 마이클 샌델 (논증분석)',l1:'책읽기',l2:'고1',p:1,p5460:0,h5460:0,edu:['STEP3','STEP5'],video:1,spark:1,clear:{c1:1,c2:1,c3:1,c4:1,c5:1}},
+  {id:8532,t:'[고1] 총균쇠 - 재레드 다이아몬드 (구조독해)',l1:'책읽기',l2:'고1',p:1,p5460:0,h5460:0,edu:['STEP3'],video:0,spark:0,clear:{c1:0,c2:0,c3:0,c4:0,c5:0}},
+  // 책읽기 - 고2
+  {id:8541,t:'[고2] 사피엔스 - 유발 하라리 (논술연계)',l1:'책읽기',l2:'고2',p:1,p5460:0,h5460:0,edu:['STEP3'],video:1,spark:0,clear:{c1:0,c2:0,c3:0,c4:0,c5:0}},
+  {id:8542,t:'[고2] 코스모스 - 칼 세이건 (과학독해)',l1:'책읽기',l2:'고2',p:0,p5460:0,h5460:0,edu:[],video:0,spark:0,clear:{c1:0,c2:0,c3:0,c4:0,c5:0}},
+];
+
+// ═══════════════════════════════════════════
+// 상태
+// ═══════════════════════════════════════════
+let cur='수능',sL1=null,sL2=null,sL3=null;
+let sSch=null,sGrade=null,sSubj=null;
+let sDsgL2=null;
+let expanded=new Set();
+
+var GZ_RECO=null, GZ_BROWSE=true;
+async function render(){
+  document.getElementById('chips-cur').innerHTML=['내신','수능','논술','책읽기'].map(c=>
+    `<div class="chip ${cur===c?'active':''}" onclick="selCur('${c}')">${c}</div>`).join('');
+  // 수능 탭이면 DB에서 로딩
+  if(cur==='수능'&&!SUN_LOADED){
+    document.getElementById('list').innerHTML='<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-title">Supabase에서 수능 로딩 중...</div></div>';
+    await loadSuneungFromDB();
+  }
+  // 내신 탭이면 DB에서 로딩
+  if(cur==='내신'&&!NAE_LOADED){
+    document.getElementById('list').innerHTML='<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-title">내신 데이터 로딩 중...</div></div>';
+  }
+  if(GZ_SID&&GZ_RECO&&!GZ_BROWSE){ renderReco(); return; }
+  ['row-l1','row-l2','row-l3','row-l4'].forEach(id=>{const e=document.getElementById(id); if(e&&e.dataset.gzhid){e.classList.remove('hidden');delete e.dataset.gzhid;}});
+  if(cur==='수능') renderSuneung();
+  else if(cur==='내신') await renderNaesin();
+  else if(cur==='논술') renderNonsul();
+  else if(cur==='책읽기') renderBook();
+  doRender();
+}
+
+function renderSuneung(){
+  document.getElementById('schoolDetail').classList.remove('show');
+  document.getElementById('row-l4').classList.add('hidden');
+  document.getElementById('lbl-l1').textContent='공부순서';
+  const L1S=getL1S();
+  document.getElementById('chips-l1').innerHTML=L1S.map(n=>`<div class="chip ${sL1===n?'active':''}" onclick="selL1('${n}')">${n}</div>`).join('');
+  const l2s=[...new Set(SUN.filter(l=>!sL1||l.l1===sL1).map(l=>l.l2).filter(Boolean))];
+  if(sL1&&l2s.length){document.getElementById('row-l2').classList.remove('hidden');document.getElementById('lbl-l2').textContent='영역';document.getElementById('chips-l2').innerHTML=l2s.map(n=>`<div class="chip ${sL2===n?'active':''}" onclick="selL2('${n}')">${n}</div>`).join('')}
+  else document.getElementById('row-l2').classList.add('hidden');
+  const l3s=[...new Set(SUN.filter(l=>(!sL1||l.l1===sL1)&&(!sL2||l.l2===sL2)).map(l=>l.l3).filter(Boolean))];
+  if(sL1&&sL2&&l3s.length){document.getElementById('row-l3').classList.remove('hidden');document.getElementById('lbl-l3').textContent='영역구분';document.getElementById('chips-l3').innerHTML=l3s.map(n=>`<div class="chip ${sL3===n?'active':''}" onclick="selL3('${n}')">${n}</div>`).join('')}
+  else document.getElementById('row-l3').classList.add('hidden');
+}
+
+async function renderNaesin(){
+  if(!SCHOOLS_LOADED) await loadSchoolsFromDB();
+  if(!NAE_LOADED){
+    document.getElementById('list').innerHTML='<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-title">내신 데이터 로딩 중...</div></div>';
+    await loadNaesinFromDB();
+  }
+  const schools=Object.keys(SCHOOLS);
+  document.getElementById('lbl-l1').textContent='학교';
+  // 데이터 있는 학교를 앞으로
+  const schWithData=new Set(NAE.map(l=>l.sch));
+  const sortedSch=[...schools.filter(s=>schWithData.has(s)),...schools.filter(s=>!schWithData.has(s))];
+  document.getElementById('chips-l1').innerHTML=sortedSch.map(s=>{
+    const hasData=schWithData.has(s);
+    return `<div class="chip ${sSch===s?'active':''}" style="${hasData?'':'opacity:0.4'}" onclick="selSchool('${s}')">${s}${hasData?'':''}</div>`;
+  }).join('');
+
+  if(sSch){
+    const sc=SCHOOLS[sSch];
+    const sd=document.getElementById('schoolDetail');
+    sd.classList.add('show');
+    document.getElementById('sdName').textContent=sSch;
+    document.getElementById('sdRegion').textContent=sc.region;
+    document.getElementById('sdTextbook').textContent=sc.textbook;
+    document.getElementById('sdGrades').textContent=sc.grades.join(', ');
+    document.getElementById('sdTrend').innerHTML=`<strong>출제 경향:</strong> ${sc.trend}`;
+    updateSchoolDetail(sSch, null, null);
+
+    // 학년: DB 카테고리에서 추출
+    const gradesFromDB=[...new Set(NAE.filter(l=>l.sch===sSch).map(l=>l.g))];
+    const gradeOrder=['고1','고2','고3','중1','중2','중3'];
+    const grades=gradeOrder.filter(g=>gradesFromDB.includes(g));
+    
+    document.getElementById('row-l2').classList.remove('hidden');
+    document.getElementById('lbl-l2').textContent='학년';
+    document.getElementById('chips-l2').innerHTML=grades.map(g=>`<div class="chip ${sGrade===g?'active':''}" onclick="selGrade('${g}')">${g}</div>`).join('');
+
+    // 과목
+    if(sGrade){
+      const subjs=[...new Set(NAE.filter(l=>l.sch===sSch&&l.g===sGrade).map(l=>l.subj).filter(Boolean))];
+      if(subjs.length){
+        document.getElementById('row-l3').classList.remove('hidden');
+        document.getElementById('lbl-l3').textContent='과목';
+        document.getElementById('chips-l3').innerHTML=subjs.map(c=>
+          `<div class="chip ${sSubj===c?'active':''}" onclick="selSubj('${c}')">${c}</div>`
+        ).join('');
+      } else document.getElementById('row-l3').classList.add('hidden');
+      updateSchoolDetail(sSch, sGrade, sSubj);
+    } else {
+      document.getElementById('row-l3').classList.add('hidden');
+      updateSchoolDetail(sSch, null, null);
+    }
+
+    document.getElementById('row-l4').classList.add('hidden');
+  } else {
+    document.getElementById('schoolDetail').classList.remove('show');
+    document.getElementById('row-l2').classList.add('hidden');
+    document.getElementById('row-l3').classList.add('hidden');
+    document.getElementById('row-l4').classList.add('hidden');
+  }
+}
+
+function updateSchoolDetail(school, grade, subj){
+  const sc=SCHOOLS[school];
+  if(!sc)return;
+  const sd=document.getElementById('schoolDetail');
+  sd.classList.add('show');
+  document.getElementById('sdRegion').textContent=sc.region;
+  document.getElementById('sdTextbook').textContent=sc.textbook;
+
+  // 필터에 맞는 강의만 추출
+  let lecs=NAE.filter(l=>l.sch===school);
+  if(grade) lecs=lecs.filter(l=>l.g===grade);
+  
+  let filtered=lecs;
+  if(subj){
+    const isExam=subj.match(/^\d{4}/);
+    if(isExam) filtered=lecs.filter(l=>l.ep===subj);
+    else filtered=lecs.filter(l=>l.subj===subj);
+  }
+
+  // 통계 계산
+  const totalLec=filtered.length;
+  const totalVid=filtered.filter(l=>l.video).length;
+  const totalComp=filtered.filter(l=>l.p5460>0||l.h5460>0||l.edu.length>0||l.video||l.spark>0).length;
+  const totalSpark=filtered.reduce((s,l)=>s+l.spark,0);
+  const totalH=filtered.reduce((s,l)=>s+l.h5460,0);
+  const totalEdu=filtered.filter(l=>l.edu.length>0).length;
+  const clearDone=filtered.filter(l=>l.clear&&l.clear.c1&&l.clear.c2&&l.clear.c3&&l.clear.c4&&l.clear.c5).length;
+
+  // 제목 업데이트
+  if(subj){
+    const isExam=subj.match(/^\d{4}/);
+    if(isExam){
+      document.getElementById('sdName').textContent=school+' '+grade+' · '+subj;
+      document.getElementById('sdGrades').textContent='시험범위 '+totalLec+'개 단원';
+    } else {
+      document.getElementById('sdName').textContent=school+' '+grade+' · '+subj;
+      document.getElementById('sdGrades').textContent=grade;
+    }
+  } else if(grade){
+    document.getElementById('sdName').textContent=school+' '+grade;
+    document.getElementById('sdGrades').textContent=sc.grades.join(', ');
+  } else {
+    document.getElementById('sdName').textContent=school;
+    document.getElementById('sdGrades').textContent=sc.grades.join(', ');
+  }
+
+  // 통계 카드
+  const statsEl=document.getElementById('schoolStats');
+  if(subj&&subj.match(/^\d{4}/)){
+    // 시험범위 모드: 단원수, 교안수, 해설영상, 기출문항, SPARK세트, CLEAR완료
+    statsEl.innerHTML=`
+      <div class="school-stat"><div class="school-stat-val" style="color:var(--navy)">${totalLec}</div><div class="school-stat-label">시험범위 단원</div></div>
+      <div class="school-stat"><div class="school-stat-val" style="color:var(--accent)">${totalEdu}</div><div class="school-stat-label">교안 보유</div></div>
+      <div class="school-stat"><div class="school-stat-val" style="color:#f472b6">${totalVid}</div><div class="school-stat-label">해설영상</div></div>
+      <div class="school-stat"><div class="school-stat-val" style="color:var(--purple)">${totalH}</div><div class="school-stat-label">기출문항</div></div>
+      <div class="school-stat"><div class="school-stat-val" style="color:var(--gold)">${totalSpark}</div><div class="school-stat-label">SPARK 세트</div></div>
+      <div class="school-stat"><div class="school-stat-val" style="color:var(--green)">${clearDone}/${totalLec}</div><div class="school-stat-label">CLEAR 완료</div></div>
+    `;
+  } else {
+    // 일반 모드
+    statsEl.innerHTML=`
+      <div class="school-stat"><div class="school-stat-val" style="color:var(--accent)">${totalLec}</div><div class="school-stat-label">강좌</div></div>
+      <div class="school-stat"><div class="school-stat-val" style="color:#f472b6">${totalVid}</div><div class="school-stat-label">해설영상</div></div>
+      <div class="school-stat"><div class="school-stat-val" style="color:var(--green)">${totalComp}</div><div class="school-stat-label">콘텐츠 보유</div></div>
+      <div class="school-stat"><div class="school-stat-val" style="color:var(--gold)">${totalSpark}</div><div class="school-stat-label">SPARK 세트</div></div>
+    `;
+  }
+
+  // 경향 멘트
+  if(subj&&subj.match(/^\d{4}/)){
+    const incomplete=filtered.filter(l=>!l.video||l.edu.length===0||l.spark===0);
+    if(incomplete.length>0){
+      document.getElementById('sdTrend').innerHTML=`<strong>시험 준비 현황:</strong> ${totalLec}개 단원 중 <span style="color:var(--red);font-weight:700">${incomplete.length}개</span> 단원의 수업 자료가 미완성입니다. 교안 ${totalEdu}건, 해설영상 ${totalVid}건, SPARK ${totalSpark}세트 준비됨.`;
+    } else {
+      document.getElementById('sdTrend').innerHTML=`<strong>시험 준비 현황:</strong> 전 단원 수업 자료 완비! 교안 ${totalEdu}건, 해설영상 ${totalVid}건, SPARK ${totalSpark}세트, CLEAR ${clearDone}/${totalLec} 완료.`;
+    }
+  } else if(subj){
+    document.getElementById('sdTrend').innerHTML=`<strong>${subj} 현황:</strong> ${totalLec}개 강좌, 해설영상 ${totalVid}건, SPARK ${totalSpark}세트 등록.`;
+  } else {
+    document.getElementById('sdTrend').innerHTML=`<strong>출제 경향:</strong> ${sc.trend}`;
+  }
+}
+
+function renderNonsul(){
+  document.getElementById('schoolDetail').classList.remove('show');
+  document.getElementById('row-l3').classList.add('hidden');
+  document.getElementById('row-l4').classList.add('hidden');
+  document.getElementById('lbl-l1').textContent='대학';
+  const unis=[...new Set(DSG.filter(l=>l.l1==='논술').map(l=>l.l2))];
+  document.getElementById('chips-l1').innerHTML=DSG_UNIS.map(u=>
+    `<div class="chip ${sDsgL2===u?'active':''}" onclick="selDsgL2('${u}')">${u}</div>`
+  ).join('');
+  document.getElementById('row-l2').classList.add('hidden');
+}
+
+function renderBook(){
+  document.getElementById('schoolDetail').classList.remove('show');
+  document.getElementById('row-l3').classList.add('hidden');
+  document.getElementById('row-l4').classList.add('hidden');
+  document.getElementById('lbl-l1').textContent='학년';
+  document.getElementById('chips-l1').innerHTML=DSG_GRADES.map(g=>
+    `<div class="chip ${sDsgL2===g?'active':''}" onclick="selDsgL2('${g}')">${g}</div>`
+  ).join('');
+  document.getElementById('row-l2').classList.add('hidden');
+}
+
+/* seq 233 — 교사 모드 4탭 개인 추천. 데이터: gz_reco_sugang(sid). 강좌→gzAssignBtn(기존), 문항·도서는 표시만(배정 회선 seq 235) */
+function gzRecoToggle(b){GZ_BROWSE=b;render();}
+function renderReco(){
+  ['row-l1','row-l2','row-l3','row-l4'].forEach(id=>{const e=document.getElementById(id); if(e&&!e.classList.contains('hidden')){e.classList.add('hidden');e.dataset.gzhid='1';}});
+  const sd=document.getElementById('schoolDetail'); if(sd)sd.classList.remove('show');
+  const tab=GZ_RECO.tabs[cur]||{}; const groups=Object.keys(tab).sort();
+  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  let total=0; const html=groups.map(g=>{const gv=tab[g]; const items=gv.items||[]; total+=items.length;
+    const rows=items.map(it=>{
+      const kind=it.kind||'lecture';
+      const badge=kind==='lecture'?'강좌':kind==='question'?'문항':kind==='book'?'도서':kind==='exam_result'?'모의':kind==='essay'?'글':'';
+      const right=kind==='lecture'&&it.id?gzAssignBtn(it.id):(kind==='question'?'<span style="font-size:11px;color:#8a8577">과제 배정 준비 중</span>':'');
+      return `<div class="lecture-card" style="display:flex;align-items:center;gap:8px;padding:8px 12px;margin:4px 0">
+        <span class="lec-badge" style="background:${kind==='lecture'?'#1E4D3B':kind==='question'?'#2b6cb0':kind==='book'?'#7b4b94':'#666'};color:#fff">${badge}</span>
+        <span style="flex:1;font-size:13px">${esc(it.title)}${it.unit?` <small style="color:#8a8577">· ${esc(it.unit)}</small>`:''}${it.assigned?' <small style="color:#1E4D3B">· 배정됨</small>':''}</span>
+        <span style="font-size:11px;color:#8a8577;white-space:nowrap">${esc(it.why||'')}</span>${right}</div>`;}).join('');
+    const empty=items.length?'':`<div style="font-size:12px;color:#8a8577;padding:6px 12px">${esc(gv.note||'해당 없음')}</div>`;
+    return `<div style="margin:10px 0 14px"><div style="font-weight:800;font-size:13px;margin:0 0 4px">▣ ${esc(gv.title)} <small style="color:#8a8577">(${items.length})</small>${gv.available===false?' <small style="color:#B8892E">· 자료 없음</small>':''}</div>${rows}${empty}</div>`;}).join('');
+  const s=GZ_RECO.season||{};
+  document.getElementById('resCount').innerHTML=`🧭 <strong>${esc(GZ_STU?GZ_STU.name:'')}</strong> 맞춤 추천 <strong>${total}</strong>건 <small style="color:#8a8577">· ${esc(s.jeolgi||'')} ${esc(s.phase||'')} ${s.d_day!=null?'D-'+s.d_day:''} · 내신:수능 ${esc(s.track_ab||'')}</small>
+    <button onclick="gzRecoToggle(true)" style="margin-left:10px;font-size:11px;padding:3px 9px;border:1px solid var(--border2);border-radius:8px;background:#fff;cursor:pointer">전체 탐색으로</button>`;
+  document.getElementById('list').innerHTML=html||'<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">추천 후보 없음</div></div>';
+}
+function doRender(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  let f=[];
+  if(cur==='수능'){
+    f=SUN.filter(l=>{if(sL1&&l.l1!==sL1)return false;if(sL2&&l.l2!==sL2)return false;if(sL3&&l.l3!==sL3)return false;if(q&&!l.t.toLowerCase().includes(q))return false;return true});
+  }else if(cur==='내신'){
+    f=NAE.filter(l=>{
+      if(sSch&&l.sch!==sSch)return false;
+      if(sGrade&&l.g!==sGrade)return false;
+      if(sSubj){
+        const isExam=sSubj.match(/^\d{4}/);
+        if(isExam){if(l.ep!==sSubj)return false;}
+        else{if(l.subj!==sSubj)return false;}
+      }
+      if(q&&!l.t.toLowerCase().includes(q))return false;
+      return true;
+    });
+  }else if(cur==='논술'){
+    f=DSG.filter(l=>{if(l.l1!=='논술')return false;if(sDsgL2&&l.l2!==sDsgL2)return false;if(q&&!l.t.toLowerCase().includes(q))return false;return true});
+  }else if(cur==='책읽기'){
+    f=DSG.filter(l=>{if(l.l1!=='책읽기')return false;if(sDsgL2&&l.l2!==sDsgL2)return false;if(q&&!l.t.toLowerCase().includes(q))return false;return true});
+  }
+  document.getElementById('resCount').innerHTML=`검색 결과 <strong>${f.length}</strong>건`;
+  if(GZ_SID&&GZ_RECO&&GZ_BROWSE)document.getElementById('resCount').innerHTML+=' <button onclick="gzRecoToggle(false)" style="margin-left:10px;font-size:11px;padding:3px 9px;border:1px solid #B8892E;color:#B8892E;border-radius:8px;background:#fff;cursor:pointer">🧭 맞춤 추천으로</button>';
+  if(!f.length){document.getElementById('list').innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">'+(cur==='독서글쓰기'?'독서글쓰기 준비중':'강의가 없습니다')+'</div></div>';return}
+
+  document.getElementById('list').innerHTML=f.map(l=>{
+    const isExp=expanded.has(l.id);
+    const badges=[];
+    if(l.p)badges.push('<span class="lec-badge badge-published">공개</span>');else badges.push('<span class="lec-badge badge-draft">비공개</span>');
+    if(l.f)badges.push('<span class="lec-badge badge-free">무료</span>');
+    if(l.k)badges.push('<span class="lec-badge badge-klea">KLEA</span>');
+    const dots=[l.p5460>0,l.h5460>0,l.edu.length>0,l.video,l.spark>0];
+    const compHtml=dots.map(d=>`<div class="comp-dot ${d?'filled':''}"></div>`).join('');
+    const path=cur==='수능'?[l.l1,l.l2,l.l3].filter(Boolean).join(' > '):cur==='내신'?[l.sch,l.g,l.subj].filter(Boolean).join(' > '):[l.l1,l.l2].filter(Boolean).join(' > ');
+    const title=q?hl(l.t,q):l.t;
+    let detail='';
+    if(isExp){
+      const w=l.work;
+      const wh=w?`<div class="detail-work"><div class="detail-work-title">${w.title}</div><div class="detail-work-meta">${w.author} · ${w.genre}</div></div>`:`<div class="detail-work"><div class="detail-work-empty">⚠ 작품 미연결</div></div>`;
+      const edu=l.edu||[];
+      const sob=(t)=>'<span style="font-size:11px;padding:2px 9px;border-radius:6px;border:1px solid var(--border2);color:var(--blue);cursor:pointer;margin-left:3px">'+t+'</span>';
+      const stTag=(d)=>d?'<span style="font-size:10px;padding:1px 8px;border-radius:6px;background:var(--green-bg);color:var(--green);font-weight:600">완료</span>':'<span style="font-size:10px;padding:1px 8px;border-radius:6px;background:var(--surface3);color:var(--text3)">예정</span>';
+      const SEQ=[['STEP1','관련수능·배경','edu'],['STEP2','용어·개념','edu'],['STEP3','본문 분석','edu'],['STEP4','정리','edu'],['STEP5','본문 암기','edu'],['STEP6','기본풀이','quiz'],['STEP7','심화풀이','quiz']];
+      const rows=SEQ.map((s,i)=>{const d=edu.includes(s[0]);const b=s[2]==='edu'?sob('교안')+sob('강의'):sob('문제')+sob('해설');return `<div style="display:flex;align-items:center;gap:9px;padding:7px 13px;border-top:1px solid var(--surface3)"><span style="font-size:11px;color:var(--text3);width:16px;text-align:right">${i+1}</span><span style="flex:1;font-size:13px;color:var(--text)">${s[1]} <span style="font-size:10px;color:var(--text3)">${s[0]}</span></span>${stTag(d)}${b}</div>`}).join('');
+      const sparkChips=l.spark>0?Array.from({length:Math.min(l.spark,6)},(_,i)=>`<span style="font-size:11px;padding:2px 8px;border-radius:6px;background:var(--green-bg);color:var(--green)">${i+1}회</span>`).join(' '):'<span style="font-size:10px;padding:1px 8px;border-radius:6px;background:var(--surface3);color:var(--text3)">예정</span>';
+      const cl=l.clear||{};
+      const clearItems=[['c1','범위확인'],['c2','취약점분석'],['c3','집중보완'],['c4','실전모의'],['c5','최종점검']].map(c=>`<span style="font-size:11px;padding:2px 9px;border-radius:6px;background:${cl[c[0]]?'var(--green-bg)':'var(--surface)'};color:${cl[c[0]]?'var(--green)':'var(--text3)'};border:1px solid ${cl[c[0]]?'transparent':'var(--border)'}">${c[1]}</span>`).join(' ');
+      detail=`<div class="lec-detail">${wh}
+        <div style="margin-top:8px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface)">
+          <div style="padding:8px 13px;background:var(--surface2);font-size:12px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px">📚 공부순서 <span style="font-size:11px;color:var(--text3);font-weight:400">국존 아이템 · 작품별 학습 단계</span></div>
+          ${rows}
+          <div style="display:flex;align-items:center;gap:9px;padding:7px 13px;border-top:1px solid var(--surface3);flex-wrap:wrap"><span style="font-size:11px;color:var(--text3);width:16px;text-align:right">8</span><span style="flex:1;font-size:13px;color:var(--text)">SPARK 연습문제 <span style="font-size:10px;color:var(--text3)">다회차</span></span>${sparkChips}</div>
+          <div style="display:flex;align-items:center;gap:9px;padding:7px 13px;border-top:1px solid var(--surface3)"><span style="font-size:11px;color:var(--text3);width:16px;text-align:right">9</span><span style="flex:1;font-size:13px;color:var(--text)">🔎 외부문제은행 <span style="font-size:10px;color:var(--text3)">EVERYTHING</span></span>${sob('검색')}</div>
+          <div style="padding:9px 13px;border-top:1px solid var(--border);background:var(--blue-bg)"><div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px">🏁 전체 범위 CLEAR <span style="font-size:10px;color:var(--text3);font-weight:400">전 작품 종합 마무리</span></div><div style="display:flex;gap:5px;flex-wrap:wrap">${clearItems}</div></div>
+          <div style="padding:6px 13px;border-top:1px solid var(--surface3);font-size:11px;color:var(--text3)">지문(5460P) ${l.p5460||0} · 문항(5460H) ${l.h5460||0} · 강의영상 ${l.video?'O':'-'}</div>
+        </div></div>`;
+    }
+    return`<div class="lec-card ${isExp?'expanded':''}" id="lec-${l.id}"><div class="lec-row" onclick="toggle(${l.id})"><div class="lec-left"><span class="lec-id" onclick="event.stopPropagation();if(GZ_CANWRITE)openEditModal(${l.id})" style="cursor:${GZ_CANWRITE?'pointer':'default'}" title="${GZ_CANWRITE?'클릭하여 수정':''}">${l.id}</span><div class="lec-info"><div class="lec-title">${title}</div><div class="lec-path">${path}</div></div></div><div class="lec-right"><div class="completeness" title="P/H/교안/영상/SPARK">${compHtml}</div>${badges.join('')}${gzAssignBtn(l.id)}</div></div>${detail}</div>`;
+  }).join('');
+}
+
+function toggle(id){if(expanded.has(id))expanded.delete(id);else expanded.add(id);doRender()}
+function selCur(c){cur=c;sL1=sL2=sL3=sSch=sGrade=sSubj=sDsgL2=null;expanded.clear();render()}
+function selL1(v){sL1=sL1===v?null:v;sL2=sL3=null;expanded.clear();render()}
+function selL2(v){sL2=sL2===v?null:v;sL3=null;render()}
+function selL3(v){sL3=sL3===v?null:v;render()}
+function selSchool(v){sSch=sSch===v?null:v;sGrade=sSubj=null;expanded.clear();render()}
+function selGrade(v){sGrade=sGrade===v?null:v;sSubj=null;render()}
+function selSubj(v){sSubj=sSubj===v?null:v;render()}
+function selDsgL2(v){sDsgL2=sDsgL2===v?null:v;render()}
+function hl(t,q){const i=t.toLowerCase().indexOf(q);if(i===-1)return t;return t.slice(0,i)+'<mark style="background:var(--gold-bg);color:var(--gold);padding:0 2px;border-radius:2px;font-weight:600">'+t.slice(i,i+q.length)+'</mark>'+t.slice(i+q.length)}
+function showToast(m,ty='success'){const t=document.getElementById('toast');t.textContent=m;t.className=`toast ${ty} show`;setTimeout(()=>t.classList.remove('show'),2500)}
+
+// ═══════════════════════════════════════════
+// CRUD 모달 — 카테고리 드릴다운
+// ═══════════════════════════════════════════
+let ALL_CATS=[];  // 전체 카테고리 캐시
+
+async function ensureCats(){
+  if(ALL_CATS.length) return;
+  const{data}=await sb.from('lecture_categories').select('*').order('sort_order');
+  ALL_CATS=data||[];
+}
+
+function openAddModal(){
+  if(!GZ_CANWRITE)return;
+  document.getElementById('modalTitle').textContent='강좌 등록';
+  document.getElementById('fId').value='';
+  document.getElementById('fTitle').value='';
+  document.getElementById('fCurriculum').value=cur==='내신'?'내신':'수능';
+  document.getElementById('fPublished').value='0';
+  document.getElementById('fTags').value='';
+  document.getElementById('btnDelete').style.display='none';
+  document.getElementById('btnSave').textContent='저장';
+  onCurrChange();
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+async function openEditModal(id){
+  if(!GZ_CANWRITE)return;
+  await ensureCats();
+  const lec=[...SUN,...NAE].find(l=>l.id===id);
+  if(!lec) return;
+  
+  // DB에서 실제 category_id 조회
+  const{data:dbLec}=await sb.from('lectures').select('category_id').eq('id',id).single();
+  const catId=dbLec?.category_id;
+  const cat=ALL_CATS.find(c=>c.id===catId);
+  
+  document.getElementById('modalTitle').textContent='강좌 수정';
+  document.getElementById('fId').value=id;
+  document.getElementById('fTitle').value=lec.t;
+  document.getElementById('fPublished').value=lec.p?'1':'0';
+  document.getElementById('fTags').value=(lec.tags||[]).join(', ');
+  document.getElementById('btnDelete').style.display='block';
+  document.getElementById('btnSave').textContent='수정';
+  
+  // 카테고리 복원
+  if(cat){
+    document.getElementById('fCurriculum').value=cat.curriculum;
+    onCurrChange(cat.l1_name, cat.l2_name, cat.id);
+  } else {
+    document.getElementById('fCurriculum').value=SUN.find(l=>l.id===id)?'수능':'내신';
+    onCurrChange();
+  }
+  
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+async function onCurrChange(preL1, preL2, preCatId){
+  await ensureCats();
+  const curr=document.getElementById('fCurriculum').value;
+  const cats=ALL_CATS.filter(c=>c.curriculum===curr);
+  
+  if(curr==='수능'){
+    document.getElementById('fL1label').textContent='공부순서';
+    document.getElementById('fL2label').textContent='영역';
+    document.getElementById('fL3label').textContent='영역구분';
+  } else {
+    document.getElementById('fL1label').textContent='학교';
+    document.getElementById('fL2label').textContent='학년 · 과목';
+    document.getElementById('fL3label').textContent='출판사';
+  }
+  
+  // L1 채우기
+  const l1s=[...new Set(cats.map(c=>c.l1_name).filter(Boolean))];
+  const selL1=document.getElementById('fL1');
+  selL1.innerHTML='<option value="">선택...</option>'+l1s.map(n=>`<option value="${n}">${n}</option>`).join('');
+  
+  if(preL1){
+    selL1.value=preL1;
+    onL1Change(preL2, preCatId);
+  } else {
+    document.getElementById('fL1wrap').style.display='block';
+    document.getElementById('fL2wrap').style.display='none';
+    document.getElementById('fL3wrap').style.display='none';
+    document.getElementById('fCatResult').textContent='';
+  }
+}
+
+function onL1Change(preL2, preCatId){
+  const curr=document.getElementById('fCurriculum').value;
+  const l1=document.getElementById('fL1').value;
+  const cats=ALL_CATS.filter(c=>c.curriculum===curr&&c.l1_name===l1);
+  
+  if(!l1){
+    document.getElementById('fL2wrap').style.display='none';
+    document.getElementById('fL3wrap').style.display='none';
+    document.getElementById('fCatResult').textContent='';
+    return;
+  }
+  
+  // L2 채우기
+  const l2s=[...new Set(cats.map(c=>c.l2_name).filter(Boolean))];
+  const selL2=document.getElementById('fL2');
+  selL2.innerHTML='<option value="">선택...</option>'+l2s.map(n=>`<option value="${n}">${n}</option>`).join('');
+  document.getElementById('fL2wrap').style.display='block';
+  
+  if(preL2){
+    selL2.value=preL2;
+    onL2Change(preCatId);
+  } else {
+    document.getElementById('fL3wrap').style.display='none';
+    updateCatResult();
+  }
+}
+
+function onL2Change(preCatId){
+  const curr=document.getElementById('fCurriculum').value;
+  const l1=document.getElementById('fL1').value;
+  const l2=document.getElementById('fL2').value;
+  const cats=ALL_CATS.filter(c=>c.curriculum===curr&&c.l1_name===l1&&c.l2_name===l2);
+  
+  if(!l2){
+    document.getElementById('fL3wrap').style.display='none';
+    updateCatResult();
+    return;
+  }
+  
+  // L3 (출판사/영역구분) — 1개면 자동선택
+  if(cats.length===1){
+    document.getElementById('fL3wrap').style.display='none';
+    updateCatResult();
+  } else {
+    const l3s=cats.map(c=>({id:c.id,name:c.l3_name||c.id}));
+    const selL3=document.getElementById('fL3');
+    selL3.innerHTML='<option value="">선택...</option>'+l3s.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+    document.getElementById('fL3wrap').style.display='block';
+    
+    if(preCatId){
+      selL3.value=preCatId;
+    }
+  }
+  updateCatResult();
+}
+
+function getSelectedCatId(){
+  const curr=document.getElementById('fCurriculum').value;
+  const l1=document.getElementById('fL1').value;
+  const l2=document.getElementById('fL2').value;
+  const l3val=document.getElementById('fL3').value;
+  
+  if(l3val&&document.getElementById('fL3wrap').style.display!=='none') return parseInt(l3val);
+  
+  const cats=ALL_CATS.filter(c=>c.curriculum===curr&&c.l1_name===l1&&c.l2_name===l2);
+  if(cats.length===1) return cats[0].id;
+  return null;
+}
+
+function updateCatResult(){
+  const catId=getSelectedCatId();
+  const el=document.getElementById('fCatResult');
+  if(catId){
+    const cat=ALL_CATS.find(c=>c.id===catId);
+    el.innerHTML=`✅ <strong>${cat.curriculum}</strong> > ${cat.l1_name} > ${cat.l2_name}${cat.l3_name?' > '+cat.l3_name:''}`;
+    el.style.color='var(--green)';
+  } else {
+    el.textContent='카테고리를 선택해주세요';
+    el.style.color='var(--text3)';
+  }
+}
+
+async function saveLecture(){
+  if(!GZ_CANWRITE){showToast('열람 전용입니다','error');return;}
+  const id=document.getElementById('fId').value;
+  const title=document.getElementById('fTitle').value.trim();
+  if(!title){showToast('강좌명을 입력하세요','error');return}
+  
+  const catId=getSelectedCatId();
+  if(!catId){showToast('카테고리를 선택하세요','error');return}
+  
+  const tagsStr=document.getElementById('fTags').value;
+  const tags=tagsStr?tagsStr.split(',').map(t=>t.trim()).filter(Boolean):null;
+  
+  const payload={
+    title:title,
+    category_id:catId,
+    is_published:document.getElementById('fPublished').value==='1',
+    tags:tags,
+    updated_at:new Date().toISOString()
+  };
+
+  try{
+    if(id){
+      const{error}=await sb.from('lectures').update(payload).eq('id',parseInt(id));
+      if(error) throw error;
+      showToast('수정 완료!');
+    }else{
+      payload.created_at=new Date().toISOString();
+      payload.sort_order=9999;
+      const{error}=await sb.from('lectures').insert(payload);
+      if(error) throw error;
+      showToast('등록 완료!');
+    }
+    closeModal();
+    SUN_LOADED=false;NAE_LOADED=false;
+    if(cur==='수능') await loadSuneungFromDB();
+    if(cur==='내신') await loadNaesinFromDB();
+    loadBigStats();
+    render();
+  }catch(e){
+    console.error('저장 실패:',e);
+    showToast('저장 실패: '+e.message,'error');
+  }
+}
+
+async function deleteLecture(){
+  if(!GZ_CANWRITE){showToast('열람 전용입니다','error');return;}
+  const id=document.getElementById('fId').value;
+  if(!id) return;
+  if(!confirm('정말 삭제하시겠습니까?')) return;
+  
+  try{
+    const{error}=await sb.from('lectures').delete().eq('id',parseInt(id));
+    if(error) throw error;
+    showToast('삭제 완료!');
+    closeModal();
+    SUN_LOADED=false;NAE_LOADED=false;
+    await Promise.all([loadSuneungFromDB(),loadNaesinFromDB()]);
+    loadBigStats();
+    expanded.delete(parseInt(id));
+    render();
+  }catch(e){
+    console.error('삭제 실패:',e);
+    showToast('삭제 실패: '+e.message,'error');
+  }
+}
+
+// 초기: 내신 > 연송고 > 고1
+cur='내신';sSch='연송고';sGrade='고1';
+loadBigStats();
+render();
+</script>
+<script>
+(function(){
+  var b=document.getElementById('btnAdd'); if(b&&GZ_CANWRITE)b.style.display='';
+  var h=document.querySelector('.results-header');
+  if(h){var t=document.createElement('span');t.id='gzModeBadge';
+    t.style.cssText='margin-left:auto;font-size:12px;padding:2px 10px;border-radius:10px;font-weight:600;'+
+      (GZ_MODE==='admin'?'background:#FDF6E9;color:#8a6510;border:1px solid #B8892E':
+       GZ_MODE==='teacher'?'background:#EDF3EE;color:#1E4D3B;border:1px solid #1E4D3B':
+       'background:#f1f3f5;color:#666;border:1px solid #ddd');
+    t.textContent=GZ_MODE==='admin'?'관리 모드 · 등록/수정 가능':(GZ_MODE==='teacher'?('교사 모드'+(GZ_SID?' · 학생 #'+GZ_SID:'')):'열람 전용');
+    h.appendChild(t);}
 })();
 </script>
-</body></html>
+</body>
+</html>
