@@ -133,32 +133,16 @@ const H={apikey:PK, Authorization:'Bearer '+(window.__GZ_JWT||PK), 'Content-Type
 /* [v0.78] 로그인 만료 대응 — 머리는 호출마다 현재 토큰(관문이 갱신해 넣어 줌)으로, 401이면 관문 gzRefresh 후 한 번 다시 */
 function HH(){ return {apikey:PK, Authorization:'Bearer '+(window.__GZ_JWT||PK), 'Content-Type':'application/json'}; }
 async function gzAuthRetry(){ try{ if(window.parent&&window.parent!==window&&typeof window.parent.gzRefresh==='function'){ const ok=await window.parent.gzRefresh(); try{ const pj=JSON.parse(window.parent.sessionStorage.getItem('gz_session')||'null'); if(ok&&pj&&pj.jwt) window.__GZ_JWT=pj.jwt; }catch(_){} return ok; } }catch(_){} return false; }
-var P2F=null;
-const AREA_KO={'L-VER':'문학·운문','L-MNO':'문학·현대산문','L-CNO':'문학·고전산문','D-RDG':'독서','G-GRM':'문법','E-SPW':'화작·매체','V-VOC':'어휘'};
-const KLA_KO={'M':'일치','I':'추론','C':'비판·창의','V':'어휘','L':'논리','E':'평가','B':'배경','A':'적용'};
-function recoChip(group,key,label,n,on,extra){return '<span onclick="recoChipTap(\''+group+'\',\''+key+'\')" style="display:inline-block;margin:2px 3px 2px 0;padding:2px 8px;border-radius:10px;font-size:11.5px;cursor:pointer;border:1px solid '+(on?'#1E4D3B':'#d8d4c8')+';'+(on?'background:#1E4D3B;color:#fff':'background:#fff;color:#444')+'">'+label+(extra||'')+' <small style="opacity:.75">'+n+'</small></span>';}
-function recoChipTap(g,k){const s=P2F.sel;if(g==='term'){s.term=(s.term===k?null:k);}else if(g==='band'){s.band=(String(s.band)===String(k)?null:+k);}else{const a=s[g];const i=a.indexOf(k);if(i>=0)a.splice(i,1);else a.push(k);}recoFunnel();}
-function recoFunnel(){const rb=document.getElementById('recoBlock');if(!rb||!P2F)return;const f=P2F.facets,s=P2F.sel,se=f.season||{};
-  const scope=(se.scope_works||[]).map(w=>w.title).join(' · ');
+function recoRenderPolicy(rb,ro){const REL=[['◎',3,'#1E4D3B'],['○',2,'#2b6cb0'],['△',1,'#b7791f'],['×',0,'#9b2c2c']];
+  if(!ro||!ro.ok){rb.innerHTML='<div style="padding:6px 8px;border:1px dashed #d8d4c8;border-radius:6px;background:#fbfaf6;font-size:12px"><b>🧩 2교시 문항 처방</b> — '+((ro&&ro.reason)||'없음')+(ro&&ro.phase?' · '+ro.phase:'')+'</div>';return;}
+  const se=ro.season||{},g=ro.gate||{};const rows=ro.rows||[];const groups=[];rows.forEach(x=>{const k=x.group||'기타';let gg=groups.find(z=>z.k===k);if(!gg){gg={k:k,items:[]};groups.push(gg);}gg.items.push(x);});
   let h='<div style="padding:6px 8px;border:1px solid #d8d4c8;border-radius:6px;background:#fbfaf6">';
-  h+='<div style="font-size:12px;margin-bottom:4px"><b>🧩 2교시 문항 처방</b> <small style="color:#5f5b52">'+(se.jeolgi||'')+' '+(se.phase||'')+(se.d_day!=null?' · D-'+se.d_day:'')+(se.exam?' · '+se.exam:'')+'</small></div>';
-  h+='<div class="mini" style="margin-bottom:4px">이번 범위: '+(scope||'미입력')+' — 범위 작품 기출 <b>'+(se.scope_items_n||0)+'</b>건'+((se.scope_items_n||0)===0?' <span style="color:#B8892E">(없음 → 같은 학기·같은 영역 기출로)</span>':'')+'</div>';
-  h+='<div class="mini"><b>시기</b> '+(f.facets.term||[]).map(t=>recoChip('term',t.k,t.k,t.n,s.term===t.k)).join('')+'</div>';
-  h+='<div class="mini"><b>영역</b> '+(f.facets.area||[]).map(t=>recoChip('areas',t.k,AREA_KO[t.k]||t.k,t.n,s.areas.includes(t.k),t.in_scope?' ★':'')).join('')+'</div>';
-  h+='<div class="mini"><b>유형</b> '+(f.facets.kla||[]).map(t=>recoChip('kla',t.k,KLA_KO[t.k]||t.k,t.n,s.kla.includes(t.k),t.weak?' <span style="color:#A4472F">약</span>':'')).join('')+'</div>';
-  h+='<div class="mini"><b>등급</b> '+(f.facets.band||[]).map(t=>recoChip('band',t.k,t.k+'등급',t.n,s.band===t.k)).join('')+(f.defaults.band_hint?' <small>(진단 등급대 '+f.defaults.band_hint+')</small>':'')+'</div>';
-  h+='<div style="margin-top:6px"><button type="button" onclick="recoPick()" style="font-size:12px;padding:3px 10px;border:1px solid #1E4D3B;background:#1E4D3B;color:#fff;border-radius:8px;cursor:pointer">이 조건으로 문항 보기</button> <small class="mini" id="recoCnt"></small></div><div id="recoList" style="margin-top:6px"></div></div>';
+  h+='<div style="font-size:12px;margin-bottom:4px"><b>🧩 2교시 문항 처방</b> <small style="color:#5f5b52">'+(ro.band||'')+' 정책 · '+(ro.phase||'')+(se.d_day!=null?' · D-'+se.d_day:'')+(se.exam?' · '+se.exam:'')+' · 세션 #'+ro.session_id+' · 학생 화면 '+(g.student_visible?'노출':'비노출')+'</small></div>';
+  (ro.notice||[]).forEach(n=>{h+='<div style="font-size:12px;color:#B8892E;margin-bottom:4px">'+n.title+'</div>';});
+  h+=groups.map(gg=>'<div style="font-weight:800;font-size:12px;margin:6px 0 2px">▣ '+gg.k+' <small style="color:#8a8577">('+gg.items.length+')</small></div>'+gg.items.map(x=>'<div id="rl'+x.rank+'" style="padding:3px 0;border-top:1px solid #efece4;font-size:12px"><div style="display:flex;align-items:center;gap:6px"><span style="width:16px;color:#8a8577">'+x.rank+'</span><span style="flex:1">'+(x.title||'')+'</span>'+(x.work_id?'<button type="button" data-w="'+x.work_id+'" data-t="'+String(x.title||'').replace(/"/g,'').slice(0,40)+'" onclick="recoToP2(this)" style="font-size:11px;padding:1px 6px;border:1px solid #1E4D3B;color:#1E4D3B;border-radius:8px;background:#fff;cursor:pointer">2교시로</button>':'')
+    +REL.map(r=>'<button type="button" onclick="recoLabel('+ro.session_id+','+x.rank+','+r[1]+',this)" style="font-size:12px;padding:1px 7px;border-radius:9px;cursor:pointer;border:1px solid '+r[2]+';'+(x.relevance===r[1]?'background:'+r[2]+';color:#fff':'background:#fff;color:'+r[2])+'">'+r[0]+'</button>').join('')+'</div>'+(x.snippet?'<div style="font-size:11px;color:#5f5b52;padding-left:22px">'+x.snippet+'</div>':'')+'</div>').join('')).join('');
+  h+='<div style="font-size:11px;color:#8a8577;margin-top:4px">◎ 꼭 필요 · ○ 도움됨 · △ 나중에 · × 필요 없음 — ◎는 2교시 과제로 자동 배정 · <a href="sugang.html?student_id='+COACH_SID+'" target="_blank" style="color:#B8892E">📚 강좌 추천은 수강신청에서 →</a></div></div>';
   rb.innerHTML=h;}
-async function recoPick(){const s=P2F.sel;const lst=document.getElementById('recoList');lst.innerHTML='<div class="mini">문항 고르는 중…</div>';
-  try{const ro=await rpc('gz_reco_open_p2',{p_sid:P2F.sid,p_f:{term:s.term,areas:s.areas,kla:s.kla,band:s.band}});
-    const REL=[['◎',3,'#1E4D3B'],['○',2,'#2b6cb0'],['△',1,'#b7791f'],['×',0,'#9b2c2c']];
-    if(!ro||!ro.ok){lst.innerHTML='<div class="mini">'+((ro&&ro.reason)||'조건에 맞는 문항 없음')+'</div>';return;}
-    document.getElementById('recoCnt').textContent='조건에 맞는 문항 '+ro.pool_n+'건 중 10건 · 세션 #'+ro.session_id;
-    lst.innerHTML=(ro.rows||[]).map(x=>'<div id="rl'+x.rank+'" style="padding:4px 0;border-top:1px solid #efece4;font-size:12px"><div style="display:flex;align-items:center;gap:6px"><span style="width:16px;color:#8a8577">'+x.rank+'</span><span style="flex:1">'+(x.title||'')+'</span>'+(x.work_id?'<button type="button" data-w="'+x.work_id+'" data-t="'+String(x.work||'').replace(/"/g,'')+'" onclick="recoToP2(this)" style="font-size:11px;padding:1px 6px;border:1px solid #1E4D3B;color:#1E4D3B;border-radius:8px;background:#fff;cursor:pointer">2교시로</button>':'')
-      +REL.map(r=>'<button type="button" onclick="recoLabel('+ro.session_id+','+x.rank+','+r[1]+',this)" style="font-size:12px;padding:1px 7px;border-radius:9px;cursor:pointer;border:1px solid '+r[2]+';'+(x.relevance===r[1]?'background:'+r[2]+';color:#fff':'background:#fff;color:'+r[2])+'">'+r[0]+'</button>').join('')+'</div>'
-      +(x.snippet?'<div style="font-size:11px;color:#5f5b52;padding-left:22px">'+x.snippet+'</div>':'')+'</div>').join('')
-      +'<div style="font-size:11px;color:#8a8577;margin-top:4px">◎ 꼭 필요 · ○ 도움됨 · △ 나중에 · × 필요 없음 — ◎는 2교시 과제로 자동 배정 · <a href="sugang.html?student_id='+P2F.sid+'" target="_blank" style="color:#B8892E">📚 강좌 추천은 수강신청에서 →</a></div>';
-  }catch(e){lst.innerHTML='<div class="mini err">문항 로드 실패: '+e.message+'</div>';}}
 function recoToP2(b){try{p2open(+b.dataset.w, b.dataset.t);}catch(e){alert('2교시 열기 실패: '+e.message);}}
 async function recoLabel(sess,rank,rel,btn){try{const j=await rpc('gz_reco_label',{p_session_id:sess,p_rank:rank,p_relevance:rel,p_teacher:((window.__GZ_ME&&window.__GZ_ME.teacher_id)||null)});
   const row=document.getElementById('rl'+rank);if(row){[...row.querySelectorAll('button')].forEach(b=>{const c=b.style.borderColor;b.style.background='#fff';b.style.color=c;});btn.style.background=btn.style.borderColor;btn.style.color='#fff';}
@@ -1224,8 +1208,8 @@ async function loadPrefill(){
     /* v0.52 메모함 피드백 노출 (staff_memos, note 6142) — 이 학생 관련 특이사항·보고와 원장 피드백 */
     try{const fb=document.getElementById('memoFb');if(fb){fb.innerHTML='';const mj=await rpc('gz_memo_list',{p:{student_id:COACH_SID,limit:5}});if(mj&&mj.ok&&mj.n){fb.innerHTML=mj.rows.map(m=>'<div style="padding:3px 6px;margin-top:3px;border-left:3px solid '+(m.feedback?'#1E4D3B':'#b8b2a3')+';background:#f7f5ee"><b>'+m.status+'</b> '+(m.body||'').slice(0,80)+(m.feedback?'<br><span style="color:#1E4D3B">↳ 피드백: '+m.feedback+' — '+(m.feedback_by||'')+'</span>':'')+'</div>').join('');}}}catch(_){}
 
-    /* v0.95 2교시 문항 처방 깔때기 (seq 232·note 6779) — ① 시즌 안내+조건(시기·영역·유형·등급) → ② gz_reco_open_p2 → 문항(지문)+2교시로+4단 */
-    try{const rb=document.getElementById('recoBlock');if(rb){rb.innerHTML='<div class="mini">문항 처방 조건 불러오는 중…</div>';const fc=await rpc('gz_reco_items_facets',{p_sid:COACH_SID});if(fc&&fc.ok){P2F={sid:COACH_SID,facets:fc,sel:{term:fc.defaults.term,areas:[...(fc.defaults.areas||[])],kla:[...(fc.defaults.kla||[])].slice(0,2),band:null}};recoFunnel();}else{rb.innerHTML='<div class="mini">문항 처방 조건 없음</div>';}}
+    /* v0.96 2교시 문항 처방 — 정책 엔진(gz_reco_open_policy): 학년·시기가 그룹을 정함. 교사 선택 없음 */
+    try{const rb=document.getElementById('recoBlock');if(rb){rb.innerHTML='<div class="mini">문항 처방 불러오는 중…</div>';const ro=await rpc('gz_reco_open_policy',{p_sid:COACH_SID});recoRenderPolicy(rb,ro);}
     }catch(e){const rb=document.getElementById('recoBlock');if(rb)rb.innerHTML='<div class="mini err">문항 처방 로드 실패: '+e.message+'</div>';}
 
     let t='';
