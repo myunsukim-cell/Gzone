@@ -394,7 +394,7 @@ let GZ_STU=null, GZ_CODES=new Set();
 async function gzLoadStu(){ if(!GZ_CANASSIGN)return;
   try{const{data,error}=await sb.rpc('gz_student_brief',{p_sid:GZ_SID});
     if(error||!data||!data.ok)return; GZ_STU=data; GZ_CODES=new Set((data.course_codes||[]).map(String));
-    /* seq 233 (2026-09-15) 교사 모드 개인 추천 — gz_reco_sugang */ try{const rr=await sb.rpc('gz_reco_sugang',{p_sid:GZ_SID}); if(!rr.error&&rr.data&&rr.data.ok){GZ_RECO=rr.data;GZ_BROWSE=false;}}catch(e){}
+    /* seq 233 (2026-09-15) 교사 모드 개인 추천 — gz_reco_sugang */ try{const rr=await sb.rpc('gz_reco_policy',{p_sid:GZ_SID}); if(!rr.error&&rr.data&&rr.data.ok){GZ_RECO=gzPolicyToTabs(rr.data);GZ_BROWSE=false;}}catch(e){}
     /* GZX 2026-08-08 DB방: 교사 모드 초기 선택 = 학생의 학교·학년 (기존: 연송고·고1 고정 → 중등 학생에게 고1·고2만 노출되던 문제 교정) */
     if(data.school){try{cur='내신';sSch=data.school;sGrade=(data.grade||null);if(typeof render==='function')render();}catch(_e){}}
     var t=document.getElementById('gzModeBadge'); if(t)t.textContent='교사 모드 · '+data.name+(data.school?(' ('+data.school+' '+(data.grade||'')+')'):'');
@@ -844,6 +844,13 @@ function renderBook(){
 
 /* seq 233 — 교사 모드 4탭 개인 추천. 데이터: gz_reco_sugang(sid). 강좌→gzAssignBtn(기존), 문항·도서는 표시만(배정 회선 seq 235) */
 function gzRecoToggle(b){GZ_BROWSE=b;render();}
+/* 정책 엔진(gz_reco_policy) 반환 → 4탭 그룹. 내신=시험범위·내신 진도 / 수능=나머지 강좌 그룹 / 책읽기=books / 논술=대기 */
+function gzPolicyToTabs(p){const t={내신:{},수능:{},논술:{},책읽기:p.books||{}};
+  (p.lectures||[]).forEach(x=>{const g=x.group||'기타';const tab=/시험범위|내신 진도/.test(g)?'내신':'수능';(t[tab][g]=t[tab][g]||{title:g,items:[]}).items.push(x);});
+  if(!Object.keys(t.내신).length)t.내신={g0:{title:'내신 강좌',items:[],note:(p.phase==='평시'?'시험범위 미입력 — 범위가 등록되면 여기에 뜹니다':'해당 없음')}};
+  if(!Object.keys(t.수능).length)t.수능={g0:{title:'수능 강좌',items:[],note:(p.phase==='직전기'?'직전기 — 시험범위 강좌만':'해당 없음')}};
+  t.논술={g0:{title:'글쓰기 과제',items:[],note:'글쓰기·독서 정책은 자료 업로드 후 연결'}};
+  return {ok:true,policy:true,band:p.band,phase:p.phase,season:p.season||{},notice:p.notice||[],tabs:t};}
 function renderReco(){
   ['row-l1','row-l2','row-l3','row-l4'].forEach(id=>{const e=document.getElementById(id); if(e&&!e.classList.contains('hidden')){e.classList.add('hidden');e.dataset.gzhid='1';}});
   const sd=document.getElementById('schoolDetail'); if(sd)sd.classList.remove('show');
@@ -861,7 +868,7 @@ function renderReco(){
     const empty=items.length?'':`<div style="font-size:12px;color:#8a8577;padding:6px 12px">${esc(gv.note||'해당 없음')}</div>`;
     return `<div style="margin:10px 0 14px"><div style="font-weight:800;font-size:13px;margin:0 0 4px">▣ ${esc(gv.title)} <small style="color:#8a8577">(${items.length})</small>${gv.available===false?' <small style="color:#B8892E">· 자료 없음</small>':''}</div>${rows}${empty}</div>`;}).join('');
   const s=GZ_RECO.season||{};
-  document.getElementById('resCount').innerHTML=`🧭 <strong>${esc(GZ_STU?GZ_STU.name:'')}</strong> 맞춤 추천 <strong>${total}</strong>건 <small style="color:#8a8577">· ${esc(s.jeolgi||'')} ${esc(s.phase||'')} ${s.d_day!=null?'D-'+s.d_day:''} · 내신:수능 ${esc(s.track_ab||'')}</small>
+  document.getElementById('resCount').innerHTML=`🧭 <strong>${esc(GZ_STU?GZ_STU.name:'')}</strong> 맞춤 추천 <strong>${total}</strong>건 <small style="color:#8a8577">· ${esc(GZ_RECO.band||'')} 정책 · ${esc(GZ_RECO.phase||'')} ${s.d_day!=null?'D-'+s.d_day:''} ${s.exam?'· '+esc(s.exam):''}</small>${(GZ_RECO.notice||[]).map(n=>`<div style="margin-top:4px;font-size:12px;color:#B8892E">${esc(n.title)}</div>`).join('')}
     <button onclick="gzRecoToggle(true)" style="margin-left:10px;font-size:11px;padding:3px 9px;border:1px solid var(--border2);border-radius:8px;background:#fff;cursor:pointer">전체 탐색으로</button>`;
   document.getElementById('list').innerHTML=html||'<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">추천 후보 없음</div></div>';
 }
