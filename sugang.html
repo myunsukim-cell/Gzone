@@ -162,6 +162,36 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 .btn-cancel:hover{background:var(--bg)}
 .btn-delete{padding:10px 20px;border-radius:10px;border:none;background:var(--red);color:#fff;font-weight:700;font-size:13px;cursor:pointer;margin-right:auto}
 .btn-delete:hover{filter:brightness(1.1)}
+
+/* ── 학생 추천 (시안 A) ── */
+.rc-wrap{max-width:1180px}
+.rc-head{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:end;padding-bottom:12px;border-bottom:2px solid #1c1b18}
+.rc-head h1{font-size:26px;font-weight:800;margin:0;letter-spacing:-.01em}.rc-head h1 small{font-size:14px;font-weight:500;color:#6b675e;margin-left:10px}
+.rc-head p{color:#6b675e;margin:4px 0 0;font-size:13.5px}.rc-head a{font-size:13px;color:#6b675e;text-decoration:none;border-bottom:1px solid #d8d4c8}
+.rc-rail{margin:18px 0 8px;display:grid;grid-template-columns:repeat(5,1fr);position:relative}
+.rc-rail:before{content:"";position:absolute;left:0;right:0;top:11px;height:2px;background:#d8d4c8}
+.rc-rail .st{position:relative;padding-top:24px;font-size:12.5px;color:#6b675e}
+.rc-rail .st:before{content:"";position:absolute;left:0;top:5px;width:14px;height:14px;border-radius:50%;background:#fbfaf6;border:2px solid #d8d4c8}
+.rc-rail .st.done:before{background:#d8d4c8}.rc-rail .st.now{color:#1c1b18;font-weight:800}
+.rc-rail .st.now:before{background:#1E4D3B;border-color:#1E4D3B;box-shadow:0 0 0 4px rgba(30,77,59,.15)}
+.rc-rail .st b{display:block;font-weight:inherit}.rc-rail .st span{display:block;font-weight:400;font-size:11.5px}
+.rc-dday{font-size:42px;font-weight:800;color:#1E4D3B;letter-spacing:-.02em;line-height:1}.rc-dday small{font-size:13.5px;font-weight:500;color:#6b675e;margin-left:8px}
+.rc-notice{margin:8px 0 0;padding:8px 12px;border-left:3px solid #B8892E;background:#f1ede4;font-size:13px}
+.rc-bulk{display:flex;gap:10px;align-items:center;margin:10px 0 0}.rc-bulk button{font-weight:800;font-size:13.5px;padding:9px 16px;border-radius:8px;border:0;background:#1E4D3B;color:#fff;cursor:pointer}.rc-bulk small{color:#6b675e;font-size:12.5px}
+.rc-grid{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:26px;margin-top:18px}@media(max-width:860px){.rc-grid{grid-template-columns:1fr}}
+.rc-grid h2{font-size:18px;font-weight:800;margin:22px 0 4px;padding-bottom:6px;border-bottom:1px solid #d8d4c8;display:flex;justify-content:space-between;align-items:baseline}.rc-grid h2 small{font-size:12.5px;font-weight:400;color:#6b675e}
+.rc-grp h3{font-size:13.5px;font-weight:500;margin:12px 0 2px;color:#6b675e}.rc-grp h3 em{font-style:normal;color:#1c1b18;margin-left:4px}
+.rc-grp ul{list-style:none;margin:0;padding:0}
+.rc-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:7px 0;border-top:1px dashed #d8d4c8}
+.rc-row .t{font-size:14px}.rc-row .why{font-size:11.5px;color:#6b675e;white-space:nowrap}.rc-row .snip{grid-column:1/-1;font-size:12px;color:#6b675e;margin-top:-3px}
+.rc-row.on .t{color:#8a8577}
+.rc-row .gz-assign{margin-left:0!important;padding:4px 12px!important;border-radius:999px!important;font-weight:600!important;font-size:12.5px!important}
+.rc-rel b{display:inline-block;width:25px;height:25px;line-height:23px;text-align:center;border:1.5px solid #d8d4c8;border-radius:50%;margin-left:3px;font-weight:500;cursor:pointer;font-size:13px}
+.rc-rel b.on{color:#fff}
+.rc-empty{color:#6b675e;font-size:13px;margin:4px 0 0}
+.rc-box{border:1px solid #d8d4c8;padding:12px 14px;margin-top:22px;background:#f1ede4}.rc-box h4{margin:0 0 6px;font-size:13.5px;font-weight:800}.rc-box ul{font-size:13px;list-style:none;margin:0;padding:0}.rc-box li{padding:2px 0}
+.rc-bar{height:6px;background:#d8d4c8;border-radius:3px;overflow:hidden;margin:3px 0 6px}.rc-bar i{display:block;height:100%;background:#1E4D3B}
+
 </style>
 </head>
 <body>
@@ -398,7 +428,7 @@ async function gzLoadStu(){ if(!GZ_CANASSIGN)return;
     /* GZX 2026-08-08 DB방: 교사 모드 초기 선택 = 학생의 학교·학년 (기존: 연송고·고1 고정 → 중등 학생에게 고1·고2만 노출되던 문제 교정) */
     if(data.school){try{cur='내신';sSch=data.school;sGrade=(data.grade||null);if(typeof render==='function')render();}catch(_e){}}
     var t=document.getElementById('gzModeBadge'); if(t)t.textContent='교사 모드 · '+data.name+(data.school?(' ('+data.school+' '+(data.grade||'')+')'):'');
-    if(typeof doRender==='function')doRender();
+    if(typeof doRender==='function' && !(GZ_RECO&&!GZ_BROWSE))doRender();
   }catch(e){}}
 function gzAssignBtn(id){ if(!GZ_CANASSIGN)return'';
   var on=GZ_CODES.has(String(id));
@@ -655,6 +685,7 @@ async function render(){
   {const lb=document.querySelector('#chips-cur')&&document.querySelector('#chips-cur').parentElement.querySelector('.filter-label'); if(lb)lb.textContent=(GZ_SID&&GZ_RECO&&!GZ_BROWSE)?((GZ_STU&&GZ_STU.name)||'학생')+' 학생 추천 강좌':'분류';}
   if(GZ_SID&&GZ_RECO&&!GZ_BROWSE){ if(cur==='논술'||cur==='책읽기')cur='독서논술'; renderReco(); return; } else if(cur==='독서논술'){cur='내신';}
   ['row-l1','row-l2','row-l3','row-l4'].forEach(id=>{const e=document.getElementById(id); if(e&&e.dataset.gzhid){e.classList.remove('hidden');delete e.dataset.gzhid;}});
+  {const fb=document.querySelector('.filter-box'); if(fb&&fb.dataset.gzhid){fb.style.display='';delete fb.dataset.gzhid;}}
   if(cur==='수능') renderSuneung();
   else if(cur==='내신') await renderNaesin();
   else if(cur==='논술') renderNonsul();
@@ -852,29 +883,62 @@ function gzPolicyToTabs(p){const t={내신:{},수능:{},논술:{},책읽기:p.bo
   if(!Object.keys(t.수능).length)t.수능={g0:{title:'수능 강좌',items:[],note:(p.phase==='직전기'?'직전기 — 시험범위 강좌만':'해당 없음')}};
   const rb={};Object.assign(rb,p.books||{});rb.z_write={title:'글쓰기 과제',items:[],note:'글쓰기 정책은 자료 업로드 후 연결'};
   t.독서논술=rb;delete t.논술;delete t.책읽기;
-  return {ok:true,policy:true,band:p.band,phase:p.phase,season:p.season||{},notice:p.notice||[],tabs:t};}
+  return {ok:true,policy:true,raw:p,band:p.band,phase:p.phase,season:p.season||{},notice:p.notice||[],tabs:t};}
 function renderReco(){
   ['row-l1','row-l2','row-l3','row-l4'].forEach(id=>{const e=document.getElementById(id); if(e&&!e.classList.contains('hidden')){e.classList.add('hidden');e.dataset.gzhid='1';}});
+  const fb=document.querySelector('.filter-box'); if(fb){fb.style.display='none';fb.dataset.gzhid='1';}
   const sd=document.getElementById('schoolDetail'); if(sd)sd.classList.remove('show');
-  const tab=GZ_RECO.tabs[cur]||{}; const groups=Object.keys(tab).sort();
-  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
-  let total=0; const html=groups.map(g=>{const gv=tab[g]; const items=gv.items||[]; total+=items.length;
-    const rows=items.map(it=>{
-      const kind=it.kind||'lecture';
-      const badge=kind==='lecture'?'강좌':kind==='question'?'문항':kind==='book'?'도서':kind==='exam_result'?'모의':kind==='essay'?'글':'';
-      const right=kind==='lecture'&&it.id?gzAssignBtn(it.id):(kind==='question'?'<span style="font-size:11px;color:#8a8577">과제 배정 준비 중</span>':'');
-      return `<div class="lecture-card" style="display:flex;align-items:center;gap:8px;padding:8px 12px;margin:4px 0">
-        <span class="lec-badge" style="background:${kind==='lecture'?'#1E4D3B':kind==='question'?'#2b6cb0':kind==='book'?'#7b4b94':'#666'};color:#fff">${badge}</span>
-        <span style="flex:1;font-size:13px">${esc(it.title)}${it.unit?` <small style="color:#8a8577">· ${esc(it.unit)}</small>`:''}${it.assigned?' <small style="color:#1E4D3B">· 배정됨</small>':''}</span>
-        <span style="font-size:11px;color:#8a8577;white-space:nowrap">${esc(it.why||'')}</span>${right}</div>`;}).join('');
-    const empty=items.length?'':`<div style="font-size:12px;color:#8a8577;padding:6px 12px">${esc(gv.note||'해당 없음')}</div>`;
-    return `<div style="margin:10px 0 14px"><div style="font-weight:800;font-size:13px;margin:0 0 4px">▣ ${esc(gv.title)} <small style="color:#8a8577">(${items.length})</small>${gv.available===false?' <small style="color:#B8892E">· 자료 없음</small>':''}</div>${rows}${empty}</div>`;}).join('');
-  const s=GZ_RECO.season||{};
-  document.getElementById('resCount').innerHTML=`🧭 <strong>${esc(GZ_STU?GZ_STU.name:'')}</strong> 학생 추천 강좌 <strong>${total}</strong>건 <small style="color:#8a8577">· ${esc(GZ_RECO.band||'')} 정책 · ${esc(GZ_RECO.phase||'')} ${s.d_day!=null?'D-'+s.d_day:''} ${s.exam?'· '+esc(s.exam):''}</small>${(GZ_RECO.notice||[]).map(n=>`<div style="margin-top:4px;font-size:12px;color:#B8892E">${esc(n.title)}</div>`).join('')}
-    <button onclick="gzRecoToggle(true)" style="margin-left:10px;font-size:11px;padding:3px 9px;border:1px solid var(--border2);border-radius:8px;background:#fff;cursor:pointer">전체 탐색으로</button>`;
-  document.getElementById('list').innerHTML=html||'<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">추천 후보 없음</div></div>';
+  const esc=x=>String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const P=GZ_RECO.raw||{}, se=P.season||{}, ev=P.evidence||{}, name=(GZ_STU&&GZ_STU.name)||'학생';
+  const ph=P.phase||'평시', dday=se.d_day;
+  const PH=[['평시','진도 · 읽기 훈련'],['준비기','범위 강좌 · SPARK'],['직전기','범위만 · 오답 재연습'],['시험',(se.exam_date||'')+' '+(se.exam||'')],['결과 분석','오답 영역 처방']];
+  const idx=Math.max(0,PH.findIndex(x=>x[0]===ph));
+  const groups=(arr,pred)=>{const g={};(arr||[]).filter(pred).forEach(x=>{(g[x.group||'기타']=g[x.group||'기타']||[]).push(x);});return g;};
+  const lecRow=x=>`<li class="rc-row ${x.assigned||GZ_CODES.has(String(x.id))?'on':''}"><span class="t">${esc(String(x.title||'').replace(/^\[[^\]]+\]\s*/,''))}</span><span class="why">${esc(x.why||'')}</span>${x.id?gzAssignBtn(x.id):''}</li>`;
+  const grpHtml=g=>Object.keys(g).map(k=>`<section class="rc-grp"><h3>${esc(k)} <em>${g[k].length}</em></h3><ul>${g[k].map(lecRow).join('')}</ul></section>`).join('')||'<p class="rc-empty">해당 없음</p>';
+  const isNaesin=x=>/시험범위|내신 진도/.test(x.group||'');
+  const gN=groups(P.lectures,isNaesin), gS=groups(P.lectures,x=>!isNaesin(x));
+  const books=P.books||{}; const bookHtml=['g3_mustread','g1_background','g2_career'].map(k=>{const g=books[k]||{};const its=g.items||[];return `<section class="rc-grp"><h3>${esc(g.title||k)} <em>${its.length}</em></h3>${its.length?'<ul>'+its.slice(0,6).map(i=>`<li class="rc-row"><span class="t">${esc(i.title)}</span><span class="why">${esc(i.why||'')}</span><span></span></li>`).join('')+'</ul>':'<p class="rc-empty">'+esc(g.note||'해당 없음')+'</p>'}</section>`;}).join('');
+  const AREA={'L-VER':'문학·운문','L-MNO':'문학·현대산문','L-CNO':'문학·고전산문','D-RDG':'독서','G-GRM':'문법','E-SPW':'화작·매체','V-VOC':'어휘'};
+  const ln=ev.learned||{}; const mx=Math.max(1,...Object.values(ln).map(Number));
+  const learnHtml=Object.keys(AREA).map(a=>`<li>${AREA[a]}<div class="rc-bar"><i style="width:${Math.round(100*(ln[a]||0)/mx)}%"></i></div>${ln[a]?'':'<small style="color:#B8892E">미학습</small>'}</li>`).join('');
+  const scopeLi=(ev.scope||[]).map(x=>`<li>${esc(x.unit)}${x.work?' · '+esc(x.work):''}</li>`).join('')||'<li>시험범위 미입력</li>';
+  const nextLi=(ev.next_phase||[]).map(x=>`<li>${x.kind==='lecture'?'강좌':'문항'} — ${esc(x.rule)}</li>`).join('');
+  const notice=(P.notice||[]).map(n=>`<div class="rc-notice">${esc(n.title)}</div>`).join('');
+  const autoNotice=ph==='준비기'?'범위가 확정되어 시험범위 강좌가 먼저 옵니다. 직전기(D-21)부터는 범위 강좌만 남고 수능 파트는 잠시 빠집니다.':ph==='직전기'?'직전기 — 시험범위 강좌와 범위 SPARK만 봅니다.':'평시 — 학교 진도와 읽기 훈련, 미학습 영역을 채웁니다.';
+  const scopeIds=(P.lectures||[]).filter(isNaesin).map(x=>x.id).filter(Boolean); const readIds=(P.lectures||[]).filter(x=>!isNaesin(x)).slice(0,2).map(x=>x.id).filter(Boolean);
+  window.__RC_BULK=[...scopeIds,...readIds];
+  document.getElementById('resCount').innerHTML='';
+  document.getElementById('list').innerHTML=`<div class="rc-wrap">
+  <header class="rc-head"><div><h1>${esc(name)} 학생 추천 강좌 <small>${esc(GZ_STU&&GZ_STU.school||'')} ${esc(GZ_STU&&GZ_STU.grade||'')}</small></h1><p>이 시기에 이 학생에게 권하는 강좌와 문항입니다. 선생님이 확정하면 배정됩니다.</p></div><div><a href="#" onclick="gzRecoToggle(true);return false;">전체 강좌 탐색</a></div></header>
+  <div class="rc-rail">${PH.map((x,i)=>`<div class="st ${i<idx?'done':i===idx?'now':''}"><b>${x[0]}</b><span>${esc(x[1])}</span></div>`).join('')}</div>
+  <div class="rc-dday">${dday!=null?'D-'+dday:'—'}<small>${esc(se.exam||'다가오는 시험 미등록')} · ${esc(ph)} · ${esc(P.band||'')} 정책</small></div>
+  ${notice}<div class="rc-notice">${autoNotice}</div>
+  ${window.__RC_BULK.length?`<div class="rc-bulk"><button onclick="rcBulk()">이 시기 기본 세트 배정</button><small>${scopeIds.length?'시험범위 '+scopeIds.length+'강좌':''}${readIds.length?' + 읽기 '+readIds.length+'강좌':''} · 이미 배정된 것은 건너뜁니다</small></div>`:''}
+  <div class="rc-grid"><main>
+    <h2>내신 <small>학교 진도가 1순위</small></h2>${grpHtml(gN)}
+    <h2>수능 <small>범위와 이어지는 파트만</small></h2>${grpHtml(gS)}
+    <h2>독서논술 <small>배경지식 · 필독서</small></h2>${bookHtml}<section class="rc-grp"><h3>글쓰기 과제 <em>0</em></h3><p class="rc-empty">글쓰기 정책은 자료 업로드 후 연결</p></section>
+    <h2>2교시 문항 <small>◎는 바로 과제로</small></h2><div id="rcQ"><p class="rc-empty">불러오는 중…</p></div>
+  </main><aside>
+    <div class="rc-box"><h4>왜 이 추천인가</h4><ul><li><b>시험범위</b> ${(ev.scope||[]).length}단원</li>${scopeLi}
+      <li style="margin-top:6px"><b>모의고사</b> ${ev.last_mock?esc(ev.last_mock.date)+' '+esc(ev.last_mock.score)+'점':'응시 기록 없음'}</li>
+      <li><b>오답 노트</b> ${ev.wrong_n?ev.wrong_n+'건 미극복':'기록 없음'}</li>${ev.kmd!=null?'<li><b>입학진단</b> '+esc(ev.kmd)+'점</li>':''}</ul></div>
+    <div class="rc-box"><h4>학습 이력 (영역)</h4><ul>${learnHtml}</ul></div>
+    <div class="rc-box"><h4>다음 시기에 바뀌는 것</h4><ul>${nextLi||'<li>—</li>'}</ul></div>
+  </aside></div></div>`;
+  rcLoadQ();
 }
-function doRender(){
+async function rcLoadQ(){const box=document.getElementById('rcQ');if(!box)return;try{const r=await sb.rpc('gz_reco_open_policy',{p_sid:GZ_SID});const ro=r.data;if(r.error||!ro||!ro.ok){box.innerHTML='<p class="rc-empty">'+((ro&&ro.reason)||'문항 없음')+'</p>';return;}
+  const esc=x=>String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;');const REL=[['◎',3,'#1E4D3B'],['○',2,'#2b6cb0'],['△',1,'#b7791f'],['×',0,'#9b2c2c']];const g={};(ro.rows||[]).forEach(x=>{(g[x.group||'기타']=g[x.group||'기타']||[]).push(x);});
+  box.innerHTML=Object.keys(g).map(k=>`<section class="rc-grp"><h3>${esc(k)} <em>${g[k].length}</em></h3><ul>${g[k].map(x=>`<li class="rc-row" id="rcq${x.rank}"><span class="t">${esc(x.title)}</span><span></span><span class="rc-rel">${REL.map(r=>`<b ${x.relevance===r[1]?'class="on" style="background:'+r[2]+';border-color:'+r[2]+'"':'style="color:'+r[2]+'"'} onclick="rcLabel(${ro.session_id},${x.rank},${r[1]},this,'${r[2]}')" title="${r[1]===3?'꼭 필요':r[1]===2?'도움됨':r[1]===1?'나중에':'필요 없음'}">${r[0]}</b>`).join('')}</span>${x.snippet?'<span class="snip">'+esc(x.snippet)+'</span>':''}</li>`).join('')}</ul></section>`).join('')||'<p class="rc-empty">정책상 문항 없음</p>';
+  }catch(e){box.innerHTML='<p class="rc-empty">문항 로드 실패: '+e.message+'</p>';}}
+async function rcLabel(sess,rank,rel,el,color){try{const r=await sb.rpc('gz_reco_label',{p_session_id:sess,p_rank:rank,p_relevance:rel,p_teacher:null});if(r.error)throw r.error;const p=el.parentElement;[...p.querySelectorAll('b')].forEach(b=>{b.classList.remove('on');b.style.background='';b.style.borderColor='';});el.classList.add('on');el.style.background=color;el.style.borderColor=color;if(rel===3&&r.data&&r.data.assignment&&r.data.assignment.ok)showToast('2교시 과제로 배정했습니다');}catch(e){alert('판정 저장 실패: '+(e.message||e));}}
+async function rcBulk(){const ids=(window.__RC_BULK||[]).filter(id=>!GZ_CODES.has(String(id)));if(!ids.length){showToast('이미 모두 배정되어 있습니다','info');return;}
+  let n=0;for(const id of ids){try{const r=await sb.rpc('gz_assign_course',{p_sid:GZ_SID,p_lec:id,p_action:'assign'});if(!r.error){GZ_CODES.add(String(id));n++;}}catch(e){}}
+  showToast(n+'강좌 배정했습니다');render();}
+
+function doRender(){ if(GZ_SID&&GZ_RECO&&!GZ_BROWSE){renderReco();return;}
   const q=document.getElementById('searchInput').value.toLowerCase();
   let f=[];
   if(cur==='수능'){
