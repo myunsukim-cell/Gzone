@@ -641,7 +641,7 @@ let expanded=new Set();
 
 var GZ_RECO=null, GZ_BROWSE=true;
 async function render(){
-  document.getElementById('chips-cur').innerHTML=['내신','수능','논술','책읽기'].map(c=>
+  document.getElementById('chips-cur').innerHTML=((GZ_SID&&GZ_RECO&&!GZ_BROWSE)?['내신','수능','독서논술']:['내신','수능','논술','책읽기']).map(c=>
     `<div class="chip ${cur===c?'active':''}" onclick="selCur('${c}')">${c}</div>`).join('');
   // 수능 탭이면 DB에서 로딩
   if(cur==='수능'&&!SUN_LOADED){
@@ -652,7 +652,8 @@ async function render(){
   if(cur==='내신'&&!NAE_LOADED){
     document.getElementById('list').innerHTML='<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-title">내신 데이터 로딩 중...</div></div>';
   }
-  if(GZ_SID&&GZ_RECO&&!GZ_BROWSE){ renderReco(); return; }
+  {const lb=document.querySelector('#chips-cur')&&document.querySelector('#chips-cur').parentElement.querySelector('.filter-label'); if(lb)lb.textContent=(GZ_SID&&GZ_RECO&&!GZ_BROWSE)?((GZ_STU&&GZ_STU.name)||'학생')+' 학생 추천 강좌':'분류';}
+  if(GZ_SID&&GZ_RECO&&!GZ_BROWSE){ if(cur==='논술'||cur==='책읽기')cur='독서논술'; renderReco(); return; } else if(cur==='독서논술'){cur='내신';}
   ['row-l1','row-l2','row-l3','row-l4'].forEach(id=>{const e=document.getElementById(id); if(e&&e.dataset.gzhid){e.classList.remove('hidden');delete e.dataset.gzhid;}});
   if(cur==='수능') renderSuneung();
   else if(cur==='내신') await renderNaesin();
@@ -849,7 +850,8 @@ function gzPolicyToTabs(p){const t={내신:{},수능:{},논술:{},책읽기:p.bo
   (p.lectures||[]).forEach(x=>{const g=x.group||'기타';const tab=/시험범위|내신 진도/.test(g)?'내신':'수능';(t[tab][g]=t[tab][g]||{title:g,items:[]}).items.push(x);});
   if(!Object.keys(t.내신).length)t.내신={g0:{title:'내신 강좌',items:[],note:(p.phase==='평시'?'시험범위 미입력 — 범위가 등록되면 여기에 뜹니다':'해당 없음')}};
   if(!Object.keys(t.수능).length)t.수능={g0:{title:'수능 강좌',items:[],note:(p.phase==='직전기'?'직전기 — 시험범위 강좌만':'해당 없음')}};
-  t.논술={g0:{title:'글쓰기 과제',items:[],note:'글쓰기·독서 정책은 자료 업로드 후 연결'}};
+  const rb={};Object.assign(rb,p.books||{});rb.z_write={title:'글쓰기 과제',items:[],note:'글쓰기 정책은 자료 업로드 후 연결'};
+  t.독서논술=rb;delete t.논술;delete t.책읽기;
   return {ok:true,policy:true,band:p.band,phase:p.phase,season:p.season||{},notice:p.notice||[],tabs:t};}
 function renderReco(){
   ['row-l1','row-l2','row-l3','row-l4'].forEach(id=>{const e=document.getElementById(id); if(e&&!e.classList.contains('hidden')){e.classList.add('hidden');e.dataset.gzhid='1';}});
@@ -868,7 +870,7 @@ function renderReco(){
     const empty=items.length?'':`<div style="font-size:12px;color:#8a8577;padding:6px 12px">${esc(gv.note||'해당 없음')}</div>`;
     return `<div style="margin:10px 0 14px"><div style="font-weight:800;font-size:13px;margin:0 0 4px">▣ ${esc(gv.title)} <small style="color:#8a8577">(${items.length})</small>${gv.available===false?' <small style="color:#B8892E">· 자료 없음</small>':''}</div>${rows}${empty}</div>`;}).join('');
   const s=GZ_RECO.season||{};
-  document.getElementById('resCount').innerHTML=`🧭 <strong>${esc(GZ_STU?GZ_STU.name:'')}</strong> 맞춤 추천 <strong>${total}</strong>건 <small style="color:#8a8577">· ${esc(GZ_RECO.band||'')} 정책 · ${esc(GZ_RECO.phase||'')} ${s.d_day!=null?'D-'+s.d_day:''} ${s.exam?'· '+esc(s.exam):''}</small>${(GZ_RECO.notice||[]).map(n=>`<div style="margin-top:4px;font-size:12px;color:#B8892E">${esc(n.title)}</div>`).join('')}
+  document.getElementById('resCount').innerHTML=`🧭 <strong>${esc(GZ_STU?GZ_STU.name:'')}</strong> 학생 추천 강좌 <strong>${total}</strong>건 <small style="color:#8a8577">· ${esc(GZ_RECO.band||'')} 정책 · ${esc(GZ_RECO.phase||'')} ${s.d_day!=null?'D-'+s.d_day:''} ${s.exam?'· '+esc(s.exam):''}</small>${(GZ_RECO.notice||[]).map(n=>`<div style="margin-top:4px;font-size:12px;color:#B8892E">${esc(n.title)}</div>`).join('')}
     <button onclick="gzRecoToggle(true)" style="margin-left:10px;font-size:11px;padding:3px 9px;border:1px solid var(--border2);border-radius:8px;background:#fff;cursor:pointer">전체 탐색으로</button>`;
   document.getElementById('list').innerHTML=html||'<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">추천 후보 없음</div></div>';
 }
