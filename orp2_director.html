@@ -108,6 +108,32 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
 .sc-empty{font-size:12px;color:var(--dim);padding:14px;border:1px dashed var(--line);border-radius:7px;text-align:center}
 .sc-gaps{margin-top:10px;border-top:1px solid var(--line);padding-top:8px;font-size:11.5px;color:var(--dim);line-height:1.65}
 @media (max-width:860px){.sc-grid{grid-template-columns:1fr}.sc-draft{position:static}}
+
+/* v0.59 📥 본점 신청·접수·배급 (#6919 · gz_task 212) */
+.chip.hq{border-color:#A4472F;background:#fbefeb;color:#7a321f;cursor:pointer}
+.chip.hq .n{background:#A4472F;color:#fff;border-radius:10px;padding:0 7px;font-size:11.5px}
+.hq-frm{display:grid;grid-template-columns:90px minmax(0,1fr);gap:6px 10px;align-items:center;font-size:12.5px;max-width:640px;margin-bottom:8px}
+.hq-frm input,.hq-frm select,.hq-frm textarea{font:inherit;font-size:12.5px;border:1px solid var(--line);border-radius:5px;padding:5px 7px;width:100%}
+.hq-frm textarea{min-height:48px}
+.hq-sub{font-weight:700;font-size:12.5px;margin:10px 0 6px}
+.hq-rq{border:1px solid var(--line);border-radius:8px;background:#fff;padding:9px 11px;margin-bottom:6px}
+.hq-rq.urg{border-color:#A4472F;background:#fffaf8}
+.hq-t{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.hq-t b{font-size:13.5px}
+.hq-bd{display:inline-block;font-size:10.5px;border-radius:4px;padding:0 6px;border:1px solid var(--line);color:var(--dim)}
+.hq-bd.w{border-color:#8a6d1f;color:#8a6d1f}
+.hq-bd.m{border-color:var(--deep);color:var(--deep)}
+.hq-bd.u{background:#A4472F;border-color:#A4472F;color:#fff}
+.hq-meta{font-size:11px;color:var(--dim);margin-top:3px}
+.hq-act{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:7px}
+.hq-act select,.hq-act input,.hq-act textarea{font:inherit;font-size:12px;border:1px solid var(--line);border-radius:5px;padding:4px 6px}
+.hq-act textarea{width:100%;min-height:44px}
+.btn.r{background:#fff;color:#A4472F;border-color:#A4472F}
+.hq-steps{display:flex;margin-top:6px;font-size:11px}
+.hq-steps span{flex:1;text-align:center;padding:3px 0;border-top:3px solid #e2e0d8;color:var(--dim)}
+.hq-steps span.on{border-top-color:var(--deep);color:var(--deep);font-weight:700}
+.hq-steps span.no{border-top-color:#A4472F;color:#A4472F;font-weight:700}
+@media (max-width:860px){.hq-frm{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -115,8 +141,9 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
   <span class="brand">국존 MAP — ⑤ 오거나이저 · <b style='color:var(--gold)' id='roleLbl'>원장판</b></span>
   <span class="chip" id="chip"><span class="box" id="chipBox"></span><span id="chipTxt">오늘의 리추얼 적재 중…</span></span>
   <span class="chip sc" id="scChip" onclick="scGo()" title="누르면 사례 후보 칸으로 이동">🌱 이 주의 사례 후보 <span class="n" id="scN">…</span></span>
+  <span class="chip hq" id="hqChip" onclick="hqGo()" style="display:none"></span>
   <span class="hint">상단 고정 · 어느 상태든 1클릭 = ritual_runs</span>
-  <span class="right">로그인 직후 이 화면(본판=시간표) · orp2 v3 · v0.58</span>
+  <span class="right">로그인 직후 이 화면(본판=시간표) · orp2 v3 · v0.59</span>
 </div>
 <div class="greet" id="greet">오늘의 리추얼을 불러오는 중…</div>
 <div class="wrap">
@@ -134,7 +161,8 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
     <div class="rule">비교 없음 · 본인 수신 · 온보딩 첫 달 무평가 · 질=시장 평가 · 주지표=유지·재등록 · 조망(G-ZONE·여정) 하단 접이 ▾</div>
     <div id="loading">DB 적재 중 — rituals · ritual_runs · v_orp_myrecord · v_orp_myday</div>
     <div id="app" style="display:none">
-      <nav class="otabs" id="otabs"><span class="lb">오거나이저</span><button data-p="p1">① 년간 계획표</button><button data-p="p3">③ 이 달 목표</button><button data-p="p4">④ 달력·발행판</button><button data-p="p13">🌱 사례 후보</button><button data-p="p5">⑤ 회의·교육</button><button data-p="p6">⑥ 내 성과물</button><button data-p="p8">⑧ 담당 학생</button><button data-p="p9">⑨ 교사 통계판</button><button data-p="p10">⑩ 내 할 일</button><button data-p="p11">⑪ 월요 점검</button><button data-p="p12">⑫ 메모·보고<span id="p12q"></span></button><span class="gp"></span><span class="lb">조망(경험여정)</span><button data-p="jn:pg-struct">G-ZONE 구조</button><button data-p="jn:pg-journey">경험여정</button><button data-p="jn:pg-asset">자산·아키텍처</button><button data-p="jn:pg-rnd">정부과제</button><button data-p="jn:pg-rnd2">정부과제 2</button><button data-p="jn:pg-bizc">사업계획 B2C</button><button data-p="jn:pg-bizb">사업계획 B2B</button><button data-p="jn:pg-notes">연구노트</button><button data-p="jn:pg-axes">판독 현황</button><button data-p="jn:pg-mock2">목업</button><button data-p="jn:pg-refs">📖 참고문헌</button></nav>
+      <nav class="otabs" id="otabs"><span class="lb">오거나이저</span><button data-p="p14" id="hqTab" style="display:none">📥 본점</button><button data-p="p1">① 년간 계획표</button><button data-p="p3">③ 이 달 목표</button><button data-p="p4">④ 달력·발행판</button><button data-p="p13">🌱 사례 후보</button><button data-p="p5">⑤ 회의·교육</button><button data-p="p6">⑥ 내 성과물</button><button data-p="p8">⑧ 담당 학생</button><button data-p="p9">⑨ 교사 통계판</button><button data-p="p10">⑩ 내 할 일</button><button data-p="p11">⑪ 월요 점검</button><button data-p="p12">⑫ 메모·보고<span id="p12q"></span></button><span class="gp"></span><span class="lb">조망(경험여정)</span><button data-p="jn:pg-struct">G-ZONE 구조</button><button data-p="jn:pg-journey">경험여정</button><button data-p="jn:pg-asset">자산·아키텍처</button><button data-p="jn:pg-rnd">정부과제</button><button data-p="jn:pg-rnd2">정부과제 2</button><button data-p="jn:pg-bizc">사업계획 B2C</button><button data-p="jn:pg-bizb">사업계획 B2B</button><button data-p="jn:pg-notes">연구노트</button><button data-p="jn:pg-axes">판독 현황</button><button data-p="jn:pg-mock2">목업</button><button data-p="jn:pg-refs">📖 참고문헌</button></nav>
+      <div class="sec opane" id="s14box"><div class="h"><b id="s14t">📥 본점</b><span class="tag">원장=신청 · 본점=확인·제작·배급</span><span class="m" style="font-size:11px;color:var(--dim)" id="s14c">적재 전</span><span class="tag" style="margin-left:auto;cursor:pointer" onclick="hqLoad(1)">↻ 새로고침</span></div><div id="s14"><div class="sc-empty">탭을 열면 적재합니다.</div></div></div>
       <div class="sec"><div class="h"><b>① 년간 계획표 — 학원 + 내 행</b><span class="tag">이행</span></div><div id="s1"></div></div>
       <div class="sec"><div class="h"><b>② 리추얼</b><span class="tag">체크</span><span class="m" id="s2c" style="font-size:11px;color:var(--dim)"></span></div><div id="s2"></div></div>
       <div class="sec"><div class="h"><b id="s3t">③ 이 달 목표</b><span class="tag">기여</span></div><div id="s3"></div></div><div class="sec" id="s8box"><div class="h"><b>④ 달력·발행판</b><span class="tag">원천 v_mkt_events 하나</span><span class="tag">체크 1회 = 리추얼 완료 + 발행 대장</span><span class="m" style="font-size:11px;color:var(--dim)" id="s8c">적재 중…</span></div><div class="mk-bar"><span class="zg" id="mkZoom"><button data-z="year" onclick="mkZoom('year')">연간</button><button data-z="month" onclick="mkZoom('month')">월</button><button data-z="week" onclick="mkZoom('week')">이 주</button></span><button onclick="mkNav(-1)">◀</button><span id="mkLbl"></span><button onclick="mkNav(1)">▶</button><button onclick="MK.anchor=null;loadMkt(1)">오늘</button><label><input type="checkbox" checked onchange="mkToggle('시험',this)"> 시험</label><label><input type="checkbox" checked onchange="mkToggle('플레이북',this)"> 플레이북</label><span class="up"><span id="mkSheetMsg">달력 xlsx(일정목록) → 발행 행 반영 · 「발행일」 열 우선</span><label class="mk-b2 o" style="cursor:pointer;color:var(--deep)">시트 반영<input type="file" accept=".xlsx" style="display:none" onchange="mkSheet(this)"></label></span></div><div id="s8"></div></div>
@@ -372,17 +400,110 @@ async function scSave(btn){
   else{msg.textContent='저장 실패: '+((j&&j.reason)||'');msg.style.color='#A4472F';}
 }
 
+/* v0.59 📥 본점 신청·접수·배급 — 원장=신청만 / 국존 본점=확인·제작·배급 (#6919) · RPC gz_req_list·gz_req_submit·gz_req_act · 대장 gz_flows(hq_stage) */
+let HQ={d:null,f:'요청',busy:false};
+const HQ_CAT=['교재콘텐츠','진단평가','상담마케팅','운영학사'];
+const HQ_ST={'요청':'새 신청','진행':'제작 중','보류':'보류','완료':'완료','반려':'반려'};
+function hqEsc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function hqD(s){const t=String(s||'');return t?(+t.slice(5,7))+'/'+(+t.slice(8,10)):'';}
+function hqAge(s){const k=KST(),d=new Date(String(s).slice(0,10)+'T00:00:00Z');return Math.max(0,Math.floor((Date.UTC(k.getUTCFullYear(),k.getUTCMonth(),k.getUTCDate())-d)/864e5));}
+function hqGo(){if(typeof OP!=='undefined'&&OP.p14){oTab('p14');const b=document.getElementById('s14box');if(b&&b.scrollIntoView)b.scrollIntoView({behavior:'smooth'});}}
+async function hqLoad(force){
+  if(typeof ROLE2!=='undefined'&&ROLE2==='teacher') return;
+  if((HQ.d&&!force)||HQ.busy) return; HQ.busy=true;
+  let j; try{ j=await rpcJ('gz_req_list',{}); }catch(e){ j={ok:false,reason:e.message}; }
+  HQ.busy=false;
+  const chip=document.getElementById('hqChip'), tab=document.getElementById('hqTab'), box=document.getElementById('s14');
+  if(!j||!j.ok){ HQ.d=null; if(chip) chip.style.display='none'; if(tab) tab.style.display='none';
+    if(box) box.innerHTML='<div class="sc-empty" style="color:#A4472F">'+hqEsc((j&&j.reason)||'적재 실패')+' — 관문 로그인(원장·본점) 상태에서 표시</div>'; return; }
+  HQ.d=j;
+  const isHQ=j.role==='본점';
+  if(chip){ chip.style.display=''; chip.innerHTML=isHQ?('📥 본점 접수함 <span class="n">'+j.open+'건 대기</span>'):('📮 본점 신청 <span class="n">'+(j.open+j.making)+'건 진행</span>'); }
+  if(tab){ tab.style.display=''; tab.textContent=isHQ?('📥 본점 접수함 '+j.open):'📮 본점 신청'; }
+  document.getElementById('s14t').textContent=isHQ?'📥 본점 접수함':'📮 본점에 신청';
+  document.getElementById('s14c').textContent=isHQ?('원장 신청 + 각 방 요청 · 대기 '+j.open+' · 제작 중 '+j.making):('원장은 신청만 — 제작·배급은 본점 · '+j.from);
+  hqRender();
+}
+function hqSteps(r){
+  if(r.stage==='반려') return '<div class="hq-steps"><span class="on">신청됨</span><span class="no">반려</span><span>—</span></div>';
+  const k={'요청':0,'보류':0,'진행':1,'완료':2}[r.stage];
+  return '<div class="hq-steps">'+['신청됨'+(r.stage==='보류'?' (보류)':''),'본점 제작 중','배급 완료'].map((x,i)=>'<span class="'+(i<=k?'on':'')+'">'+x+'</span>').join('')+'</div>';
+}
+function hqRender(){
+  const box=document.getElementById('s14'); if(!box||!HQ.d) return;
+  const j=HQ.d, rows=j.rows||[];
+  if(j.role!=='본점'){
+    box.innerHTML='<div class="hq-frm"><label>종류</label><select id="hqCat">'+HQ_CAT.map(c=>'<option>'+c+'</option>').join('')+'</select>'
+     +'<label>무엇을</label><input id="hqSubj" placeholder="예: 해송고 고2 2학기 기말 CLEAR 문항">'
+     +'<label>대상</label><input id="hqWho" placeholder="학교·학년·학생 수">'
+     +'<label>필요한 날</label><input id="hqNeed" type="date">'
+     +'<label>메모</label><textarea id="hqMemo" placeholder="시험범위·교과서·특이사항"></textarea>'
+     +'<span></span><div><button type="button" class="btn" onclick="hqSubmit(this)">본점에 신청</button> <span class="m" id="hqMsg" style="font-size:11px"></span></div></div>'
+     +'<div class="hq-sub">내 신청 현황</div>'
+     +(rows.length?rows.map(r=>'<div class="hq-rq"><div class="hq-t"><span class="hq-bd">'+hqEsc(r.category)+'</span><b>'+hqEsc(r.title)+'</b></div>'
+        +'<div class="hq-meta">신청 '+hqD(r.created_at)+(r.need_by?' · 필요일 '+hqD(r.need_by):'')+(r.detail?' · '+hqEsc(r.detail):'')+(r.maker_room?' · 제작: '+hqEsc(r.maker_room):'')+'</div>'+hqSteps(r)
+        +(r.stage==='완료'?'<div class="hq-meta" style="color:var(--deep)"><b>받음</b> · '+hqEsc(r.deliver_ref||r.answer)+'</div>':'')
+        +(r.stage==='반려'?'<div class="hq-meta" style="color:#A4472F">반려 사유: '+hqEsc(r.answer)+'</div>':'')+'</div>').join(''):'<div class="sc-empty">아직 신청이 없습니다.</div>');
+    return;
+  }
+  const cnt=k=>rows.filter(r=>r.stage===k).length;
+  const list=rows.filter(r=>r.stage===HQ.f);
+  box.innerHTML='<div class="sc-filter">'+Object.keys(HQ_ST).map(k=>'<button type="button" class="'+(HQ.f===k?'on':'')+'" data-k="'+k+'" onclick="hqFilt(this.dataset.k)">'+HQ_ST[k]+' '+cnt(k)+'</button>').join(' ')+'</div>'
+   +(list.length?list.map(hqCard).join(''):'<div class="sc-empty">이 단계에 신청이 없습니다.</div>');
+}
+function hqFilt(k){HQ.f=k;hqRender();}
+function hqCard(r){
+  const br=/ 지점$/.test(r.from_room);
+  const src='<span class="hq-bd '+(br?'w':'m')+'">'+(br?'원장 · ':'방 · ')+hqEsc(r.from_room)+'</span>';
+  let act='';
+  if(r.stage==='요청'||r.stage==='보류'){
+    act='<div class="hq-act"><select id="hqRm'+r.id+'"><option value="">제작 방 고르기</option>'+(HQ.d.rooms||[]).map(x=>'<option>'+hqEsc(x)+'</option>').join('')+'</select>'
+      +'<button type="button" class="btn" data-id="'+r.id+'" onclick="hqAccept(this.dataset.id)">수락 → 제작 시작</button>'
+      +'<button type="button" class="btn o" data-id="'+r.id+'" data-m="answer" onclick="hqBox(this.dataset.id,this.dataset.m)">답하고 끝냄</button>'
+      +(r.stage==='요청'?'<button type="button" class="btn o" data-id="'+r.id+'" onclick="hqDo(this.dataset.id,\'hold\',\'\')">보류</button>':'')
+      +'<button type="button" class="btn r" data-id="'+r.id+'" data-m="reject" onclick="hqBox(this.dataset.id,this.dataset.m)">반려</button></div><div id="hqBx'+r.id+'"></div>';
+  } else if(r.stage==='진행'){
+    act='<div class="hq-act"><input id="hqLk'+r.id+'" placeholder="배급 자료 (자산 코드·링크)" style="flex:1;min-width:180px"><button type="button" class="btn" data-id="'+r.id+'" onclick="hqDeliver(this.dataset.id)">배급 완료</button>'
+      +(r.undo_ok?'<button type="button" class="btn o" data-id="'+r.id+'" onclick="hqDo(this.dataset.id,\'undo\',\'\')">수락 되돌리기</button>':'')+'</div>';
+  } else {
+    act='<div class="hq-meta">'+(r.stage==='완료'?'→ 신청한 곳에 전달됨 · ':'반려 · ')+hqEsc(r.deliver_ref||r.answer||'')
+      +(r.undo_ok?' <button type="button" class="btn o" style="padding:1px 8px" data-id="'+r.id+'" onclick="hqDo(this.dataset.id,\'undo\',\'\')">되돌리기</button>':'')+'</div>';
+  }
+  return '<div class="hq-rq'+(r.urgent?' urg':'')+'"><div class="hq-t">'+(r.urgent?'<span class="hq-bd u">급함</span>':'')+src+'<span class="hq-bd">'+hqEsc(r.category||'')+'</span><b>'+hqEsc(r.title)+'</b></div>'
+    +'<div class="hq-meta">신청 '+hqD(r.created_at)+' · '+hqAge(r.created_at)+'일째'+(r.need_by?' · 필요일 '+hqD(r.need_by):'')+(r.note_id?' · 근거 #'+r.note_id:'')+(r.detail?' · '+hqEsc(r.detail):'')+(r.maker_room?' · 제작: '+hqEsc(r.maker_room):'')+'</div>'
+    +act+'<div class="hq-meta" id="hqEr'+r.id+'" style="color:#A4472F"></div></div>';
+}
+function hqBox(id,m){document.getElementById('hqBx'+id).innerHTML='<div class="hq-act"><textarea id="hqTx'+id+'" placeholder="'+(m==='answer'?'답 (예: 김상원 포함 · 인쇄 안 함)':'반려 사유')+'"></textarea><button type="button" class="btn'+(m==='reject'?' r':'')+'" data-id="'+id+'" data-m="'+m+'" onclick="hqDo(this.dataset.id,this.dataset.m,document.getElementById(\'hqTx\'+this.dataset.id).value)">'+(m==='answer'?'답 저장 · 끝냄':'반려 확정')+'</button></div>';}
+function hqAccept(id){const v=document.getElementById('hqRm'+id).value;if(!v){document.getElementById('hqEr'+id).textContent='제작 방을 고르세요';return;}hqDo(id,'accept',v);}
+function hqDeliver(id){hqDo(id,'deliver',(document.getElementById('hqLk'+id).value||'').trim());}
+async function hqDo(id,act,text){
+  const j=await rpcJ('gz_req_act',{id:+id,act:act,text:text||''});
+  if(!j||!j.ok){const e=document.getElementById('hqEr'+id);if(e)e.textContent=(j&&j.reason)||'처리 실패';return;}
+  await hqLoad(1);
+}
+async function hqSubmit(btn){
+  const msg=document.getElementById('hqMsg');
+  const who=(document.getElementById('hqWho').value||'').trim(), memo=(document.getElementById('hqMemo').value||'').trim();
+  btn.disabled=true; msg.textContent='신청 중…'; msg.style.color='var(--dim)';
+  const j=await rpcJ('gz_req_submit',{category:document.getElementById('hqCat').value,subject:document.getElementById('hqSubj').value,
+    detail:[who,memo].filter(Boolean).join(' · '),need_by:document.getElementById('hqNeed').value||''});
+  btn.disabled=false;
+  if(!j||!j.ok){msg.textContent=(j&&j.reason)||'신청 실패';msg.style.color='#A4472F';return;}
+  await hqLoad(1); const m2=document.getElementById('hqMsg'); if(m2){m2.textContent='신청됨 — 본점 접수함에 들어갔습니다';m2.style.color='var(--deep)';}
+}
+
 function secOf(id){const e=document.getElementById(id);return e?e.closest('.sec'):null;}
 function oInit(){
   OP={p1:secOf('s1'),p2:secOf('s2'),p3:secOf('s3'),p4:document.getElementById('s8box'),
       p5:secOf('s4'),p6:secOf('s5'),p7:document.getElementById('s5b'),p8:secOf('s6'),
-      p9:document.getElementById('s7box'),p10:document.getElementById('s9box'),p11:document.getElementById('s11box'),p12:document.getElementById('s12box'),p13:document.getElementById('s13box')};
+      p9:document.getElementById('s7box'),p10:document.getElementById('s9box'),p11:document.getElementById('s11box'),p12:document.getElementById('s12box'),p13:document.getElementById('s13box'),p14:document.getElementById('s14box')};
   Object.values(OP).forEach(e=>{if(e){e.classList.add('opane');e.classList.remove('on');e.style.display='';}});
   if(typeof ROLE2!=='undefined'&&ROLE2==='teacher'){const b9=document.querySelector('#otabs button[data-p="p9"]');if(b9)b9.style.display='none';}
   document.querySelectorAll('#otabs button').forEach(b=>{b.onclick=()=>oTab(b.dataset.p);});
   const rp=document.querySelector('.report'); if(rp) rp.style.display='none';
   oTab(sessionStorage.getItem('orp_tab')||'p1');
   try{scLoad(0);}catch(e){console.error(e);}
+  try{hqLoad(0);}catch(e){console.error(e);}
   try{const dk='orp_purge_'+new Date().toISOString().slice(0,10);if(typeof ROLE2!=='undefined'&&ROLE2!=='teacher'&&!sessionStorage.getItem(dk)){sessionStorage.setItem(dk,'1');rpcJ('gz_consult_uploads_purge',{}).then(j=>{if(j&&j.ok&&j.deleted)console.log('consult-uploads 만료 삭제',j.deleted);});}}catch(e){}
 }
 function oTab(k){
@@ -399,6 +520,7 @@ function oTab(k){
   if(k==='p11') loadFunnel(0);
   if(k==='p12') loadMemos(0);
   if(k==='p13') scLoad(0);
+  if(k==='p14') hqLoad(0);
 }
 async function jnLoad(pg){
   if(JNCUR===pg) return; JNCUR=pg;
