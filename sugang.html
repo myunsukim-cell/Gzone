@@ -903,7 +903,7 @@ function renderReco(){
   const grpHtml=g=>Object.keys(g).map(k=>`<section class="rc-grp"><h3>${esc(k)} <em>${g[k].length}</em></h3><ul>${g[k].map(lecRow).join('')}</ul></section>`).join('')||'<p class="rc-empty">해당 없음</p>';
   const isNaesin=x=>/시험범위|내신 진도/.test(x.group||'');
   const gN=groups(P.lectures,isNaesin), gS=groups(P.lectures,x=>!isNaesin(x));
-  const books=P.books||{}; const bookHtml=['g3_mustread','g1_background','g2_career'].map(k=>{const g=books[k]||{};const its=g.items||[];return `<section class="rc-grp"><h3>${esc(g.title||k)} <em>${its.length}</em></h3>${its.length?'<ul>'+its.slice(0,6).map(i=>`<li class="rc-row"><span class="t">${esc(i.title)}</span><span class="why">${esc(i.why||'')}</span><span></span></li>`).join('')+'</ul>':'<p class="rc-empty">'+esc(g.note||'해당 없음')+'</p>'}</section>`;}).join('');
+  const books=P.books||{}; const bookHtml=Object.keys(books).sort().map(k=>{const g=books[k]||{};const its=g.items||[];return `<section class="rc-grp"><h3>${esc(g.title||k)} <em>${its.length}</em></h3>${its.length?'<ul>'+its.slice(0,6).map(i=>`<li class="rc-row"><span class="t">${esc(i.title)}</span><span class="why">${esc(i.why||'')}</span><span></span></li>`).join('')+'</ul>':'<p class="rc-empty">'+esc(g.note||'해당 없음')+'</p>'}</section>`;}).join('');
   const AREA={'L-VER':'문학·운문','L-MNO':'문학·현대산문','L-CNO':'문학·고전산문','D-RDG':'독서','G-GRM':'문법','E-SPW':'화작·매체','V-VOC':'어휘'};
   const ln=ev.learned||{}; const mx=Math.max(1,...Object.values(ln).map(Number));
   const learnHtml=Object.keys(AREA).map(a=>`<li>${AREA[a]}<div class="rc-bar"><i style="width:${Math.round(100*(ln[a]||0)/mx)}%"></i></div>${ln[a]?'':'<small style="color:#B8892E">미학습</small>'}</li>`).join('');
