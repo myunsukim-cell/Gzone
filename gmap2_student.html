@@ -1,6 +1,32 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><!-- 2.0 학생 페이지 · 보안 교체 gz_read→gz2_student_read 2026-09-05 #5911 결재① --><script>/* 2.0 진입 게이트 — sid+k(md5 토큰) 서버 검증. 실패 시 본문 비표시 (2026-09-04) */
+<head><!-- 2.0 학생 페이지 · 보안 교체 gz_read→gz2_student_read 2026-09-05 #5911 결재① --><script>
+/* [v0.42 seq10·11·12] 학생 고정값 해제 — 지금 작품·계획·영역을 학생에서 판정(gz_student_focus).
+   페이지 어느 블록보다 먼저 필요해 동기 호출 1회로 받는다. 판정 불가면 area는 비고, 공부법 문장은 뜨지 않는다(틀린 문장 대신 침묵). */
+var GZFOCUS={work_id:null,title:'',genre:'',area:null,area_src:'',plan_id:null};
+(function(){
+  try{
+    var qs=(location.search||'')+'&'+(window.__DESK_Q||'');
+    var sd=(qs.match(/sid=(\d+)/)||[])[1]||'0', kk=(qs.match(/k=([a-f0-9]{32})/)||[])[1]||'';
+    var U='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_student_read';
+    var K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
+    var x=new XMLHttpRequest(); x.open('POST',U,false);
+    x.setRequestHeader('apikey',K); x.setRequestHeader('Authorization','Bearer '+K);
+    x.setRequestHeader('Content-Type','application/json');
+    x.send(JSON.stringify({p_sid:Number(sd),p_k:kk,p_sql:"select gz_student_focus("+sd+") j"}));
+    var a=JSON.parse(x.responseText); var j=(Array.isArray(a)&&a[0]&&a[0].j)||{};
+    for(var p in j){GZFOCUS[p]=j[p];}
+  }catch(e){}
+})();
+function GZW(){return Number(GZFOCUS.work_id||0);}
+function GZL(){return Number(GZFOCUS.lecture_id||0);}
+function GZP(){return Number(GZFOCUS.plan_id||0);}
+function GZT(){return GZFOCUS.title||'—';}
+function GZAREA(){return GZFOCUS.area||'__unset__';}
+var GZAREANM={'L-CNO':'고전산문','L-MNO':'현대산문','L-VER':'운문','G-GRM':'문법','D-RDG':'독서','E-SPW':'화법과 작문'};
+function GZAREANAME(){return GZAREANM[GZFOCUS.area]||'영역 확인 중';}
+</script>
+<script>/* 2.0 진입 게이트 — sid+k(md5 토큰) 서버 검증. 실패 시 본문 비표시 (2026-09-04) */
 (function(){var m=(location.search||'').match(/[?&]sid=(\d+)/),k=(location.search||'').match(/[?&]k=([a-f0-9]{32})/);
  if(!m||!k){document.addEventListener('DOMContentLoaded',function(){document.body.innerHTML='<div style="font-family:sans-serif;padding:40px;text-align:center;color:#555"><h2>국존 학생 페이지</h2><p>이 페이지는 학원에서 보내드린 링크로만 열립니다.<br>링크가 만료되었거나 잘못되었으면 담당 선생님께 문의해 주세요.</p></div>';});return;}
  fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_entry_check',{method:'POST',headers:{'apikey':'sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0','Authorization':'Bearer sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0','Content-Type':'application/json'},body:JSON.stringify({p_sid:+m[1],p_k:k[1]})}).then(function(r){return r.json();}).then(function(ok){if(ok!==true){document.body.innerHTML='<div style="font-family:sans-serif;padding:40px;text-align:center;color:#555"><h2>국존 학생 페이지</h2><p>링크가 유효하지 않습니다. 담당 선생님께 문의해 주세요.</p></div>';}}).catch(function(){});})();
@@ -424,14 +450,18 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
     </div>
     <div>
       <p class="axcap">다음으로</p>
-      <div class="newlec">
-        <h3 style="font-family:'Noto Serif KR';font-weight:900;font-size:18.1px">🆕 국존 새 강좌<span class="sub" style="font-size:13.8px;color:var(--plan)">중3 · 내 진도 기준 추천</span></h3>
-        <table class="tb" style="margin-top:6px">
-          <tr><td><b>수능국어 입문 — 독서·문법</b> <span class="mini">내신 끝나고 바로 (선생님 계획과 일치)</span></td><td><button class="btn sm">신청</button></td></tr>
-          <tr><td><b>고입 대비 국어 총정리</b> <span class="mini">신규 공개</span></td><td><button class="btn ghost sm">보기</button></td></tr>
+      <div class="newlec" id="gzReqBox"><!-- v0.43 신청·알림·이번 주 새 강좌 (#6951 · gz_stu_req_list/submit, 학생 링크 sid+k) -->
+        <h3 style="font-family:'Noto Serif KR';font-weight:900;font-size:18.1px">🆕 이번 주 새로 올라온 강좌<span class="sub" style="font-size:13.8px;color:var(--plan)" id="gzNewSub">최근 7일 공개 · 내 학년 먼저</span></h3>
+        <table class="tb" style="margin-top:6px" id="gzNewTb"><tr><td class="mini">불러오는 중…</td></tr></table>
+        <h3 style="font-family:'Noto Serif KR';font-weight:900;font-size:17px;margin-top:14px">📮 필요한 강의·자료 신청<span class="sub" style="font-size:13.4px;color:var(--plan)">본점이 확인하고 만들어 드려요</span></h3>
+        <table class="tb" style="margin-top:4px">
+          <tr><td style="width:84px"><b>무엇이</b></td><td><select id="gzReqKind" style="font:inherit;font-size:15px;padding:3px 6px"><option>강좌</option><option>자료</option><option>질문</option></select></td></tr>
+          <tr><td><b>내용</b></td><td><input id="gzReqSubj" style="width:100%;font:inherit;font-size:15px;padding:4px 7px;box-sizing:border-box" placeholder="예: 해송고 1학년 2학기 중간 문학 3단원 강의가 필요해요"></td></tr>
+          <tr><td><b>언제까지</b></td><td><input type="date" id="gzReqNeed" style="font:inherit;font-size:15px;padding:3px 6px"> <button class="btn sm" id="gzReqBtn" onclick="gzReqSend()">본점에 신청</button> <span class="mini" id="gzReqMsg"></span></td></tr>
         </table>
-        <p style="margin-top:7px"><button class="btn">＋ 전체 강좌 검색</button> <span class="mini">공개 1,052개 · 신청 승인은 선생님</span></p>
-        <p class="wire">lecture_categories 공개 강좌(수강신청 페이지 동일 원천) — 최신 공개분 학년·진도 매칭</p>
+        <div id="gzReqMine" style="margin-top:8px"></div>
+        <div id="gzReqNoti" style="margin-top:6px"></div>
+        <p class="wire">lectures.published_at 최근 7일 · gz_flows(requester_sid) · notifications(student) — 본점 승인·반영 시 자동 갱신</p>
       </div>
       <div class="card" style="margin-top:12px">
         <h3>내 정보 — 어디로 가는가<span class="sub">진로·희망 (1.5 승계 — 시험 목표와 이어짐)</span></h3>
@@ -516,12 +546,12 @@ function setHw(k, btn){
   }
   function set(id,txt){ var e=document.getElementById(id); if(e)e.textContent=txt; }
 /* ═══ v6 기록판: 이번 주 채우기 ═══ */
-var GZF={faces:[],done:{},works:[[939,'춘향전'],[5962,'허생전']],cur:null};
+var GZF={faces:[],done:{},works:[[GZW(),GZT()]],cur:null};
 function gzMonday(d){var x=new Date(d);var k=(x.getDay()+6)%7;x.setDate(x.getDate()-k);return x;}
 function gzD(d){return d.toISOString().slice(0,10);}
 function gzLoadFill(){
-  var wq="select id,work_id,content_type,round(est_minutes,1) m from lecture_contents where work_id in (939,5962) and content_type like 'STEP%' order by work_id, content_type, id";
-  var rq="select plan_date, step_range from study_plan_day where plan_id=1 and kind='세션' and status='완료' and step_range like 'lc%'";
+  var wq="select id,work_id,content_type,round(est_minutes,1) m from lecture_contents where work_id in ("+GZW()+") and content_type like 'STEP%' order by work_id, content_type, id";
+  var rq="select plan_date, step_range from study_plan_day where plan_id="+GZP()+" and kind='세션' and status='완료' and step_range like 'lc%'";
   Promise.all([q(wq),q(rq)]).then(function(rr){
     GZF.faces=rr[0]||[]; GZF.done={};
     (rr[1]||[]).forEach(function(r){var m=(r.step_range||'').match(/^lc(\d+)/); if(m)GZF.done[m[1]]=r.plan_date;});
@@ -570,7 +600,7 @@ function gzTurn(){
   var f=GZF.cur; var btn=document.getElementById('gzTurnBtn'); btn.disabled=true; btn.textContent='기록 중…';
   var wFaces=GZF.faces.filter(function(x){return x.work_id==f.work_id;});
   var no=wFaces.filter(function(x){return GZF.done[x.id];}).length+1;
-  var row={plan_id:1,plan_date:gzD(new Date()),seq:100+Math.floor(Math.random()*150),kind:'세션',status:'완료',
+  var row={plan_id:GZP(),plan_date:gzD(new Date()),seq:100+Math.floor(Math.random()*150),kind:'세션',status:'완료',
     work_id:f.work_id,session_no:no,step_range:'lc'+f.id+'·'+f.content_type,alloc_minutes:f.m,done_at:new Date().toISOString()};
   fetch(BASE+'/rest/v1/study_plan_day',{method:'POST',headers:{'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(row)})
   .then(function(r){ if(r.status===201){ document.getElementById('gzTurnMsg').textContent='기록됨 — '+row.step_range+' · 누적에 더해졌어요 (깎이지 않아요)'; gzLoadFill(); }
@@ -641,22 +671,22 @@ function gzBuildStudy(){
   var C='border:1px solid #ded7c3;border-radius:11px;background:#fff;padding:12px 14px;margin-bottom:10px;max-width:760px';
   var CAP='font-size:11.5px;font-weight:800;color:#8a5a00;margin-bottom:6px';
   Promise.all([
-    q("select w.id, w.title, w.genre, min(pp.id) o from progress_plan pp join lectures l on l.id=pp.lecture_id join works w on w.id=l.work_id where pp.student_id="+sid()+" group by w.id, w.title, w.genre order by o"),
+    q("select l.id, l.title, coalesce(c.l3_name,c.l1_name) genre, min(pp.id) o from progress_plan pp join lectures l on l.id=pp.lecture_id left join lecture_categories c on c.id=l.category_id where pp.student_id="+sid()+" group by l.id, l.title, c.l3_name, c.l1_name order by o"),
     q("select acl_kr, count(*) n, bool_and(is_overcome) all_over from v_wrong_note where student_id="+sid()+" group by acl_kr order by 2 desc"),
     q("select count(*) miss from v_wrong_note where student_id="+sid()+" and not is_overcome"),
     q("select frog_id, student_answer sa, correct_answer ca, acl_kr, cause, clinic, work_title, stem, options, answer from v_wrong_note where student_id="+sid()+" and not is_overcome order by frog_id limit 20"),
-    q("select stage_no, stage_name, check_ment from method_canon where area_code='L-CNO' and check_ment is not null and status='active' order by stage_no"),
+    q("select stage_no, stage_name, check_ment from method_canon where area_code='"+GZAREA()+"' and check_ment is not null and status='active' order by stage_no"),
     q("select gz_student_plan_card("+sid()+") j")
   ]).then(function(R){
     var plans=R[0]||[], chips=R[1]||[], miss=(R[2][0]||{}).miss||0, wrongs=R[3]||[], checks=R[4]||[], pc=(R[5][0]||{}).j||{};
     var ex=pc.exam||{};
     var doneW={}; // 작품별 완료 면수는 study_plan_day 넘김 기록에서
-    q("select split_part(step_range,':',1) k, count(*) n from study_plan_day where plan_id=1 and kind='세션' and status='완료' and step_range like 'lc%' group by 1").then(function(dn){
+    q("select split_part(step_range,':',1) k, count(*) n from study_plan_day where plan_id="+GZP()+" and kind='세션' and status='완료' and step_range like 'lc%' group by 1").then(function(dn){
       var doneN=0; (dn||[]).forEach(function(x){doneN+=Number(x.n);});
       var H='';
       /* 3 커리큘럼 + 취약 칩 */
       var now=null, next=null;
-      for(var i=0;i<plans.length;i++){ if(plans[i].title==='춘향전'){now=plans[i]; next=plans[i+1]||null; break; } }
+      for(var i=0;i<plans.length;i++){ if(plans[i].id===GZL()){now=plans[i]; next=plans[i+1]||null; break; } }
       if(!now && plans.length){now=plans[0]; next=plans[1]||null;}
       var chipH=''; chips.forEach(function(c){ var hot=!c.all_over;
         chipH+='<span style="display:inline-block;font-size:11px;border:1px solid '+(hot?'#e6c3bd':'#ded7c3')+';border-radius:11px;padding:2px 9px;margin:2px 3px 0 0;'+(hot?'background:#fdf0ee;color:#a33;font-weight:800':'color:#4a5550')+'">'+c.acl_kr+' ×'+c.n+'</span>'; });
@@ -699,7 +729,7 @@ function gzBuildStudy(){
           +'<input type="checkbox" data-mid="'+ (c.stage_no||i) +'" onchange="gzChk(this)" style="width:17px;height:17px;accent-color:#2c6e49;margin-top:1px">' 
           +'<span><span style="font-size:9.5px;color:#98a49e;display:block">'+c.stage_no+'단계 · '+c.stage_name+'</span>'+c.check_ment+'</span></label>';
       });
-      H+='<div style="'+C+'"><div style="'+CAP+'">공부법대로 하고 있나 — 고전소설 (선생님이 정해 둔 공부법)</div>'
+      H+='<div style="'+C+'"><div style="'+CAP+'">공부법대로 하고 있나 — '+GZAREANAME()+' (선생님이 정해 둔 공부법)</div>'
         +'<div class="mini" style="margin-bottom:3px">스스로 체크해 보세요 — 판정 없음, 기록만</div>'+ck
         +'<div id="gzChkGau" style="display:flex;gap:3px;margin-top:8px"></div>'
         +'<div class="mini" style="margin-top:4px">오늘 <b id="gzChkN">0</b> / '+checks.length+' · 이번 주 지킴 기록 <b id="gzChkWeek">–</b>회 — 체크하면 바로 저장돼요</div></div>';
@@ -713,7 +743,7 @@ window.gzChk=function(el){
   gzChkGau();
   if(el.checked && el.dataset.mid && !el.dataset.saved){
     el.dataset.saved='1';
-    var body={plan_id:1, plan_date:(function(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})(new Date()), kind:'점검', status:'완료',
+    var body={plan_id:GZP(), plan_date:(function(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})(new Date()), kind:'점검', status:'완료',
       step_range:'mc:'+el.dataset.mid, seq:600+Number(el.dataset.mid), alloc_minutes:0};
     fetch(BASE+'/rest/v1/study_plan_day',{method:'POST',
       headers:{apikey:AK,Authorization:'Bearer '+AK,'Content-Type':'application/json','Prefer':'resolution=ignore-duplicates'},
@@ -721,7 +751,7 @@ window.gzChk=function(el){
   }
 };
 window.gzWeekChk=function(){
-  q("select count(*) n from study_plan_day where plan_id=1 and kind='점검' and plan_date >= date_trunc('week', current_date)::date").then(function(r){
+  q("select count(*) n from study_plan_day where plan_id="+GZP()+" and kind='점검' and plan_date >= date_trunc('week', current_date)::date").then(function(r){
     var e=document.getElementById('gzChkWeek'); if(e&&r&&r[0]) e.textContent=r[0].n;
   });
 };
@@ -747,14 +777,14 @@ function gzBuildLesson(){
     +'<div id="gzLessonView"></div></div>';
   var h2=pb.querySelector('h2'); if(h2){h2.insertAdjacentElement('afterend',d);}else{pb.insertBefore(d,pb.firstChild);}
   Promise.all([
-    q("select lc.id, lc.content_type from lecture_contents lc where lc.work_id=939 order by lc.content_type, lc.id"),
-    q("select count(*) n from study_plan_day where plan_id=1 and kind='세션' and status='완료' and step_range like 'lc%'")
+    q("select lc.id, lc.content_type from lecture_contents lc where lc.work_id="+GZW()+" order by lc.content_type, lc.id"),
+    q("select count(*) n from study_plan_day where plan_id="+GZP()+" and kind='세션' and status='완료' and step_range like 'lc%'")
   ]).then(function(R){
     var list=R[0]||[], done=Number(((R[1]||[])[0]||{}).n||0);
     gzLessonState.list=list; gzLessonState.done=done;
     var nxt=Math.min(done, list.length-1);
     var head=document.getElementById('gzLessonHead');
-    head.innerHTML='<b>춘향전</b><span class="mini">'+done+' / '+list.length+' 단원</span>'
+    head.innerHTML='<b>'+GZT()+'</b><span class="mini">'+done+' / '+list.length+' 단원</span>'
       +'<button onclick="gzOpenLesson()" style="margin-left:auto;background:#12211a;color:#fff;border:0;border-radius:8px;padding:9px 15px;font-size:13px;font-weight:800;cursor:pointer">이어서 '+(done+1)+'번째 단원 열기</button>';
   });
 }
@@ -766,8 +796,8 @@ window.gzOpenLesson=function(){
   document.getElementById('gzLesson').scrollIntoView({behavior:'smooth',block:'start'});
   Promise.all([
     q("select content_html from lecture_contents where id="+row.id),
-    q("select stage_name, action_ment, forbid_ment from method_canon where area_code='L-CNO' and stage_no=1 and status='active'"),
-    q("select vl.video_id, vl.seg_start_sec, va.hls_url, va.storage_path, va.title from video_links vl join video_assets va on va.id=vl.video_id where vl.work_id=939 order by vl.id limit 1")
+    q("select stage_name, action_ment, forbid_ment from method_canon where area_code='"+GZAREA()+"' and stage_no=1 and status='active'"),
+    q("select vl.video_id, vl.seg_start_sec, va.hls_url, va.storage_path, va.title from video_links vl join video_assets va on va.id=vl.video_id where vl.work_id="+GZW()+" order by vl.id limit 1")
   ]).then(function(R){
     var html=((R[0]||[])[0]||{}).content_html||'';
     var mc=(R[1]||[])[0]||{};
@@ -816,7 +846,7 @@ function gzBuildRec(){
   var CAP='font-size:11.5px;font-weight:800;color:#8a5a00;margin-bottom:6px';
   var mon=(new Date()).getMonth()+1;
   Promise.all([
-    q("select count(*) filter (where kind='세션' and step_range like 'lc%') un, coalesce(sum(session_total) filter (where kind='퀴즈'),0) qt, coalesce(sum(session_no) filter (where kind='퀴즈'),0) qc from study_plan_day where plan_id=1 and status='완료' and date_trunc('month',plan_date)=date_trunc('month',current_date)"),
+    q("select count(*) filter (where kind='세션' and step_range like 'lc%') un, coalesce(sum(session_total) filter (where kind='퀴즈'),0) qt, coalesce(sum(session_no) filter (where kind='퀴즈'),0) qc from study_plan_day where plan_id="+GZP()+" and status='완료' and date_trunc('month',plan_date)=date_trunc('month',current_date)"),
     q("select a.status, (cl.session_type='REG') is_reg, count(*) n from attendance_logs a left join coaching_logs cl on cl.student_id=a.student_id and cl.log_date=a.att_date where a.student_id="+sid()+" group by 1,2"),
     q("select acl_kr, count(*) n, sum(case when is_overcome then 1 else 0 end) ov from v_wrong_note where student_id="+sid()+" group by acl_kr order by 2 desc limit 5"),
     q("select coalesce(sum(case when is_overcome then 1 else 0 end),0) ov from v_wrong_note where student_id="+sid()),
@@ -824,10 +854,10 @@ function gzBuildRec(){
     q("select to_char(coalesce(test_date,'2026-01-01'),'MM/DD') d, test_code, total_score from v_student_entrance_summary where student_id="+sid()+" and total_score is not null order by test_date desc limit 3"),
     q("select to_char(coalesce(er.exam_date, er.created_at::date),'MM/DD') d, coalesce(et.name,'지필평가') nm, er.raw_score from exam_results er left join exam_types et on et.id=er.exam_type_id where er.student_id="+sid()+" and er.raw_score is not null order by er.id desc limit 3"),
     q("select to_char(date_trunc('week',log_date),'MM/DD') wk, max(log_date) mx, string_agg(distinct coalesce(hw_status,'—'),'·') hw, count(*) ses, bool_or(coalesce(teacher_memo,'')<>'') memo from coaching_logs where student_id="+sid()+" group by 1 order by 1 desc limit 5"),
-    q("select to_char(date_trunc('week',plan_date),'MM/DD') wk, count(*) filter (where kind='세션' and step_range like 'lc%') un, coalesce(sum(session_total) filter (where kind='퀴즈'),0) qt, count(*) filter (where kind='점검') chk from study_plan_day where plan_id=1 and status='완료' group by 1 order by 1 desc limit 5"),
+    q("select to_char(date_trunc('week',plan_date),'MM/DD') wk, count(*) filter (where kind='세션' and step_range like 'lc%') un, coalesce(sum(session_total) filter (where kind='퀴즈'),0) qt, count(*) filter (where kind='점검') chk from study_plan_day where plan_id="+GZP()+" and status='완료' group by 1 order by 1 desc limit 5"),
     q("select to_char(date_trunc('week',created_at),'MM/DD') wk, string_agg(report_type,'·') rp from student_reports where student_id="+sid()+" and status='발송' group by 1"),
-    q("select count(*) n from study_plan_day where plan_id=1 and kind='점검' and plan_date >= date_trunc('week', current_date)::date"),
-    q("select coalesce(max(c),0) mx, to_char(max(d) filter (where c=(select max(cnt) from (select count(*) cnt from study_plan_day where plan_id=1 and kind='세션' and step_range like 'lc%' and status='완료' group by plan_date) t)),'MM/DD') md, coalesce(sum(c),0) tot from (select plan_date d, count(*) c from study_plan_day where plan_id=1 and kind='세션' and step_range like 'lc%' and status='완료' group by plan_date) x"),
+    q("select count(*) n from study_plan_day where plan_id="+GZP()+" and kind='점검' and plan_date >= date_trunc('week', current_date)::date"),
+    q("select coalesce(max(c),0) mx, to_char(max(d) filter (where c=(select max(cnt) from (select count(*) cnt from study_plan_day where plan_id="+GZP()+" and kind='세션' and step_range like 'lc%' and status='완료' group by plan_date) t)),'MM/DD') md, coalesce(sum(c),0) tot from (select plan_date d, count(*) c from study_plan_day where plan_id="+GZP()+" and kind='세션' and step_range like 'lc%' and status='완료' group by plan_date) x"),
     q("select count(*) filter (where session_no=session_total and session_total>0) perfect from study_plan_day where kind='퀴즈'")
   ]).then(function(R){
     var m=(R[0]||[])[0]||{}, atr=R[1]||[], wmap=R[2]||[], ov=Number(((R[3]||[])[0]||{}).ov||0), clinic=((R[4]||[])[0]||{}).clinic||'',
@@ -923,7 +953,7 @@ function gzBuildRec(){
       det.innerHTML='<span class="mini">불러오는 중…</span>';
       Promise.all([
         q("select to_char(log_date,'MM/DD') d, session_type, coalesce(hw_status,'—') hw, coalesce(period_1,'') p1, coalesce(period_2,'') p2, coalesce(period_3,'') p3, coalesce(teacher_memo,'') tm from coaching_logs where student_id="+sid()+" and to_char(date_trunc('week',log_date),'MM/DD')='"+wk+"' order by log_date"),
-        q("select to_char(plan_date,'MM/DD') d, count(*) filter (where kind='세션' and step_range like 'lc%') un, coalesce(sum(session_total) filter (where kind='퀴즈'),0) qt, count(*) filter (where kind='점검') chk from study_plan_day where plan_id=1 and status='완료' and to_char(date_trunc('week',plan_date),'MM/DD')='"+wk+"' group by plan_date order by plan_date")
+        q("select to_char(plan_date,'MM/DD') d, count(*) filter (where kind='세션' and step_range like 'lc%') un, coalesce(sum(session_total) filter (where kind='퀴즈'),0) qt, count(*) filter (where kind='점검') chk from study_plan_day where plan_id="+GZP()+" and status='완료' and to_char(date_trunc('week',plan_date),'MM/DD')='"+wk+"' group by plan_date order by plan_date")
       ]).then(function(RR){
         var cls=RR[0]||[], days=RR[1]||[]; var h='';
         cls.forEach(function(c){
@@ -1063,14 +1093,14 @@ window.gzRetryPick=function(fid,pick){
   var today=(function(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})(new Date());
   fetch(BASE+'/rest/v1/study_plan_day',{method:'POST',
     headers:{apikey:AK,Authorization:'Bearer '+AK,'Content-Type':'application/json','Prefer':'resolution=ignore-duplicates'},
-    body:JSON.stringify({plan_id:1, plan_date:today, kind:'퀴즈', status:'완료', step_range:'frog:'+fid+':'+(ok?'O':'X'), seq:900+Number(fid), alloc_minutes:0, session_no:(ok?1:0), session_total:1})});
+    body:JSON.stringify({plan_id:GZP(), plan_date:today, kind:'퀴즈', status:'완료', step_range:'frog:'+fid+':'+(ok?'O':'X'), seq:900+Number(fid), alloc_minutes:0, session_no:(ok?1:0), session_total:1})});
 };
 
 window.gzRate=function(videoId,mood){
   var today=(function(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})(new Date());
   fetch(BASE+'/rest/v1/study_plan_day',{method:'POST',
     headers:{apikey:AK,Authorization:'Bearer '+AK,'Content-Type':'application/json','Prefer':'resolution=ignore-duplicates'},
-    body:JSON.stringify({plan_id:1, plan_date:today, kind:'평가', status:'완료', step_range:'vid:'+videoId+':'+mood, seq:800+videoId, alloc_minutes:0})})
+    body:JSON.stringify({plan_id:GZP(), plan_date:today, kind:'평가', status:'완료', step_range:'vid:'+videoId+':'+mood, seq:800+videoId, alloc_minutes:0})})
   .then(function(){ var e=document.getElementById('gzVidRate'); if(e)e.innerHTML='<div style="text-align:center;font-size:12.5px;color:#2c6e49;font-weight:800;padding:6px">고마워요! 다음 영상 고를 때 참고할게요 ✓</div>'; });
 };
 
@@ -1081,7 +1111,7 @@ window.gzOpenQuiz=function(){
   var st=gzLessonState; var idx=Math.min(st.done, st.list.length-1); var row=st.list[idx];
   var box=document.getElementById('gzQuizBox');
   box.innerHTML='<div class="mini" style="padding:10px;text-align:center">퀴즈 고르는 중…</div>';
-  q("select id, q_no, stem, passage, bogi, opt1, opt2, opt3, opt4, opt5, answer, explanation, acl_code, kla_code from questions where work_id=939 and stem is not null and opt1 is not null order by (acl_code in (select distinct acl_code from v_wrong_note where student_id="+sid()+" and not is_overcome)) desc, random() limit 2")
+  q("select id, q_no, stem, passage, bogi, opt1, opt2, opt3, opt4, opt5, answer, explanation, acl_code, kla_code from questions where work_id="+GZW()+" and stem is not null and opt1 is not null order by (acl_code in (select distinct acl_code from v_wrong_note where student_id="+sid()+" and not is_overcome)) desc, random() limit 2")
   .then(function(qs){
     if(!qs||!qs.length){box.innerHTML='<div class="mini">이 작품의 퀴즈가 아직 없어요</div>';return;}
     window.__gzQuiz=qs;
@@ -1117,15 +1147,15 @@ window.gzSubmitQuiz=function(){
   /* 완료 기록 + 오답 적재 — gz_quiz_submit RPC (frog RLS 우회·원자 처리) */
   fetch(BASE+'/rest/v1/rpc/gz_quiz_submit',{method:'POST',
     headers:{apikey:AK,Authorization:'Bearer '+AK,'Content-Type':'application/json'},
-    body:JSON.stringify({p:{student_id:Number(sid()), plan_date:today, step_range:'lc:'+row.id, seq:900+row.id, correct_n:okN, total_n:qs.length, work_id:939,
+    body:JSON.stringify({p:{student_id:Number(sid()), plan_date:today, step_range:'lc:'+row.id, seq:900+row.id, correct_n:okN, total_n:qs.length, work_id:GZW(),
       wrongs:wrongs.map(function(w){return {question_id:w.question_id, question_no:w.question_no,
         student_answer:w.student_answer, correct_answer:w.correct_answer, acl_code:w.acl_code, kla_code:w.kla_code,
-        memo:'미니 퀴즈 · 춘향전 '+(idx+1)+'번째 단원'};})}})});
+        memo:'미니 퀴즈 · '+GZT()+' '+(idx+1)+'번째 단원'};})}})});
   var btn=document.getElementById('gzQSubmit');
   btn.outerHTML='<div style="text-align:center;padding:10px;font-size:14px;font-weight:800;color:#2c6e49">✓ '+(idx+1)+'번째 단원 끝! ('+okN+'/'+qs.length+' 맞음'+(wrongs.length?' · 틀린 '+wrongs.length+'개는 오답노트로':'')+')</div>';
   gzLessonState.done=idx+1;
   var head=document.getElementById('gzLessonHead');
-  if(head)head.innerHTML='<b>춘향전</b><span class="mini">'+gzLessonState.done+' / '+st.list.length+'편</span>'
+  if(head)head.innerHTML='<b>'+GZT()+'</b><span class="mini">'+gzLessonState.done+' / '+st.list.length+'편</span>'
     +'<button onclick="gzOpenLesson()" style="margin-left:auto;background:#12211a;color:#fff;border:0;border-radius:8px;padding:9px 15px;font-size:13px;font-weight:800;cursor:pointer">이어서 '+(gzLessonState.done+1)+'번째 단원 열기</button>';
   if(typeof gzLoadFill==='function')setTimeout(gzLoadFill,800);
 };
@@ -1707,6 +1737,37 @@ gzLoadFill();
       ORI.list=Array.isArray(R[0])?R[0]:[];if(ORI.list.length<7)return;
       (Array.isArray(R[1])?R[1]:[]).forEach(function(x){if(x.done_at){var n=Number(String(x.cp_code).replace('OT',''));if(n)ORI.done[n]=1;}});card();}).catch(function(){});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
+
+<script>/* v0.43 신청·알림·이번 주 새 강좌 (#6951) */
+(function(){
+  var qs=(location.search||'')+'&'+(window.__DESK_Q||'');
+  var SID=+((qs.match(/sid=(\d+)/)||[])[1]||0), KK=(qs.match(/k=([a-f0-9]{32})/)||[])[1]||'';
+  var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/', PK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function d(s){s=String(s||'');return s?(+s.slice(5,7))+'/'+(+s.slice(8,10)):'';}
+  function rpc(fn,body){return fetch(B+fn,{method:'POST',headers:{'apikey':PK,'Authorization':'Bearer '+PK,'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();});}
+  var ST={'요청':'접수됨 — 본점 확인 중','보류':'본점 보류','진행':'본점 승인 — 제작 중','완료':'올라왔어요 ✓','반려':'반려'};
+  function render(j){
+    var tb=document.getElementById('gzNewTb'), nl=j.new_lectures||[]; NL={}; nl.forEach(function(l){NL[l.id]=l;});
+    if(!nl.length) tb.innerHTML='<tr><td class="mini">이번 주에 새로 올라온 강좌가 아직 없어요. 필요한 강의는 아래에서 신청하세요.</td></tr>';
+    else tb.innerHTML=nl.slice(0,8).map(function(l){return '<tr><td><span class="mini" style="background:var(--plan);color:#fff;border-radius:4px;padding:0 5px">NEW</span>'+(l.mine?' <span class="mini" style="border:1px solid var(--plan);color:var(--plan);border-radius:4px;padding:0 5px">내 신청 반영</span>':'')+' <b>'+esc(l.title)+'</b> <span class="mini">'+d(l.published_at)+' 공개'+(l.subject?' · '+esc(l.subject):'')+(l.grade?' · '+esc(l.grade):'')+'</span></td><td><button class="btn'+(l.mine?'':' ghost')+' sm" onclick="gzOpenLecture('+l.id+')">'+(l.mine?'바로 수강':'보기')+'</button></td></tr>';}).join('');
+    document.getElementById('gzNewSub').textContent='최근 7일 공개 '+nl.length+'개 · 내 학년 먼저';
+    var rows=j.rows||[], M=document.getElementById('gzReqMine');
+    M.innerHTML=rows.length?'<p class="mini" style="font-weight:700;margin-bottom:3px">내 신청</p>'+rows.slice(0,5).map(function(r){return '<p class="mini" style="margin:2px 0"><b>'+esc(r.title)+'</b> — '+(ST[r.stage]||r.stage)+(r.due&&r.stage==='진행'?' (예정 '+d(r.due)+')':'')+(r.feedback&&r.feedback.length?'<br>본점 피드백: 「'+esc(r.feedback[r.feedback.length-1])+'」':'')+'</p>';}).join(''):'';
+    var noti=j.noti||[], N=document.getElementById('gzReqNoti');
+    N.innerHTML=noti.length?noti.slice(0,3).map(function(n){return '<p class="mini" style="margin:2px 0">🔔 '+esc(n.body)+' <span style="color:var(--plan)">'+d(n.at)+'</span></p>';}).join(''):'';
+  }
+  var NL={};
+  window.gzOpenLecture=function(id){ var l=NL[id]; if(!l) return; if(l.video_url){ window.open(l.video_url,'_blank'); return; } alert(l.title+'\n\n'+(l.description||'')+'\n\n영상은 국존 사이트 강좌 목록에서 수강해요.'); };
+  window.gzReqLoad=function(){ if(!SID||!KK){document.getElementById('gzNewTb').innerHTML='<tr><td class="mini">학생 링크로 열면 보여요</td></tr>';return;}
+    rpc('gz_stu_req_list',{p_sid:SID,p_k:KK}).then(function(j){ if(j&&j.ok) render(j); else document.getElementById('gzNewTb').innerHTML='<tr><td class="mini">'+esc((j&&j.reason)||'불러오지 못했어요')+'</td></tr>'; }).catch(function(){ document.getElementById('gzNewTb').innerHTML='<tr><td class="mini">불러오지 못했어요</td></tr>'; }); };
+  window.gzReqSend=function(){ var b=document.getElementById('gzReqBtn'), m=document.getElementById('gzReqMsg'), subj=(document.getElementById('gzReqSubj').value||'').trim();
+    if(!subj){m.textContent='내용을 적어 주세요';return;} b.disabled=true; m.textContent='신청 중…';
+    rpc('gz_stu_req_submit',{p_sid:SID,p_k:KK,p:{kind:document.getElementById('gzReqKind').value,subject:subj,need_by:document.getElementById('gzReqNeed').value||''}}).then(function(j){ b.disabled=false;
+      if(j&&j.ok){m.textContent='신청됐어요 — 본점이 확인하면 여기에 답이 와요';document.getElementById('gzReqSubj').value='';gzReqLoad();} else m.textContent=(j&&j.reason)||'신청 실패'; }).catch(function(){b.disabled=false;m.textContent='신청 실패';}); };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',gzReqLoad); else gzReqLoad();
 })();
 </script>
 </body>
