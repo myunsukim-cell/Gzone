@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>spec_M12 · 제작 신청·배급 사양 v1</title>
+<style>:root{--ink:#1f2a24;--line:#d8d4c8;--deep:#1E4D3B;--gold:#B8892E;--dim:#8a8577;--band:#f4f8f5}body{margin:0;padding:18px 22px;font:14px/1.6 -apple-system,"Noto Sans KR",sans-serif;color:var(--ink);background:#fff;max-width:1100px}h1{font-size:20px;margin:0 0 4px}h2{font-size:15px;margin:22px 0 6px;border-bottom:2px solid var(--deep);padding-bottom:3px}.top{font-size:12px;color:var(--dim);margin-bottom:12px}table{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0}th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}th{background:var(--band)}.flow{display:flex;gap:4px;flex-wrap:wrap;align-items:center;font-size:12.5px}.flow span{border:1px solid var(--line);border-radius:14px;padding:3px 10px;background:#fff}.flow span.hq{border-color:var(--deep);color:var(--deep);font-weight:700}.flow i{color:var(--dim);font-style:normal}code{background:#f3f2ee;padding:0 4px;border-radius:3px;font-size:12px}.mini{font-size:12px;color:var(--dim)}ul{margin:4px 0 4px 18px}</style></head><body>
+<h1>spec_M12 · 제작 신청 → 본점 승인·계획표 → 제작 방 → 사이트 반영·통보 → 「이번 주 새 강좌」</h1>
+<div class="top">v1 · 2026-09-17 · 실물 반영: orp2_director v0.61(057d7c7f) · gmap2_student v0.43(94c7bb47) · sugang(4c2b1711) · 근거 #6919 #6927 #6938 #6951 #6954 · 목업 apps/mock/gmap_request_flow_v4.html · existing_pages_change_v5.html</div>
+<div class="flow"><span>학생·선생님·원장 (자기 페이지에서 신청)</span><i>→</i><span class="hq">본점 현황판 · 승인(우선순위·중요도·산출물·마감·제작 방)</span><i>→</i><span>제작 방 (세션 부팅 hq_jobs에 자동 표시)</span><i>→</i><span>저장·완료 보고</span><i>→</i><span class="hq">본점 확인 → 사이트 반영 · 통보</span><i>→</i><span>신청자 알림 · 메인 「이번 주 새 강좌」</span></div>
+<h2>1. 역할</h2><table><tr><th>역할</th><th>하는 일</th><th>보는 범위</th><th>화면</th></tr>
+<tr><td>학생</td><td>강좌/자료/질문 신청, 알림·새 강좌 확인, 바로 수강</td><td>본인 신청</td><td>학생 페이지 「다음으로」 칸</td></tr>
+<tr><td>선생님</td><td>강좌/시험지/교재/진단 신청</td><td>본인 신청</td><td>오거나이저 📮 제작 신청</td></tr>
+<tr><td>원장(지점)</td><td>신청 + 지점 전체 신청 열람(신청자 표시)</td><td>자기 지점</td><td>오거나이저 📮</td></tr>
+<tr><td>국존 본점</td><td>피드백·승인·계획표·확인→반영·통보·되돌리기(당일)</td><td>전체</td><td>오거나이저 📥 본점 접수함</td></tr>
+<tr><td>제작 방(프로젝트 방)</td><td>부팅 hq_jobs 순서대로 제작 → 완료 보고</td><td>자기 방 배정 건</td><td>세션 시작 카드 · 강좌는 수강신청 「강좌 등록」 창</td></tr></table>
+<h2>2. 데이터 그릇</h2><table><tr><th>표·열</th><th>뜻</th></tr>
+<tr><td><code>gz_flows</code> (to_room=국존 본점, hq_stage)</td><td>신청 1행 = 1건. hq_stage 요청/보류/진행/완료/반려 · requester_role 학생/교사/원장/방 · requester_branch·requested_by·requester_sid · category · detail · need_by · urgent · importance(상/중/하) · priority(1~5) · output_kind(강좌/시험지/교재/답변/자료) · due_date · maker_room · feedback(jsonb 이력) · made_ref/made_at/made_by_room · deliver_ref · published_lecture_id · decided_by/at · delivered_at</td></tr>
+<tr><td><code>lectures.published_at</code> · <code>request_flow_id</code></td><td>공개일(공개로 바뀔 때 트리거 자동) · 어느 신청으로 만든 강좌</td></tr>
+<tr><td><code>notifications</code> kind=제작, recipient student/teacher/director</td><td>승인·답·반려·반영 시 자동. 학부모 제외(기본)</td></tr>
+<tr><td><code>teachers.is_hq</code></td><td>본점 계정 표시</td></tr></table>
+<h2>3. 서버 함수</h2><table><tr><th>함수</th><th>누가</th><th>역할</th></tr>
+<tr><td><code>gz_req_list</code></td><td>로그인 직원</td><td>역할별 목록 + stats(새 신청·역할별·제작 중·방별·마감 지남·확인 대기) + plan(중요도→순위→마감) + rooms</td></tr>
+<tr><td><code>gz_req_submit</code></td><td>선생님·원장</td><td>신청(신청자·직책·지점 자동)</td></tr>
+<tr><td><code>gz_req_act</code></td><td>본점</td><td>feedback · accept(승인=제작 방·중요도·우선순위·산출물·마감 필수, 알림) · answer · reject · hold · publish(강좌 공개+공개일 / 파일 배급, 알림) · undo(당일, 공개 취소·알림 삭제)</td></tr>
+<tr><td><code>gz_stu_req_submit</code> · <code>gz_stu_req_list</code></td><td>학생(링크 sid+k)</td><td>신청 / 내 신청·피드백·알림·이번 주 새 강좌(7일·8개·내 신청 반영·내 학년 우선)</td></tr>
+<tr><td><code>gz_hq_jobs(방코드)</code> · <code>gz_topic_boot</code>.hq_jobs</td><td>방(서비스 키)</td><td>배정 건 목록(순서·신청자·피드백·마감) — 부팅 결과에 자동 포함</td></tr>
+<tr><td><code>gz_req_made</code> · <code>gz_req_made_lecture</code> · <code>gz_req_making_list</code></td><td>방 · 강좌 등록 창</td><td>완료 보고(자료 위치 또는 강좌 번호)</td></tr></table>
+<h2>4. 웹헤즈 전달 — 실제 사이트에 넣을 것</h2><ul>
+<li><b>메인페이지 「이번 주 새로 추가된 강좌」</b>: <code>lectures</code> where is_published and published_at ≥ 오늘−7일, published_at desc, 최대 8개. 로그인 학생이면 request_flow_id의 requester_sid=본인 건을 「내 신청 반영」으로 맨 앞. 비로그인은 학년 무관 최신순.</li>
+<li><b>학생 마이페이지</b>: 2.0 학생 페이지 「다음으로」 칸과 동일(신청 폼·내 신청 상태·알림 3건). 원천 = gz_stu_req_list / gz_stu_req_submit.</li>
+<li><b>디자이너(선생님)·디렉터(원장) 페이지</b>: 오거나이저 📮 칸과 동일. 원천 = gz_req_list / gz_req_submit.</li>
+<li><b>관리자(본점)</b>: 오거나이저 📥 본점 접수함과 동일(현황판·승인 폼·계획표·확인→반영). 원천 = gz_req_list / gz_req_act.</li>
+<li>알림은 앱 안 표시가 기본. 카톡·문자 발송은 notifications(kind=제작, status=대기)를 기존 발송함(notify_box)이 처리.</li></ul>
+<h2>5. 남은 것</h2><ul><li>생산 현황판(prep_board·status_board)·경영 관제(bo2)·교사 허브에 계획표 건 표시 — 🟡</li><li>anon 정책 철폐(D1) 시 sugang용 함수 2종 로그인 필수로 전환</li><li>학부모 알림 여부 — 국존 결정 대기(기본 미발송)</li></ul>
+<p class="mini">실측 기준 2026-09-17: 본점 접수 10건(마케팅방) · 최근 7일 공개 강좌 0(공개일 채움 1,191) · 활성 학생 로그인 계정 0(신청은 학생 링크로)</p></body></html>
