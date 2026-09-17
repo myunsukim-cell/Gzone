@@ -133,6 +133,15 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
 .hq-steps span{flex:1;text-align:center;padding:3px 0;border-top:3px solid #e2e0d8;color:var(--dim)}
 .hq-steps span.on{border-top-color:var(--deep);color:var(--deep);font-weight:700}
 .hq-steps span.no{border-top-color:#A4472F;color:#A4472F;font-weight:700}
+.hq-who{display:inline-flex;gap:4px;align-items:center;font-size:12px;border-radius:5px;padding:1px 7px;font-weight:700}
+.hq-who.br{background:#fff4df;color:#6d5212;border:1px solid #e3cf9f}
+.hq-who.rm{background:#eaf3ee;color:var(--deep);border:1px solid #cfe0d4}
+.hq-me{display:inline-block;background:#eaf3ee;border:1px solid #cfe0d4;border-radius:5px;padding:3px 8px;font-size:12.5px}
+.hq-made{margin-top:6px;background:#eef6f0;border-left:3px solid var(--deep);padding:5px 8px;font-size:12px}
+.hq-fb{margin-top:6px;display:flex;flex-direction:column;gap:3px}
+.hq-fb div{background:#f7f5ee;border-left:3px solid #8a6d1f;padding:4px 8px;font-size:12px;border-radius:0 5px 5px 0}
+.hq-fb div span{color:var(--dim);font-size:10.5px;margin-left:6px}
+.hq-act textarea{flex:1;min-width:200px;min-height:36px}
 @media (max-width:860px){.hq-frm{grid-template-columns:1fr}}
 </style>
 </head>
@@ -143,7 +152,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
   <span class="chip sc" id="scChip" onclick="scGo()" title="누르면 사례 후보 칸으로 이동">🌱 이 주의 사례 후보 <span class="n" id="scN">…</span></span>
   <span class="chip hq" id="hqChip" onclick="hqGo()" style="display:none"></span>
   <span class="hint">상단 고정 · 어느 상태든 1클릭 = ritual_runs</span>
-  <span class="right">로그인 직후 이 화면(본판=시간표) · orp2 v3 · v0.59</span>
+  <span class="right">로그인 직후 이 화면(본판=시간표) · orp2 v3 · v0.60</span>
 </div>
 <div class="greet" id="greet">오늘의 리추얼을 불러오는 중…</div>
 <div class="wrap">
@@ -162,7 +171,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
     <div id="loading">DB 적재 중 — rituals · ritual_runs · v_orp_myrecord · v_orp_myday</div>
     <div id="app" style="display:none">
       <nav class="otabs" id="otabs"><span class="lb">오거나이저</span><button data-p="p14" id="hqTab" style="display:none">📥 본점</button><button data-p="p1">① 년간 계획표</button><button data-p="p3">③ 이 달 목표</button><button data-p="p4">④ 달력·발행판</button><button data-p="p13">🌱 사례 후보</button><button data-p="p5">⑤ 회의·교육</button><button data-p="p6">⑥ 내 성과물</button><button data-p="p8">⑧ 담당 학생</button><button data-p="p9">⑨ 교사 통계판</button><button data-p="p10">⑩ 내 할 일</button><button data-p="p11">⑪ 월요 점검</button><button data-p="p12">⑫ 메모·보고<span id="p12q"></span></button><span class="gp"></span><span class="lb">조망(경험여정)</span><button data-p="jn:pg-struct">G-ZONE 구조</button><button data-p="jn:pg-journey">경험여정</button><button data-p="jn:pg-asset">자산·아키텍처</button><button data-p="jn:pg-rnd">정부과제</button><button data-p="jn:pg-rnd2">정부과제 2</button><button data-p="jn:pg-bizc">사업계획 B2C</button><button data-p="jn:pg-bizb">사업계획 B2B</button><button data-p="jn:pg-notes">연구노트</button><button data-p="jn:pg-axes">판독 현황</button><button data-p="jn:pg-mock2">목업</button><button data-p="jn:pg-refs">📖 참고문헌</button></nav>
-      <div class="sec opane" id="s14box"><div class="h"><b id="s14t">📥 본점</b><span class="tag">원장=신청 · 본점=확인·제작·배급</span><span class="m" style="font-size:11px;color:var(--dim)" id="s14c">적재 전</span><span class="tag" style="margin-left:auto;cursor:pointer" onclick="hqLoad(1)">↻ 새로고침</span></div><div id="s14"><div class="sc-empty">탭을 열면 적재합니다.</div></div></div>
+      <div class="sec opane" id="s14box"><div class="h"><b id="s14t">📥 본점</b><span class="tag">선생님·원장=신청 · 본점=확인·피드백·제작·배급</span><span class="m" style="font-size:11px;color:var(--dim)" id="s14c">적재 전</span><span class="tag" style="margin-left:auto;cursor:pointer" onclick="hqLoad(1)">↻ 새로고침</span></div><div id="s14"><div class="sc-empty">탭을 열면 적재합니다.</div></div></div>
       <div class="sec"><div class="h"><b>① 년간 계획표 — 학원 + 내 행</b><span class="tag">이행</span></div><div id="s1"></div></div>
       <div class="sec"><div class="h"><b>② 리추얼</b><span class="tag">체크</span><span class="m" id="s2c" style="font-size:11px;color:var(--dim)"></span></div><div id="s2"></div></div>
       <div class="sec"><div class="h"><b id="s3t">③ 이 달 목표</b><span class="tag">기여</span></div><div id="s3"></div></div><div class="sec" id="s8box"><div class="h"><b>④ 달력·발행판</b><span class="tag">원천 v_mkt_events 하나</span><span class="tag">체크 1회 = 리추얼 완료 + 발행 대장</span><span class="m" style="font-size:11px;color:var(--dim)" id="s8c">적재 중…</span></div><div class="mk-bar"><span class="zg" id="mkZoom"><button data-z="year" onclick="mkZoom('year')">연간</button><button data-z="month" onclick="mkZoom('month')">월</button><button data-z="week" onclick="mkZoom('week')">이 주</button></span><button onclick="mkNav(-1)">◀</button><span id="mkLbl"></span><button onclick="mkNav(1)">▶</button><button onclick="MK.anchor=null;loadMkt(1)">오늘</button><label><input type="checkbox" checked onchange="mkToggle('시험',this)"> 시험</label><label><input type="checkbox" checked onchange="mkToggle('플레이북',this)"> 플레이북</label><span class="up"><span id="mkSheetMsg">달력 xlsx(일정목록) → 발행 행 반영 · 「발행일」 열 우선</span><label class="mk-b2 o" style="cursor:pointer;color:var(--deep)">시트 반영<input type="file" accept=".xlsx" style="display:none" onchange="mkSheet(this)"></label></span></div><div id="s8"></div></div>
@@ -400,50 +409,54 @@ async function scSave(btn){
   else{msg.textContent='저장 실패: '+((j&&j.reason)||'');msg.style.color='#A4472F';}
 }
 
-/* v0.59 📥 본점 신청·접수·배급 — 원장=신청만 / 국존 본점=확인·제작·배급 (#6919) · RPC gz_req_list·gz_req_submit·gz_req_act · 대장 gz_flows(hq_stage) */
+/* v0.60 📮 제작 신청(교사·원장) · 📥 본점 확인·피드백·배정·배급 (#6919·gz_task 213) · RPC gz_req_list·gz_req_submit·gz_req_act · 대장 gz_flows */
 let HQ={d:null,f:'요청',busy:false};
 const HQ_CAT=['교재콘텐츠','진단평가','상담마케팅','운영학사'];
 const HQ_ST={'요청':'새 신청','진행':'제작 중','보류':'보류','완료':'완료','반려':'반려'};
 function hqEsc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function hqD(s){const t=String(s||'');return t?(+t.slice(5,7))+'/'+(+t.slice(8,10)):'';}
+function hqDT(s){if(!s)return '';const d=new Date(new Date(s).getTime()+9*3600e3);return (d.getUTCMonth()+1)+'/'+d.getUTCDate()+' '+String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0');}
 function hqAge(s){const k=KST(),d=new Date(String(s).slice(0,10)+'T00:00:00Z');return Math.max(0,Math.floor((Date.UTC(k.getUTCFullYear(),k.getUTCMonth(),k.getUTCDate())-d)/864e5));}
+function hqWho(r){return (r.requester_role==='교사'||r.requester_role==='원장')
+  ?'<span class="hq-who br">'+hqEsc(r.requester_branch||'')+' 지점 · '+hqEsc(r.requested_by||'')+' '+(r.requester_role==='원장'?'원장':'선생님')+'</span>'
+  :'<span class="hq-who rm">방 · '+hqEsc(r.from_room)+'</span>';}
+function hqFb(r){const f=r.feedback||[];return f.length?'<div class="hq-fb">'+f.map(x=>'<div><b>본점 피드백</b> '+hqEsc(x.t)+'<span>'+hqDT(x.at)+'</span></div>').join('')+'</div>':'';}
 function hqGo(){if(typeof OP!=='undefined'&&OP.p14){oTab('p14');const b=document.getElementById('s14box');if(b&&b.scrollIntoView)b.scrollIntoView({behavior:'smooth'});}}
 async function hqLoad(force){
-  if(typeof ROLE2!=='undefined'&&ROLE2==='teacher') return;
   if((HQ.d&&!force)||HQ.busy) return; HQ.busy=true;
   let j; try{ j=await rpcJ('gz_req_list',{}); }catch(e){ j={ok:false,reason:e.message}; }
   HQ.busy=false;
   const chip=document.getElementById('hqChip'), tab=document.getElementById('hqTab'), box=document.getElementById('s14');
   if(!j||!j.ok){ HQ.d=null; if(chip) chip.style.display='none'; if(tab) tab.style.display='none';
-    if(box) box.innerHTML='<div class="sc-empty" style="color:#A4472F">'+hqEsc((j&&j.reason)||'적재 실패')+' — 관문 로그인(원장·본점) 상태에서 표시</div>'; return; }
-  HQ.d=j;
-  const isHQ=j.role==='본점';
-  if(chip){ chip.style.display=''; chip.innerHTML=isHQ?('📥 본점 접수함 <span class="n">'+j.open+'건 대기</span>'):('📮 본점 신청 <span class="n">'+(j.open+j.making)+'건 진행</span>'); }
-  if(tab){ tab.style.display=''; tab.textContent=isHQ?('📥 본점 접수함 '+j.open):'📮 본점 신청'; }
-  document.getElementById('s14t').textContent=isHQ?'📥 본점 접수함':'📮 본점에 신청';
-  document.getElementById('s14c').textContent=isHQ?('원장 신청 + 각 방 요청 · 대기 '+j.open+' · 제작 중 '+j.making):('원장은 신청만 — 제작·배급은 본점 · '+j.from);
+    if(box) box.innerHTML='<div class="sc-empty" style="color:#A4472F">'+hqEsc((j&&j.reason)||'적재 실패')+' — 관문 로그인 상태에서 표시</div>'; return; }
+  HQ.d=j; const isHQ=j.role==='본점';
+  if(chip){ chip.style.display=''; chip.innerHTML=isHQ?('📥 본점 접수함 <span class="n">'+j.open+'건 대기</span>'):('📮 제작 신청 <span class="n">'+(j.open+j.making)+'건 진행</span>'); }
+  if(tab){ tab.style.display=''; tab.textContent=isHQ?('📥 본점 접수함 '+j.open):'📮 제작 신청'; }
+  document.getElementById('s14t').textContent=isHQ?'📥 본점 접수함':'📮 본점에 제작 신청';
+  document.getElementById('s14c').textContent=isHQ?('지점 선생님·원장 신청 + 각 방 요청 · 대기 '+j.open+' · 제작 중 '+j.making)
+    :(j.role==='원장'?(j.from+' 전체 신청'):'내 신청')+' · 신청 → 본점 확인·피드백 → 제작 → 배급';
   hqRender();
 }
 function hqSteps(r){
   if(r.stage==='반려') return '<div class="hq-steps"><span class="on">신청됨</span><span class="no">반려</span><span>—</span></div>';
   const k={'요청':0,'보류':0,'진행':1,'완료':2}[r.stage];
-  return '<div class="hq-steps">'+['신청됨'+(r.stage==='보류'?' (보류)':''),'본점 제작 중','배급 완료'].map((x,i)=>'<span class="'+(i<=k?'on':'')+'">'+x+'</span>').join('')+'</div>';
+  return '<div class="hq-steps">'+['신청됨'+(r.stage==='보류'?' (보류)':''),'본점 확인 · 제작 중','배급 완료'].map((x,i)=>'<span class="'+(i<=k?'on':'')+'">'+x+'</span>').join('')+'</div>';
 }
 function hqRender(){
   const box=document.getElementById('s14'); if(!box||!HQ.d) return;
   const j=HQ.d, rows=j.rows||[];
   if(j.role!=='본점'){
-    box.innerHTML='<div class="hq-frm"><label>종류</label><select id="hqCat">'+HQ_CAT.map(c=>'<option>'+c+'</option>').join('')+'</select>'
+    box.innerHTML='<div class="hq-frm"><label>신청자</label><div><span class="hq-me">'+hqEsc(j.from)+' · '+hqEsc(j.name)+' '+(j.role==='원장'?'원장':'선생님')+'</span> <span class="hq-meta">로그인 정보로 자동 기록</span></div>'
+     +'<label>종류</label><select id="hqCat">'+HQ_CAT.map(c=>'<option>'+c+'</option>').join('')+'</select>'
      +'<label>무엇을</label><input id="hqSubj" placeholder="예: 해송고 고2 2학기 기말 CLEAR 문항">'
      +'<label>대상</label><input id="hqWho" placeholder="학교·학년·학생 수">'
      +'<label>필요한 날</label><input id="hqNeed" type="date">'
      +'<label>메모</label><textarea id="hqMemo" placeholder="시험범위·교과서·특이사항"></textarea>'
      +'<span></span><div><button type="button" class="btn" onclick="hqSubmit(this)">본점에 신청</button> <span class="m" id="hqMsg" style="font-size:11px"></span></div></div>'
-     +'<div class="hq-sub">내 신청 현황</div>'
-     +(rows.length?rows.map(r=>'<div class="hq-rq"><div class="hq-t"><span class="hq-bd">'+hqEsc(r.category)+'</span><b>'+hqEsc(r.title)+'</b></div>'
-        +'<div class="hq-meta">신청 '+hqD(r.created_at)+(r.need_by?' · 필요일 '+hqD(r.need_by):'')+(r.detail?' · '+hqEsc(r.detail):'')+(r.maker_room?' · 제작: '+hqEsc(r.maker_room):'')+'</div>'+hqSteps(r)
-        +(r.stage==='완료'?'<div class="hq-meta" style="color:var(--deep)"><b>받음</b> · '+hqEsc(r.deliver_ref||r.answer)+'</div>':'')
-        +(r.stage==='반려'?'<div class="hq-meta" style="color:#A4472F">반려 사유: '+hqEsc(r.answer)+'</div>':'')+'</div>').join(''):'<div class="sc-empty">아직 신청이 없습니다.</div>');
+     +'<div class="hq-sub">'+(j.role==='원장'?hqEsc(j.from)+' 전체 신청':'내 신청')+'</div>'
+     +(rows.length?rows.map(r=>'<div class="hq-rq"><div class="hq-t"><span class="hq-bd">'+hqEsc(r.category)+'</span><b>'+hqEsc(r.title)+'</b>'+(j.role==='원장'?hqWho(r):'')+'</div>'
+        +'<div class="hq-meta">신청 '+hqD(r.created_at)+(r.need_by?' · 필요일 '+hqD(r.need_by):'')+(r.detail?' · '+hqEsc(r.detail):'')+(r.maker_room?' · 제작: '+hqEsc(r.maker_room):'')+'</div>'+hqSteps(r)+hqFb(r)
+        +(r.stage==='완료'?'<div class="hq-made"><b>받음</b> · '+hqEsc(r.deliver_ref||r.answer)+'</div>':'')+'</div>').join(''):'<div class="sc-empty">아직 신청이 없습니다.</div>');
     return;
   }
   const cnt=k=>rows.filter(r=>r.stage===k).length;
@@ -453,31 +466,31 @@ function hqRender(){
 }
 function hqFilt(k){HQ.f=k;hqRender();}
 function hqCard(r){
-  const br=/ 지점$/.test(r.from_room);
-  const src='<span class="hq-bd '+(br?'w':'m')+'">'+(br?'원장 · ':'방 · ')+hqEsc(r.from_room)+'</span>';
   let act='';
   if(r.stage==='요청'||r.stage==='보류'){
     act='<div class="hq-act"><select id="hqRm'+r.id+'"><option value="">제작 방 고르기</option>'+(HQ.d.rooms||[]).map(x=>'<option>'+hqEsc(x)+'</option>').join('')+'</select>'
       +'<button type="button" class="btn" data-id="'+r.id+'" onclick="hqAccept(this.dataset.id)">수락 → 제작 시작</button>'
-      +'<button type="button" class="btn o" data-id="'+r.id+'" data-m="answer" onclick="hqBox(this.dataset.id,this.dataset.m)">답하고 끝냄</button>'
-      +(r.stage==='요청'?'<button type="button" class="btn o" data-id="'+r.id+'" onclick="hqDo(this.dataset.id,\'hold\',\'\')">보류</button>':'')
-      +'<button type="button" class="btn r" data-id="'+r.id+'" data-m="reject" onclick="hqBox(this.dataset.id,this.dataset.m)">반려</button></div><div id="hqBx'+r.id+'"></div>';
+      +'<button type="button" class="btn o" data-id="'+r.id+'" onclick="hqDo(this.dataset.id,\'answer\',hqTx(this.dataset.id))">답하고 끝냄</button>'
+      +(r.stage==='요청'?'<button type="button" class="btn o" data-id="'+r.id+'" onclick="hqDo(this.dataset.id,\'hold\',hqTx(this.dataset.id))">보류</button>':'')
+      +'<button type="button" class="btn r" data-id="'+r.id+'" onclick="hqDo(this.dataset.id,\'reject\',hqTx(this.dataset.id))">반려</button></div>';
   } else if(r.stage==='진행'){
-    act='<div class="hq-act"><input id="hqLk'+r.id+'" placeholder="배급 자료 (자산 코드·링크)" style="flex:1;min-width:180px"><button type="button" class="btn" data-id="'+r.id+'" onclick="hqDeliver(this.dataset.id)">배급 완료</button>'
+    act=(r.made_ref?'<div class="hq-made"><b>제작 완료 보고 — '+hqEsc(r.made_by_room||r.maker_room)+'</b> · 자료 '+hqEsc(r.made_ref)+' · '+hqDT(r.made_at)+'</div>':'<div class="hq-meta">제작 방이 아직 완료를 보고하지 않았습니다.</div>')
+      +'<div class="hq-act"><input id="hqLk'+r.id+'" value="'+hqEsc(r.made_ref||'')+'" placeholder="배급 자료 (자산 코드·링크)" style="flex:1;min-width:180px"><button type="button" class="btn" data-id="'+r.id+'" onclick="hqDeliver(this.dataset.id)">확인 → 배급 완료</button>'
       +(r.undo_ok?'<button type="button" class="btn o" data-id="'+r.id+'" onclick="hqDo(this.dataset.id,\'undo\',\'\')">수락 되돌리기</button>':'')+'</div>';
   } else {
-    act='<div class="hq-meta">'+(r.stage==='완료'?'→ 신청한 곳에 전달됨 · ':'반려 · ')+hqEsc(r.deliver_ref||r.answer||'')
+    act='<div class="hq-meta">'+(r.stage==='완료'?'→ 신청한 분에게 전달됨 · ':'반려 · ')+hqEsc(r.deliver_ref||r.answer||'')
       +(r.undo_ok?' <button type="button" class="btn o" style="padding:1px 8px" data-id="'+r.id+'" onclick="hqDo(this.dataset.id,\'undo\',\'\')">되돌리기</button>':'')+'</div>';
   }
-  return '<div class="hq-rq'+(r.urgent?' urg':'')+'"><div class="hq-t">'+(r.urgent?'<span class="hq-bd u">급함</span>':'')+src+'<span class="hq-bd">'+hqEsc(r.category||'')+'</span><b>'+hqEsc(r.title)+'</b></div>'
+  const fbBox='<div class="hq-act"><textarea id="hqTx'+r.id+'" placeholder="피드백 — 신청한 분 화면에 그대로 보입니다 (답·반려 사유도 여기에)"></textarea><button type="button" class="btn o" data-id="'+r.id+'" onclick="hqDo(this.dataset.id,\'feedback\',hqTx(this.dataset.id))">피드백 남기기</button></div>';
+  return '<div class="hq-rq'+(r.urgent?' urg':'')+'"><div class="hq-t">'+(r.urgent?'<span class="hq-bd u">급함</span>':'')+hqWho(r)+'<span class="hq-bd">'+hqEsc(r.category||'')+'</span><b>'+hqEsc(r.title)+'</b></div>'
     +'<div class="hq-meta">신청 '+hqD(r.created_at)+' · '+hqAge(r.created_at)+'일째'+(r.need_by?' · 필요일 '+hqD(r.need_by):'')+(r.note_id?' · 근거 #'+r.note_id:'')+(r.detail?' · '+hqEsc(r.detail):'')+(r.maker_room?' · 제작: '+hqEsc(r.maker_room):'')+'</div>'
-    +act+'<div class="hq-meta" id="hqEr'+r.id+'" style="color:#A4472F"></div></div>';
+    +hqFb(r)+act+fbBox+'<div class="hq-meta" id="hqEr'+r.id+'" style="color:#A4472F"></div></div>';
 }
-function hqBox(id,m){document.getElementById('hqBx'+id).innerHTML='<div class="hq-act"><textarea id="hqTx'+id+'" placeholder="'+(m==='answer'?'답 (예: 김상원 포함 · 인쇄 안 함)':'반려 사유')+'"></textarea><button type="button" class="btn'+(m==='reject'?' r':'')+'" data-id="'+id+'" data-m="'+m+'" onclick="hqDo(this.dataset.id,this.dataset.m,document.getElementById(\'hqTx\'+this.dataset.id).value)">'+(m==='answer'?'답 저장 · 끝냄':'반려 확정')+'</button></div>';}
-function hqAccept(id){const v=document.getElementById('hqRm'+id).value;if(!v){document.getElementById('hqEr'+id).textContent='제작 방을 고르세요';return;}hqDo(id,'accept',v);}
+function hqTx(id){const e=document.getElementById('hqTx'+id);return e?e.value:'';}
+function hqAccept(id){const v=document.getElementById('hqRm'+id).value;if(!v){document.getElementById('hqEr'+id).textContent='제작 방을 고르세요';return;}hqDo(id,'accept',v,hqTx(id));}
 function hqDeliver(id){hqDo(id,'deliver',(document.getElementById('hqLk'+id).value||'').trim());}
-async function hqDo(id,act,text){
-  const j=await rpcJ('gz_req_act',{id:+id,act:act,text:text||''});
+async function hqDo(id,act,text,fb){
+  const j=await rpcJ('gz_req_act',{id:+id,act:act,text:text||'',feedback:fb||''});
   if(!j||!j.ok){const e=document.getElementById('hqEr'+id);if(e)e.textContent=(j&&j.reason)||'처리 실패';return;}
   await hqLoad(1);
 }
@@ -532,7 +545,7 @@ async function jnLoad(pg){
     fr.srcdoc=JNSRC.replace(/<head[^>]*>/i,function(m){return m+inj;});
   }catch(e){ fr.srcdoc='<p style="padding:20px;font:13px sans-serif">경험여정 적재 실패: '+e.message+'</p>'; }
 }
-function todoAuth(){const j=(typeof window.__GZ_JWT!=='undefined'&&window.__GZ_JWT)?window.__GZ_JWT:null;return j?{apikey:KEY,Authorization:'Bearer '+j,'Content-Type':'application/json',Prefer:'return=representation'}:null;}
+function todoAuth(){let pj=null;try{if(window.parent&&window.parent!==window&&window.parent.__GZ_JWT)pj=window.parent.__GZ_JWT;}catch(_){}const j=pj||((typeof window.__GZ_JWT!=='undefined'&&window.__GZ_JWT)?window.__GZ_JWT:null);return j?{apikey:KEY,Authorization:'Bearer '+j,'Content-Type':'application/json',Prefer:'return=representation'}:null;}
 async function loadTodos(force){
   if(S9DONE&&!force) return; S9DONE=true;
   const box=document.getElementById('s9'), cnt=document.getElementById('s9c');
