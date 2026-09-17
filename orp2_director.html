@@ -160,6 +160,13 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
 .rl-two{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:12px;align-items:start;margin-top:8px}
 .rl-res{margin-top:8px;border-radius:7px;padding:8px 10px;font-size:12.5px}.rl-res.ok{background:#eef6f0;border-left:3px solid var(--deep)}.rl-res.no{background:#fbefeb;border-left:3px solid #A4472F}
 .rl-how{font-size:12px;color:var(--dim);line-height:1.65;margin-top:8px;background:#fffdf6;border:1px dashed #8a6d1f;border-radius:8px;padding:8px 11px}
+.st-src{width:100%;min-height:220px;font:13px/1.6 inherit;border:1px solid var(--line);border-radius:6px;padding:8px}
+.st-v{border-radius:8px;padding:9px 12px;font-size:13px;margin-bottom:8px}.st-v.ok{background:#eef6f0;border-left:4px solid var(--deep)}.st-v.no{background:#fbefeb;border-left:4px solid #A4472F}
+.st-i{border:1px solid var(--line);border-radius:7px;padding:6px 9px;margin-bottom:5px;font-size:12px;background:#fff}.st-i.f{border-left:4px solid #A4472F}.st-i.w{border-left:4px solid #8a6d1f}.st-i.h{border-left:4px solid #8a8577;background:#fafaf8}
+.st-i .q{display:block;margin-top:3px;background:#f7f5ee;padding:3px 6px;border-radius:4px;font-size:11.5px}
+.cs-tb{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}.cs-tb th,.cs-tb td{border-bottom:1px solid var(--line);padding:4px 5px;text-align:left}.cs-tb th{background:var(--band);font-size:11px}
+.cs-tb select,.cs-tb input{font:inherit;font-size:12px;border:1px solid var(--line);border-radius:4px;padding:2px 4px}
+.cs-bd{display:inline-block;border-radius:4px;padding:0 6px;font-size:11px;font-weight:700}.cs-bd.y{background:#eef6f0;color:var(--deep);border:1px solid #cfe0d4}.cs-bd.n{background:#fbefeb;color:#A4472F;border:1px solid #e3b9ab}
 @media (max-width:860px){.rl-two{grid-template-columns:1fr}}
 </style>
 </head>
@@ -170,7 +177,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
   <span class="chip sc" id="scChip" onclick="scGo()" title="누르면 사례 후보 칸으로 이동">🌱 이 주의 사례 후보 <span class="n" id="scN">…</span></span>
   <span class="chip hq" id="hqChip" onclick="hqGo()" style="display:none"></span>
   <span class="hint">상단 고정 · 어느 상태든 1클릭 = ritual_runs</span>
-  <span class="right">로그인 직후 이 화면(본판=시간표) · orp2 v3 · v0.62</span>
+  <span class="right">로그인 직후 이 화면(본판=시간표) · orp2 v3 · v0.63</span>
 </div>
 <div class="greet" id="greet">오늘의 리추얼을 불러오는 중…</div>
 <div class="wrap">
@@ -188,9 +195,14 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
     <div class="rule">비교 없음 · 본인 수신 · 온보딩 첫 달 무평가 · 질=시장 평가 · 주지표=유지·재등록 · 조망(G-ZONE·여정) 하단 접이 ▾</div>
     <div id="loading">DB 적재 중 — rituals · ritual_runs · v_orp_myrecord · v_orp_myday</div>
     <div id="app" style="display:none">
-      <nav class="otabs" id="otabs"><span class="lb">오거나이저</span><button data-p="p14" id="hqTab" style="display:none">📥 본점</button><button data-p="p15" id="rlTab" style="display:none">📜 원칙</button><button data-p="p1">① 년간 계획표</button><button data-p="p3">③ 이 달 목표</button><button data-p="p4">④ 달력·발행판</button><button data-p="p13">🌱 사례 후보</button><button data-p="p5">⑤ 회의·교육</button><button data-p="p6">⑥ 내 성과물</button><button data-p="p8">⑧ 담당 학생</button><button data-p="p9">⑨ 교사 통계판</button><button data-p="p10">⑩ 내 할 일</button><button data-p="p11">⑪ 월요 점검</button><button data-p="p12">⑫ 메모·보고<span id="p12q"></span></button><span class="gp"></span><span class="lb">조망(경험여정)</span><button data-p="jn:pg-struct">G-ZONE 구조</button><button data-p="jn:pg-journey">경험여정</button><button data-p="jn:pg-asset">자산·아키텍처</button><button data-p="jn:pg-rnd">정부과제</button><button data-p="jn:pg-rnd2">정부과제 2</button><button data-p="jn:pg-bizc">사업계획 B2C</button><button data-p="jn:pg-bizb">사업계획 B2B</button><button data-p="jn:pg-notes">연구노트</button><button data-p="jn:pg-axes">판독 현황</button><button data-p="jn:pg-mock2">목업</button><button data-p="jn:pg-refs">📖 참고문헌</button></nav>
+      <nav class="otabs" id="otabs"><span class="lb">오거나이저</span><button data-p="p14" id="hqTab" style="display:none">📥 본점</button><button data-p="p15" id="rlTab" style="display:none">📜 원칙</button><button data-p="p16">✍ 검수</button><button data-p="p1">① 년간 계획표</button><button data-p="p3">③ 이 달 목표</button><button data-p="p4">④ 달력·발행판</button><button data-p="p13">🌱 사례 후보</button><button data-p="p5">⑤ 회의·교육</button><button data-p="p6">⑥ 내 성과물</button><button data-p="p8">⑧ 담당 학생</button><button data-p="p9">⑨ 교사 통계판</button><button data-p="p10">⑩ 내 할 일</button><button data-p="p11">⑪ 월요 점검</button><button data-p="p12">⑫ 메모·보고<span id="p12q"></span></button><span class="gp"></span><span class="lb">조망(경험여정)</span><button data-p="jn:pg-struct">G-ZONE 구조</button><button data-p="jn:pg-journey">경험여정</button><button data-p="jn:pg-asset">자산·아키텍처</button><button data-p="jn:pg-rnd">정부과제</button><button data-p="jn:pg-rnd2">정부과제 2</button><button data-p="jn:pg-bizc">사업계획 B2C</button><button data-p="jn:pg-bizb">사업계획 B2B</button><button data-p="jn:pg-notes">연구노트</button><button data-p="jn:pg-axes">판독 현황</button><button data-p="jn:pg-mock2">목업</button><button data-p="jn:pg-refs">📖 참고문헌</button></nav>
       <div class="sec opane" id="s14box"><div class="h"><b id="s14t">📥 본점</b><span class="tag">선생님·원장=신청 · 본점=확인·피드백·제작·배급</span><span class="m" style="font-size:11px;color:var(--dim)" id="s14c">적재 전</span><span class="tag" style="margin-left:auto;cursor:pointer" onclick="hqLoad(1)">↻ 새로고침</span></div><div id="s14"><div class="sc-empty">탭을 열면 적재합니다.</div></div></div>
       <div class="sec opane" id="s15box"><div class="h"><b>📜 원장 원칙 표</b><span class="tag">원칙 1건 = 표 1행 · gz_rule_check가 이 표를 읽음</span><span class="m" style="font-size:11px;color:var(--dim)" id="s15c">적재 전</span><span class="tag" style="margin-left:auto;cursor:pointer" onclick="rlLoad(1)">↻ 새로고침</span></div><div id="s15"><div class="sc-empty">탭을 열면 적재합니다.</div></div></div>
+      <div class="sec opane" id="s16box"><div class="h"><b>✍ 발행 전 검수</b><span class="tag">블로그·홍보 원고 · 문체 v1.4 부속 게이트 · FAIL 0이면 통과</span><span class="tag">원칙 R-STYLE — 발행계획 번호를 넣으면 발행 체크가 이 결과를 읽음</span></div>
+        <div class="rl-two"><div><textarea id="stSrc" class="st-src" placeholder="블로그 HTML 또는 본문 텍스트를 붙여넣기"></textarea>
+          <div class="hq-act"><label style="font-size:12px">발행계획 번호 <input id="stBl" type="number" style="width:90px" placeholder="bl_id"></label><button type="button" class="btn" onclick="stRun(this)">검수 실행</button><span class="hq-meta" id="stMsg"></span></div>
+          <div class="rl-how"><b>기계 검사</b> FAIL: F-1 내부 코드 · F-3 CTA 부정문 · F-4 금칙어 · F-5 인사말 시작 · F-7 무노력 표현 · -요체 · 감탄부호 · 금지어 v1.1 / WARN: W-1·3·4·5·6·7·12·13·16<br><b>사람 확인</b> F-2 내부 「시험」 · F-6 유사 이미지 · W-9·10·11·14·15·17<br>대상: 마케팅방 블로그·홍보 원고만(교안·시험지·리포트 아님)</div></div>
+          <div id="stOut"><div class="sc-empty">원고를 넣고 「검수 실행」을 누르세요.</div></div></div></div>
       <div class="sec"><div class="h"><b>① 년간 계획표 — 학원 + 내 행</b><span class="tag">이행</span></div><div id="s1"></div></div>
       <div class="sec"><div class="h"><b>② 리추얼</b><span class="tag">체크</span><span class="m" id="s2c" style="font-size:11px;color:var(--dim)"></span></div><div id="s2"></div></div>
       <div class="sec"><div class="h"><b id="s3t">③ 이 달 목표</b><span class="tag">기여</span></div><div id="s3"></div></div><div class="sec" id="s8box"><div class="h"><b>④ 달력·발행판</b><span class="tag">원천 v_mkt_events 하나</span><span class="tag">체크 1회 = 리추얼 완료 + 발행 대장</span><span class="m" style="font-size:11px;color:var(--dim)" id="s8c">적재 중…</span></div><div class="mk-bar"><span class="zg" id="mkZoom"><button data-z="year" onclick="mkZoom('year')">연간</button><button data-z="month" onclick="mkZoom('month')">월</button><button data-z="week" onclick="mkZoom('week')">이 주</button></span><button onclick="mkNav(-1)">◀</button><span id="mkLbl"></span><button onclick="mkNav(1)">▶</button><button onclick="MK.anchor=null;loadMkt(1)">오늘</button><label><input type="checkbox" checked onchange="mkToggle('시험',this)"> 시험</label><label><input type="checkbox" checked onchange="mkToggle('플레이북',this)"> 플레이북</label><span class="up"><span id="mkSheetMsg">달력 xlsx(일정목록) → 발행 행 반영 · 「발행일」 열 우선</span><label class="mk-b2 o" style="cursor:pointer;color:var(--deep)">시트 반영<input type="file" accept=".xlsx" style="display:none" onchange="mkSheet(this)"></label></span></div><div id="s8"></div></div>
@@ -413,8 +425,8 @@ function scPick(key){
    +'<div class="cell"><b>솔루션 (담당 '+scEsc(r.teacher||'미지정')+' 선생님이 채움)</b><textarea id="scSol" placeholder="이 기간에 수업에서 무엇을 바꿨는지 2~3줄"></textarea></div>'
    +'<div class="cell"><b>학생 한마디 (선택)</b><textarea id="scVoice" placeholder="학생이 직접 한 말 — 글 인용 동의가 있어야 발행됩니다"></textarea></div>'
    +'<div class="ev">근거 숫자<br>'+same.map(x=>scEsc(x.kind+' '+x.v0+x.unit+' → '+x.v1+x.unit+' ('+scD(x.d0)+'~'+scD(x.d1)+', 기록 '+x.n+'건)')).join('<br>')+'</div>'
-   +'<div class="lock">🔒 발행 잠금 — 초상권·성과 공개·글 인용 동의가 기록되지 않았습니다. 초안 저장은 되고, 발행 체크는 막힙니다.</div>'
-   +'<div style="display:flex;gap:6px;margin-top:8px;align-items:center"><button type="button" class="btn" data-sid="'+scEsc(sid)+'" onclick="scSave(this)">초안 저장</button><button type="button" class="btn o" disabled>발행 체크</button><span class="m" id="scMsg" style="font-size:11px;color:var(--dim)"></span></div>';
+   +scConsentBox(r)
+   +'<div style="display:flex;gap:6px;margin-top:8px;align-items:center"><button type="button" class="btn" data-sid="'+scEsc(sid)+'" onclick="scSave(this)">초안 저장</button><button type="button" class="btn o" data-sid="'+scEsc(sid)+'" onclick="scPubCheck(this)">발행 체크 (R-CONSENT)</button><span class="m" id="scMsg" style="font-size:11px;color:var(--dim)"></span></div>';
 }
 async function scSave(btn){
   const sid=btn.dataset.sid, msg=document.getElementById('scMsg');
@@ -562,11 +574,32 @@ async function rlTest(){const code=document.getElementById('rlTr').value, raw=(d
   const j=await rpcJ('gz_rule_check_ui',{code:code,payload:p}); const R=document.getElementById('rlRes'); if(!j){R.innerHTML='<div class="rl-res no">실행 실패</div>';return;}
   R.innerHTML='<div class="rl-res '+(j.ok?'ok':'no')+'"><b>'+(j.ok?'통과':'거부')+'</b> · '+rlEsc(j.rule)+' · '+rlEsc(j.reason||j.note||'')+'<br><span class="hq-meta">규칙 원문: '+rlEsc(j.text||'')+'</span></div>'; if(!j.ok) rlLoad(1);}
 
+/* v0.63 동의 3종 (#6887 제안 2) · gz_consent_set · R-CONSENT */
+function scConsentBox(r){const ok=r.consent==='동의 완료';const o=v=>['','동의','거부'].map(x=>'<option value="'+x+'"'+((v||'')===x?' selected':'')+'>'+(x||'미기록')+'</option>').join('');
+  return '<div class="cell"><b>동의 3종 <span class="cs-bd '+(ok?'y':'n')+'">'+(ok?'발행 가능':'발행 잠금')+'</span></b><table class="cs-tb"><tr><th>종류</th><th>상태</th></tr>'
+   +'<tr><td>초상권 (사진·영상)</td><td><select id="csP">'+o(r.consent_portrait)+'</select></td></tr><tr><td>성과 공개 (점수·등급)</td><td><select id="csS">'+o(r.consent_score)+'</select></td></tr><tr><td>글 인용 (학생 한마디)</td><td><select id="csQ">'+o(r.consent_quote)+'</select></td></tr>'
+   +'<tr><td>동의일 · 보호자 · 근거</td><td><input type="date" id="csOn" value="'+scEsc(r.consent_on||'')+'"> <input id="csBy" placeholder="어머니" style="width:60px" value="'+scEsc(r.consent_by||'')+'"> <input id="csSrc" placeholder="서면·카톡·구두" style="width:90px" value="'+scEsc(r.consent_src||'')+'"></td></tr></table>'
+   +'<div style="margin-top:5px"><button type="button" class="btn o" data-sid="'+r.sid+'" onclick="scConsentSave(this)">동의 저장</button> <span class="hq-meta" id="csMsg"></span></div><div class="hq-meta">거부·미기록은 같은 뜻(발행 불가). 저장한 사람·시각이 기록됩니다.</div></div>';}
+async function scConsentSave(btn){const m=document.getElementById('csMsg');btn.disabled=true;m.textContent='저장 중…';
+  const j=await rpcJ('gz_consent_set',{student_id:+btn.dataset.sid,portrait:document.getElementById('csP').value,score:document.getElementById('csS').value,quote:document.getElementById('csQ').value,on:document.getElementById('csOn').value,by:document.getElementById('csBy').value,src:document.getElementById('csSrc').value});
+  btn.disabled=false;if(!j||!j.ok){m.textContent=(j&&j.reason)||'저장 실패';m.style.color='#A4472F';return;}m.textContent=j.all_ok?'저장됨 — 동의 3종 완료, 발행 가능':'저장됨 — 아직 발행 잠금';m.style.color='var(--deep)';const key=SC.sel;await scLoad(1);if(key)scPick(key);}
+async function scPubCheck(btn){const m=document.getElementById('scMsg');m.textContent='원칙 검사 중…';const j=await rpcJ('gz_rule_check_ui',{code:'R-CONSENT',payload:{student_ids:[+btn.dataset.sid]}});
+  if(!j){m.textContent='검사 실패';return;} m.textContent=(j.ok?'✔ 통과 — ':'🔒 거부 — ')+(j.reason||'');m.style.color=j.ok?'var(--deep)':'#A4472F';}
+/* v0.63 ✍ 발행 전 검수 · gz_style_check_ui · R-STYLE */
+async function stRun(btn){const t=document.getElementById('stSrc').value,bl=document.getElementById('stBl').value,m=document.getElementById('stMsg'),O=document.getElementById('stOut');
+  if(!t.trim()){m.textContent='원고를 넣어 주세요';return;} btn.disabled=true;m.textContent='검수 중…';
+  const j=await rpcJ('gz_style_check_ui',{text:t,bl_id:bl||''});btn.disabled=false;
+  if(!j||j.reason){m.textContent=(j&&j.reason)||'검수 실패';return;}
+  m.textContent='문장 '+j.sentences+' · 단락 '+j.paragraphs+(j.bl_id?' · 발행계획 #'+j.bl_id+(j.saved?' 기록됨':' 없음'):'');
+  const it=(x,c)=>'<div class="st-i '+c+'"><b>'+hqEsc(x.code)+(x.name?' '+hqEsc(x.name):'')+'</b> · '+hqEsc(x.n)+(x.at?'<span class="q">'+hqEsc(x.at)+'</span>':'')+'</div>';
+  O.innerHTML='<div class="st-v '+(j.ok?'ok':'no')+'"><b>'+(j.ok?'통과 — FAIL 0':'거부 — FAIL '+j.fail_n+'건')+'</b> · WARN '+j.warn_n+' · 사람 확인 '+(j.human||[]).length+'<br><span class="hq-meta">'+(j.ok?'발행 체크가 열립니다. WARN은 위치만 남깁니다.':'발행 체크가 잠깁니다(원칙 R-STYLE). FAIL을 고친 뒤 다시 검수하세요.')+'</span></div>'
+   +(j.fails||[]).map(x=>it(x,'f')).join('')+(j.warns||[]).map(x=>it(x,'w')).join('')+(j.human||[]).map(x=>'<div class="st-i h">'+hqEsc(x)+'</div>').join('');}
+
 function secOf(id){const e=document.getElementById(id);return e?e.closest('.sec'):null;}
 function oInit(){
   OP={p1:secOf('s1'),p2:secOf('s2'),p3:secOf('s3'),p4:document.getElementById('s8box'),
       p5:secOf('s4'),p6:secOf('s5'),p7:document.getElementById('s5b'),p8:secOf('s6'),
-      p9:document.getElementById('s7box'),p10:document.getElementById('s9box'),p11:document.getElementById('s11box'),p12:document.getElementById('s12box'),p13:document.getElementById('s13box'),p14:document.getElementById('s14box'),p15:document.getElementById('s15box')};
+      p9:document.getElementById('s7box'),p10:document.getElementById('s9box'),p11:document.getElementById('s11box'),p12:document.getElementById('s12box'),p13:document.getElementById('s13box'),p14:document.getElementById('s14box'),p15:document.getElementById('s15box'),p16:document.getElementById('s16box')};
   Object.values(OP).forEach(e=>{if(e){e.classList.add('opane');e.classList.remove('on');e.style.display='';}});
   if(typeof ROLE2!=='undefined'&&ROLE2==='teacher'){const b9=document.querySelector('#otabs button[data-p="p9"]');if(b9)b9.style.display='none';}
   document.querySelectorAll('#otabs button').forEach(b=>{b.onclick=()=>oTab(b.dataset.p);});
