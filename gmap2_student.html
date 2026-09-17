@@ -463,6 +463,14 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
         <div id="gzReqNoti" style="margin-top:6px"></div>
         <p class="wire">lectures.published_at 최근 7일 · gz_flows(requester_sid) · notifications(student) — 본점 승인·반영 시 자동 갱신</p>
       </div>
+      <div class="card" style="margin-top:12px" id="gzShelfCard"><!-- [2026-09-18 내 책장] 선생님 지정·추천 도서 + 내가 담은 책 · 상태/쪽 기록/느낀 점 · gz2_book_shelf / gz2_book_save (sid+k) -->
+        <h3>📚 내 책장<span class="sub">선생님이 고른 책 · 추천 책 · 내가 담은 책</span></h3>
+        <div id="gzShelfTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px"></div>
+        <div id="gzShelfList"><p class="mini">불러오는 중…</p></div>
+        <div id="gzShelfPanel" style="margin-top:10px"></div>
+        <p style="margin-top:8px"><a id="gzBrowseLink" href="#" target="_blank" style="color:var(--plan);font-size:15.6px">전체 강좌·도서 둘러보기 ↗</a></p>
+        <p class="wire">book_catalog · student_book_log(상태·쪽) · student_book_entry(쪽 기록·느낀 점) — 확인 문제는 작품 DB 문항이 있는 책만</p>
+      </div>
       <div class="card" style="margin-top:12px">
         <h3>내 정보 — 어디로 가는가<span class="sub">진로·희망 (1.5 승계 — 시험 목표와 이어짐)</span></h3>
         <div id="gzCareer"><p class="mini">불러오는 중…</p></div>
@@ -1768,6 +1776,86 @@ gzLoadFill();
     rpc('gz_stu_req_submit',{p_sid:SID,p_k:KK,p:{kind:document.getElementById('gzReqKind').value,subject:subj,need_by:document.getElementById('gzReqNeed').value||''}}).then(function(j){ b.disabled=false;
       if(j&&j.ok){m.textContent='신청됐어요 — 본점이 확인하면 여기에 답이 와요';document.getElementById('gzReqSubj').value='';gzReqLoad();} else m.textContent=(j&&j.reason)||'신청 실패'; }).catch(function(){b.disabled=false;m.textContent='신청 실패';}); };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',gzReqLoad); else gzReqLoad();
+})();
+</script>
+<script>/* [2026-09-18 내 책장] 학생 독서 기록 — 상태 · 오늘 읽은 쪽 · 느낀 점. 쓰기는 gz2_book_save 하나(sid+k 검증) */
+(function(){
+  var qs=(location.search||'')+'&'+(window.__DESK_Q||'');
+  var SID=+((qs.match(/sid=(\d+)/)||[])[1]||0), KK=(qs.match(/k=([a-f0-9]{32})/)||[])[1]||'';
+  if(!SID||!KK)return;
+  var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/', PK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
+  function rpc(fn,body){return fetch(B+fn,{method:'POST',headers:{'apikey':PK,'Authorization':'Bearer '+PK,'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();});}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  var ST={suggest:'추천',todo:'읽을 예정',reading:'읽는 중',done:'다 읽음'};
+  var OR={teacher:'선생님 지정',reco:'추천',self:'내가 담음'};
+  var TABS=[['all','전체'],['teacher','선생님 지정'],['reading','읽는 중'],['done','다 읽음']];
+  var S={items:[],tab:'all',sel:null};
+  var bl=document.getElementById('gzBrowseLink');
+  if(bl)bl.href='https://myunsukim-cell.github.io/Gzone/sugang.html?mode=student&sid='+SID+'&k='+KK;
+  function chip(on){return 'font:inherit;font-size:14px;padding:2px 11px;border-radius:999px;cursor:pointer;border:1px solid '+(on?'var(--plan)':'var(--line)')+';background:'+(on?'var(--plan)':'#fff')+';color:'+(on?'#fff':'var(--ink)');}
+  function badge(st){var c={suggest:['var(--plan-bg)','var(--plan)'],todo:['#f1efe8','#5f5e5a'],reading:['var(--pt-bg)','var(--pt)'],done:['var(--ok-bg)','var(--ok)']}[st]||['#f1efe8','#5f5e5a'];
+    return 'font-size:12.5px;padding:1px 8px;border-radius:999px;background:'+c[0]+';color:'+c[1]+';white-space:nowrap';}
+  function list(){
+    document.getElementById('gzShelfTabs').innerHTML=TABS.map(function(t){return '<button style="'+chip(S.tab===t[0])+'" onclick="gzShelfTab(\''+t[0]+'\')">'+t[1]+'</button>';}).join('');
+    var L=S.items.filter(function(b){return S.tab==='all'||(S.tab==='teacher'&&b.origin==='teacher')||b.status===S.tab;});
+    document.getElementById('gzShelfList').innerHTML=L.length?L.map(function(b){
+      var pg=b.total_pages?(' '+b.pages_read+'/'+b.total_pages+'쪽'):(b.pages_read?' '+b.pages_read+'쪽까지':'');
+      return '<div onclick="gzShelfSel('+b.book_id+')" style="cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:8px 10px;margin-bottom:6px;border-radius:8px;background:#fff;border:'+(S.sel===b.book_id?'2px solid var(--plan)':'1px solid var(--line)')+'">'
+        +'<span style="font-size:16px">'+esc(b.title)+(b.author?' · '+esc(b.author):'')+'</span><span style="'+badge(b.status)+'">'+ST[b.status]+pg+'</span>'
+        +'<span class="mini">'+esc(b.why)+' · '+OR[b.origin]+(b.reflected?' · 느낀 점 ✓':'')+'</span></div>';}).join('')
+      :'<p class="mini">'+(S.tab==='all'?'아직 책이 없어요. 아래 「전체 강좌·도서 둘러보기」에서 담을 수 있어요.':'이 칸에 해당하는 책이 없어요.')+'</p>';
+    panel();
+  }
+  function panel(){
+    var box=document.getElementById('gzShelfPanel'), b=S.items.filter(function(x){return x.book_id===S.sel;})[0];
+    if(!b){box.innerHTML='';return;}
+    var nx=b.pages_read?b.pages_read+1:1;
+    var h='<div style="border-top:1px dashed var(--line);padding-top:10px">'
+     +'<div style="font-size:16.5px;font-weight:700">'+esc(b.title)+'</div>'
+     +(b.activity?'<div class="mini" style="margin:2px 0 6px;border-left:3px solid var(--pt);padding-left:8px">탐구 과제: '+esc(b.activity)+'</div>':'')
+     +'<div style="margin:8px 0 4px"><b style="font-size:15px">① 상태</b> '
+     +['todo','reading','done'].map(function(s){return '<button style="'+chip(b.status===s)+'" onclick="gzShelfSave(\'status\',{status:\''+s+'\'},this)">'+ST[s]+'</button>';}).join(' ')
+     +' <span class="mini">전체</span> <input id="gzShTot" type="number" min="1" max="3000" value="'+(b.total_pages||'')+'" style="width:72px;font:inherit;font-size:14px;padding:1px 4px"> <span class="mini">쪽</span> <button class="btn sm" onclick="gzShelfTot(this)">저장</button></div>'
+     +'<div style="margin:10px 0 4px"><b style="font-size:15px">② 오늘 읽은 쪽 · 한 줄 정리</b></div>'
+     +'<div><input id="gzShFrom" type="number" min="1" value="'+nx+'" style="width:72px;font:inherit;font-size:14px;padding:1px 4px"> ~ <input id="gzShTo" type="number" min="1" style="width:72px;font:inherit;font-size:14px;padding:1px 4px"> 쪽</div>'
+     +'<div style="display:flex;gap:6px;margin-top:4px"><input id="gzShNote" maxlength="300" placeholder="이 부분에서 기억할 한 문장" style="flex:1;font:inherit;font-size:14px;padding:3px 7px"><button class="btn sm" onclick="gzShelfPages(this)">기록</button></div>'
+     +'<div style="margin:12px 0 4px"><b style="font-size:15px">③ 다 읽고 느낀 점</b> <span class="mini">20자 이상 · 선생님이 읽습니다</span></div>'
+     +'<textarea id="gzShRefl" rows="4" maxlength="4000" style="width:100%;font:inherit;font-size:14px;padding:6px 8px;box-sizing:border-box" placeholder="무엇을 새로 알게 되었는지, 내 생각은 어떻게 달라졌는지"></textarea>'
+     +'<div style="text-align:right;margin-top:4px"><button class="btn sm" onclick="gzShelfRefl(this)">느낀 점 올리기</button></div>'
+     +'<div style="margin:12px 0 4px"><b style="font-size:15px">④ 정독 확인 문제</b> '+(b.has_quiz?'<span class="mini">이 책은 작품 DB에 문항이 있어요 — 선생님이 수업에서 확인 문제로 냅니다</span>':'<span class="mini">본문 데이터가 없는 책이라 확인 문제 대신 ②·③ 기록으로 확인합니다</span>')+'</div>'
+     +'<div id="gzShMsg" class="mini" style="margin-top:6px;color:var(--redpen)"></div>';
+    var ent=b.entries||[];
+    if(ent.length)h+='<div style="margin-top:8px"><div class="mini">최근 기록</div>'+ent.map(function(e){return '<div class="mini" style="padding:3px 0;border-top:1px dashed var(--line)">'+esc(String(e.date||'').slice(5))+' · '+(e.kind==='pages'?(e.from+'~'+e.to+'쪽'+(e.body?' — '+esc(e.body):'')):('느낀 점 — '+esc(String(e.body||'').slice(0,80))+(String(e.body||'').length>80?'…':'')))+'</div>';}).join('')+'</div>';
+    if(b.status==='suggest'||b.origin==='self')h+='<div style="margin-top:8px;text-align:right">'+(b.status==='suggest'?'<button class="btn sm" onclick="gzShelfSave(\'status\',{status:\'todo\'},this)">내 책장에 담기</button>':'<button class="btn sm ghost" onclick="gzShelfSave(\'remove\',{},this)">책장에서 빼기</button>')+'</div>';
+    box.innerHTML=h+'</div>';
+  }
+  function msg(t,ok){var m=document.getElementById('gzShMsg');if(m){m.textContent=t;m.style.color=ok?'var(--ok)':'var(--redpen)';}}
+  function load(keep){
+    return rpc('gz2_book_shelf',{p_sid:SID,p_k:KK}).then(function(j){
+      if(!j||!j.ok){document.getElementById('gzShelfList').innerHTML='<p class="mini">책장을 불러오지 못했어요'+(j&&j.reason?' — '+esc(j.reason):'')+'</p>';return;}
+      S.items=j.items||[]; if(!keep||!S.items.some(function(x){return x.book_id===S.sel;}))S.sel=null; list();
+    }).catch(function(){document.getElementById('gzShelfList').innerHTML='<p class="mini">책장을 불러오지 못했어요</p>';});
+  }
+  function save(kind,extra,btn,okText){
+    if(!S.sel)return; var body={kind:kind,book_id:S.sel}; for(var k in extra)body[k]=extra[k];
+    if(btn)btn.disabled=true; msg('저장 중…',true);
+    return rpc('gz2_book_save',{p_sid:SID,p_k:KK,p:body}).then(function(j){
+      if(btn)btn.disabled=false;
+      if(!j||!j.ok){msg((j&&(j.reason||j.message))||'저장하지 못했어요');return false;}
+      return load(kind!=='remove').then(function(){msg(okText||'저장했어요',true);return true;});
+    }).catch(function(){if(btn)btn.disabled=false;msg('저장하지 못했어요');});
+  }
+  window.gzShelfTab=function(t){S.tab=t;list();};
+  window.gzShelfSel=function(id){S.sel=(S.sel===id?null:id);list();};
+  window.gzShelfSave=function(kind,extra,btn){save(kind,extra,btn,kind==='remove'?'책장에서 뺐어요':'저장했어요');};
+  window.gzShelfTot=function(btn){var v=+document.getElementById('gzShTot').value;if(!(v>=1&&v<=3000)){msg('전체 쪽수는 1~3000으로 적어 주세요');return;}save('status',{total_pages:v},btn);};
+  window.gzShelfPages=function(btn){var f=+document.getElementById('gzShFrom').value,t=+document.getElementById('gzShTo').value;
+    if(!(f>=1)||!(t>=f)){msg('읽은 쪽을 「시작 ~ 끝」으로 적어 주세요');return;}
+    save('pages',{from:f,to:t,note:document.getElementById('gzShNote').value||''},btn,'오늘 읽은 쪽을 기록했어요');};
+  window.gzShelfRefl=function(btn){var v=(document.getElementById('gzShRefl').value||'').trim();
+    if(v.length<20){msg('느낀 점을 20자 이상 적어 주세요');return;}
+    save('reflection',{body:v},btn,'느낀 점을 올렸어요');};
+  load(false);
 })();
 </script>
 </body>
