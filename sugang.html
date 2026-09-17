@@ -436,6 +436,9 @@ const GZP=new URLSearchParams(location.search);
 const GZ_MODE=(GZP.get('mode')||'public').toLowerCase();
 const GZ_SID=GZP.get('student_id')?Number(GZP.get('student_id')):null;
 const GZ_CANWRITE=(GZ_MODE==='admin');
+/* 2026-09-18 학생 모드 — 학생 페이지에서 여는 읽기 전용 둘러보기(sid+k 검증). 배정은 교사만, 학생은 「신청」·「책장에 담기」 */
+const GZ_STU_SID=(GZ_MODE==='student')?Number(GZP.get('sid')||0):0, GZ_STU_K=(GZ_MODE==='student')?String(GZP.get('k')||''):'';
+let GZ_STUMODE=false;
 /* GZX 2026-07-23 2단계 교사 배정층 — 적재축 students.course_codes 승계 (#1924 진단·#1925 next), postMessage 통지 */
 const GZ_CANASSIGN=(GZ_MODE==='teacher'&&!!GZ_SID);
 let GZ_STU=null, GZ_CODES=new Set();
@@ -448,7 +451,8 @@ async function gzLoadStu(){ if(!GZ_CANASSIGN)return;
     var t=document.getElementById('gzModeBadge'); if(t)t.textContent='교사 모드 · '+data.name+(data.school?(' ('+data.school+' '+(data.grade||'')+')'):'');
     if(typeof doRender==='function' && !(GZ_RECO&&!GZ_BROWSE))doRender();
   }catch(e){}}
-function gzAssignBtn(id){ if(!GZ_CANASSIGN)return'';
+function gzAssignBtn(id){ if(GZ_STUMODE)return '<button class="gz-assign" onclick="event.stopPropagation();gzStuReq('+id+',this)" style="margin-left:10px;border:1px solid #2b5d8a;border-radius:8px;padding:5px 11px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;color:#2b5d8a;background:#fff">수강 신청</button>';
+  if(!GZ_CANASSIGN)return'';
   var on=GZ_CODES.has(String(id));
   return '<button class="gz-assign" onclick="event.stopPropagation();gzToggleAssign('+id+',this)" style="margin-left:10px;border:none;border-radius:8px;padding:6px 12px;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap;color:#fff;background:'+(on?'#1E4D3B':'#B8892E')+'">'+(on?'✓ 배정됨':'＋ '+(GZ_STU?GZ_STU.name+'에게 ':'')+'배정')+'</button>';}
 async function gzToggleAssign(id,btn){ if(!GZ_CANASSIGN)return;
@@ -909,7 +913,7 @@ async function bkList(){
     const esc=x=>String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;');
     const its=r.data.items||[];
     document.getElementById('resCount').innerHTML=`도서 <strong>${r.data.total}</strong>권${r.data.total>its.length?' · 앞 '+its.length+'권 표시':''}`;
-    box.innerHTML=its.length?its.map(b=>`<div class="bk-row"><span class="t">${esc(b.title)}${b.author?' · '+esc(b.author):''}${b.pick?'<span class="bk-pick">ONE PICK</span>':''}</span><span class="src">${esc(b.list)}</span><span class="why">${esc(b.why)}</span>${b.activity?`<span class="act">탐구: ${esc(b.activity)}</span>`:''}</div>`).join('')
+    box.innerHTML=its.length?its.map(b=>`<div class="bk-row"><span class="t">${esc(b.title)}${b.author?' · '+esc(b.author):''}${b.pick?'<span class="bk-pick">ONE PICK</span>':''}</span><span class="src">${esc(b.list)}${GZ_STUMODE?` <button onclick="gzStuShelf(${b.id},this)" style="margin-left:6px;border:1px solid #2b5d8a;border-radius:8px;padding:2px 9px;font-size:11.5px;cursor:pointer;color:#2b5d8a;background:#fff">책장에 담기</button>`:''}</span><span class="why">${esc(b.why)}</span>${b.activity?`<span class="act">탐구: ${esc(b.activity)}</span>`:''}</div>`).join('')
       :'<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">이 칸에 해당하는 도서가 없습니다</div></div>';
   }catch(e){ if(my===BK.seq&&cur==='책읽기') box.innerHTML='<div class="empty-state"><div class="empty-icon">⚠</div><div class="empty-title">도서 조회 실패 — '+String(e.message||e).replace(/</g,'&lt;')+'</div></div>'; }
 }
@@ -948,6 +952,29 @@ async function rcFocus(v,btn){
     const y=window.scrollY; renderReco(); window.scrollTo(0,y);
     showToast(nx.length?'선생님 지정 도서 저장':'지정 해제 — 자동 추정으로 복귀');
   }catch(e){ if(msg)msg.textContent='저장 실패 — '+(e.message||e); if(btn)btn.disabled=false; }
+}
+/* 2026-09-18 학생 모드 동작 */
+function gzLecTitle(id){const all=[].concat(typeof SUN!=='undefined'?SUN:[],typeof NAE!=='undefined'?NAE:[],typeof DSG!=='undefined'?DSG:[]);const l=all.find(x=>x.id===id);return l?l.t:('강좌 '+id);}
+async function gzStuReq(id,btn){
+  if(!GZ_STUMODE)return; btn.disabled=true;
+  try{const r=await sb.rpc('gz_stu_req_submit',{p_sid:GZ_STU_SID,p_k:GZ_STU_K,p:{kind:'강좌',subject:'수강 신청: '+gzLecTitle(id)+' (#'+id+')',detail:'수강신청 둘러보기에서 신청'}});
+    if(r.error)throw r.error; if(!r.data||!r.data.ok)throw new Error((r.data&&r.data.reason)||'신청 거부');
+    btn.textContent='신청됨 ✓'; showToast('신청했어요 — 선생님이 확인하면 배정됩니다');
+  }catch(e){btn.disabled=false; showToast('신청 실패 — '+(e.message||e),'error');}
+}
+async function gzStuShelf(bookId,btn){
+  if(!GZ_STUMODE)return; btn.disabled=true;
+  try{const r=await sb.rpc('gz2_book_save',{p_sid:GZ_STU_SID,p_k:GZ_STU_K,p:{kind:'status',book_id:bookId,status:'todo',origin:'self'}});
+    if(r.error)throw r.error; if(!r.data||!r.data.ok)throw new Error((r.data&&r.data.reason)||'저장 거부');
+    btn.textContent='담음 ✓'; showToast('내 책장에 담았어요 — 학생 페이지에서 기록하세요');
+  }catch(e){btn.disabled=false; showToast('담기 실패 — '+(e.message||e),'error');}
+}
+async function gzStuInit(){
+  if(GZ_MODE!=='student')return;
+  const bd=document.getElementById('gzModeBadge');
+  try{const r=await sb.rpc('gz2_entry_check',{p_sid:GZ_STU_SID,p_k:GZ_STU_K}); GZ_STUMODE=(r.data===true);}catch(e){GZ_STUMODE=false;}
+  if(bd)bd.textContent=GZ_STUMODE?'학생 둘러보기 · 배정은 선생님이 합니다 — 필요한 강좌는 「수강 신청」':'학생 링크가 맞지 않습니다 — 학생 페이지의 링크로 다시 여세요';
+  if(typeof doRender==='function')doRender();
 }
 function renderReco(){
   ['row-l1','row-l2','row-l3','row-l4'].forEach(id=>{const e=document.getElementById(id); if(e&&!e.classList.contains('hidden')){e.classList.add('hidden');e.dataset.gzhid='1';}});
@@ -989,10 +1016,21 @@ function renderReco(){
     <div class="rc-box"><h4>왜 이 추천인가</h4><ul><li><b>시험범위</b> ${(ev.scope||[]).length}단원</li>${scopeLi}
       <li style="margin-top:6px"><b>모의고사</b> ${ev.last_mock?esc(ev.last_mock.date)+' '+esc(ev.last_mock.score)+'점':'응시 기록 없음'}</li>
       <li><b>오답 노트</b> ${ev.wrong_n?ev.wrong_n+'건 미극복':'기록 없음'}</li>${ev.kmd!=null?'<li><b>입학진단</b> '+esc(ev.kmd)+'점</li>':''}</ul></div>
+    <div class="rc-box"><h4>학생 책장</h4><div id="rcShelf"><p class="rc-empty">불러오는 중…</p></div></div>
     <div class="rc-box"><h4>학습 이력 (영역)</h4><ul>${learnHtml}</ul></div>
     <div class="rc-box"><h4>다음 시기에 바뀌는 것</h4><ul>${nextLi||'<li>—</li>'}</ul></div>
   </aside></div></div>`;
-  rcLoadQ();
+  rcLoadQ(); rcLoadShelf();
+}
+async function rcLoadShelf(){const box=document.getElementById('rcShelf');if(!box||!GZ_SID)return;
+  const esc=x=>String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  try{const r=await sb.rpc('gz_book_shelf_staff',{p_sid:GZ_SID});const its=(r.data&&r.data.items)||[];
+    if(r.error)throw r.error;
+    const L={todo:'읽을 예정',reading:'읽는 중',done:'다 읽음'};
+    box.innerHTML=its.length?'<ul>'+its.slice(0,8).map(i=>{const refl=(i.entries||[]).find(e=>e.kind==='reflection');
+      return `<li style="padding:4px 0;border-top:1px dashed #d8d4c8"><b>${esc(i.title)}</b><br><small>${L[i.status]||i.status}${i.total_pages?' · '+i.pages_read+'/'+i.total_pages+'쪽':(i.pages_read?' · '+i.pages_read+'쪽까지':'')}${i.origin==='teacher'?' · 선생님 지정':''}</small>${refl?`<div style="font-size:12px;color:#6b675e;margin-top:2px">느낀 점: ${esc(String(refl.body).slice(0,120))}${String(refl.body).length>120?'…':''}</div>`:''}</li>`;}).join('')+'</ul>'
+      :'<p class="rc-empty">학생이 아직 책장에 기록한 책이 없습니다</p>';
+  }catch(e){box.innerHTML='<p class="rc-empty">책장 조회 실패</p>';}
 }
 async function rcLoadQ(){const box=document.getElementById('rcQ');if(!box)return;try{const r=await sb.rpc('gz_reco_open_policy',{p_sid:GZ_SID});const ro=r.data;if(r.error||!ro||!ro.ok){box.innerHTML='<p class="rc-empty">'+((ro&&ro.reason)||'문항 없음')+'</p>';return;}
   const esc=x=>String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;');const REL=[['◎',3,'#1E4D3B'],['○',2,'#2b6cb0'],['△',1,'#b7791f'],['×',0,'#9b2c2c']];const g={};(ro.rows||[]).forEach(x=>{(g[x.group||'기타']=g[x.group||'기타']||[]).push(x);});
@@ -1026,6 +1064,7 @@ function doRender(){ if(GZ_SID&&GZ_RECO&&!GZ_BROWSE){renderReco();return;}
   }else if(cur==='책읽기'){
     f=DSG.filter(l=>{if(l.l1!=='책읽기')return false;if(sDsgL2&&l.l2!==sDsgL2)return false;if(q&&!l.t.toLowerCase().includes(q))return false;return true});
   }
+  if(GZ_STUMODE)f=f.filter(l=>l.p);
   document.getElementById('resCount').innerHTML=`검색 결과 <strong>${f.length}</strong>건`;
   if(GZ_SID&&GZ_RECO&&GZ_BROWSE)document.getElementById('resCount').innerHTML+=' <button onclick="gzRecoToggle(false)" style="margin-left:10px;font-size:11px;padding:3px 9px;border:1px solid #B8892E;color:#B8892E;border-radius:8px;background:#fff;cursor:pointer">🧭 맞춤 추천으로</button>';
   if(!f.length){document.getElementById('list').innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">'+(cur==='독서글쓰기'?'독서글쓰기 준비중':'강의가 없습니다')+'</div></div>';return}
@@ -1340,6 +1379,7 @@ render();
        'background:#f1f3f5;color:#666;border:1px solid #ddd');
     t.textContent=GZ_MODE==='admin'?'관리 모드 · 등록/수정 가능':(GZ_MODE==='teacher'?('교사 모드'+(GZ_SID?' · 학생 #'+GZ_SID:'')):'열람 전용');
     h.appendChild(t);}
+  if(GZ_MODE==='student')gzStuInit();
 })();
 </script>
 </body>
