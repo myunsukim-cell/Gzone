@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><!-- 2.0 학생 페이지 · 보안 교체 gz_read→gz2_student_read 2026-09-05 #5911 결재① -->
+
+<!-- gzx-f158-student-page · 국존 학생 페이지 결선본 -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>국존 학습</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;900&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap');
+:root{
+  --ink:#22303e; --paper:#f6f5f1; --card:#fff; --line:#dedbd2;
+  --redpen:#c0392f; --redpen-bg:#fdf1ef; --hl:#ffe86b;
+  --dim:#7d8590; --ok:#3f7d5a; --ok-bg:#eef5f0; --pt:#b8892e; --pt-bg:#fbf5e9;
+  --plan:#2b5d8a; --plan-bg:#eef4f9; --wire:#9aa3ad; --up:#1d7a4f;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'IBM Plex Sans KR',sans-serif;background:var(--paper);color:var(--ink);font-size:18.1px;line-height:1.6}
+.serif{font-family:'Noto Serif KR',serif}
+.review-band{background:var(--ink);color:#e8e4da;font-size:15.6px;padding:9px 20px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.review-band b{color:var(--hl)}
+.review-band .tag{border:1px solid #4a5666;border-radius:3px;padding:1px 8px;color:#b8c0cb}
+
+header.id{background:var(--card);border-bottom:1px solid var(--line);padding:16px 26px}
+.id-top{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.id-top h1{font-family:'Noto Serif KR',serif;font-size:25px;font-weight:900}
+.id-top .who{font-size:17.5px;color:var(--dim)}
+.id-top .clock{margin-left:auto;font-size:16.2px;color:var(--dim)}
+.strip{display:flex;gap:24px;margin-top:12px;flex-wrap:wrap;font-size:16.2px;color:var(--dim)}
+.strip b{color:var(--ink);font-size:18.8px}
+.strip .upv{color:var(--up);font-weight:700}
+
+.frame{max-width:1280px;margin:0 auto;padding:20px 24px 80px}
+
+/* 여정 대구간 */
+.phase{margin-bottom:30px}
+.phase-cap{display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:14px}
+.phase-cap .pn{font-family:'Noto Serif KR',serif;font-weight:900;font-size:16.2px;background:var(--ink);color:#fff;border-radius:4px;padding:1px 9px}
+.phase-cap h2{font-family:'Noto Serif KR',serif;font-size:21.2px;font-weight:900}
+.phase-cap .jz{margin-left:auto;font-size:13.8px;color:var(--dim)}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.axcap{font-size:13.8px;color:var(--dim);letter-spacing:.08em;margin-bottom:6px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:15px 17px;margin-bottom:12px}
+.card h3{font-family:'Noto Serif KR',serif;font-size:18.1px;font-weight:900;margin-bottom:8px}
+.card h3 .sub{font-family:'IBM Plex Sans KR';font-weight:400;font-size:14.4px;color:var(--dim);margin-left:6px}
+.wire{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;color:var(--wire);margin-top:8px;border-top:1px dashed var(--line);padding-top:5px}
+.wire::before{content:"결선 · "}
+.frompen{border-left:3px solid var(--redpen);background:var(--redpen-bg);border-radius:0 8px 8px 0;padding:9px 12px}
+.pen-label{display:inline-block;font-size:13.1px;color:var(--redpen);border:1px solid var(--redpen);border-radius:3px;padding:0 6px;margin-bottom:4px;background:#fff}
+.u-red{border-bottom:2px dashed var(--redpen)}
+.btn{display:inline-block;border:1.5px solid var(--ink);background:var(--card);border-radius:7px;padding:5px 13px;font-size:16.2px;font-weight:700;cursor:pointer}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.ghost{border-color:var(--line);color:var(--dim);font-weight:500}
+.btn.sm{padding:2px 9px;font-size:15px}
+.chip{display:inline-block;font-size:14.4px;border:1px solid var(--line);border-radius:20px;padding:1px 10px;background:#fff;color:var(--dim)}
+.chip.ok{border-color:var(--ok);color:var(--ok);background:var(--ok-bg)}
+.chip.pt{border-color:var(--pt);color:var(--pt);background:var(--pt-bg)}
+.chip.todo{border-color:var(--redpen);color:var(--redpen);background:var(--redpen-bg)}
+.chip.plan{border-color:var(--plan);color:var(--plan);background:var(--plan-bg)}
+.chip.re{border-color:var(--redpen);color:#fff;background:var(--redpen)}
+table.tb{width:100%;border-collapse:collapse;font-size:16.2px}
+table.tb th{font-weight:500;color:var(--dim);text-align:left;border-bottom:1.5px solid var(--ink);padding:5px 7px;font-size:15px}
+table.tb td{border-bottom:1px solid var(--line);padding:6px 7px}
+.me{font-weight:700}
+.mini{font-size:14.4px;color:var(--dim)}
+.auto-tag{display:inline-block;font-size:13.1px;background:#eef1f4;border-radius:3px;padding:0 6px;color:#5a6b7c;margin:1px 2px 1px 0}
+.wongoji{background:repeating-linear-gradient(90deg,#fff 0 24px,#f1efe8 24px 25px);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:16.2px;min-height:40px}
+.wongoji .ph{color:#b2ac9e}
+
+/* 오늘 */
+.one{font-family:'Noto Serif KR',serif;font-size:25px;font-weight:900;line-height:1.4;margin:2px 0 8px}
+.one mark{background:linear-gradient(transparent 55%, var(--hl) 55%);padding:0 2px}
+.q-row{display:flex;gap:12px;align-items:center;padding:8px 2px;border-bottom:1px solid var(--line);font-size:16.9px}
+.q-row:last-child{border-bottom:0}
+.q-row .t{width:46px;color:var(--dim);font-size:15px}
+.q-row .what{flex:1}
+.q-row.next{background:linear-gradient(transparent 62%, var(--hl) 62%)}
+
+/* 플레이어 */
+.sync{display:grid;grid-template-columns:1.1fr 1fr;gap:10px}
+.screen{background:#141a21;border-radius:9px;aspect-ratio:16/9;position:relative;color:#8b97a5;display:flex;align-items:center;justify-content:center;font-size:15px}
+.screen .playbtn{position:absolute;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--ink)}
+.seek{position:absolute;left:12px;right:12px;bottom:10px;height:4px;background:#3a4552;border-radius:3px}
+.seek i{position:absolute;top:-3px;width:10px;height:10px;border-radius:50%;background:var(--hl);border:2px solid #141a21}
+.gyoan{border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:15.6px;background:#fff}
+.gyoan .sec{padding:5px 7px;border-radius:5px;margin-bottom:3px}
+.gyoan .sec.nowseg{background:var(--hl)}
+.gyoan .frogmark{background:#ffe1de;border-bottom:2px solid var(--redpen)}
+.checkq{margin-top:9px;border:1.5px solid var(--ink);border-radius:9px;padding:11px 13px;background:#fffdf4}
+.checkq .cap{font-size:13.8px;letter-spacing:.1em;color:var(--dim);margin-bottom:4px}
+.checkq .opt{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:3px 11px;margin:3px 4px 0 0;font-size:15.6px;background:#fff;cursor:pointer}
+
+/* ── 학습 통장 (주차 격자 — 회차별 격자 이력 A형 승계) ── */
+.bank{background:var(--card);border:1.5px solid var(--ink);border-radius:12px;overflow:hidden}
+.bank .bhead,.bank .brow{display:grid;grid-template-columns:86px 1fr 130px 120px 130px 90px}
+.bank .bhead div{font-size:13.8px;font-weight:700;color:var(--dim);padding:8px 10px;background:#f2f0ea;border-bottom:1px solid var(--line);border-right:1px solid #eceade}
+.bank .brow{border-bottom:1px solid #f0ede4;cursor:pointer}
+.bank .brow:hover{background:#fbfaf5}
+.bank .brow div{padding:9px 10px;border-right:1px solid #f4f1e8;font-size:15.6px;min-width:0}
+.bank .wk{font-weight:900;font-family:'Noto Serif KR',serif;font-size:15.6px}
+.bank .wk .sub{display:block;font-size:12.5px;color:var(--dim);font-weight:400}
+.bank .dots span{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--ink);margin-right:4px}
+.bank .brow.now{background:linear-gradient(90deg,#fffbe3,transparent 60%)}
+.bank .more{padding:9px;text-align:center;font-size:15.6px;color:var(--plan)}
+
+/* 간트 (진도 진행 일정표 승계) */
+.gantt{position:relative;border:1px solid var(--line);border-radius:9px;padding:10px 10px 6px;background:#fff}
+.gmonths{display:grid;grid-template-columns:repeat(6,1fr);font-size:13.1px;color:var(--dim);border-bottom:1px solid var(--line);padding-bottom:4px;margin-bottom:8px}
+.gbar{position:relative;height:22px;margin-bottom:7px}
+.gbar .lab{position:absolute;left:0;top:2px;font-size:13.8px;color:var(--dim);width:88px}
+.gbar .seg{position:absolute;top:2px;height:16px;border-radius:8px;background:#dfe6ec;font-size:12.5px;color:#3c4a58;padding:0 8px;line-height:16px;white-space:nowrap;overflow:hidden}
+.gbar .seg.done{background:var(--ink);color:#fff}
+.gbar .seg.planb{background:var(--plan-bg);border:1px dashed var(--plan);color:var(--plan)}
+.gdots{position:relative;height:14px;margin-left:88px}
+.gdots i{position:absolute;top:3px;width:7px;height:7px;border-radius:50%;background:var(--ink)}
+.gexam{position:absolute;top:6px;bottom:6px;width:0;border-left:2px dashed var(--redpen)}
+.gexam b{position:absolute;top:-4px;left:4px;font-size:12.5px;color:var(--redpen);white-space:nowrap}
+
+.trend{display:flex;gap:8px;align-items:flex-end;height:80px;padding:4px 2px 0}
+.trend .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.trend .colbar{width:68%;background:#c8cfd6;border-radius:4px 4px 0 0}
+.trend .col.naesin .colbar{background:var(--ink)}
+.trend .col .v{font-size:13.1px;color:var(--dim)}
+.upbig{font-size:23.8px;font-weight:900;color:var(--up);font-family:'Noto Serif KR',serif}
+.bar{height:8px;background:#edf0f2;border-radius:5px;overflow:hidden;margin:2px 0 6px}
+.bar i{display:block;height:100%;background:var(--ink);border-radius:5px}
+.bar.avg i{background:#b9c2cb}
+.zones2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.zone{border:1px solid var(--line);border-radius:9px;padding:11px 12px;background:#fff}
+.zone h4{font-family:'Noto Serif KR',serif;font-size:16.2px;font-weight:900}
+.zone .zq{font-size:13.1px;color:var(--dim);margin-bottom:6px}
+.newlec{border:1.5px solid var(--plan);background:var(--plan-bg);border-radius:10px;padding:13px 15px}
+
+.toptabs{position:sticky;top:0;z-index:50;background:var(--ink);display:flex;gap:2px;padding:0 22px}
+.toptabs a{color:#cfd6de;text-decoration:none;font-size:16.9px;font-weight:700;padding:10px 16px}
+.toptabs a:hover{color:#fff;background:#2f3f50}
+#gzSubRail{display:none}
+/* ═══ 태블릿(900px+) — 4범주 상단 · 세부는 좌측 서브레일 ═══ */
+@media(min-width:900px){
+  .toptabs a.gzTabOn{background:#e8b93c;color:#12211a;font-weight:900;border-radius:8px 8px 0 0}
+  #gzSubRail{display:block;position:fixed;left:0;top:0;bottom:0;width:176px;background:#f6f3ea;border-right:1px solid #ded7c3;padding:14px 10px;overflow:auto;z-index:40}
+  #gzSubRail .sr-t{font-size:11px;font-weight:900;color:#8a5a00;margin:4px 4px 8px}
+  #gzSubRail a{display:block;color:#3a463f;text-decoration:none;font-size:12.8px;padding:8px 11px;border-radius:8px;margin-bottom:2px}
+  #gzSubRail a:hover{background:#ece7d8}
+  #gzSubRail a.on{background:#12211a;color:#fff;font-weight:800}
+  .frame{margin-left:176px}
+  #gzExamBn{margin-left:176px}
+  #premeta,#postmeta{margin-left:188px!important} /* 서브레일 아래 가림 수정 2026-09-05 */
+  header.id{margin-left:176px}
+  .phasebar{margin-left:176px}
+  .toptabs{margin-left:176px}
+}
+
+.phase{scroll-margin-top:52px}
+.phasebar{position:sticky;top:41px;z-index:49;background:#fffbe8;border-bottom:1.5px solid var(--ink);padding:8px 22px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.phasebar .pb-cap{font-size:13.8px;color:var(--dim)}
+.phasebar .pb{border:1.5px solid var(--ink);background:#fff;border-radius:20px;padding:3px 14px;font-size:15.6px;font-weight:700;cursor:pointer;font-family:'IBM Plex Sans KR'}
+.phasebar .pb.on{background:var(--ink);color:#fff}
+.phasebar .pb-info{font-size:14.4px;color:var(--dim);margin-left:auto}
+.hwbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
+.hwbar .hb{border:1.2px solid var(--line);background:#fff;border-radius:16px;padding:2px 11px;font-size:15px;font-weight:700;cursor:pointer;font-family:'IBM Plex Sans KR'}
+.hwbar .hb.on{border-color:var(--ink);background:var(--ink);color:#fff}
+.phase.first-phase .phase-cap{background:linear-gradient(transparent 68%, var(--hl) 68%)}
+footer{max-width:1280px;margin:0 auto;padding:14px 26px 40px;color:var(--dim);font-size:14.4px}
+@media(max-width:980px){.duo,.sync,.zones2{grid-template-columns:1fr}
+ .bank .bhead,.bank .brow{grid-template-columns:70px 1fr 90px 90px}
+ .bank .bhead div:nth-child(5),.bank .brow div:nth-child(5),.bank .bhead div:nth-child(6),.bank .brow div:nth-child(6){display:none}}
+.planrow{border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin-bottom:7px}
+.planhd{display:flex;align-items:baseline;gap:7px;font-size:15.6px}
+.planhd .pnum{background:var(--ink);color:#fff;border-radius:50%;width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;flex:none}
+.steprow{display:flex;align-items:center;gap:4px;margin-top:3px}
+.steplab{font-size:12.5px;color:var(--dim);width:30px;flex:none}
+.stepcell{display:inline-flex;align-items:center;justify-content:center;width:26px;height:22px;border-radius:5px;background:#eef1f4;color:#9aa4ad;font-size:12.5px;font-weight:700}
+.stepcell.on{background:var(--ink);color:#fff}
+.stepcell.dp{background:#f4efe2;color:#b6a888}
+.stepcell.dp.on{background:#b08d3f;color:#fff}
+.wire{display:none!important}
+</style>
+<style>
+.mockbar{background:#1E4D3B;color:#fff;border-radius:8px;padding:9px 14px;margin:10px 0;font-size:12.5px;line-height:1.6}.mockbar b{color:#f3d58b}
+.pin{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#A4472F;color:#fff;font-weight:800;font-size:11.5px;box-shadow:0 0 0 2px #fff;vertical-align:middle;font-family:sans-serif}
+.chg{outline:2px dashed #A4472F;outline-offset:3px;border-radius:6px}
+.plan{border:1px solid #d8d4c8;border-radius:9px;background:#fff;padding:10px 12px;margin:8px 0}.plan .ttl{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.plan .ttl b{font-size:14px}
+.steps{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px}.st{border:1px solid #d8d4c8;border-radius:7px;padding:6px 4px;text-align:center;font-size:11.5px;cursor:pointer;background:#fff}.st b{display:block;font-size:13px}.st .pc{display:block;font-size:11px;color:#6b675e}.st.done{background:#eef6f0;border-color:#1E4D3B}.st.now{background:#fff3c4;border-color:#B8892E;font-weight:700}.st.on{outline:2px solid #1E4D3B}
+.grp{display:grid;grid-template-columns:3fr 2fr 2fr;gap:4px;margin-top:4px;font-size:11px;color:#6b675e;text-align:center}.grp span{border-top:2px solid #cfe0d4;padding-top:2px}
+.sub2{border:1px solid #cfe0d4;border-radius:9px;background:#fbfcfa;padding:10px 12px;margin-top:8px}
+.solve{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:12px;align-items:start}.psg{border:1px solid #d8d4c8;border-radius:9px;background:#fff;padding:12px 14px;font-size:14px;line-height:1.85;max-height:480px;overflow-y:auto}.psg h4{font-size:14px;margin:0 0 6px;color:#1E4D3B}.psg p{margin:0 0 9px;text-indent:1em}.psg .mk{background:#fff3c4;padding:0 2px}
+.bogi{border:1px solid #cfe0d4;background:#f4f8f5;border-radius:7px;padding:8px 10px;font-size:13px;margin:6px 0;white-space:pre-wrap}.bogi b{display:block;font-size:12px;color:#1E4D3B;margin-bottom:3px}
+.q{border:1px solid #d8d4c8;border-radius:9px;padding:10px 12px;margin-bottom:8px;background:#fff}.q .no{font-weight:800;color:#1E4D3B}.q .stem{margin:4px 0 6px;font-size:14px}.q label{display:block;padding:5px 8px;border:1px solid #e6e2d8;border-radius:6px;margin:3px 0;font-size:13px;cursor:pointer}.q label.pick{border-color:#1E4D3B;background:#eaf3ee}.q label.ok{border-color:#1E4D3B;background:#eef6f0;font-weight:700}.q label.no{border-color:#A4472F;background:#fbefeb;text-decoration:line-through}
+.res{border-radius:8px;padding:10px 12px;margin:8px 0;font-size:13.5px}.res.ok{background:#eef6f0;border-left:4px solid #1E4D3B}.res.no{background:#fbefeb;border-left:4px solid #A4472F}.exp{background:#fffdf6;border:1px dashed #8a6d1f;border-radius:6px;padding:6px 9px;font-size:12.5px;margin-top:5px}
+.src{display:inline-block;font-size:10.5px;border-radius:4px;padding:0 6px;border:1px solid #cfe0d4;color:#1E4D3B;background:#eaf3ee;margin-right:4px}
+textarea.ans{width:100%;min-height:80px;font:inherit;font-size:13px;border:1px solid #d8d4c8;border-radius:6px;padding:8px}.photo{border:2px dashed #cfe0d4;border-radius:9px;padding:12px;text-align:center;font-size:13px;color:#6b675e;background:#fbfcfa}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:900px){.solve,.two{grid-template-columns:1fr}}
+</style></head>
+<body><div class="mockbar"><b>학생 페이지 전체 목업 v4 · 승인 전 · 제작사 전달용</b> — 현행 학생 페이지(gmap2_student 94c7bb47) <b>전체 5절</b>을 그대로 두고, ② 절 안에서만 <span class="pin">A</span> 과제 카드=STEP 사슬 <span class="pin">B</span> 복습테스트 카드 신설 <span class="pin">C</span> 오답노트 출처별 을 넣었습니다(빨간 점선). 점선 밖은 현행 그대로이고, 값은 예시입니다. 지문·문항은 실제 자료(「빙그레의 영역」). 저장되지 않습니다.</div>
+
+
+
+<header class="id">
+  <div class="id-top">
+    <h1>국존 학습</h1>
+    <span class="who" id="gzWho">(예시 — 실서비스에서는 이 학생의 실제 값)</span>
+    <span class="who">내 수업 <b id="gzClass">—</b> <span id="gzClassN"></span></span>
+    <span class="who" id="gzMakeupWrap" style="color:var(--redpen);display:none">보충 <b id="gzMakeup"></b></span>
+    <span class="clock" id="gzToday"></span>
+  </div>
+  <div class="strip">
+    <span>출석 <b id="gzAtt">–</b> · 결석 <b id="gzAbs" style="color:var(--redpen)">–</b> <span class="mini" id="gzSince"></span></span>
+    <span>이번 주 과제 <b id="gzHw">–</b> <span class="mini" id="gzHwDue"></span></span>
+    <span>오답 기록 <b id="gzWrong">–</b></span>
+    <span>오늘 수업 <b id="gzTodayCls">–</b></span>
+    <span>받은 코칭 <b id="gzCoach">–</b></span> <span>🔥 <b id="gzStreak">–</b>일 연속</span> <span>누적 <b id="gzFaces">–</b>면</span>
+    <span id="gzScore" class="mini">성적 기록이 등록되면 여기에 표시됩니다</span>
+  </div>
+</header><section id="firstSec" style="display:none;margin:10px 12px;padding:12px 14px;border:2px solid #8a6d1f;border-radius:10px;background:#fffdf5;font-size:13px"></section>
+<section id="premeta" style="margin:10px 12px;padding:12px 14px;border:1.5px solid #B8892E;border-radius:10px;background:#fff8ea;font-size:13px">
+<b style="font-size:14px">오늘 수업 전 5문항</b> <span style="font-size:11px;color:#8a8577">수업 시작 전에 답해 두면 선생님 코칭 카드에 바로 뜹니다</span>
+<div id="pmDone" style="display:none;margin-top:6px;color:#1E4D3B;font-weight:700"></div>
+<div id="pmForm" style="margin-top:8px;display:grid;gap:6px">
+<label>1. 지난 과제를 얼마나 했나요? <select id="pm1"><option value="">—</option><option value="15">0~30%</option><option value="50">~70%</option><option value="80">~90%</option><option value="100">100%</option></select></label>
+<label>2. 과제 양은? <select id="pm2a"><option value="">—</option><option>적음</option><option>적정</option><option>많음</option></select> 난이도는? <select id="pm2b"><option value="">—</option><option>쉬움</option><option>적정</option><option>어려움</option></select></label>
+<label>3. 가장 어려웠던 개념·유형 하나 <input id="pm3" style="width:100%;padding:5px" placeholder="예: 형태소 분석"></label>
+<label>4. 오늘 반드시 해결할 목표 하나 <input id="pm4" style="width:100%;padding:5px" placeholder="예: 품사 구분 5문항 맞히기"></label>
+<label>5. 오늘 수업 자신감 <select id="pm5"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select> /5</label>
+<div><button id="pmBtn" type="button" style="padding:6px 12px;background:#1E4D3B;color:#fff;border:0;border-radius:6px;font-weight:700">보내기</button> <span id="pmR" style="font-size:12px;color:#8a8577"></span></div></div>
+</section>
+<section id="postmeta" style="margin:10px 12px;padding:12px 14px;border:1.5px solid #1E4D3B;border-radius:10px;background:#eef5f1;font-size:13px">
+<b style="font-size:14px">오늘 수업 후 15문항</b> <span style="font-size:11px;color:#8a8577">수업 끝나고 답하면 선생님 코칭 카드 ③ 아래에 바로 뜹니다 · 같은 날 다시 보내면 덮어씁니다</span>
+<div id="qmDone" style="display:none;margin-top:6px;color:#1E4D3B;font-weight:700"></div>
+<div id="qmForm" style="margin-top:8px;display:grid;gap:8px">
+<div style="font-weight:700;color:#1E4D3B">1단계 · 수업 내용</div>
+<label>1. 가장 인상 깊은 내용 <input id="qm1" style="width:100%;padding:5px"></label>
+<label>2. 새로 깨달은 것 한 가지 <input id="qm2" style="width:100%;padding:5px"></label>
+<label>3. 오늘 수업 만족도 <select id="qm3"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select> /5</label>
+<div style="font-weight:700;color:#1E4D3B;margin-top:4px">2단계 · 학습 방법</div>
+<label>4. 효과적이었던 방법 <input id="qm4" style="width:100%;padding:5px" placeholder="예: 밑줄 치며 읽기"></label>
+<label>5. 어려웠던 부분 <input id="qm5" style="width:100%;padding:5px"></label>
+<div>6. 오늘 지킨 습관 <label><input type="checkbox" class="qm6" value="예습"> 예습</label> <label><input type="checkbox" class="qm6" value="필기"> 필기</label> <label><input type="checkbox" class="qm6" value="질문"> 질문</label> <label><input type="checkbox" class="qm6" value="복습"> 복습</label></div>
+<div style="font-weight:700;color:#1E4D3B;margin-top:4px">3단계 · 시간·집중</div>
+<label>7. 오늘 스스로 공부한 시간 <input id="qm7" type="number" min="0" max="600" style="width:80px;padding:5px"> 분</label>
+<label>8. 집중도 <select id="qm8"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select> /5</label>
+<label>9. 집중이 흐트러졌을 때 다시 잡은 방법 <input id="qm9" style="width:100%;padding:5px"></label>
+<div style="font-weight:700;color:#1E4D3B;margin-top:4px">4단계 · 다음 주</div>
+<label>10. 다음 주 목표 3개 <input id="qm10a" style="width:100%;padding:5px;margin-bottom:3px" placeholder="목표 1"><input id="qm10b" style="width:100%;padding:5px;margin-bottom:3px" placeholder="목표 2"><input id="qm10c" style="width:100%;padding:5px" placeholder="목표 3"></label>
+<label>11. 실행 계획(언제·얼마나) <input id="qm11" style="width:100%;padding:5px" placeholder="예: 화·목 30분"></label>
+<label>12. 고칠 습관 하나 <input id="qm12" style="width:100%;padding:5px"></label>
+<div style="font-weight:700;color:#1E4D3B;margin-top:4px">5단계 · 나에게</div>
+<label>13. 나에게 한 마디 <input id="qm13" style="width:100%;padding:5px"></label>
+<label>14. 오늘 잘한 점 <input id="qm14" style="width:100%;padding:5px"></label>
+<label>15. 다음 수업 동기 <select id="qm15"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select> /5</label>
+<div><button id="qmBtn" type="button" style="padding:6px 12px;background:#1E4D3B;color:#fff;border:0;border-radius:6px;font-weight:700">보내기</button> <span id="qmR" style="font-size:12px;color:#8a8577"></span></div></div>
+
+</section><section id="lessonflow" style="margin:10px 12px;padding:12px 14px;border:1px solid #d8d4c8;border-radius:10px;background:#fff;font-size:13px">
+<b style="font-size:14px">오늘·최근 수업 흐름</b> <span style="font-size:11px;color:#8a8577">선생님 코칭 카드와 같은 기록 — 저장되면 여기에 바로 보입니다</span>
+<div id="lfBody" style="margin-top:8px;color:#8a8577">(예시 — 실서비스에서는 이 학생의 실제 값)</div>
+</section>
+
+<nav class="toptabs">
+  <a href="#gzPos">내 위치</a><a href="#gzFill" style="font-weight:800">내 공부</a><a href="#pA">수업</a><a href="#pC">내 기록</a>
+</nav>
+<div class="phasebar">
+  <span class="pb-cap">지금 국면</span>
+  <button class="pb on" onclick="setPhase('평상',this)">방학 집중 · 처서</button>
+  <button class="pb" id="pbExam" onclick="setPhase('내신',this)">내신 준비</button>
+  <button class="pb" onclick="setPhase('내신',this)">내신 직전</button>
+  <button class="pb" onclick="setPhase('복기',this)">시험 복기</button>
+  <span id="pbinfo" class="pb-info">방학 집중 — 약점 훈련이 중심인 시기입니다. 시험 구간은 다음 시험이 잡히면 채워집니다.</span>
+</div>
+
+<div class="frame">
+
+<!-- ═══ 구간 A · 오늘 ═══ -->
+<div class="phase" id="pA">
+  <div class="phase-cap"><span class="pn" id="pnA">오늘</span><h2 id="h2A">지금 여기서 시작</h2><span class="nowbadge" id="nbA" style="display:none;font-size:13px;font-weight:800;background:var(--hl);border-radius:11px;padding:2px 9px;margin-left:4px">지금 이 구간</span><span class="jz">여정 27(수업 준비) → 34(수업 진입)</span></div>
+  <!-- [오리엔테이션 v1 · 2026-09-10 계획 #17 · 강좌 6405 · lecture_contents 오리엔테이션 1~7 · 읽음=gz2_student_write ot_page] -->
+  <div id="oriCard" style="margin:8px 0 12px;border:1px solid #e2ddd0;border-radius:14px;padding:13px 15px;background:#faf9f5;display:none">
+    <div style="font-size:12.5px;color:#6b6b7b">가장 먼저 하는 것</div>
+    <div style="font-size:18px;font-weight:700;margin:2px 0">국존 오리엔테이션</div>
+    <div style="font-size:13px;color:#6b6b7b" id="oriSub">—</div>
+    <div style="height:6px;background:#ebe7dc;border-radius:3px;overflow:hidden;margin:8px 0"><i id="oriBar" style="display:block;height:100%;width:0;background:#1E4D3B"></i></div>
+    <button id="oriGo" onclick="oriOpen()" style="background:#1E4D3B;color:#fff;border:0;border-radius:10px;padding:10px 18px;font:inherit;font-size:15px;min-height:44px;cursor:pointer">시작하기</button>
+    <span style="font-size:12.5px;color:#6b6b7b;margin-left:8px">다 봐도 사라지지 않고, 언제든 다시 볼 수 있어요</span>
+  </div>
+  <div id="oriView" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(20,20,30,.45)">
+    <div style="position:absolute;left:50%;top:0;transform:translateX(-50%);width:min(560px,100vw);height:100%;background:#fff;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #eee;font-size:13px;color:#6b6b7b">
+        <span id="oriPos">1 / 7</span><span id="oriDots" style="display:flex;gap:5px"></span><button onclick="oriClose()" style="border:0;background:none;color:#6b6b7b;font:inherit;font-size:14px;cursor:pointer">닫기</button>
+      </div>
+      <div style="flex:1;overflow:auto;padding:4px 14px"><div id="oriLoad" style="padding:30px;text-align:center;color:#888">여는 중…</div><iframe id="oriFrame" title="오리엔테이션 면" style="width:100%;border:0;display:block" scrolling="no"></iframe></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 16px;border-top:1px solid #eee">
+        <button id="oriPrev" onclick="oriStep(-1)" style="background:#fff;border:1px solid #c8c3b3;border-radius:10px;padding:10px 16px;font:inherit;font-size:15px;min-height:44px;cursor:pointer">← 이전</button>
+        <button id="oriNext" onclick="oriStep(1)" style="background:#1E4D3B;color:#fff;border:0;border-radius:10px;padding:10px 18px;font:inherit;font-size:15px;min-height:44px;cursor:pointer">다음 →</button>
+      </div>
+    </div>
+  </div>
+  <div class="duo">
+    <div>
+      <p class="axcap">내가 하는 것</p>
+      <div class="card">
+        <p class="mini" id="gzDayLine">—</p>
+        <div id="gzQueue"><p class="mini">(예시 — 실서비스에서는 이 학생의 실제 값)</p></div>
+        <div class="q-row" id="gzRowCls"><span class="t" id="gzClsTm">—</span><span class="what" id="gzClsWhat">수업</span><span class="chip plan">수업</span></div>
+        <div class="q-row" id="gzRowMk" style="display:none"><span class="t" id="gzMkTm"></span><span class="what" id="gzMkWhat" style="color:var(--redpen)"></span><span class="chip todo">보충</span></div>
+        <p class="wire">v_screen_student_home 통합 큐 / 보충=일정 조정·보충 일정(수업계정 저장분) / 출결 3구분=출결 기록</p>
+      </div>
+    </div>
+    <div>
+      <p class="axcap">선생님에게서 온 것</p>
+      <div class="card">
+        <h3>오늘 수업 카드 — 수업 중 라이브<span class="sub">과제를 어떻게 해왔는지에 따라 오늘 흐름이 달라집니다</span></h3>
+        <div id="gzTodayCard"><p class="mini">(예시 — 실서비스에서는 이 학생의 실제 값)</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 구간 B · 이번 주 ═══ -->
+<div class="phase" id="pB">
+  <div class="phase-cap"><span class="pn" id="pnB">이번 주</span><h2 id="h2B">과제 · 영상 · 오답</h2><span class="nowbadge" id="nbB" style="display:none;font-size:13px;font-weight:800;background:var(--hl);border-radius:11px;padding:2px 9px;margin-left:4px">지금 이 구간</span><span class="jz">여정 27(과제 관리) · 35(훈련·과제)</span></div>
+  <div class="duo">
+    <div>
+      <p class="axcap">내가 하는 것</p>
+      <div class="card">
+        <h3>과제와 인증<span class="sub">기한 8/14(금)</span></h3><div class="chg" style="margin-top:8px"><span class="pin">A</span> <b style="font-size:13px">이번 주 과제 = 계획표 행 + STEP 칸 7개 <span class="mini">(1.5 과제관리 「Step1~7 -/%」 계승 · 칸을 누르면 아래에 펼쳐짐)</span></b>
+<div class="plan"><div class="ttl"><b>SPARK 「빙그레의 영역」 (수필)</b><span class="mini">8/8~8/14 · 주 3회 · 화·목 20:00</span></div><div class="steps" id="stbar"></div><div class="grp"><span>🎧 해설 듣기(영상)</span><span>✍ 손으로</span><span>📝 문제풀이</span></div></div>
+<div class="sub2" id="stview"></div>
+<p class="mini" style="margin-top:6px">아래 기존 목록은 계획표 행으로 대체됨(강좌마다 행 1개)</p></div>
+        <div id="gzHwCard"><p class="mini">(예시 — 실서비스에서는 이 학생의 실제 값)</p></div>
+      </div>
+      <div class="card">
+        <h3>플레이어<span class="sub">영상+교안 함께 · 확인 학습은 영상 아래</span></h3>
+        <div class="sync" id="gzPlayer"><div class="screen"><span class="playbtn">▶</span><span id="gzPlayTtl">(예시 — 실서비스에서는 이 학생의 실제 값)</span></div><div class="gyoan" id="gzGyoan"></div></div>
+        <div class="checkq">
+          <p class="cap">확인 학습 — 책갈피 2 통과</p>
+          <p style="font-size:16.2px"><b>Q.</b> ‘국물’→[궁물]의 변동은?</p>
+          <span class="opt">① 교체</span><span class="opt">② 탈락</span><span class="opt">③ 첨가</span><span class="opt">④ 축약</span>
+          <p class="mini" style="margin-top:5px">틀리면 그 자리에서 오답노트로 저장.</p>
+        </div>
+        <div style="margin-top:9px;border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:#fff">
+          <div style="display:flex;align-items:baseline;gap:10px"><b style="font-family:'Noto Serif KR';font-size:16.2px">📖 교안 전체 — 페이지로 보기</b><span class="mini">음운의 변동 step3 · 6쪽</span>
+            <span style="margin-left:auto"><button class="btn ghost sm">◀ 이전</button> <b class="mini" style="color:var(--ink)">2 / 6</b> <button class="btn ghost sm">다음 ▶</button></span></div>
+          <div style="margin-top:7px;border:1px solid var(--line);border-radius:6px;padding:12px;background:#fdfdfb;font-size:15.6px;line-height:1.8">
+            <b>2. 교체 — 음절의 끝소리 규칙</b><br>국어의 음절 끝에서 발음되는 자음은 ㄱ, ㄴ, ㄷ, ㄹ, ㅁ, ㅂ, ㅇ의 일곱 가지뿐이다. 이 밖의 자음이 음절 끝에 오면 이 일곱 자음 중 하나로 바뀌어 발음되는데, 이를 음절의 끝소리 규칙이라 한다. … <span class="frogmark">밑줄을 그으면 오답노트에 표시</span>로 저장된다.</div>
+        </div>
+        <p class="wire">페어링 work_id+STEP / video_links.seg / 확인문제→frog / 교안 페이지 뷰=lecture_contents 본문(6,853건)·밑줄=전자노트 ｜ 영상 5,944편 적재 완(#3274) — 강좌↔편 결속·Bunny 전환 대기 · 진도=편 단위</p>
+      
+      </div>
+      <div class="card">
+        <h3>내 강좌 · 진도<span class="sub">내신/수능 갈래 · step마다 강의와 시험 나란히 (1.5 승계+상향)</span></h3><div id="gzCourse"><p class="mini">수강 정보 (예시 — 실서비스에서는 이 학생의 실제 값)</p></div><p class="wire">v_screen_student_steps(step_type·lc_id)·enroll_steps·exam_sessions / 진도율 분모=실보유 편 수(#3274) / 내신·수능 갈래=1.5 승계</p>
+    </div>
+    <div>
+      <p class="axcap">나에게 쌓이는 것</p>
+      <div class="card chg" id="rvcard"><span class="pin">B</span><h3 style="display:inline">📝 복습테스트<span class="sub">STEP 사슬을 마친 단원만 · 회차별 · 1차·2차</span></h3>
+<p class="mini" style="margin-top:6px">마친 단원이 자동으로 오름(1.5 「담금질 > 복습테스트」 계승). 선생님 지정은 맨 위. 화면은 STEP6·7과 같은 지문+문항 풀기.</p>
+<p style="margin:6px 0"><b>「빙그레의 영역」</b> <span class="mini">완료 8/14 · 1회차 4/5(8/15) · 2회차 5/5(8/20)</span> <button class="btn sm" onclick="openSolve('복습테스트','3회차')">3회차 풀기</button></p>
+<p style="margin:6px 0"><b>천재(박영목) 중3 1(1) 「꽃」</b> <span class="mini">완료 7/31 · 1회차 — · <span style="background:var(--hl);border-radius:4px;padding:0 5px">선생님 지정</span></span> <button class="btn ghost sm">1회차 풀기</button></p>
+<p class="mini">「선물」 — STEP 5 진행 중 → 마치면 여기에 뜸</p><div id="rv"></div></div>
+<div class="card">
+        <h3>오답노트<span class="sub">이력 · 통계 · 극복</span></h3><div class="chg" style="margin-top:8px" id="wrongs"><span class="pin">C</span> <b style="font-size:13px">출처별 자동 적재 <span class="mini">STEP6·7 / 복습테스트 / 교실 확인 시험 / 모의고사 / 확인 학습 즉답</span></b>
+<div class="q"><span class="src">복습테스트 2회차</span><span class="src">8/20</span><div class="stem">문맥상 ⓐ~ⓔ의 의미로 알맞지 않은 것은?</div><div class="exp"><b>왜 틀렸나</b> 문맥에서 낱말 뜻 잡기 · 어휘 — 내 답 1 · 정답 2<br><b>다음 할 일</b> 같은 유형 3문항 · <button class="btn o sm">다시 풀기</button> <button class="btn o sm">극복 체크</button></div></div>
+<div class="q"><span class="src">교실 확인 시험</span><span class="src">8/12</span><div class="stem">(선생님이 교실에서 낸 확인 시험 3번 — 사진)</div><div class="exp"><b>선생님 메모</b> 〈보기〉를 본문에 연결하는 순서를 다시 · <b>다음 할 일</b> STEP6 만풀 12·15번</div></div>
+<p class="mini">아래 기존 「이력 · 통계 · 극복」은 그대로</p></div>
+        <div id="gzWrongStat"><p class="mini">(예시 — 실서비스에서는 이 학생의 실제 값)</p></div>
+        <table class="tb" style="margin-top:8px" id="gzWnTb"><tr><td class="mini">(예시 — 실서비스에서는 이 학생의 실제 값)</td></tr></table>
+        <p class="wire">v_wrong_note·frog_entries·is_overcome / 유형=허용 표현</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 구간 C · 매주 쌓임 — 학습 통장 ═══ -->
+<div class="phase" id="pC">
+  <div class="phase-cap"><span class="pn" id="pnC">매주</span><h2 id="h2C">내 학습 통장 — 한 주 한 줄, 전부 남는다</h2><span class="nowbadge" id="nbC" style="display:none;font-size:13px;font-weight:800;background:var(--hl);border-radius:11px;padding:2px 9px;margin-left:4px">지금 이 구간</span><span class="jz">모든 국면의 기록 축 · G-MAP 회차별 격자 이력 승계</span></div>
+  <div class="bank">
+    <div style="padding:8px 12px;background:#f2f0ea;border-bottom:1px solid var(--line);font-size:15.6px"><b class="serif">🔥 과제 리듬 3주 연속</b> <span class="mini">— 한 주도 빠짐없이 과제 인증·리뷰를 마치면 연속이 이어집니다 (습관 정착의 표시)</span></div>
+    <div class="bhead"><div>주차</div><div>수업·진도</div><div>과제</div><div>오답</div><div>리포트</div><div></div></div>
+    <div id="gzBank"><div class="brow"><div class="mini">(예시 — 실서비스에서는 이 학생의 실제 값)</div></div></div>
+  </div>
+  <div class="card" style="margin-top:10px;border-style:dashed">
+    <h3 id="gzWeekTtl">▼ 최근 주 열림<span class="sub">교사 평가가 누적되는 자리</span></h3>
+    <div class="duo" style="gap:10px">
+      <div>
+        <p class="mini" style="margin-bottom:4px">그 주 수업 기록</p>
+        <table class="tb">
+          <tbody id="gzWeekTb"><tr><td class="mini">(예시 — 실서비스에서는 이 학생의 실제 값)</td></tr></tbody>
+        </table>
+      </div>
+      <div>
+        <p class="mini" style="margin-bottom:4px">그 주 선생님 평가 (매주 여기 쌓임)</p>
+        <div id="gzPen"><p class="mini">(예시 — 실서비스에서는 이 학생의 실제 값)</p></div>
+      </div>
+    </div>
+    <p class="wire">주차 열림=coaching_logs 해당 주 전체(교시 기록·교사 평가·오답·리포트) — 지난 교사 평가의 누적처는 이 통장</p>
+  </div>
+  <p class="wire" style="background:transparent">coaching_logs 주차 집계(log_date 783건)·hw_status(해옴/부분/안해옴 — 회차 격자 배지 승계)·frog 주차 합계·student_reports 발행/열람 — 한 행 = 한 주, 최근이 위 / 보상 「해내기」 3종(결재 확정): 주 완성 도장=과제 인증+리뷰 완료, 극복 배지=overcome 5회 계수, 챌린지 완주=중간점검 1·2+종결 — 점수·등수형 보상 미도입</p>
+  <div class="card" style="margin-top:10px">
+    <h3>이번 달 한눈에<span class="sub">월간 캘린더 — 수업·시험·내 일정 (1.5 승계 + 개인일정 등록)</span></h3>
+    <div id="gzMonth"><p class="mini">(예시 — 실서비스에서는 이 학생의 실제 값)</p></div>
+  </div>
+</div>
+
+<div class="phase" id="pE">
+  <div class="phase-cap"><span class="pn" id="pnE">성장</span><h2 id="h2E">얼마나 왔고, 다음은 무엇인가</h2><span class="nowbadge" id="nbE" style="display:none;font-size:13px;font-weight:800;background:var(--hl);border-radius:11px;padding:2px 9px;margin-left:4px">지금 이 구간</span><span class="jz">여정 58(성장·재등록)</span></div>
+  <div class="duo">
+    <div>
+      <p class="axcap">쌓인 성장</p>
+      <div class="card">
+        <h3>성취도 그래프<span class="sub">선이 오르는 것이 보이게 — 내신·모의 함께</span></h3>
+        <div id="gzGraph"><p class="mini">성적 기록 (예시 — 실서비스에서는 이 학생의 실제 값)</p></div>
+        <p class="wire">school_exams·모의 — 선그래프, 상승폭 자동</p>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3>모의고사 기록<span class="sub">분석지 보기 · 즉시 응시 (1.5 승계)</span></h3>
+        <table class="tb">
+          <tr><th>시험</th><th>점수</th><th>날짜</th></tr><tbody id="gzMockTb"><tr><td class="mini" colspan="3">(예시 — 실서비스에서는 이 학생의 실제 값)</td></tr></tbody>
+        </table>
+        <p style="margin:6px 0 2px"><button class="btn ghost sm">모의고사 강의 바로 찾기</button> <span class="mini">수강신청 없이 검색해서 바로 수강 (1.5 방식)</span></p>
+        <p class="wire">mock_exams·분석지=G-PAT / 모의 강의 즉시 수강=검색→재생(별도 신청 불요)</p>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3>학습시험 기록<span class="sub">확인·심화·복습테스트 점수 전부 (1.5 승계)</span></h3>
+        <table class="tb">
+          <tr><th>날짜</th><th>시험</th><th>점수</th><th>유형</th></tr><tbody id="gzTestTb"><tr><td class="mini" colspan="4">(예시 — 실서비스에서는 이 학생의 실제 값)</td></tr></tbody>
+        </table>
+        <p class="wire">student_tests 175행(test_type·score·review_test_id)·exam_sessions — 통장 주차 행과 동일 원천</p>
+      </div>
+      <div class="card">
+        <h3>선생님 평가 모아보기<span class="sub">14주 전부 — 학습 통장에서 주별, 여기서 한눈에</span></h3>
+        <table class="tb">
+          <tbody id="gzEvalTb"><tr><td class="mini">(예시 — 실서비스에서는 이 학생의 실제 값)</td></tr></tbody>
+        </table>
+        <p style="margin-top:6px"><a href="#pC" style="color:var(--plan);font-size:15.6px">학습 통장에서 주별로 보기 ↑</a></p>
+        <p class="wire">coaching_logs 교사 평가·주간 코멘트 누적 — 통장(주별)과 같은 원천의 모아보기</p>
+      </div>
+    </div>
+    <div>
+      <p class="axcap">다음으로</p>
+      <div class="newlec">
+        <h3 style="font-family:'Noto Serif KR';font-weight:900;font-size:18.1px">🆕 국존 새 강좌<span class="sub" style="font-size:13.8px;color:var(--plan)">중3 · 내 진도 기준 추천</span></h3>
+        <table class="tb" style="margin-top:6px">
+          <tr><td><b>수능국어 입문 — 독서·문법</b> <span class="mini">내신 끝나고 바로 (선생님 계획과 일치)</span></td><td><button class="btn sm">신청</button></td></tr>
+          <tr><td><b>고입 대비 국어 총정리</b> <span class="mini">신규 공개</span></td><td><button class="btn ghost sm">보기</button></td></tr>
+        </table>
+        <p style="margin-top:7px"><button class="btn">＋ 전체 강좌 검색</button> <span class="mini">공개 1,052개 · 신청 승인은 선생님</span></p>
+        <p class="wire">lecture_categories 공개 강좌(수강신청 페이지 동일 원천) — 최신 공개분 학년·진도 매칭</p>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3>내 정보 — 어디로 가는가<span class="sub">진로·희망 (1.5 승계 — 시험 목표와 이어짐)</span></h3>
+        <div id="gzCareer"><p class="mini">(예시 — 실서비스에서는 이 학생의 실제 값)</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+const D={"P": ["사라지는 것을 선물로 받는 게 더 좋았던 시절이 있었다. 꽃이라든가, 초콜릿이라든가, 연필 같은 것. 남지 않는 것들. 그걸 영영 간직해야 한다는 부담을 갖지 않아도 되는 것들. 그런 선물이라야 주고받는 마음이 홀가분했다. 사물에 사연이 쌓여 가서 추억이 사물보다 더 거대하게 부풀어 오르는 풍경을 감당하기 어려울 만큼 그 시절의 나는 여렸던 것임이 틀림없다. 실은 선물에 대한 부담이라기보다 나 자신의 여림에 대한 불만 쪽에 더 가까운 심사였을 것이다.", "선물은 받는 게 더 좋다, 주는 게 더 좋다, 이 둘을 놓고 \"너는 어느 쪽이니?\" 하며 누군가와 대화를 해 보던 시절도 있었던 것 같다. 그때 나는 도무지 주는 게 더 좋다고 선택하는 멋진 이들에게 백 프로 공감을 할 수가 없었다. 아무리 생각해도 선물을 받는 것이 기쁘기 때문에.", "지금은 이런 식으로 말해 보고 싶다. 선물은 주거나 받는 것이라기보다는 되는 것이라고. 선물이 되는 사건, 선물이 되는 시간, 선물이 되는 사람, 선물이 되는 말, 선물이 되는 표정. 선물이 되는 사람이 선물이 되는 말과 함께 선물이 되는 표정을 지으며, 자그마하고 사소한 선물 하나를 건넸을 때, 그것은 선물이 되는 시간이자 선물이 되는 사건이다. 그때 손과 손 사이에서 전달되는 사물 하나는 그 무엇이 되어도 상관이 없다.", "지금 내 방은 그러한 사소한 선물이었던 사물들의 소곤거림으로 둘러싸여 있다. 이 방에 담겨진 나는 그 소곤거림을 배경 음악처럼 등에 업고서 책을 읽거나 글을 쓴다. 그럴 때 나의 글쓰기는 어쩌면 대답 같은 것이고 어쩌면 약속 같은 것이고 어쩌면 즐거운 받아쓰기 같다.", "베이징을 여행했던 선배가 \"왕창 사 와서 다 주고 하나 남았어.\"라며 건네준 마오쩌둥이 그려진 케이스, 몽골 여행을 다녀온 후배가 \"갖고 싶다던 게 이거예요?\" 하던 게르 미니어처, \"언니 목마 좋아하잖아.\"라며 갖고 있던 소품을 선뜻 건네준 후배, 재활용 쇼핑백을 잘라서 엮은 항아리를 노숙인들의 벼룩시장에서 샀다며, 한 시간이 넘게 나를 기다려 건네주고 간 친구, 이 용도를 알아맞혀 보라며 방긋 웃으며 친구가 건네준 부엉이 모양의 연필깎이, 받는 나보다 주는 그 사람이 더 오래 매만지며 즐거워했던, 오래전 생일 선물로 받았던 목재 오르골, 돌멩이 하나, 도토리 하나, 저금통 하나.......", "적어 내려가다 보니, 선물이 선물답게 되는 비결이 있다는 걸 지금 알게 됐다. 선물을 건네면서 해 준 한마디. 농담처럼 던졌든, 지나가듯 말했든, 진지하고 가열하게 자신의 안목을 침 튀기며 피력했든 간에, 선물을 쳐다볼 때마다 저절로 떠오른다. 그 한마디와 더불어 그 표정도.", "그러면 나는 빙그레 웃고야 만다. 아마도 이 선물들이 내 방 창가 선반에 쪼르륵 놓여 있지 않았다면, 혼자 있는 내 방에서 빙그레 혼자서 웃고 있을 일은 없었을지도 모르겠다. 그들은 알고 있을까. 내가 이 사물들을 쳐다볼 때마다 그때의 그 표정과 말투를 떠올리며 자주 웃는다는 걸. 청소를 하며 먼지를 닦아 줄 때마다 옆의 사물에게 소개해 주듯 말을 건넨다는 걸. 빙그레 웃는 나 혼자만의 시간이 선물이 되었다는 사실을.", "나는 지금 라디오를 하나 골라야 한다. 이사한 친구에게 필요한 거 없냐고 물었고 '라디오'라는 답을 들었기 때문이다. 라디오를 고르자니, 그 동네는 FM의 주파수가 쉽게 잡히는 동네일지 아닐지, 그 새로운 집은 어떤 디자인의 라디오가 어울리는 공간일지, 하나부터 열까지 친구가 사는 환경에 대해 상상하게 되었다. 라디오를 고르다 보니 내가 선물로 받았던 라디오를 다시 한번 쳐다보았다. 내가 꼭 갖고 싶어 하던 그 모델을 몇 년 동안 별러서 기어이 선물로 내밀었던 친구. 저 라디오에서 흘러나오는 음악을 들으면서 내가 지내 온 시간들. 라디오가 낡아 가는 만큼 우리가 깊이 친해지고 있다는 게 새삼스럽다. 이 낡아 가는 라디오의 안부를 오늘은 친구에게 전해 주어야겠다. 인증 사진을 찍어서 그때를 함께 새삼스레 떠올려 보고 싶어서. 친구는 친구가 있는 그곳에서, 나는 내가 있는 이 방에서. 우리가 동시에 함께 떠올릴 사연과 감정이 많이 닮았으면 좋겠다.", "작품 스케치 이 작품에서 작가에게 '빙그레의 영역'은 어떤 공간일지 생각해 보자. 항아리 목재 오르골 저금통 부엉이 모양 연필깎이 라디오 목마 게르 돌멩이 도토리", "1 작품의 주요 내용 이 작품에 나타나는 작가의 인식 변화를 파악해 보자. (1) 작가가 '선물'을 대하는 태도를 과거와 현재로 나누어 정리해 보자. 선물을 대하는 태도 과거 현재 그러한 태도를 보이는 이유 사라지는 것을 선물로 받기 좋아함. 선물을 주는 것이 더 좋다고 하는 이들에게 공감하지 못함. (2) (1)을 바탕으로 '선물'을 대하는 작가의 인식이 어떻게 바뀌었는지 적어 보자.", "도움말 삶 속에서 의미가 있는 선물을 주고받았던 경험을 떠올려 보고 그 사연을 사진과 글로 꾸며 일상의 의미를 새롭게 구성해 본다. 2 문학의 인식적 기능 이 작품에 담긴 작가의 깨달음을 토대로 문학의 인식적 기능을 이해해 보자. (1) 이 작품에서 작가가 말하는 두 가지 '선물이 되는 시간'이 무엇인지 적어 보자. 선물이 되는 시간 (2) 자신에게도 '선물이 되는 시간'이 있었다면 그때가 언제였는지 친구들과 이야기를 나누어 보자.", "3 작품의 내면화 이 작품에서처럼 자신만의 '빙그레의 영역'을 찾아 사진을 찍고, 사물이 선물이 된 이야기를 인터넷 게시물로 작성하여 친구들과 공유해 보자. 자주 약속에 늦던 나에게 친구가 웃으며 선물해준 탁상시계. \"혹시 너 시계가 없는 건 아니지?\"라며 준 이 시계 덕분에 지금은 제법 약속을 잘 지키는 사람이 되었다. 둥근 모양의 나무 프레임은 친구가 사람을 대하는 부드러운 태도를 떠오르게 한다. 친구를 생각하게 하는 이 시계가 있는 공간이 나에겐 '빙그레의 영역'이다."], "I": [{"id": 15555, "stem": "윗글의 글쓴이와 〈보기〉의 글쓴이를 비교한 내용으로 가장 적절한 것은?", "opts": ["윗글의 글쓴이는 바늘을 벗으로 여기고, 〈보기〉의 글쓴이는 선물들의 소곤거림을 배경 음악으로 여긴다고 할 수 있겠군.", "윗글과 〈보기〉의 글쓴이는 모두 사물을 잃어버린 뒤에야 사물의 소중함을 깨닫고 애통해한다고 할 수 있다고 하겠다고 할 수 있겠군.", "윗글의 글쓴이는 사물을 밥 먹을 때와 잠잘 때 만져 보며, 〈보기〉의 글쓴이는 사물을 창가 선반에 두고 바라본다고 할 수 있다고 하겠군.", "윗글과 〈보기〉의 글쓴이는 모두 사물을 준 사람보다 사물 자체의 쓸모를 더 소중히 여긴다고 할 수 있다고 하겠다고 할 수 있겠군.", "윗글의 글쓴이는 사물에 담긴 준 사람의 말과 표정을 떠올리며 웃고, 〈보기〉의 글쓴이는 오래 함께한 사물을 벗으로 여기며 정을 붙이겠군."], "ans": 5, "acl": "ACL-RP", "kla": "B", "lv": 11, "bogi": "밥 먹을 적 만져 보고 잠잘 적 만져 보아, 너로 더불어 벗이 되어, 여름 낮에 주렴(珠簾)이며, 겨울밤에 등잔을 상대하여, 누비며, 호며, 감치며, 박으며, 공그릴 때에, 겹실을 꿰었으니 봉미(鳳尾)를 두르는 듯, 땀땀이 떠 갈 적에, 수미(首尾)가 상응하고, 솔솔이 붙여 내매 조화(造化)가 무궁하다. (중략) 이생에 백년 동거(百年同居)하렸더니, 오호 애재(哀哉)라, 바늘이여.\n- 유씨 부인, 「조침문」 -"}, {"id": 15556, "stem": "문맥상 ⓐ~ⓔ의 의미로 알맞지 않은 것은?", "opts": ["ⓐ의 '소곤거림으로'는 '작은 목소리로 가만가만 이야기하는 소리로'라는 뜻으로, 사물에 담긴 말들이 떠오름을 나타낸다.", "ⓑ의 '받아쓰기'는 '남의 말을 그대로 받아 적는 일'이 아니라 '남의 글을 몰래 베끼는 일'이라는 뜻으로, 글쓴이의 부끄러움을 나타낸다.", "ⓒ의 '가열하게'는 '싸우거나 다투는 기세가 매우 세차고 맹렬하게'라는 뜻으로, 안목을 열심히 말하는 모습을 나타낸다.", "ⓓ의 '피력했든'은 '생각하는 것을 털어놓고 말했든'이라는 뜻으로, 선물을 준 사람이 자신의 안목을 설명했음을 나타내고 있다고 볼 수 있다.", "ⓔ의 '쪼르륵'은 '작은 물건들이 나란히 늘어선 모양'이라는 뜻으로, 선반에 놓인 선물들의 모습을 나타낸다."], "ans": 2, "acl": "ACL-VOC", "kla": "V", "lv": 8, "bogi": ""}, {"id": 15557, "stem": "〈보기〉를 바탕으로 윗글을 감상한 반응으로 가장 적절한 것은?", "opts": ["글쓴이가 선물의 목록을 길게 적은 것은, 값비싼 사물이 많을수록 빙그레의 영역이 넓어짐을 보여 주는 것이라고 할 수 있다고 하겠다고 할 수 있겠군.", "'그들은 알고 있을까.'라는 물음은, 선물을 준 사람들이 글쓴이의 웃음을 이미 함께 나누고 있음을 뜻하겠다고 할 수 있겠군.", "선물을 볼 때마다 준 사람의 한마디와 표정이 떠올라 웃는다는 것은, 빙그레의 영역이 사물이 아니라 사람에게서 비롯됨을 보여 주겠군.", "'혼자 있는 내 방'에서 웃는다는 것은, 글쓴이가 사람들과의 관계를 끊고 사물에만 의지하고 있음을 뜻하겠다고 할 수 있겠군.", "'그 무엇이 되어도 상관이 없다'는 말은, 선물을 준 사람의 말과 표정 역시 중요하지 않다는 뜻이라고 할 수 있겠군."], "ans": 3, "acl": "ACL-IR", "kla": "C", "lv": 11, "bogi": "이 글의 제목 '빙그레의 영역'은 글쓴이가 혼자 웃게 되는 공간과 시간을 가리킨다. 그 웃음은 사물이 아니라 사물에 담긴 사람의 말과 표정에서 비롯되며, 선물을 준 사람은 그 웃음을 알지 못한다."}]};const IT=D.I;let picked={},conf={},t0=Date.now(),cur=5,ctx={src:'STEP6',label:'STEP6 만풀'};
+const ACL={'ACL-IR':'〈보기〉와 본문을 연결해 추론하기','ACL-VOC':'문맥에서 낱말 뜻 잡기','ACL-RP':'두 글을 견주어 공통·차이 찾기'};const KLA={C:'비판적 감상',V:'어휘',B:'비교'};
+const STN=[['1','배경'],['2','개념'],['3','분석'],['4','서답'],['5','단권'],['6','만풀'],['7','미고']];const STS=['100%','100%','100%','100%','40%','-','-'];
+function esc(v){return String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function mark(t){const M={'소곤거림':'ⓐ','받아쓰기':'ⓑ','가열하게':'ⓒ','피력했':'ⓓ','쪼르륵':'ⓔ'};let s=esc(t);for(const k in M)s=s.replace(new RegExp(k),'<span class="mk">'+M[k]+' '+k+'</span>');return s;}
+function psg(){return '<h4>김소연, 「빙그레의 영역」 <span class="mini">(수필 · 본문 12문단)</span></h4>'+D.P.map(p=>'<p>'+mark(p)+'</p>').join('');}
+function go(n){}
+function stDraw(){document.getElementById('stbar').innerHTML=STN.map((s,i)=>'<div class="st '+(STS[i]==='100%'?'done':STS[i]!=='-'?'now':'')+(cur===i+1?' on':'')+'" onclick="stOpen('+(i+1)+')"><b>'+s[0]+'</b>'+s[1]+'<span class="pc">'+STS[i]+'</span></div>').join('');stOpen(cur);}
+function stOpen(n){cur=n;document.querySelectorAll('#stbar .st').forEach((e,i)=>e.classList.toggle('on',i===n-1));const V=document.getElementById('stview');
+ if(n<=3){V.innerHTML='<b>🎧 STEP'+n+' '+STN[n-1][1]+' — 해설 영상 + 교안</b> <span class="mini">(기존 플레이어가 이 자리에 열림)</span><div class="sync" style="margin-top:6px"><div class="screen"><span class="playbtn">▶</span><span>「빙그레의 영역」 STEP'+n+' 해설 영상 · 18분</span></div><div class="gyoan">교안 STEP'+n+' 면 (기존 뷰어)</div></div><p class="mini" style="margin-top:6px">책갈피 확인 학습 즉답(기존) — 답하면 출처=확인학습으로 기록 · 다 보면 칸이 100%</p>';}
+ else if(n===4){V.innerHTML='<b>✍ STEP4 서답 — 주관식·서술형</b><p class="mini">문항 아래 칸에 직접 씀. 저장하면 교사가 교실에서 확인(✔/보완).</p><div class="q"><span class="no">1번</span><div class="stem">「빙그레의 영역」이 사물이 아니라 사람에게서 비롯된다고 볼 수 있는 근거를 본문에서 찾아 두 문장으로 쓰시오.</div><textarea class="ans" placeholder="여기에 씀"></textarea></div><button class="btn">저장 (교사 확인 대기)</button>';}
+ else if(n===5){V.innerHTML='<b>✍ STEP5 단권 — 암기 후 본문 분석 작성</b><p class="mini">노트에 쓴 것을 사진으로. <b>학생이 직접 올리거나, 교사가 교실에서 찍어 올림</b> — 둘 다 같은 자리에 들어오고 「올린 사람」이 기록됨.</p><div class="two"><div class="photo">📷 내가 올리기<br><span class="mini">휴대폰 카메라·갤러리</span></div><div class="photo">🏫 교실에서 선생님이 찍어 줌<br><span class="mini">교사 화면에서 이 학생·이 STEP에 첨부 → 여기 표시</span></div></div><p class="mini" style="margin-top:6px">올린 사진 1장 (8/12 교사 촬영) · 진행 40% → 교사 확인 시 100%</p>';}
+ else{ctx={src:'STEP'+n,label:'STEP'+n+' '+STN[n-1][1]};V.innerHTML='<b>📝 '+ctx.label+' — 지문 + 문항 풀기 → 즉시 채점</b> <span class="mini">기록 출처=STEP'+n+'</span><div id="solvebox"></div>';renderSolve('solvebox');}}
+function renderSolve(id){picked={};conf={};t0=Date.now();document.getElementById(id).innerHTML='<div class="solve" style="margin-top:8px"><div class="psg">'+psg()+'</div><div><div id="qs"></div><div style="display:flex;gap:8px;align-items:center"><button class="btn" onclick="submit(\''+id+'\')">제출하고 채점 보기</button><span class="mini" id="left"></span></div></div></div>';draw();}
+function openSolve(src,label){ctx={src:src+' '+label,label:src+' '+label};document.getElementById('rv').innerHTML='<div class="sub2"><b>📝 '+ctx.label+' — 「빙그레의 영역」 3문항</b><div id="rvbox"></div></div>';renderSolve('rvbox');}
+function draw(){document.getElementById('qs').innerHTML=IT.map((q,i)=>'<div class="q"><span class="no">'+(i+1)+'번</span>'+(q.bogi?'<div class="bogi"><b>〈보기〉</b>'+esc(q.bogi)+'</div>':'')+'<div class="stem">'+esc(q.stem)+'</div>'+q.opts.map((o,k)=>'<label class="'+(picked[q.id]===k+1?'pick':'')+'"><input type="radio" name="q'+q.id+'" onchange="pk('+q.id+','+(k+1)+')" '+(picked[q.id]===k+1?'checked':'')+'> '+(k+1)+'. '+esc(o)+'</label>').join('')+'<label class="'+(conf[q.id]==='모르겠음'?'pick':'')+'"><input type="checkbox" onchange="conf['+q.id+']=this.checked?\'모르겠음\':\'확신\';draw()" '+(conf[q.id]==='모르겠음'?'checked':'')+'> 모르겠음(찍었어요)</label></div>').join('');document.getElementById('left').textContent='답한 문항 '+Object.keys(picked).length+'/'+IT.length;}
+function pk(id,k){picked[id]=k;draw();}
+function submit(id){if(Object.keys(picked).length<IT.length){alert('안 푼 문항이 있어요');return;}const sec=Math.floor((Date.now()-t0)/1000);const result=IT.map(q=>({q,pick:picked[q.id],ok:picked[q.id]===q.ans,conf:conf[q.id]||'확신',sec:Math.round(sec/IT.length)}));const n=result.filter(r=>r.ok).length;
+ document.getElementById(id).innerHTML='<div class="solve" style="margin-top:8px"><div><div class="res '+(n===IT.length?'ok':'no')+'"><b>'+n+' / '+IT.length+'</b> · '+Math.round(100*n/IT.length)+'점 · '+sec+'초 · <span class="src">'+esc(ctx.src)+'</span>'+(n<IT.length?'<br>틀린 문항 '+(IT.length-n)+'개 — 오답노트에 담겼어요':'<br>전부 맞았어요'+(ctx.src.startsWith('STEP')?' — 칸이 100%가 되고 다음 STEP이 열려요':' — 다음 회차가 열려요'))+'</div>'
+  +result.map((r,i)=>'<div class="q"><span class="no">'+(i+1)+'번 '+(r.ok?'⭕':'❌')+'</span> <span class="mini">내 답 '+r.pick+' · 정답 '+r.q.ans+(r.conf==='모르겠음'?' · 찍음':'')+'</span>'+(r.q.bogi?'<div class="bogi"><b>〈보기〉</b>'+esc(r.q.bogi)+'</div>':'')+'<div class="stem">'+esc(r.q.stem)+'</div>'+r.q.opts.map((o,k)=>'<label class="'+(k+1===r.q.ans?'ok':(k+1===r.pick?'no':''))+'">'+(k+1)+'. '+esc(o)+'</label>').join('')+'<div class="exp"><b>해설</b> (문항 표의 해설 원문)'+(r.ok?'':'<br><b>왜 틀렸나</b> '+(ACL[r.q.acl]||r.q.acl)+' 유형 · '+(KLA[r.q.kla]||r.q.kla)+'<br><b>다음 할 일</b> 같은 유형 3문항이 다음에 먼저')+'</div></div>').join('')+'</div><div class="psg">'+psg()+'</div></div>';
+ const W=document.getElementById('wrongs');result.filter(r=>!r.ok).forEach(r=>{W.insertAdjacentHTML('afterbegin','<div class="q chg"><span class="src">'+esc(ctx.src)+'</span><span class="src">방금</span><div class="stem">'+esc(r.q.stem)+'</div><div class="exp"><b>왜 틀렸나</b> '+(ACL[r.q.acl]||r.q.acl)+' 유형 · '+(KLA[r.q.kla]||r.q.kla)+' — 내 답 '+r.pick+' · 정답 '+r.q.ans+'<br><b>다음 할 일</b> 같은 유형 3문항 · <button class="btn o sm">다시 풀기</button> <button class="btn o sm">극복 체크</button></div></div>');});
+ var _r=document.getElementById('rec');if(_r)_r.innerHTML='<table class="rec"><tr><th>student_id</th><th>item_id</th><th>session</th><th>chosen</th><th>is_correct</th><th>sec</th><th>confidence</th><th>source</th><th>acl</th><th>kla</th><th>lv</th></tr>'+result.map(r=>'<tr><td>82</td><td>'+r.q.id+'</td><td>2650-'+esc(ctx.src)+'</td><td>'+r.pick+'</td><td>'+r.ok+'</td><td>'+r.sec+'</td><td>'+r.conf+'</td><td>'+esc(ctx.src)+'</td><td>'+r.q.acl+'</td><td>'+r.q.kla+'</td><td>'+r.q.lv+'</td></tr>').join('')+'</table><p class="mini" style="margin-top:6px">+ '+(ctx.src.startsWith('STEP')?'STEP 진행 기록 1행('+esc(ctx.src)+' → 완료)':'복습테스트 회차 요약 1행('+esc(ctx.src)+' · '+n+'/'+IT.length+')')+' + 오답노트 '+(IT.length-n)+'행</p>';}
+stDraw();</script></body>
+</html>
