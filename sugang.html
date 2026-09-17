@@ -264,6 +264,11 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
         <label class="form-label">강좌명 *</label>
         <input class="form-input" id="fTitle" placeholder="강좌 제목을 입력하세요">
       </div>
+        <div class="form-group" id="fReqWrap"><!-- 신청 연결 (#6951) -->
+          <label class="form-label">어느 신청으로 만드나</label>
+          <select class="form-select" id="fReq" onchange="onReqChange()"><option value="">신청 없이 등록</option></select>
+          <div class="form-hint" id="fReqHint">본점이 승인한 강좌 제작 건이 여기 목록에 옵니다. 고르면 저장과 함께 「제작 완료 보고」가 자동으로 되고, 공개는 본점 확인 후 됩니다.</div>
+        </div>
 
       <!-- 카테고리 드릴다운 -->
       <div style="background:var(--bg);border-radius:12px;padding:16px;margin-bottom:16px;border:1.5px solid var(--border)">
@@ -295,7 +300,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
         <div class="form-group">
           <label class="form-label">공개 여부</label>
           <select class="form-select" id="fPublished">
-            <option value="0">비공개</option>
+            <option value="0">비공개 — 본점 확인 후 공개</option>
             <option value="1">공개</option>
           </select>
         </div>
@@ -1026,6 +1031,7 @@ async function ensureCats(){
 function openAddModal(){
   if(!GZ_CANWRITE)return;
   document.getElementById('modalTitle').textContent='강좌 등록';
+  document.getElementById('fReqWrap').style.display=''; document.getElementById('fReq').value=''; document.getElementById('fPublished').disabled=false; loadReqOptions();
   document.getElementById('fId').value='';
   document.getElementById('fTitle').value='';
   document.getElementById('fCurriculum').value=cur==='내신'?'내신':'수능';
@@ -1049,6 +1055,7 @@ async function openEditModal(id){
   const cat=ALL_CATS.find(c=>c.id===catId);
   
   document.getElementById('modalTitle').textContent='강좌 수정';
+  document.getElementById('fReqWrap').style.display='none'; document.getElementById('fPublished').disabled=false;
   document.getElementById('fId').value=id;
   document.getElementById('fTitle').value=lec.t;
   document.getElementById('fPublished').value=lec.p?'1':'0';
@@ -1185,6 +1192,8 @@ function updateCatResult(){
   }
 }
 
+async function loadReqOptions(){ const s=document.getElementById('fReq'); if(!s) return; try{ const{data}=await sb.rpc('gz_req_making_list'); s.innerHTML='<option value="">신청 없이 등록</option>'+(data||[]).map(r=>'<option value="'+r.id+'"'+(r.made?' disabled':'')+'>#'+r.id+' · '+r.who+' — '+r.title+(r.due?' (마감 '+String(r.due).slice(5).replace('-','/')+')':'')+(r.made?' · 보고됨':'')+'</option>').join(''); }catch(e){} }
+function onReqChange(){ const v=document.getElementById('fReq').value, p=document.getElementById('fPublished'); if(v){ p.value='0'; p.disabled=true; document.getElementById('fReqHint').textContent='저장하면 이 신청에 「제작 완료 보고」가 자동으로 되고, 본점이 확인하면 공개됩니다.'; } else { p.disabled=false; } }
 async function saveLecture(){
   if(!GZ_CANWRITE){showToast('열람 전용입니다','error');return;}
   const id=document.getElementById('fId').value;
@@ -1197,13 +1206,15 @@ async function saveLecture(){
   const tagsStr=document.getElementById('fTags').value;
   const tags=tagsStr?tagsStr.split(',').map(t=>t.trim()).filter(Boolean):null;
   
+  const reqId=+((document.getElementById('fReq')||{}).value||0);
   const payload={
     title:title,
     category_id:catId,
-    is_published:document.getElementById('fPublished').value==='1',
+    is_published:reqId?false:document.getElementById('fPublished').value==='1',
     tags:tags,
     updated_at:new Date().toISOString()
   };
+  if(reqId) payload.request_flow_id=reqId;
 
   try{
     if(id){
@@ -1213,9 +1224,10 @@ async function saveLecture(){
     }else{
       payload.created_at=new Date().toISOString();
       payload.sort_order=9999;
-      const{error}=await sb.from('lectures').insert(payload);
+      const{data:ins,error}=await sb.from('lectures').insert(payload).select('id');
       if(error) throw error;
       showToast('등록 완료!');
+      if(reqId&&ins&&ins[0]){ try{ const{data:md}=await sb.rpc('gz_req_made_lecture',{p_flow:reqId,p_lecture:ins[0].id}); showToast(md&&md.ok?'제작 완료 보고 — 본점 확인 후 공개':'완료 보고 실패: '+((md&&md.reason)||''),md&&md.ok?'success':'error'); }catch(e){ showToast('완료 보고 실패','error'); } }
     }
     closeModal();
     SUN_LOADED=false;NAE_LOADED=false;
