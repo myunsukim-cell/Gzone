@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>국존 생산 현황판 — 검색 · 현황 · 교안 뷰어</title>
+<style>
+:root{--ground:#EDF0EE;--panel:#fff;--ink:#151E1B;--mid:#5C6B66;--line:#CBD4D0;
+--on:#0E6B57;--onbg:#D7E9E2;--off:#E4E9E7;--warn:#B4531F;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.page{max-width:1400px;margin:0 auto;padding:40px 28px 80px}
+header.top{border-bottom:3px solid var(--ink);padding-bottom:18px}
+h1{margin:0 0 6px;font-size:30px;font-weight:800;letter-spacing:-.03em}
+.meta{color:var(--mid);font-size:13px;margin:0}
+.tally{display:flex;margin:26px 0 34px;border:1px solid var(--line);background:var(--panel)}
+.tally div{flex:1;padding:16px 18px;border-right:1px solid var(--line)}
+.tally div:last-child{border-right:0}
+.tally b{display:block;font-size:28px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tally span{color:var(--mid);font-size:12px}
+section.book{margin-bottom:40px}
+.bh{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;margin-bottom:6px}
+h2{margin:0;font-size:19px;font-weight:700;letter-spacing:-.02em}
+.bm{display:flex;gap:14px;color:var(--mid);font-size:12.5px}
+.bm i{font-style:normal;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+p.rule{margin:0 0 10px;font-size:12px;color:var(--mid)}
+p.rule code{background:#E2E8E5;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--ink)}
+p.rule span{display:block;margin-top:4px}
+.wrap{overflow-x:auto;border:1px solid var(--line);background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:1120px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:#E6EBE9;font-size:11.5px;font-weight:700;color:var(--mid);white-space:nowrap;position:sticky;top:0;border-bottom:2px solid var(--ink)}
+th.n,td.n,th.s,td.s{text-align:center;font-variant-numeric:tabular-nums}
+th.s,td.s{width:34px;padding:9px 4px}
+td.s{font-size:12px;font-weight:700}
+td.s.on{background:var(--onbg);color:var(--on)}
+td.s.off{background:var(--off);color:transparent}
+td.num{white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums;width:76px}
+td.unit b{font-weight:600}
+.wid{display:block;color:var(--mid);font-size:11.5px}
+td.jae{max-width:320px;font-size:12.5px;line-height:1.65}
+.ja{color:var(--mid);font-size:11.5px}
+.ja:before{content:" · "}
+.none{color:#A9B4B0}
+td.gen{font-size:12.5px;white-space:nowrap}
+.sub{display:block;color:var(--mid);font-size:11.5px}
+td.h0{color:var(--warn);font-weight:700}
+.pill{display:inline-block;padding:2px 9px;font-size:11.5px;font-weight:700;white-space:nowrap;border:1px solid}
+.p-done{background:var(--on);border-color:var(--on);color:#fff}
+.p-mid{background:var(--onbg);border-color:var(--on);color:var(--on)}
+.p-low{background:#fff;border-color:#8A7A55;color:#8A7A55}
+.p-none{background:#fff;border-color:var(--warn);color:var(--warn)}
+td.st{font-size:11.5px;color:var(--mid);white-space:nowrap}
+td.st.ok{color:var(--on)}
+td.st.wait{color:var(--warn)}
+tr.dae td{background:#F4F7F6;color:var(--mid)}
+tr.dae td.unit b{font-weight:500}
+.manual{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ink);padding:22px 26px;margin-bottom:34px}
+.manual h2{margin:0 0 12px}
+.manual ol{margin:0;padding-left:20px}
+.manual li{margin-bottom:7px;font-size:13px;line-height:1.6}
+.manual code{background:#E2E8E5;padding:1px 5px;font-family:ui-monospace,Menlo,monospace;font-size:12px}
+.manual p.q{margin:12px 0 0;font-size:12.5px;color:var(--mid)}
+footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);color:var(--mid);font-size:12px}
+footer p{margin:4px 0}
+@media(max-width:640px){.page{padding:24px 12px 60px}h1{font-size:22px}.tally{flex-wrap:wrap}.tally div{flex:1 0 50%;border-bottom:1px solid var(--line)}}
+
+html,body{height:100%}
+body{display:flex;flex-direction:column;font-size:13px}
+.topbar{display:flex;align-items:center;gap:12px;padding:10px 18px;background:var(--panel);border-bottom:3px solid var(--ink)}
+.topbar b{font-size:16px;font-weight:800;letter-spacing:-.02em}
+.topbar .m{font-size:12px;color:var(--mid)}
+.layout{display:flex;flex:1;min-height:0}
+.rail{width:220px;flex:none;background:var(--panel);border-right:1px solid var(--line);padding:14px 12px;overflow:auto}
+.rail h3{font-size:11px;color:var(--mid);margin:12px 0 4px;font-weight:700;letter-spacing:.02em}
+.rail select,.rail input{width:100%;font-size:12.5px;padding:5px 6px;border:1px solid var(--line);background:#fff;font-family:inherit}
+.rail label{display:block;font-size:12px;margin-top:6px;color:var(--ink)}
+.rail .go{width:100%;margin-top:14px;background:var(--ink);color:#fff;border:0;padding:10px;font-weight:800;cursor:pointer;font-family:inherit;font-size:13px}
+.rail .role{display:flex;border:1.5px solid var(--ink);overflow:hidden}
+.rail .role span{flex:1;text-align:center;padding:5px;cursor:pointer;font-weight:700}
+.rail .role span.on{background:var(--ink);color:#fff}
+.rail .note{font-size:11.5px;color:var(--mid);margin-top:12px;line-height:1.6}
+.center{flex:1;min-width:0;overflow:auto}
+.center .page{max-width:none;padding:26px 24px 60px}
+.center h1{font-size:24px}
+.center .tally{margin:18px 0 22px}
+.center .manual{padding:14px 20px;margin-bottom:22px}
+.center .manual summary{cursor:pointer;font-weight:700;font-size:15px;list-style:none}
+.center .manual summary::-webkit-details-marker{display:none}
+.center .manual ol{margin-top:10px}
+.center section.book{margin-bottom:28px}
+.center table{min-width:900px}
+.center th,.center td{padding:7px 8px}
+tr.row{cursor:pointer}
+tr.row:hover td{background:#F4F7F6}
+tr.row.sel td{background:#FFF6E6}
+td.s.on{cursor:pointer}
+td.split .wid{color:var(--warn)}
+#msg{padding:30px;color:var(--mid);background:var(--panel);border:1px solid var(--line)}
+.viewer{width:33%;flex:none;background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.viewer .vh{padding:12px 14px;border-bottom:2px solid var(--ink)}
+.viewer .vh b{display:block;font-size:14px;font-weight:800}
+.viewer .vh .w{font-size:11.5px;color:var(--mid)}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.tabs span{border:1px solid var(--line);padding:2px 8px;font-size:11.5px;cursor:pointer;background:#fff;font-weight:700}
+.tabs span.on{background:var(--on);color:#fff;border-color:var(--on)}
+.tabs span.ans{border-color:var(--warn);color:var(--warn)}
+.tabs span.ans.on{background:var(--warn);color:#fff}
+.viewer iframe{flex:1;border:0;width:100%;background:#fff}
+
+#prepbox{margin-bottom:6px}:root{--deep:#1E4D3B;--gold:#B8892E;--red:#A4472F;--line:#d8d4c8;--dim:#8a8577;--band:#f4f8f5}*{box-sizing:border-box;margin:0;padding:0} #prepbox h1{font-size:17px;color:var(--deep)} #prepbox .sub{font-size:11.5px;color:var(--dim);margin:2px 0 10px} #prepbox .bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px} #prepbox .bt{border:1.5px solid var(--deep);background:#fff;color:var(--deep);border-radius:16px;padding:4px 11px;font-size:12px;cursor:pointer;font-family:inherit} #prepbox .bt.on{background:var(--deep);color:#fff} #prepbox .kpis{display:flex;gap:8px;margin-bottom:10px} #prepbox .kpi{background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px 12px;min-width:110px} #prepbox .kpi b{display:block;font-size:18px;color:var(--deep)} #prepbox .kpi span{font-size:10.5px;color:var(--dim)} #prepbox .kpi.warn b{color:var(--red)}
+#prepbox table{width:100%;border-collapse:collapse;background:#fff;font-size:12px}#prepbox th,#prepbox td{border-bottom:1px solid #eee;padding:5px 7px;text-align:left}#prepbox th{background:#efede6;font-size:11px} #prepbox tr.main{cursor:pointer} #prepbox tr.main:hover td{background:var(--band)} #prepbox tr.today td{background:#fff8ea} #prepbox .d{font-weight:800} #prepbox .d.now{color:var(--red)} #prepbox .d.soon{color:var(--gold)} #prepbox .full{color:var(--deep);font-weight:700} #prepbox .gap{color:var(--red);font-weight:700} #prepbox .noscope{color:var(--dim)} #prepbox tr.detail td{background:#fbfaf6;padding:8px 14px} #prepbox .w{display:inline-block;border-radius:4px;padding:1px 6px;font-size:11px;margin:2px 4px 2px 0;border:1px solid var(--line)} #prepbox .w.ok{background:#e2efe6;color:var(--deep)} #prepbox .w.no{background:#f3ddda;color:var(--red)} #prepbox .foot{font-size:11px;color:var(--dim);margin-top:8px} #prepbox .link{color:var(--deep);font-weight:700;cursor:pointer;text-decoration:underline}
+
+</style></head><body>
+<div class="topbar"><b>수업준비 · 시험범위</b><span class="m">다가오는 시험 · 범위 · 교안 준비를 한 판에서</span><span class="m" id="asof" style="margin-left:auto"></span></div>
+<!-- [v2 새 판 · 2026-09-11 국존 승인 · 목업 mock_prep_v1 946b29b5 · 『UX 원칙 101』] 두 칸: 시험 목록 | 고른 시험. 원천 gz2_prep_list·gz2_exam_scope_status·gz_prep_exam_students, 국어일 저장 gz2_exam_schedule_upsert(기존) -->
+<style>
+#nv{--nk:#1a1a2e;--nl:#e2ddd0;--ng:#1E4D3B;--nw:#A4472F;--nm:#6b6b7b;--ns:#faf9f5;--nh:#8a6d1f;font:15px/1.55 "Noto Sans KR","Apple SD Gothic Neo",sans-serif;color:var(--nk);background:#f4f3ee;padding:10px 16px 18px}
+#nv .nvapp{display:grid;grid-template-columns:minmax(520px,1fr) minmax(560px,1.1fr);gap:14px}
+#nv .nvp{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);padding:12px 14px;min-height:300px}
+#nv .nvbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}#nv .nvbar input,#nv .nvbar select{font:inherit;font-size:14px;padding:6px 9px;border:1px solid #c8c3b3;border-radius:8px;min-height:36px}
+#nv .nvtog{display:inline-flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;user-select:none}#nv .nvsw{width:36px;height:20px;border-radius:10px;background:#cfcabd;position:relative;display:inline-block}#nv .nvsw i{position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.15s}#nv .nvsw.on{background:var(--ng)}#nv .nvsw.on i{left:18px}
+#nv .nvlink{border:0;background:none;color:#555;text-decoration:underline;cursor:pointer;font:inherit;font-size:13.5px;padding:0}
+#nv .nvchips{display:flex;gap:6px;margin:10px 0 6px;flex-wrap:wrap}#nv .nvchips button{border:1px solid var(--nl);background:var(--ns);border-radius:16px;padding:4px 12px;font:inherit;font-size:13.5px;cursor:pointer}#nv .nvchips button.on{background:var(--nk);color:#fff;border-color:var(--nk)}
+#nv .nvrow{display:grid;grid-template-columns:58px 1fr auto;gap:8px;align-items:center;padding:8px 6px;border-bottom:1px solid #f0ede4;cursor:pointer;border-radius:8px}#nv .nvrow:hover{background:#fbfaf6}#nv .nvrow.sel{background:#eef5f0;box-shadow:inset 3px 0 0 var(--ng)}
+#nv .nvdd{font-weight:700}#nv .nvdd small{display:block;font-weight:400;color:var(--nm);font-size:12px}#nv .nvnm b{font-size:15px}#nv .nvnm small{display:block;color:var(--nm);font-size:12.5px}
+#nv .nvst{display:flex;gap:4px;justify-content:flex-end;flex-wrap:wrap}#nv .nvst span{font-size:12px;border-radius:10px;padding:1px 7px;white-space:nowrap}
+#nv .ok{background:#e5efe9;color:var(--ng)}#nv .no{background:#fbe4dd;color:var(--nw)}#nv .mid{background:#f8eed3;color:var(--nh)}
+#nv .nvdt{display:flex;margin:2px 0 8px 64px;align-items:center;gap:8px;font-size:13.5px}#nv .nvdt input{font:inherit;padding:5px 8px;border:1px solid #c8c3b3;border-radius:7px}
+#nv h2{font-size:18px;margin:0}#nv .nvsub{color:var(--nm);font-size:13.5px}
+#nv .nvkpi{display:flex;gap:8px;margin:10px 0}#nv .nvkpi div{flex:1;background:var(--ns);border-radius:10px;padding:8px 10px}#nv .nvkpi b{font-size:18px;display:block}#nv .nvkpi span{font-size:12.5px;color:var(--nm)}
+#nv h3{font-size:14.5px;color:var(--ng);margin:16px 0 6px;display:flex;justify-content:space-between;align-items:center}
+#nv .nvw{display:grid;grid-template-columns:1fr 150px 170px;gap:8px;align-items:center;padding:6px 4px;border-bottom:1px solid #f3f0e8;font-size:14px}#nv .nvw small{color:var(--nm);font-size:12.5px}
+#nv .nvpb{height:7px;background:#ebe7dc;border-radius:4px;overflow:hidden}#nv .nvpb i{display:block;height:100%}#nv .nvpbl{font-size:12px;color:var(--nm)}#nv .nvx{font-size:12.5px;color:#555}
+#nv .nvbtn{border:1px solid #c8c3b3;background:#fff;border-radius:8px;padding:6px 12px;font:inherit;font-size:13.5px;cursor:pointer}#nv .nvtag{font-size:11.5px;background:#eef0f4;color:#556;border-radius:8px;padding:0 6px;margin-left:5px}
+#nv .nvtoast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--nk);color:#fff;border-radius:10px;padding:9px 15px;display:none;z-index:9999;font-size:14px}#nv .nvtoast u{margin-left:10px;cursor:pointer}
+#nv .nvold{margin-top:10px;text-align:right}
+</style>
+<div id="nv">
+ <div class="nvapp">
+  <div class="nvp">
+   <div class="nvbar"><input id="nvq" placeholder="학교 이름" style="width:160px"><select id="nvg"><option value="">모든 학년</option><option>중1</option><option>중2</option><option>중3</option><option>고1</option><option>고2</option><option>고3</option></select><span class="nvtog" id="nvmine"><span class="nvsw on"><i></i></span>내 학생 시험만</span><button class="nvlink" id="nvmore">조건 더 보기(출판사·요일·연도 — 예전 화면)</button></div>
+   <div class="nvchips" id="nvchips"></div>
+   <div id="nvlist"><p class="nvsub">불러오는 중…</p></div>
+  </div>
+  <div class="nvp" id="nvdet"><p class="nvsub">왼쪽에서 시험을 고르세요.</p></div>
+ </div>
+ <div class="nvold"><button class="nvlink" id="nvoldbtn">예전 화면 열기 (교재 흐름판 · 생산 현황판 · 시험일 표 · 단계별 표)</button></div>
+ <div class="nvtoast" id="nvtoast"><span id="nvtt"></span><u id="nvundo">되돌리기</u></div>
+</div>
+<div class="layout">
+<div class="rail">
+  <div class="role"><span data-r="교사" class="on">교사</span><span data-r="학생">학생</span></div>
+  <h3>진입 기준</h3>
+  <label>담당 교사 <select id="f_teacher"><option value="">—</option></select></label>
+  <label>학교 <input id="f_school" list="schools" placeholder="학교명"><datalist id="schools"></datalist></label>
+  <label>학년 <select id="f_grade"><option value="">전체</option></select></label>
+  <h3>교재</h3>
+  <label>출판사·교재 코드 <select id="f_book"><option value="">전체(학교로 결정)</option></select></label>
+  <label>학기 <select id="f_sem"><option value="">전체</option><option>1학기</option><option>2학기</option></select></label>
+  <h3>시간표</h3>
+  <label>요일 <select id="f_dow"><option value="">전체</option><option value="1">월</option><option value="2">화</option><option value="3">수</option><option value="4">목</option><option value="5">금</option><option value="6">토</option><option value="7">일</option></select></label>
+  <label>시간 <select id="f_time"><option value="">전체</option></select></label>
+  <label><input type="checkbox" id="f_week" style="width:auto"> 이번 주 수업 학생 기준</label>
+  <button class="go" id="go">조회</button>
+  <div class="note">조회 조건은 각 표 위에 SQL로 그대로 찍힌다(8조). 교재를 안 고르면 학교 배정 교재(school_textbooks)로 결정된다.</div>
+</div>
+<div class="center"><div class="page">
+  <details id="bookflow" open><summary style="cursor:pointer;font-size:15px;font-weight:800;color:var(--ink,#1f2a24);margin-bottom:8px">📚 교재 흐름판 — 주문 → DB 점검 → 할 일 → 세팅 → 배정 → 진도 <span style="font-size:11px;color:#8a8577;font-weight:400">(학생 1명 기준 · 주문 저장 순간 6램프 점검·할 일 자동 · 세팅 안 된 강좌는 배정 잠금 · v1 2026-09-07)</span></summary>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><input id="bfStu" placeholder="학생 이름" style="padding:5px 8px;border:1px solid #d8d4c8;border-radius:6px;font:inherit;width:140px"><button class="bt" id="bfGo">흐름판 조회</button><span class="m" id="bfMsg" style="font-size:11px;color:#8a8577"></span></div>
+  <div id="bfOrder" style="display:none;margin-bottom:8px;padding:8px;border:1px dashed #b8b2a3;border-radius:6px"><div style="font-size:11px;color:#8a8577;margin-bottom:4px">① 교재 주문 — 1.0 강좌 목록을 그대로 붙여넣기(권수·강좌명·쪽 그대로) → 강좌 자동 매칭 → 저장 순간 ②③ 자동</div><textarea id="bfPaste" rows="3" style="width:100%;font:inherit;font-size:12px;padding:6px;border:1px solid #d8d4c8;border-radius:6px" placeholder="1권	세플 G독 독서 독해법 기본편(예비고1 기본 커리큘럼_독서편) 1. 문장 읽기	82"></textarea><div style="display:flex;gap:6px;margin-top:4px;align-items:center"><select id="bfType" style="font:inherit;font-size:12px"><option>제작</option><option>기성</option></select><input id="bfQty" type="number" value="1" min="1" style="width:56px;font:inherit;font-size:12px"><button class="bt on" id="bfSave">주문 저장</button><span id="bfSaveMsg" style="font-size:11px"></span></div></div>
+  <div id="bfBody"><div style="color:#8a8577;font-size:12px">학생 이름을 넣고 조회 — 예: 김준기</div></div>
+  </details>
+  <details id="calbox" open><summary style="cursor:pointer;font-size:15px;font-weight:800;color:var(--ink,#1f2a24);margin-bottom:8px">📆 시험 달력 <span style="font-size:11px;color:#8a8577;font-weight:400">막대 = 시험기간 · <b style="color:#b42318">●</b> = 국어 시험일(D-day 기준) · 재원 학교·학년만 · 칸 클릭 = 조회</span></summary>
+ <div class="bar" style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><button class="bt" onclick="calMove(-1)" id="cal_prev">◀ 2주 전</button><b id="cal_title" style="font-size:14px"></b><button class="bt" onclick="calMove(1)" id="cal_next">2주 뒤 ▶</button><button class="bt" onclick="calMove(0)">오늘부터</button><button class="bt" onclick="calToggle()" id="cal_mode">월 보기</button><span id="cal_sum" style="font-size:12px;color:#8a8577"></span></div>
+ <div id="cal_grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;font-size:11px"></div>
+</details>
+<style>.cd{min-height:78px;border:1px solid #e3e6ea;border-radius:6px;padding:3px 4px;background:#fff;cursor:pointer}.cd.o{background:#f6f7f9;color:#aaa}.cd .d{font-weight:700;font-size:11px;margin-bottom:2px}
+.cd.m1{border-left:3px solid #1E4D3B}.cd.m1 .d{color:#1E4D3B}.cd.today .d{color:#B8892E}.cd .cbs{display:grid;grid-template-columns:1fr 1fr;gap:1px 2px}
+.cb{display:block;font-size:10px;line-height:1.25;padding:1px 3px;border-radius:3px;margin:0;background:#e6f1f7;color:#075985;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}.cb.k{background:#fdecec;color:#b42318;font-weight:700}.cb.k:before{content:"● "}.cb.c{border-left:3px solid #15803d}.cw{font-weight:700;text-align:center;color:#5f5b52;padding:2px 0}</style>
+<details id="exqbox" open><summary style="cursor:pointer;font-size:15px;font-weight:800;color:var(--ink,#1f2a24);margin-bottom:8px">🔎 시험 일정 조회 <span style="font-size:11px;color:#8a8577;font-weight:400">school_exams 전체(이력 포함) — 연도·학기·시험·출판사·학교·학년·상태·날짜 유무</span></summary>
+ <div class="bar" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+  <select id="exq_y"><option value="">연도 전체</option></select>
+  <select id="exq_s"><option value="">학기 전체</option></select>
+  <select id="exq_t"><option value="">시험 전체</option><option>중간</option><option>기말</option><option value="모의">모의·학평</option></select>
+  <select id="exq_p"><option value="">출판사 전체</option></select>
+  <input id="exq_sch" placeholder="학교" style="width:110px">
+  <select id="exq_g"><option value="">학년 전체</option></select>
+  <select id="exq_st"><option value="">상태 전체</option></select>
+  <select id="exq_hd"><option value="">날짜 유무</option><option value="y">날짜 있음</option><option value="n">날짜 없음</option></select>
+  <button class="bt on" onclick="exqLoad()">조회</button><button class="bt" onclick="exqReset()">초기화</button>
+  <span id="exq_sum" style="font-size:12px;color:#8a8577"></span>
+ </div>
+ <table><thead><tr><th>시험기간</th><th>국어일</th><th>D-day</th><th>학교 · 학년</th><th>연도·학기·시험</th><th>출판사</th><th>상태</th><th>확정</th><th>재원</th><th>범위</th><th>문항</th><th>5460H</th><th></th></tr></thead><tbody id="exq_tb"><tr><td colspan="13" style="color:#8a8577">조회 버튼을 누르면 표시</td></tr></tbody></table>
+ <div class="foot">행의 「입력」 = 아래 등록 패널로 그 조합을 불러와 시작·종료·확정 수정 · 출판사 = school_publishers(학교·학년·과목) 정본, 시험 행에 교재가 있으면 그것 우선</div>
+</details>
+<div id="focusbar" style="display:none;background:#fff8ea;border:1.5px solid #B8892E;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:13px;align-items:center;gap:10px;flex-wrap:wrap"><b id="focus_txt"></b><span id="focus_sub" style="color:#8a8577;font-size:12px"></span><button class="bt" onclick="focusClear()">전체 보기</button></div>
+<details id="exdbox" open><summary style="cursor:pointer;font-size:15px;font-weight:800;color:var(--ink,#1f2a24);margin-bottom:8px">🗓 시험일 등록·확정 <span style="font-size:11px;color:#8a8577;font-weight:400">재원 중·고 학교·학년 전부 — 시작·종료·상태 입력, 「확정」 체크 시 카드·리포트 D-day 정본</span></summary>
+ <div class="bar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+  <label>연도 <input id="exd_y" type="number" style="width:70px" value="2026"></label>
+  <label>학기 <select id="exd_s"><option>1학기</option><option selected>2학기</option></select></label>
+  <label>시험 <select id="exd_t"><option selected>중간</option><option>기말</option></select></label>
+  <button class="bt" onclick="exdLoad()">조회</button> <button class="bt" onclick="exdFilter=!exdFilter;exdRender()">날짜 없는 것만</button> <button class="bt" onclick="exdShowDel=!exdShowDel;exdRender()">삭제한 것 보기</button>
+  <span id="exd_sum" style="font-size:12px;color:#8a8577"></span>
+ </div>
+ <table><thead><tr><th>학교 · 학년</th><th>재원</th><th>시험기간 시작</th><th>종료</th><th>국어 시험일</th><th>상태</th><th>확정</th><th>D-day(국어일 기준)</th><th>범위</th><th></th></tr></thead><tbody id="exd_tb"><tr><td colspan="10" style="color:#8a8577">조회 버튼을 누르면 표시</td></tr></tbody></table>
+ <div class="foot">저장 규칙: D-day 기준일 = 국어 시험일(있으면) → 없으면 시험기간 시작일 · 국어일은 기간 안이어야 저장됨 · 확정 체크 = 상태 「확정」 · 중간·기말은 시작일 연도가 연도와 다르면 저장 거부</div>
+</details>
+<details id="prepbox" open><summary style="cursor:pointer;font-size:15px;font-weight:800;color:var(--ink,#1f2a24);margin-bottom:8px">📅 시험 창 — 다가올 시험 60일 × 재원생 × 교안 준비 <span style="font-size:11px;color:#8a8577;font-weight:400">(행 클릭 = 작품별 교안 유무 + 재원생 명단·담당·수업시간·진도 · 「현황판」 = 아래 판을 그 학교·학년 교재로 조회)</span></summary>
+<div class="sub" id="psub">적재 중…</div>
+<div class="bar"><button class="bt on" data-s="time">시간순</button><button class="bt" data-s="power">힘순</button><button class="bt" data-s="noscope">범위 미등록만</button></div>
+<div class="kpis" id="pkpis"></div>
+<table><thead><tr><th>다음 수업</th><th>학교 · 학년</th><th>시험</th><th>학생</th><th>범위 작품</th><th>교안 준비</th><th>결손</th><th></th></tr></thead><tbody id="ptb"><tr><td colspan="8" style="color:#8a8577">적재 중…</td></tr></tbody></table>
+<div class="foot">완비: 범위 작품 전부 교안 있음 · 결손 n: 교안 없는 작품 수 · 범위 미등록: exam_scope_items 0행 → 상담·경영에서 등록 후 판정</div></details><hr style="border:0;border-top:2px solid #1f2a24;margin:10px 0 14px"><header class="top"><h1 id="ttl">생산 현황판</h1><p class="meta" id="subttl">조건을 고르고 조회</p></header>
+  <div class="tally" id="kpis"></div>
+  <details class="manual"><summary>검색 규약 — 이 판을 다시 뽑는 방법 ▾</summary><ol>
+  <li><b>내신은 textbook_toc, 수능·모의·EBS는 works에서 찾는다.</b> works.title은 교과서 수록물의 경우 소단원명으로 적재되어 작품명으로 검색되지 않는다. 작품명은 textbook_toc.title에만 있다.</li>
+  <li><b>교재는 publisher만으로 갈리지 않는다.</b> 반드시 pub_code를 함께 건다. 같은 출판사가 한 학년에 여러 과목 교재를 낸다.</li>
+  <li><b>pub_code도 겹칠 수 있다.</b> 미래엔 MRE04는 독서와 작문과 문학이 함께 쓴다. subject 적재 여부로 갈라야 한다.</li>
+  <li><b>학기가 있는 교재는 semester를 반드시 건다.</b> 천재 CJ06은 1·2학기가 한 코드에 있고 대단원 번호가 양쪽에 1~4로 겹친다.</li>
+  <li><b>like 검색 금지.</b> <code>like '비상%'</code>는 비상과 비상(강호영)을 함께 잡는다. publisher는 정확 일치로 건다.</li>
+  <li><b>대단원 제목으로 교재를 추정하지 않는다.</b> 비상 BS06 2단원과 BS07 2단원은 번호가 같다. 제목으로 거르면 단원이 통째로 누락된다.</li>
+  <li><b>work_id를 직접 나열해 범위를 잡지 않는다.</b> 목록에 없는 단원이 조용히 빠진다. 반드시 교재 조건으로 건다.</li>
+  <li>집계 전 <b>교재별 소단원 수를 교과서 목차와 대조</b>한다. 수가 맞지 않으면 조건이 틀린 것이다.</li></ol>
+  <p class="q">이 판의 조회 조건은 각 표 위에 그대로 적혀 있다. 다른 교재로 바꿀 때는 그 줄만 교체한다.</p></details>
+  <div id="books"><div id="msg">적재 중…</div></div>
+  <footer><p>진척 판정 — 완주: STEP7·1·2 모두 산출 / 진행: STEP3 착수 / 채굴만: 원문만 적재 / 미채굴: 원문 0행</p><p>칸 안 숫자는 lecture_contents 산출물 건수. STEP3만 제재별 복수 산출이며 나머지 STEP은 소단원 1세트가 정상이다. 칸 클릭 = 우측 뷰어에 그 산출물.</p><p>work 발급 단위는 소단원 1개 = work 1개. 한 소단원에 work가 여럿인 행은 분할 발급 잔재이며 정리 대상이다.</p></footer>
+</div></div>
+<div class="viewer" id="viewer">
+  <div class="vh"><b id="vt">시험범위 정리 현황</b><span id="vs" class="w">달력·조회·시험 창에서 시험을 고르면 범위 작품별 단원·STEP·SPARK·CLEAR·5460·기출분석 유무</span><div class="tabs" id="vtabs" style="display:none"></div></div>
+  <div id="vf" style="padding:10px 12px;overflow:auto;font-size:12px;max-height:80vh"></div><style>#vf table{min-width:640px}#vf th,#vf td{padding:4px 5px;border-top:1px solid #e3e6ea;white-space:nowrap}#vf th{background:#f6f7f9;font-weight:600;font-size:11px}#vf td:nth-child(3){white-space:normal;min-width:150px}#vf td:nth-child(2){white-space:normal;max-width:130px}</style>
+</div>
+</div>
+<script>
+const URL_='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/';
+const KEY='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
+const H={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'};
+let ROLE='교사', LISTS=null, BOARD=null, SEL=null;
+const STEPS=[['s3','3'],['s4','4'],['s5','5'],['s6','6'],['s7','7'],['s1','1'],['s2','2'],['fin','완성']];
+async function rpc(fn,p){if(window.__BAKED__&&window.__BAKED__[fn+JSON.stringify(p)])return window.__BAKED__[fn+JSON.stringify(p)];const r=await fetch(URL_+fn,{method:'POST',headers:H,body:JSON.stringify(p)});if(!r.ok)throw new Error(fn+' '+r.status);return r.json();}
+function $(id){return document.getElementById(id);}
+async function init(){
+  LISTS=await rpc('gz_status_lists',{});
+  $('f_teacher').innerHTML='<option value="">—</option>'+LISTS.teachers.map(t=>'<option>'+t.nick+'</option>').join('');
+  $('schools').innerHTML=LISTS.schools.map(s=>'<option value="'+s.school+'">'+s.school+' ('+s.n+')</option>').join('');
+  $('f_grade').innerHTML='<option value="">전체</option>'+LISTS.grades.map(g=>'<option>'+g+'</option>').join('');
+  $('f_book').innerHTML='<option value="">전체(학교로 결정)</option>'+LISTS.books.map(b=>'<option value="'+b.publisher+'|'+b.pub_code+'|'+b.grade+'">'+b.grade+' · '+b.publisher+' '+b.pub_code+' ('+b.n+')</option>').join('');
+  $('f_time').innerHTML='<option value="">전체</option>'+LISTS.times.map(t=>'<option>'+t+'</option>').join('');
+  if(window.__BAKED__&&window.__BAKED__.preset){const p=window.__BAKED__.preset;$('f_teacher').value=p.teacher||'';$('f_grade').value=p.grade||'';}
+  $('msg').textContent='조건을 고르고 조회를 누르세요.';
+  if(window.__BAKED__)go();
+}
+function filt(){
+  const p={};const t=$('f_teacher').value;if(t)p.teacher=t;const s=$('f_school').value.trim();if(s)p.school=s;
+  const g=$('f_grade').value;if(g)p.grade=g;const b=$('f_book').value;if(b){const [pub,code,gr]=b.split('|');p.publisher=pub;p.pub_code=code;p.grade=gr;if(code==='MRE04')p.subject_notnull=true;}
+  const se=$('f_sem').value;if(se)p.semester=se;const d=$('f_dow').value;if(d)p.dow=+d;const tm=$('f_time').value;if(tm)p.start_time=tm;if($('f_week').checked)p.this_week=true;
+  return p;
+}
+async function go(){
+  if(!FOCUS&&Date.now()-LOAD_AT<8000){const s=$('f_school').value.trim(),g=$('f_grade').value;if(s&&g){focusSet({school:s,grade:g,at:Date.now()});exdRender();prender();}}
+  const p=filt();$('books').innerHTML='<div id="msg">적재 중…</div>';
+  try{BOARD=await rpc('gz_status_board',{p});}catch(e){$('books').innerHTML='<div id="msg">적재 실패: '+e.message+'</div>';return;}
+  render(p);
+}
+function render(p){
+  const B=BOARD.books||[];const desc=Object.entries(p).map(([k,v])=>k+'='+v).join(' · ')||'전체';
+  $('ttl').textContent='생산 현황판 — '+desc;
+  $('subttl').textContent='기준 '+String(BOARD.asof).slice(0,16).replace('T',' ')+' 실측 · 교재 '+B.length+'종'+(BOARD.schools?' · 학교·학년 '+BOARD.schools.length+'조합':'')+' · 표준 현황판 양식 v1.5.1';
+  $('asof').textContent='gz_status_board · '+String(BOARD.asof).slice(0,16).replace('T',' ');
+  const tot=B.reduce((a,b)=>a+b.tot,0),mined=B.reduce((a,b)=>a+b.mined,0),s3=B.reduce((a,b)=>a+b.s3,0),done=B.reduce((a,b)=>a+b.done,0),h=B.reduce((a,b)=>a+(b.h||0),0);
+  $('kpis').innerHTML=[[tot,'소단원 총계'],[mined,'원문 채굴 완료'],[s3,'STEP3 착수'],[done,'STEP7까지 완주'],[h,'5460H 답지 매핑']].map(x=>'<div><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join('');
+  if(!B.length){$('books').innerHTML='<div id="msg">조건에 걸리는 교재 없음 — 학교 배정 교재(school_textbooks)가 없거나 목차(textbook_toc)에 pub_code가 없음(BS01·CJ01·MRE01 미적재).</div>';return;}
+  const PG={'완주':'p-done','진행':'p-mid','채굴만':'p-low','미채굴':'p-none'};
+  const jae=s=>s?s.split(' / ').map(x=>{const [t,a]=x.split(' · ');return '<span class="jt">'+t+'</span>'+(a?'<span class="ja">'+a+'</span>':'');}).join('<br>'):'<span class="none">—</span>';
+  $('books').innerHTML=B.map((b,bi)=>'<section class="book"><div class="bh"><h2>'+b.publisher+' '+b.grade+(b.semester?' '+b.semester:'')+'</h2><div class="bm"><span><i>'+b.done+'</i>/'+b.tot+' 완주</span><span><i>'+b.mined+'</i>/'+b.tot+' 채굴</span><span><i>'+b.s3+'</i>/'+b.tot+' STEP3 착수</span></div></div><p class="rule"><code>'+b.cond+'</code>'+(b.pub_code==='MRE04'?'<span>MRE04는 문학 교재와 공유된다. subject 적재 여부로만 갈린다.</span>':'')+'</p>'+
+   '<div class="wrap"><table><thead><tr><th class="num">단원</th><th>소단원 · work</th><th>수록 작품 · 제재</th><th>갈래</th><th class="n">원문</th><th class="n">5460H</th>'+STEPS.map(s=>'<th class="s">'+s[1]+'</th>').join('')+'<th class="n">SPARK</th><th>진척</th><th>상태</th></tr></thead><tbody>'+
+   b.rows.map((r,ri)=>{const split=(r.work_ids||[]).length>1;return '<tr class="row" data-b="'+bi+'" data-r="'+ri+'"><td class="num">'+r.ul+'-('+r.um+')</td><td class="unit'+(split?' split':'')+'"><b>'+r.unit_mid+'</b><span class="wid">'+(r.work_ids||[]).map(w=>'W'+w).join(' ')+(split?' 분할':'')+' · '+(r.unit_large||'')+'</span></td><td class="jae">'+jae(r.pieces)+'</td><td class="gen">'+(r.domain||'')+(r.sub_domain?'<span class="sub">'+r.sub_domain+'</span>':'')+'</td><td class="n">'+(r.p||'')+'</td><td class="n'+(r.h?'':' h0')+'">'+(r.h||0)+'</td>'+
+     STEPS.map(s=>{const n=r.steps[s[0]];return '<td class="s '+(n?'on':'off')+'" data-t="'+s[0]+'" title="'+s[1]+'">'+(n||'')+'</td>';}).join('')+'<td class="n">'+(r.steps.spark||'')+'</td><td><span class="pill '+PG[r.prog]+'">'+r.prog+'</span></td><td class="st '+(r.status==='labeled'||r.status==='active'?'ok':'wait')+'">'+(r.status||'')+'</td></tr>';}).join('')+'</tbody></table></div></section>').join('');
+  document.querySelectorAll('tr.row').forEach(tr=>tr.addEventListener('click',e=>{const td=e.target.closest('td');openViewer(+tr.dataset.b,+tr.dataset.r,td&&td.dataset.t);}));
+}
+let DOCS=[];
+async function openViewer(bi,ri,step){
+  const r=BOARD.books[bi].rows[ri];SEL=r;document.querySelectorAll('tr.row').forEach(x=>x.classList.toggle('sel',x.dataset.b==bi&&x.dataset.r==ri));
+  $('vt').textContent=r.ul+'-('+r.um+') '+r.unit_mid;$('vs').textContent=(r.pieces||'')+' · '+(r.work_ids||[]).map(w=>'W'+w).join(' ');$('vtabs').innerHTML='적재 중…';$('vf').innerHTML='';
+  try{DOCS=await rpc('gz_lc_view',{p_work_ids:r.work_ids,p_teacher:ROLE==='교사'});}catch(e){$('vtabs').innerHTML='적재 실패 '+e.message;return;}
+  if(!DOCS.length){$('vtabs').innerHTML='<span>산출물 없음 — 이 칸이 남은 작업</span>';return;}
+  const pref=step?DOCS.findIndex(d=>({s3:'STEP3',s4:'STEP4',s5:'STEP5',s6:'STEP6',s7:'STEP7',s1:'STEP1',s2:'STEP2',fin:'완성'}[step]||'').length&&d.content_type.toUpperCase().startsWith(({s3:'STEP3',s4:'STEP4',s5:'STEP5',s6:'STEP6',s7:'STEP7',s1:'STEP1',s2:'STEP2',fin:'완성'}[step]))):0;
+  $('vtabs').innerHTML=DOCS.map((d,i)=>'<span data-i="'+i+'" class="'+(d.answer?'ans':'')+'">'+d.content_type+(d.answer?' ✓정답':'')+'</span>').join('');
+  document.querySelectorAll('#vtabs span').forEach(s=>s.onclick=()=>show(+s.dataset.i));
+  show(pref>=0?pref:0);
+}
+function show(i){document.querySelectorAll('#vtabs span').forEach((s,j)=>s.classList.toggle('on',j===i));$('vf').srcdoc=DOCS[i].html.replace(/<head[^>]*>/i,m=>m+'<style>html{zoom:.72}body{margin:0 8px}</style>');}
+document.querySelectorAll('.role span').forEach(s=>s.onclick=()=>{ROLE=s.dataset.r;document.querySelectorAll('.role span').forEach(x=>x.classList.toggle('on',x===s));if(SEL)openViewer(+document.querySelector('tr.sel').dataset.b,+document.querySelector('tr.sel').dataset.r);});
+$('go').onclick=go;
+init().catch(e=>{$('msg').textContent='초기화 실패: '+e.message;});
+
+const PU='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/';
+let ROWS=[],SORT='time';
+async function prpc(f,p){const r=await fetch(PU+f,{method:'POST',headers:H,body:JSON.stringify(p||{})});if(!r.ok)throw new Error(f+' '+r.status);return r.json();}
+function pesc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+
+
+
+function ynb(n){return n>0?'<b style="color:#0E6B57">'+n+'</b>':'<span style="color:#B4531F">—</span>';}
+async function scopeStatus(examId){const box=document.getElementById('vf');if(!box)return;document.getElementById('viewer').scrollIntoView({behavior:'smooth',block:'start'});box.innerHTML='적재 중…';
+ try{const r=await prpc('gz2_exam_scope_status',{p:{exam_id:examId}});const e=r.exam||{};const it=r.items||[];const an=e.analysis||{};
+  document.getElementById('vt').textContent='시험범위 정리 현황 — '+(e.school||'')+' '+(e.grade||'')+' '+(e.name||'');
+  document.getElementById('vs').textContent=(e.start||e.date||'날짜 없음')+(e.end&&e.end!==e.start?'~'+e.end:'')+' · 국어일 '+(e.subject_date||'미등록')+' · '+(e.status||'')+(e.confirmed?' 확정':'');
+  const hd='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;font-size:12px"><span>범위 작품 <b>'+it.length+'</b></span><span>5460H(기출 문항) '+ynb(e.h_total)+(e.total_q?' / '+e.total_q:'')+'</span><span>기출분석: 경향 '+(an.trend?'✓':'—')+' · 킬러 '+(an.killer?'✓':'—')+' · 전략 '+(an.strategy?'✓':'—')+' · 분포 '+(an.dist?'✓':'—')+' · 검토 '+(an.coverage_review?'✓':'—')+'</span></div>';
+  const th='<tr><th>#</th><th>단원</th><th>작품 · 작가</th><th>갈래</th>'+['1','2','3','4','5','6','7'].map(k=>'<th title="STEP'+k+'">S'+k+'</th>').join('')+'<th>SPARK</th><th>CLEAR</th><th>5460P</th><th>5460H</th></tr>';
+  const rows=it.map(x=>'<tr'+(x.primary?'':' style="color:#8a8577"')+'><td>'+x.seq+'</td><td>'+pesc(x.unit||'')+(x.unit_small?'<div class="mini">'+pesc(x.unit_small)+'</div>':'')+(x.publisher?'<div class="mini">'+pesc(x.publisher)+'</div>':'')+'</td><td><b>'+pesc(x.title||'')+'</b>'+(x.author?' · '+pesc(x.author):'')+(x.scope_type&&x.scope_type!=='textbook'?' <span class="mini">'+pesc(x.scope_type)+'</span>':'')+'</td><td class="mini">'+pesc((x.domain||'').replace(/^\[.*?\]/,''))+'</td>'+['s1','s2','s3','s4','s5','s6','s7','spark','clear','p5460','h5460'].map(k=>'<td style="text-align:center">'+ynb(x[k])+'</td>').join('')+'</tr>').join('');
+  const tot=k=>it.filter(x=>x[k]>0).length;const sm='<tr style="background:#f6f7f9;font-weight:700"><td colspan="4">작품 중 있음</td>'+['s1','s2','s3','s4','s5','s6','s7','spark','clear','p5460','h5460'].map(k=>'<td style="text-align:center">'+tot(k)+'/'+it.length+'</td>').join('')+'</tr>';
+  box.innerHTML=hd+(it.length?'<table style="border-collapse:collapse;font-size:12px"><thead>'+th+'</thead><tbody>'+rows+sm+'</tbody></table>':'<div style="color:#B4531F">시험범위 등록 0 — 🗓 시험일 등록·확정 옆 「범위 →」 또는 시험 창 행에서 등록</div>')+'<div class="mini" style="margin-top:6px">숫자 = lecture_contents 산출물 건수(STEP), SPARK·CLEAR = 회차 수, 5460P = 지문 행, 5460H = 이 시험의 기출 문항 행 · 기출분석 = school_exams 분석 필드 유무</div>';
+ }catch(err){box.innerHTML='적재 실패: '+err.message;}}
+var CAL_Y=new Date().getFullYear(),CAL_M=new Date().getMonth();
+/* [v1.10 BI-1019] 기본 = 오늘이 든 주(일요일)부터 6주 연속 — 월 경계로 시험기가 끊기지 않게. 「월 보기」 전환 가능 */
+var CAL_MODE='weeks',CAL_ANCHOR=null;function calSunday(d){const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-x.getDay());return x;}
+function calMove(d){if(CAL_MODE==='weeks'){if(!CAL_ANCHOR||d===0)CAL_ANCHOR=calSunday(new Date());else CAL_ANCHOR.setDate(CAL_ANCHOR.getDate()+14*d);}else{if(d===0){CAL_Y=new Date().getFullYear();CAL_M=new Date().getMonth();}else{CAL_M+=d;if(CAL_M<0){CAL_M=11;CAL_Y--;}if(CAL_M>11){CAL_M=0;CAL_Y++;}}}calLoad();}
+function calToggle(){CAL_MODE=CAL_MODE==='weeks'?'month':'weeks';const b=document.getElementById('cal_mode');b.textContent=CAL_MODE==='weeks'?'월 보기':'6주 연속';document.getElementById('cal_prev').textContent=CAL_MODE==='weeks'?'◀ 2주 전':'◀';document.getElementById('cal_next').textContent=CAL_MODE==='weeks'?'2주 뒤 ▶':'▶';calMove(0);}
+async function calLoad(){let f,t;if(CAL_MODE==='weeks'){if(!CAL_ANCHOR)CAL_ANCHOR=calSunday(new Date());f=new Date(CAL_ANCHOR);t=new Date(CAL_ANCHOR);t.setDate(t.getDate()+41);}else{f=new Date(CAL_Y,CAL_M,1);t=new Date(CAL_Y,CAL_M+1,0);}const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+ document.getElementById('cal_title').textContent=CAL_MODE==='weeks'?(f.getMonth()+1)+'/'+f.getDate()+' ~ '+(t.getMonth()+1)+'/'+t.getDate()+' (6주)':CAL_Y+'년 '+(CAL_M+1)+'월';const g=document.getElementById('cal_grid');g.innerHTML='<div class="cw">일</div><div class="cw">월</div><div class="cw">화</div><div class="cw">수</div><div class="cw">목</div><div class="cw">금</div><div class="cw">토</div>';
+ let rows=[];try{const r=await prpc('gz2_exam_search',{p:{from:iso(f),to:iso(t),limit:600}});rows=(r.rows||[]).filter(x=>x.students>0&&x.exam_status!=='미실시');}catch(e){document.getElementById('cal_sum').textContent='적재 실패 '+e.message;return;}
+ const byDay={};rows.forEach(e=>{const s=e.exam_start_date||e.exam_date,en=e.exam_end_date||s;if(!s)return;for(let d=new Date(s);d<=new Date(en);d.setDate(d.getDate()+1)){const k=iso(d);(byDay[k]=byDay[k]||[]).push({e,kor:e.subject_exam_date===k});}});
+ const today=iso(new Date());let html='';for(let i=0;i<f.getDay();i++)html+='<div class="cd o"></div>';
+ const days=[];for(let x=new Date(f);x<=t;x.setDate(x.getDate()+1))days.push(new Date(x));
+ for(const dt of days){const k=iso(dt);const d=dt.getDate();const items=byDay[k]||[];const lab=(d===1||dt.getTime()===f.getTime())?(dt.getMonth()+1)+'/'+d:String(d);html+=`<div class="cd ${k===today?'today':''} ${d===1?'m1':''}" onclick="calDay('${k}')"><div class="d">${lab}</div><div class="cbs">`+items.map(x=>`<span class="cb ${x.kor?'k':''} ${x.e.confirmed?'c':''}" onclick="event.stopPropagation();scopeStatus(${x.e.id})" title="${pesc(x.e.school)} ${pesc(x.e.grade)} ${pesc(x.e.exam_type||'')} ${x.e.exam_start_date||''}~${x.e.exam_end_date||''}${x.e.subject_exam_date?' 국어 '+x.e.subject_exam_date:''}">${pesc(x.e.school)} ${pesc(x.e.grade)}</span>`).join('')+'</div></div>';}
+ g.innerHTML+=html;const kor=rows.filter(e=>e.subject_exam_date).length,nd=rows.filter(e=>!e.exam_date).length;document.getElementById('cal_sum').textContent=(CAL_MODE==='weeks'?'이 6주 시험 ':'이 달 시험 ')+rows.length+' · 국어일 등록 '+kor+' · 미등록 '+(rows.length-kor)+(nd?' · 날짜 없음 '+nd:'');}
+function calDay(k){exqReset();document.getElementById('exq_hd').value='y';exqLoadRange(k,k);}
+async function exqLoadRange(a,b){const tb=document.getElementById('exq_tb');tb.innerHTML='<tr><td colspan="13">조회 중…</td></tr>';try{const r=await prpc('gz2_exam_search',{p:{from:a,to:b,limit:600}});EXQ=r.rows||[];document.getElementById('exq_sum').textContent=a+' 시험 '+r.n+'건';exqPaint();document.getElementById('exqbox').scrollIntoView({behavior:'smooth'});}catch(e){tb.innerHTML='<tr><td colspan="13">조회 실패</td></tr>';}}
+var EXQ=[];
+async function exqOpts(){try{const o=await prpc('gz2_exam_search_opts',{});const fill=(id,arr,keepFirst=true)=>{const el=document.getElementById(id);(arr||[]).forEach(v=>{const op=document.createElement('option');op.value=v;op.textContent=v;el.appendChild(op);});};fill('exq_y',o.years);fill('exq_s',o.semesters);fill('exq_p',o.publishers);fill('exq_g',o.grades);fill('exq_st',o.statuses);}catch(e){}}
+function exqP(){return {year:document.getElementById('exq_y').value,semester:document.getElementById('exq_s').value,type:document.getElementById('exq_t').value,publisher:document.getElementById('exq_p').value,school:document.getElementById('exq_sch').value.trim(),grade:document.getElementById('exq_g').value,status:document.getElementById('exq_st').value,has_date:document.getElementById('exq_hd').value,limit:600};}
+async function exqLoad(){const tb=document.getElementById('exq_tb');tb.innerHTML='<tr><td colspan="13" style="color:#8a8577">조회 중…</td></tr>';try{const r=await prpc('gz2_exam_search',{p:exqP()});EXQ=r.rows||[];document.getElementById('exq_sum').textContent='결과 '+r.n+'건'+(r.n>=600?' (상한 600 — 조건을 좁히세요)':'');exqPaint();}catch(e){tb.innerHTML='<tr><td colspan="13">조회 실패: '+e.message+'</td></tr>';}}
+function exqPaint(){const tb=document.getElementById('exq_tb');tb.innerHTML=EXQ.map((e,i)=>`<tr style="${e.exam_date?'':'background:#fdecec'}"><td>${e.exam_start_date||e.exam_date||'—'}${e.exam_end_date&&e.exam_end_date!==(e.exam_start_date||e.exam_date)?'~'+e.exam_end_date.slice(5):''}</td><td>${e.subject_exam_date?'<b style="color:#b42318">'+e.subject_exam_date.slice(5)+'</b>':'<span style="color:#b42318">미등록</span>'}</td><td>${e.dd==null?'—':(e.dd<0?'지남':'D-'+e.dd)}</td><td><b>${pesc(e.school)}</b> ${pesc(e.grade)}</td><td>${e.exam_year||''} ${pesc(e.semester||'')} ${pesc(e.exam_type||'')}<div style="font-size:11px;color:#8a8577">${pesc(e.exam_name||'')}</div></td><td>${pesc(e.publisher||'—')}</td><td>${pesc(e.exam_status||'—')}</td><td>${e.confirmed?'✓':''}</td><td>${e.students}</td><td>${e.scope_n}</td><td>${e.total_questions||''}</td><td>${e.h_n||''}</td><td><button class="bt" onclick="scopeStatus(${e.id})">현황</button> <button class="bt" onclick="exqToEdit(${i})">입력</button></td></tr>`).join('')||'<tr><td colspan="13" style="color:#8a8577">해당 없음</td></tr>';}
+function exqReset(){['exq_y','exq_s','exq_t','exq_p','exq_g','exq_st','exq_hd'].forEach(id=>document.getElementById(id).value='');document.getElementById('exq_sch').value='';document.getElementById('exq_tb').innerHTML='<tr><td colspan="13" style="color:#8a8577">조회 버튼을 누르면 표시</td></tr>';document.getElementById('exq_sum').textContent='';}
+async function exqToEdit(i){const e=EXQ[i];if(!e)return;document.getElementById('exd_y').value=e.exam_year||new Date().getFullYear();if(e.semester)document.getElementById('exd_s').value=e.semester;if(['중간','기말'].includes(e.exam_type))document.getElementById('exd_t').value=e.exam_type;await exdLoad();exdFilter=false;exdRender();const tr=[...document.querySelectorAll('#exd_tb tr[data-i]')].find(t=>t.textContent.includes(e.school)&&t.textContent.includes(e.grade));if(tr){tr.scrollIntoView({behavior:'smooth',block:'center'});tr.style.outline='2px solid #B8892E';setTimeout(()=>tr.style.outline='',2500);}else{document.getElementById('exdbox').scrollIntoView();document.getElementById('exd_sum').textContent+=' · 「'+e.school+' '+e.grade+'」는 재원생 없음 — 등록 패널은 재원 조합만';}}
+var EXD=[],exdFilter=false;
+async function exdLoad(){const p={year:+document.getElementById('exd_y').value,semester:document.getElementById('exd_s').value,type:document.getElementById('exd_t').value};try{EXD=await prpc('gz2_exam_schedule_list',{p});exdRender();}catch(e){document.getElementById('exd_tb').innerHTML='<tr><td colspan="10">적재 실패: '+e.message+'</td></tr>';}}
+function exdRender(){const rows=focusRows((exdFilter?EXD.filter(r=>!r.exam_date):EXD).filter(r=>exdShowDel||r.exam_status!=='미실시'));const ndel=EXD.filter(r=>r.exam_status==='미실시').length;const nd=EXD.filter(r=>!r.exam_date).length,cf=EXD.filter(r=>r.confirmed).length;document.getElementById('exd_sum').textContent='조합 '+EXD.length+' · 날짜 없음 '+nd+' · 확정 '+cf+(ndel?' · 삭제(미실시) '+ndel+(exdShowDel?' 표시 중':' 숨김'):'');
+ document.getElementById('exd_tb').innerHTML=rows.map((r,i)=>`<tr data-i="${EXD.indexOf(r)}" style="${r.exam_date?'':'background:#fdecec'}"><td><b>${pesc(r.school)}</b> ${pesc(r.grade)}</td><td>${r.students}</td>
+  <td><input type="date" class="exd_st" value="${r.exam_start_date||''}"></td><td><input type="date" class="exd_en" value="${r.exam_end_date||''}"></td><td><input type="date" class="exd_kd" value="${r.subject_exam_date||''}" style="border-color:#b42318"></td>
+  <td><select class="exd_ss">${['예정','확정','미공지','미실시'].map(v=>`<option ${v===(r.exam_status||'예정')?'selected':''}>${v}</option>`).join('')}</select></td>
+  <td><input type="checkbox" class="exd_cf" ${r.confirmed?'checked':''}></td><td>${r.dd==null?'—':(r.dd<0?'지남':'D-'+r.dd)}</td><td>${r.scope_n||0}${r.exam_id?' <a href="#" onclick="scopeStatus('+r.exam_id+');return false" style="font-size:11px">현황 →</a>':''}</td>
+  <td><button class="bt" onclick="exdSave(this)">저장</button> ${r.exam_status==='미실시'?`<button class="bt" onclick="exdRestore(this)" title="삭제 취소">복구</button>`:`<button class="bt" onclick="exdDel(this)" title="이 학교·학년은 이번 시험을 보지 않음 — 목록·달력에서 숨김(되돌리기 가능)">삭제</button>`} <span class="exd_msg" style="font-size:11px"></span></td></tr>`).join('')||('<tr><td colspan="10" style="color:#8a8577">'+(FOCUS?FOCUS.school+' '+FOCUS.grade+' — 이 연도·학기·시험 조합 없음(연도·학기·시험을 바꿔 조회)':'해당 없음')+'</td></tr>');}
+var exdShowDel=false;
+/* [v1.10 BI-1017] 삭제 = exam_status '미실시'로 표시(물리 삭제 아님, 범위·FK 보존) → 목록·달력 숨김 → 「되돌리기」로 종전 상태 복구 */
+async function exdSetStatus(btn,st,label){const tr=btn.closest('tr');const r=EXD[+tr.dataset.i];const m=tr.querySelector('.exd_msg');m.textContent=label+' 중…';const prev=r.exam_status||'예정';const p={school:r.school,grade:r.grade,year:r.exam_year,semester:r.semester,type:r.exam_type,start:r.exam_start_date||'',end:r.exam_end_date||'',subject_date:r.subject_exam_date||'',exam_status:st,confirmed:!!r.confirmed};try{const res=await prpc('gz2_exam_schedule_upsert',{p});if(!(res&&res.ok)){m.textContent=label+' 실패: '+(res&&res.reason||'');return;}r.exam_status=st;r.exam_id=res.id;exdRender();calLoad();let s=document.getElementById('exd_undo');if(!s){s=document.createElement('span');s.id='exd_undo';document.getElementById('exd_sum').insertAdjacentElement('afterend',s);}s.innerHTML='';const u=document.createElement('span');u.style.cssText='margin-left:8px;color:#b42318';u.innerHTML=pesc(r.school+' '+r.grade)+' '+label+'됨 · <span class="link" style="text-decoration:underline;cursor:pointer">되돌리기</span>';u.querySelector('.link').onclick=async()=>{u.textContent='되돌리는 중…';const q={...p,exam_status:prev};const rr=await prpc('gz2_exam_schedule_upsert',{p:q});if(rr&&rr.ok){r.exam_status=prev;exdRender();calLoad();}else u.textContent='되돌리기 실패';};s.appendChild(u);setTimeout(()=>{if(u.parentNode)u.remove();},15000);}catch(e){m.textContent=label+' 실패: '+e.message;}}
+function exdDel(btn){exdSetStatus(btn,'미실시','삭제');}
+function exdRestore(btn){const r=EXD[+btn.closest('tr').dataset.i];exdSetStatus(btn,(r.exam_date||r.exam_start_date)?'예정':'미공지','복구');}
+async function exdSave(btn){const tr=btn.closest('tr');const r=EXD[+tr.dataset.i];const p={school:r.school,grade:r.grade,year:r.exam_year,semester:r.semester,type:r.exam_type,start:tr.querySelector('.exd_st').value,end:tr.querySelector('.exd_en').value,subject_date:tr.querySelector('.exd_kd').value,exam_status:tr.querySelector('.exd_ss').value,confirmed:tr.querySelector('.exd_cf').checked};
+ const m=tr.querySelector('.exd_msg');m.textContent='저장 중…';try{const res=await prpc('gz2_exam_schedule_upsert',{p});m.textContent=res.ok?('저장됨 · D-day 기준 '+(res.exam_date||'—')+(res.subject_date?'(국어일)':'(시작일)')+(res.confirmed?' · 확정':'')):('저장 안 됨 — '+(res.reason||'입력 확인'));m.style.color=res.ok?'#15803d':'#b42318';await exdLoad();calLoad();}catch(e){m.textContent='저장 실패 — 입력 유지 ('+e.message.slice(0,40)+')';m.style.color='#b42318';}}
+
+/* ===== 학생 초점 v1.6 — 카드에서 「시험범위 등록」으로 들어오면 그 학생의 학교·학년만 (#6236 결함 1) ===== */
+var FOCUS=null, LOAD_AT=Date.now();
+function focusRead(){try{const j=sessionStorage.getItem('gz2_scope_focus');if(!j)return null;const f=JSON.parse(j);sessionStorage.removeItem('gz2_scope_focus');if(!f.school||Date.now()-(f.at||0)>120000)return null;return f;}catch(_){return null;}}
+function focusSet(f){FOCUS=f;if(!f)return;FOCUS.opened=false;const b=document.getElementById('focusbar');b.style.display='flex';
+ document.getElementById('focus_txt').textContent=(f.name?'학생 '+f.name+' · ':'')+f.school+' '+f.grade+(f.publisher?' · 출판사 '+f.publisher:'');
+ document.getElementById('focus_sub').textContent='이 학교·학년 시험만 표시 — 범위 편집 패널을 자동으로 엽니다. 다른 학교를 보려면 「전체 보기」';
+ if(f.sid&&!f.publisher){fetch(URL_.replace('rpc/','')+'students?select=publisher,textbook&id=eq.'+f.sid,{headers:H}).then(r=>r.json()).then(a=>{const s=(a||[])[0];if(s&&s.publisher){FOCUS.publisher=s.publisher;document.getElementById('focus_txt').textContent+=' · 출판사 '+s.publisher+(s.textbook?' ('+s.textbook+')':'');}}).catch(()=>{});}
+ try{const s=document.getElementById('f_school'),g=document.getElementById('f_grade');if(s)s.value=f.school;if(g)g.value=f.grade;}catch(_){}
+}
+function focusClear(){FOCUS=null;document.getElementById('focusbar').style.display='none';exdRender();prender();}
+function focusRows(rows){return FOCUS?rows.filter(r=>r.school===FOCUS.school&&r.grade===FOCUS.grade):rows;}
+function focusAutoOpen(){if(!FOCUS||FOCUS.opened)return;const tr=document.querySelector('#prepbox tr.main');if(!tr)return;FOCUS.opened=true;document.getElementById('prepbox').open=true;scopePanel(+tr.dataset.id,tr);tr.scrollIntoView({behavior:'smooth',block:'start'});}
+async function pload(){const f=focusRead();if(f)focusSet(f);exqOpts();calLoad();exdLoad();try{ROWS=await prpc('gz_prep_exams60',{});prender();}catch(e){document.getElementById('ptb').innerHTML='<tr><td colspan="8">적재 실패: '+e.message+'</td></tr>';}}
+function prender(){
+ let rows=focusRows([...ROWS]);if(SORT==='power')rows.sort((a,b)=>(b.stu*b.gap)-(a.stu*a.gap)||a.dd-b.dd);else if(SORT==='noscope')rows=rows.filter(r=>r.wk===0);else rows.sort((a,b)=>a.off-b.off||a.dd-b.dd);
+ const tot=ROWS.length,ns=ROWS.filter(r=>r.wk===0).length,gap=ROWS.filter(r=>r.wk>0&&r.gap>0).length,full=ROWS.filter(r=>r.wk>0&&r.gap===0).length,stu=ROWS.reduce((a,r)=>a+r.stu,0);
+ document.getElementById('pkpis').innerHTML=[[tot,'60일 내 시험(학교·학년)'],[stu,'해당 재원생'],[full,'교안 완비'],[gap,'결손 있음'],[ns,'범위 미등록','warn']].map(x=>'<div class="kpi '+(x[2]||'')+'"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join('');
+ document.getElementById('psub').textContent='라이브 '+new Date().toLocaleTimeString('ko-KR')+' · 시험 '+tot+'건 · 원천 gz_prep_exams60/gz_prep_scope_gap · 사양 spec_M06 · 2.0 v0';
+ document.getElementById('ptb').innerHTML=rows.map((r,i)=>{const dc=r.dd<=3?'now':(r.dd<=10?'soon':'');const st=r.wk===0?'<span class="noscope">범위 미등록</span> <span class="link" data-scope="'+r.id+'">등록</span>':(r.gap>0?'<span class="gap">'+r.gap+'작품</span>':'<span class="full">완비</span>');
+  return '<tr class="main'+(r.off===0?' today':'')+'" data-i="'+i+'" data-id="'+r.id+'"><td>'+(r.off===0?'<b>오늘</b>':(r.off>=99?'—':String(r.next_class||'').slice(5)))+'</td><td><b>'+pesc(r.school)+'</b> '+pesc(r.grade)+'</td><td><span class="d '+dc+'">D-'+r.dd+'</span> <span style="color:var(--dim);font-size:11px">'+String(r.ed).slice(5)+'</span></td><td>'+r.stu+'명</td><td>'+r.wk+'</td><td>'+(r.wk===0?'—':r.prep+'/'+r.wk)+'</td><td>'+st+'</td><td><span class="link" data-board="'+pesc(r.school)+'|'+pesc(r.grade)+'">현황판</span> <span class="link" data-scope="'+r.id+'">범위 편집</span></td></tr>';}).join('')||('<tr><td colspan="8" style="color:var(--dim)">'+(FOCUS?FOCUS.school+' '+FOCUS.grade+' — 60일 안에 시험 없음. 위 🗓 표에서 시험일을 먼저 등록하세요':'해당 없음')+'</td></tr>');
+ document.querySelectorAll('#prepbox tr.main').forEach(tr=>tr.onclick=e=>{if(e.target.dataset.scope){scopePanel(+e.target.dataset.scope,tr);return;}if(e.target.dataset.board){const [sc,gr]=e.target.dataset.board.split('|');$('f_school').value=sc;$('f_grade').value=gr;$('f_book').value='';document.getElementById('prepbox').open=false;go();document.getElementById('ttl').scrollIntoView({behavior:'smooth'});return;}pexpand(tr);});focusAutoOpen();}
+
+
+async function scopeParse(examId){const t=document.getElementById('scp'+examId).value;if(!t.trim())return;const r=await prpc('gz2_scope_parse',{p_text:t});const box=document.getElementById('scpt'+examId);box.innerHTML='<table style="width:100%;font-size:12px"><tr style="background:#efede6"><th></th><th>공지 토막</th><th>단원</th><th>매칭 작품(바꿀 수 있음)</th></tr>'+r.map((x,i)=>'<tr><td><input type="checkbox" class="scpk" data-i="'+i+'" '+(x.best?'checked':'')+'></td><td>'+pesc(x.token)+'</td><td><input class="scpu" data-i="'+i+'" value="'+pesc(x.unit||'')+'" style="width:70px"></td><td>'+(x.cands.length?'<select class="scps" data-i="'+i+'">'+x.cands.map(c=>'<option value="'+c.id+'">'+pesc(c.title)+(c.author?' · '+pesc(c.author):'')+(c.exact?' ✓':'')+' (교안 '+c.n_lc+')</option>').join('')+'<option value="">— 제목으로 추가</option></select>':'<span class="gap">후보 없음 → 제목으로 추가</span>')+'</td></tr>').join('')+'</table>';document.getElementById('scpr'+examId).textContent=r.length+'토막 · 후보 있음 '+r.filter(x=>x.best).length;box.dataset.rows=JSON.stringify(r);}
+async function scopeBulk(examId){const box=document.getElementById('scpt'+examId);const rows=JSON.parse(box.dataset.rows||'[]');const checks=[...box.querySelectorAll('.scpk:checked')];const msg=document.getElementById('scpr'+examId);if(!checks.length){msg.textContent='체크한 줄이 없습니다 — 왼쪽 상자를 체크하세요';return;}const N=checks.length;let ok=0,fail=[];const ids=[];const st=(document.getElementById('sctype'+examId)||{value:'extra'}).value;for(let k=0;k<N;k++){const cb=checks[k];const i=+cb.dataset.i;const sel=box.querySelector('.scps[data-i="'+i+'"]');const uEl=box.querySelector('.scpu[data-i="'+i+'"]');const wid=sel?sel.value:'';const unit=uEl?uEl.value:'';msg.textContent='저장 중 '+(k+1)+'/'+N+' …';const p=wid?{exam_id:examId,work_id:+wid,unit:unit,scope_type:st}:{exam_id:examId,title:rows[i].token,unit:unit,scope_type:st};try{const r=await prpc('gz2_scope_upsert',{p});if(r&&r.ok){ok++;if(r.id)ids.push(r.id);}else fail.push(rows[i].token+(r&&r.reason?' ('+r.reason+')':''));}catch(e){fail.push(rows[i].token+' (통신 오류)');}}await scopeRefresh(examId);BULK_LAST={exam:examId,ids:ids};const m2=document.getElementById('scpr'+examId);if(m2){m2.innerHTML='<b>추가 '+ok+'건</b>'+(fail.length?' · <span class="gap">실패 '+fail.length+'건: '+pesc(fail.join(', '))+'</span>':'')+(ids.length?' · <span class="link" onclick="scopeBulkUndo('+examId+')">되돌리기</span>':'')+' — 아래 「등록 목록」과 카드에 반영됨';}}
+var BULK_LAST=null;
+async function scopeBulkUndo(examId){if(!BULK_LAST||BULK_LAST.exam!==examId||!BULK_LAST.ids.length)return;const ids=BULK_LAST.ids;const msg=document.getElementById('scpr'+examId);let n=0;for(let k=0;k<ids.length;k++){if(msg)msg.textContent='되돌리는 중 '+(k+1)+'/'+ids.length+' …';try{await prpc('gz2_scope_upsert',{p:{op:'remove',item_id:ids[k]}});n++;}catch(e){}}BULK_LAST=null;await scopeRefresh(examId);const m2=document.getElementById('scpr'+examId);if(m2)m2.textContent='되돌림 '+n+'건';}
+async function scopeRefresh(examId){const td=document.querySelector('#prepbox tr.scope td');const keep={q:(document.getElementById('scq'+examId)||{}).value,p:(document.getElementById('scp'+examId)||{}).value};await scopeRender(examId,td);if(keep.p)document.getElementById('scp'+examId).value=keep.p;const tr=document.querySelector('#ptb tr.main[data-id="'+examId+'"]');ROWS=await prpc('gz_prep_exams60',{});const rows=[...ROWS];const rr=rows.find(x=>x.id===examId);if(tr&&rr){tr.children[4].textContent=rr.wk;tr.children[5].textContent=rr.wk===0?'—':rr.prep+'/'+rr.wk;tr.children[6].innerHTML=rr.wk===0?'<span class="noscope">범위 미등록</span> <span class="link" data-scope="'+examId+'">등록</span>':(rr.gap>0?'<span class="gap">'+rr.gap+'작품</span>':'<span class="full">완비</span>');}}
+
+async function scopePanel(examId,tr){const nx=tr.nextElementSibling;if(nx&&nx.classList.contains('scope')){nx.remove();return;}document.querySelectorAll('#prepbox tr.scope').forEach(x=>x.remove());const d=document.createElement('tr');d.className='detail scope';d.innerHTML='<td colspan="8">적재 중…</td>';tr.after(d);await scopeRender(examId,d.firstChild);}
+async function scopeVerdictCard(examId){let st=null,lg=[];try{st=await prpc('gz_exam_scope_status_kr',{p_exam:examId});}catch(e){}try{lg=await prpc('gz_exam_scope_log_kr',{p_exam:examId,p_limit:12});}catch(e){}
+ if(!st)return '';const ok=!!st.ok;const col=ok?'#1E4D3B':'#A4472F',bg=ok?'#eef5f0':'#fbeeea';
+ const rows=(lg||[]).map(x=>'<div class="mini" style="display:flex;gap:6px"><span style="color:#8a8577;min-width:74px">'+pesc(x.at)+'</span><b style="min-width:28px;color:'+(x.op==='삭제'?'#A4472F':'#1E4D3B')+'">'+pesc(x.op)+'</b><span>'+(x.seq?x.seq+'. ':'')+pesc(x.title||('W'+x.work_id))+'</span><span style="color:#8a8577;margin-left:auto">'+pesc(x.via)+'</span></div>').join('')||'<div class="mini">이력 없음</div>';
+ return '<div style="border:1.5px solid '+col+';background:'+bg+';border-radius:8px;padding:8px 10px;margin:6px 0 8px">'
+  +'<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b style="color:'+col+';font-size:13px">'+(ok?'✅ 정합성 정상':'⚠ '+pesc(st.verdict))+'</b>'
+  +'<span class="mini">범위 글 '+(st.text_len>30?'있음':'없음')+' · 표 <b>'+st.rows+'행</b>'+(st.gaps?' · 결번 <b style="color:#A4472F">'+pesc(st.gaps)+'</b>':'')+(st.nowork?' · 미연결 '+st.nowork:'')+' · 글 갱신 '+pesc(st.text_updated||'-')+'</span>'
+  +(ok?'':'<span class="mini" style="color:#A4472F;font-weight:700">이 상태로 자료를 만들지 마십시오</span>')+'</div>'
+  +(st.source?'<div class="mini" style="margin-top:2px">출처: '+pesc(st.source)+'</div>':'')
+  +'<details style="margin-top:4px"><summary class="mini" style="cursor:pointer">변경 이력 '+st.log_n+'건 — 누가·언제·무엇을</summary><div style="margin-top:4px">'+rows+'</div></details></div>';}
+async function scopeRender(examId,td){const items=await prpc('gz2_scope_list',{p_exam_id:examId});const verdict=await scopeVerdictCard(examId);td.innerHTML=verdict+'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>시험범위 등록</b> <span class="mini">① 학교 교과서 목차에서 클릭 → ② 교과서 밖은 직접 입력 — 저장 즉시 카드 추천·진도 블록·리포트에 반영</span></div><div style="margin:4px 0">'+(items.map(x=>'<span class="w '+(x.has_lc?'ok':'no')+'">'+(x.seq||'')+'. '+(x.unit?x.unit+' ':'')+pesc(x.title)+(x.author?' · '+pesc(x.author):'')+(x.work_id?'':' <small>(작품 미매칭)</small>')+' <b style="cursor:pointer" onclick="scopeRemove('+examId+','+x.id+',this)">✕</b></span>').join('')||'<span class="mini">등록된 작품 없음</span>')+'</div><div id="sctoc'+examId+'" style="margin:6px 0;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff">교과서 목차 적재 중…</div><div style="margin-top:6px"><b style="font-size:12px">② 교과서 밖 시험범위</b> <span class="mini">외부 지문·모의고사·복합 — 작품 검색 또는 제목 직접 입력</span></div><div style="display:flex;gap:6px;align-items:center"><input id="scq'+examId+'" placeholder="작품·저자 검색 (2자+)" style="padding:4px;border:1px solid var(--line);border-radius:4px;width:240px" oninput="scopeSearch('+examId+')"><select id="sctype'+examId+'" style="padding:4px;border:1px solid var(--line);border-radius:4px"><option value="extra">외부 지문</option><option value="textbook">교과서</option><option value="mock">모의</option><option value="complex">복합</option></select><input id="scu'+examId+'" placeholder="단원(선택) 예: 2-(1)" style="padding:4px;border:1px solid var(--line);border-radius:4px;width:110px"><input id="sct'+examId+'" placeholder="작품 없으면 제목 직접" style="padding:4px;border:1px solid var(--line);border-radius:4px;width:200px"><button class="bt" onclick="scopeAddFree('+examId+')">제목으로 추가</button></div><div id="scr'+examId+'" style="margin-top:4px"></div><div id="scmock'+examId+'" style="margin-top:6px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff"><b style="font-size:12px">②-모의 모의고사 지문 선택</b> <span class="mini">회차를 고르면 문항 번호·지문 목록 — 체크 후 「체크한 지문 추가」</span> <select id="scme'+examId+'" style="padding:4px;border:1px solid var(--line);border-radius:4px;margin-left:6px" onchange="mockLoad('+examId+')"><option value="">회차 적재 중…</option></select> <span id="scmf'+examId+'"></span><div id="scmp'+examId+'" style="margin-top:4px"></div></div><div style="margin-top:8px;border-top:1px dashed var(--line);padding-top:6px"><b style="font-size:12px">③ 학교 공지 붙여넣기 → 자동 매칭</b> <span class="mini">줄마다 작품 후보를 찾아 표로 — 확인 후 일괄 추가</span><textarea id="scp'+examId+'" rows="3" placeholder="예: 2단원 (1) 제망매가, 서경별곡&#10;3-(1) 진달래꽃 · 양반전" style="width:100%;padding:4px;border:1px solid var(--line);border-radius:4px;margin-top:4px"></textarea><div style="margin-top:4px"><button class="bt" onclick="scopeParse('+examId+')">매칭</button> <button class="bt on" onclick="scopeBulk('+examId+')">체크한 것 일괄 추가</button> <span class="mini" id="scpr'+examId+'"></span></div><div id="scpt'+examId+'" style="margin-top:4px"></div></div>';scopeToc(examId);mockExams(examId);}
+/* ①-모의 모의고사 회차·지문 선택 등록 (v1.10, 2026-09-08 사장님 지시) — gz2_mock_scope_list: mock_exams(학년) × mock_items(지문 묶음) */
+var MOCK={};
+function mockGrade(examId){const r=(ROWS||[]).find(x=>x.id===examId);if(r&&r.grade)return r.grade;const e=(EXD||[]).find(x=>x.exam_id===examId);if(e&&e.grade)return e.grade;return FOCUS?FOCUS.grade:'';}
+async function mockExams(examId){const sel=document.getElementById('scme'+examId);if(!sel)return;const g=mockGrade(examId);try{const r=await prpc('gz2_mock_scope_list',{p:{grade:g}});const ex=r.exams||[];sel.innerHTML='<option value="">'+(g||'학년 미상')+' 모의고사 '+ex.length+'회차 — 고르세요</option>'+ex.map(e=>'<option value="'+e.id+'">'+pesc(e.name)+' · 문학 '+e.n_lit+'문항 · 작품 연결 '+e.n_work+'/'+e.n+'</option>').join('');if(!ex.length)sel.innerHTML='<option value="">'+(g||'')+' 모의고사가 DB에 없음 — 등재 필요</option>';}catch(e){sel.innerHTML='<option value="">적재 실패 '+pesc(e.message)+'</option>';}}
+async function mockLoad(examId){const sel=document.getElementById('scme'+examId),box=document.getElementById('scmp'+examId);const mid=+sel.value;if(!mid){box.innerHTML='';return;}box.innerHTML='지문 적재 중…';try{const r=await prpc('gz2_mock_scope_list',{p:{exam_id:mid,scope_exam_id:examId}});MOCK[examId]={exam:r.exam,ps:r.passages||[],dom:'문학'};mockRender(examId);}catch(e){box.innerHTML='실패 '+pesc(e.message);}}
+function mockRender(examId){const M=MOCK[examId];if(!M)return;const box=document.getElementById('scmp'+examId);const doms=['문학','독서','화작','문법','전체'];const chips=doms.map(d=>'<span style="padding:2px 9px;font-size:11px;cursor:pointer;display:inline-block;border:1.5px solid var(--deep);border-radius:14px;margin-right:4px;'+(M.dom===d?'background:var(--deep);color:#fff':'')+'" onclick="MOCK['+examId+'].dom=\''+d+'\';mockRender('+examId+')">'+d+'</span>').join('');const rows=M.ps.filter(x=>M.dom==='전체'||x.domain===M.dom);if(!M.ps.length){box.innerHTML='<span class="mini">이 회차는 문항이 등재되지 않음 — 등재 후 사용</span>';return;}box.innerHTML='<div style="margin:4px 0">'+chips+' <button class="bt" style="padding:2px 9px;font-size:11px" onclick="mockCheckAll('+examId+',true)">보이는 것 전체 체크</button> <button class="bt" style="padding:2px 9px;font-size:11px" onclick="mockCheckAll('+examId+',false)">해제</button></div><div style="display:flex;flex-wrap:wrap;gap:4px">'+rows.map(x=>'<label class="w '+(x.registered?'ok':'')+'" style="cursor:pointer"><input type="checkbox" class="scmk'+examId+'" data-g="'+pesc(x.group)+'" '+(x.registered?'checked disabled':'')+'> <b>'+x.q_from+(x.q_to>x.q_from?'~'+x.q_to:'')+'번</b> '+pesc(x.name||'(지문명 없음)')+(x.sub_domain?' <small>'+pesc(x.sub_domain)+'</small>':'')+(x.work_id?' <small>교안 '+x.n_lc+'</small>':' <small>(작품 미연결)</small>')+(x.registered?' <small>등록됨</small>':'')+'</label>').join('')+'</div><div style="margin-top:4px"><button class="bt on" onclick="mockAdd('+examId+')">체크한 지문 추가</button> <span class="mini" id="scmr'+examId+'"></span></div>';}
+function mockCheckAll(examId,on){document.querySelectorAll('.scmk'+examId).forEach(c=>{if(!c.disabled)c.checked=on;});}
+async function mockAdd(examId){const M=MOCK[examId];if(!M)return;const picked=[...document.querySelectorAll('.scmk'+examId)].filter(c=>c.checked&&!c.disabled).map(c=>c.dataset.g);const msg=document.getElementById('scmr'+examId);if(!picked.length){msg.textContent='체크한 지문 없음';return;}let ok=0,dup=0,fail=0;for(const g of picked){const x=M.ps.find(y=>String(y.group)===g);if(!x)continue;const unit=(M.exam.code||M.exam.name)+' '+x.q_from+(x.q_to>x.q_from?'~'+x.q_to:'')+'번';const p=x.work_id?{exam_id:examId,work_id:x.work_id,unit:unit,scope_type:'mock',note:'모의 '+M.exam.name}:{exam_id:examId,title:x.name||unit,author:x.author||'',unit:unit,scope_type:'mock',note:'모의 '+M.exam.name+'(작품 미연결)'};try{const r=await prpc('gz2_scope_upsert',{p});if(r.ok&&r.dup)dup++;else if(r.ok)ok++;else fail++;}catch(e){fail++;}}msg.textContent='추가 '+ok+'건'+(dup?' · 중복 '+dup:'')+(fail?' · 실패 '+fail:'');const keep=document.getElementById('scme'+examId).value;await scopeRefresh(examId);const s2=document.getElementById('scme'+examId);if(s2){s2.value=keep;mockLoad(examId);}}
+/* ① 교과서 목차 클릭 등록 (2026-09-05) — gz_prep_exam_toc: 학교·학년 교과서(school_textbooks) × 그 학기 목차(textbook_toc) */
+async function scopeToc(examId){const box=document.getElementById('sctoc'+examId);if(!box)return;try{const t=await prpc('gz_prep_exam_toc',{p_exam_id:examId});const pubs=(t.textbooks||[]).map(x=>pesc(x.publisher)+(x.subject&&x.subject!=='국어'?' '+pesc(x.subject):'')+'('+pesc(x.pub_code)+')').join(', ');
+ if(!t.toc_n){box.innerHTML='<b style="font-size:12px">① 교과서 '+(t.exam.sem||'')+' 목차</b> <span class="mini">'+(t.exam.is_g3?'고3 — 교과서 시험범위 없음(수능 체제). 아래 ②·③으로 입력':pubs?'교과서 '+pubs+' — 이 학기 목차가 DB에 없음(목차 등재 필요). 아래 ②·③으로 입력':'이 학교·학년 교과서가 school_textbooks에 없음(데스크 등록 필요). 아래 ②·③으로 입력')+'</span>';return;}
+ const au=a=>(a&&(a.length<=12||/[,·]/.test(a)))?' · '+pesc(a):'';
+ box.innerHTML='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b style="font-size:12px">① 교과서 '+pesc(t.exam.sem||'')+' 목차 — '+pubs+'</b> <span class="mini">시험범위에 든 소단원을 클릭해 체크 → 「체크한 목차 추가」</span> <button class="bt on" style="margin-left:auto" onclick="scopeTocAdd('+examId+')">체크한 목차 추가</button> <span class="mini" id="sctocr'+examId+'"></span></div>'
+  +(t.units||[]).map(u=>'<div style="margin-top:5px"><div style="font-size:12px;font-weight:700;color:var(--mid)">'+(u.unit_large?pesc(u.unit_large):'단원 미표기')+((t.textbooks||[]).length>1?' <span class="mini">'+pesc(u.publisher)+'</span>':'')+'</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:3px">'
+    +u.items.map(it=>{const lab=(it.unit_mid_num?'('+it.unit_mid_num+') ':'')+pesc(it.title||it.unit_mid||'')+au(it.author);const id='tc'+examId+'_'+it.toc_id;
+      return it.registered?'<label class="w ok" style="opacity:.55"><input type="checkbox" checked disabled> '+lab+' <small>등록됨</small></label>'
+      :'<label class="w" style="cursor:pointer"><input type="checkbox" id="'+id+'" data-toc="'+it.toc_id+'" data-wid="'+(it.work_id||'')+'" data-title="'+pesc(it.title||it.unit_mid||'')+'" data-author="'+pesc(it.author||'')+'" data-unit="'+(u.unit_large_num||'')+(it.unit_mid_num?'-('+it.unit_mid_num+')':'')+'"> '+lab+(it.n_lc?' <small>교안 '+it.n_lc+'</small>':'')+'</label>';}).join('')+'</div></div>').join('');
+ }catch(e){box.textContent='목차 적재 실패 '+e.message;}}
+async function scopeTocAdd(examId){const cbs=[...document.querySelectorAll('#sctoc'+examId+' input[type=checkbox]:not(:disabled):checked')];if(!cbs.length){document.getElementById('sctocr'+examId).textContent='체크한 것 없음';return;}let ok=0;for(const c of cbs){const p={exam_id:examId,unit:c.dataset.unit,scope_type:'textbook',toc_id:+c.dataset.toc,note:'2.0 교과서 목차 클릭'};if(c.dataset.wid)p.work_id=+c.dataset.wid;else{p.title=c.dataset.title;p.author=c.dataset.author;}const r=await prpc('gz2_scope_upsert',{p});if(r&&r.ok)ok++;}document.getElementById('sctocr'+examId).textContent='추가 '+ok+'건';await scopeRefresh(examId);}
+let SCT=null;async function scopeSearch(examId){const qv=document.getElementById('scq'+examId).value.trim();const box=document.getElementById('scr'+examId);if(qv.length<2){box.innerHTML='';return;}clearTimeout(SCT);SCT=setTimeout(async()=>{const r=await prpc('gz2_works_search',{p_q:qv});box.innerHTML=(r||[]).map(w=>'<span class="w" style="cursor:pointer" onclick="scopeAdd('+examId+','+w.id+')">+ '+pesc(w.title)+(w.author?' · '+pesc(w.author):'')+' <small>교안 '+w.n_lc+'·문항 '+w.n_h+'</small></span>').join('')||'<span class="mini">없음 — 제목으로 직접 추가</span>';},300);}
+async function scopeAdd(examId,wid){const r=await prpc('gz2_scope_upsert',{p:{exam_id:examId,work_id:wid,unit:document.getElementById('scu'+examId).value,scope_type:document.getElementById('sctype'+examId).value}});if(!r.ok){alert(r.reason);return;}await scopeRefresh(examId);}
+async function scopeAddFree(examId){const t=document.getElementById('sct'+examId).value.trim();if(!t)return;const r=await prpc('gz2_scope_upsert',{p:{exam_id:examId,title:t,unit:document.getElementById('scu'+examId).value,scope_type:document.getElementById('sctype'+examId).value}});if(!r.ok){alert(r.reason);return;}await scopeRefresh(examId);}
+async function scopeRemove(examId,itemId,el){if(!confirm('삭제할까요?'))return;await prpc('gz2_scope_upsert',{p:{op:'remove',item_id:itemId}});await scopeRefresh(examId);}
+
+async function pexpand(tr){const nx=tr.nextElementSibling;if(nx&&nx.classList.contains('detail')){nx.remove();return;}const d=document.createElement('tr');d.className='detail';d.innerHTML='<td colspan="8">적재 중…</td>';tr.after(d);
+ try{const [ws,es]=await Promise.all([prpc('gz_prep_scope_gap',{p_exam_id:+tr.dataset.id}),prpc('gz_prep_exam_students',{p_exam_id:+tr.dataset.id})]);
+ let h='<div style="margin-bottom:6px"><button class="bt on" onclick="scopeStatus('+tr.dataset.id+')">📊 정리 현황(단원·STEP·SPARK·CLEAR·기출)</button></div>'+(ws.length?ws.map(w=>'<span class="w '+(w.has_lc?'ok':'no')+'">'+(w.has_lc?'교안 있음':'교안 없음')+' W'+w.work_id+' '+pesc(w.title)+'</span>').join(''):'<span style="color:var(--dim)">범위 작품 0 — 시험범위 등록 필요</span>');
+ /* 학생 판(2026-09-05): 명단·담당·수업 요일시간·최근 수업·4주 출석/과제·진도 텍스트·범위 작품 배정 */
+ const S=(es&&es.students)||[]; const tch=((es&&es.teachers)||[]).map(t=>pesc(t.teacher)+' '+t.n+'명').join(' · '); const sn=(es&&es.exam&&es.exam.scope_wids)||0;
+ const dd=v=>v?String(v).slice(5):'—'; const att=v=>v?v.replace(/출/g,'<b style="color:#0E6B57">○</b>').replace(/결/g,'<b style="color:#B3261E">×</b>').replace(/지/g,'<b style="color:#B26A00">△</b>'):'—';
+ h+='<div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)"><b>재원생 '+S.length+'명</b> <span style="color:var(--mid);font-size:12px">담당 '+(tch||'—')+' · 범위 작품 '+sn+' · 출석 ○출 △지 ×결(최근 4주) · 진도=최근 코칭 기록 텍스트 · 배정=범위 작품 중 자료 배정 수</span>'
+  +'<table style="width:100%;margin-top:6px;font-size:12px;border-collapse:collapse"><thead><tr style="color:var(--mid);text-align:left"><th style="padding:3px 6px">학생</th><th>담당</th><th>수업 요일·시간</th><th>최근 수업</th><th>4주 수업</th><th>출석</th><th>과제</th><th>교재 진도</th><th>학교 진도</th><th>범위 배정</th></tr></thead><tbody>'
+  +(S.map(s=>'<tr style="border-top:1px solid var(--line)"><td style="padding:3px 6px"><b>'+pesc(s.name)+'</b><span style="color:var(--dim);font-size:11px"> '+pesc(s.division||'')+'</span></td><td>'+pesc(s.teacher_name||'')+(s.slot_teachers&&s.slot_teachers!==s.teacher_name?' <span style="color:var(--dim)">(시간표 '+pesc(s.slot_teachers)+')</span>':'')+'</td><td>'+pesc(s.slots||'—')+'</td><td>'+dd(s.last_class)+'</td><td>'+(s.n4w||0)+'회</td><td>'+att(s.att4w)+'</td><td>'+pesc(s.hw4w||'—')+'</td><td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+pesc(s.tb_prog||'')+'">'+pesc(s.tb_prog||'—')+'</td><td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+pesc(s.sch_prog||'')+'">'+pesc(s.sch_prog||'—')+'</td><td title="미배정: '+pesc(s.scope_missing||'없음')+'">'+(sn?(s.scope_assigned||0)+'/'+sn:'—')+'</td></tr>').join('')||'<tr><td colspan="10" style="color:var(--dim);padding:4px 6px">해당 학교·학년 재원생 없음</td></tr>')
+  +'</tbody></table></div>';
+ d.firstChild.innerHTML=h;}catch(e){d.firstChild.textContent='실패 '+e.message;}}
+document.querySelectorAll('#prepbox .bt').forEach(b=>b.onclick=()=>{document.querySelectorAll('#prepbox .bt').forEach(x=>x.classList.toggle('on',x===b));SORT=b.dataset.s;prender();});
+pload();
+
+
+/* ===== 교재 흐름판 v1 (gz_book_flow · gz_order_save · gz_order_status) ===== */
+let BF_SID=null, BF_NAME='';
+function HJ(){const j=(typeof window.__GZ_JWT!=='undefined'&&window.__GZ_JWT)?window.__GZ_JWT:null;return j?Object.assign({},H,{Authorization:'Bearer '+j}):null;}
+async function rpcJ(fn,p){const h=HJ();if(!h)return {ok:false,reason:'관문 로그인(직원) 상태에서만'};const r=await fetch(URL_+fn,{method:'POST',headers:h,body:JSON.stringify({p:p||{}})});return await r.json();}
+async function bfFind(name){const r=await fetch(URL_.replace('rpc/','')+'students?select=id,name,school,grade&name=eq.'+encodeURIComponent(name)+'&is_active=eq.true',{headers:HJ()||H});const rows=await r.json();return Array.isArray(rows)?rows:[];}
+const LAMPS=[['klea_p','지문','klea5460p'],['questions','문항','step3'],['spark','SPARK','step4'],['lc_step','교안STEP','step3·5'],['materials','자료','교안'],['published','발행','DB방']];
+function lamp(v){const ok=(v===true)||(typeof v==='number'&&v>0);return '<i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+(ok?'#1E4D3B':'#A4472F')+';margin-right:4px;vertical-align:middle"></i>';}
+async function bfLoad(){const box=document.getElementById('bfBody'),msg=document.getElementById('bfMsg');const name=(document.getElementById('bfStu').value||'').trim();if(!name)return;
+  const st=await bfFind(name);if(!st.length){msg.textContent='재원생 중 「'+name+'」 없음';return;}if(st.length>1){msg.innerHTML='동명 '+st.length+'명: '+st.map(s=>'<button class="bt" onclick="bfPick('+s.id+',\''+s.name+'\')">'+s.name+' '+(s.school||'')+' '+(s.grade||'')+'</button>').join(' ');return;}
+  bfPick(st[0].id,st[0].name+' '+(st[0].school||'')+' '+(st[0].grade||''));}
+async function bfPick(sid,label){BF_SID=sid;BF_NAME=label;document.getElementById('bfMsg').textContent=label+' (#'+sid+')';document.getElementById('bfOrder').style.display='block';const box=document.getElementById('bfBody');box.innerHTML='<div style="color:#8a8577;font-size:12px">적재 중…</div>';
+  const j=await rpcJ('gz_book_flow',{student_id:sid});if(!j||!j.ok){box.innerHTML='<div style="color:#A4472F;font-size:12px">'+((j&&j.reason)||'적재 실패')+'</div>';return;}
+  if(!j.n){box.innerHTML='<div style="color:#8a8577;font-size:12px">주문 없음 — 위 칸에 1.0 강좌 목록을 붙여넣고 저장</div>';return;}
+  box.innerHTML=j.orders.map(o=>{const c=(o.check||[]);const miss=c.reduce((a,w)=>a+LAMPS.filter(L=>!((w[L[0]]===true)||(typeof w[L[0]]==='number'&&w[L[0]]>0))).length,0);const tot=c.length*6;const set=tot-miss;
+    const STS=['접수','승인','제작출고','도착확인'];
+    return '<div style="border:1px solid #d8d4c8;border-radius:8px;padding:10px;margin-bottom:10px;background:#fff">'
+    +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>주문 #'+o.id+'</b><span style="font-size:11px;color:#8a8577">'+String(o.created_at).slice(0,10)+' · '+o.order_type+' · '+o.qty+'권</span>'
+    +STS.map(s=>'<button class="bt'+(o.status===s?' on':'')+'" style="font-size:11px" onclick="bfStatus('+o.id+',\''+s+'\')">'+s+'</button>').join('')+'<span style="margin-left:auto;font-size:11px">세팅 '+set+'/'+tot+'</span></div>'
+    +'<div style="font-size:12px;margin:6px 0;color:#3a3a34">'+o.item+'</div>'
+    +'<table><thead><tr><th>work</th>'+LAMPS.map(L=>'<th>'+L[1]+'<div style="font-weight:400;color:#8a8577">'+L[2]+'</div></th>').join('')+'</tr></thead><tbody>'
+    +c.map(w=>'<tr><td>'+w.work_id+' '+(w.title||'')+'</td>'+LAMPS.map(L=>'<td>'+lamp(w[L[0]])+(w[L[0]]===true?'O':(w[L[0]]===false?'X':w[L[0]]))+'</td>').join('')+'</tr>').join('')+'</tbody></table>'
+    +'<table style="margin-top:6px"><thead><tr><th>강좌</th><th>세팅</th><th>배정(교시)</th><th>수업 횟수</th><th>마지막 수업</th></tr></thead><tbody>'
+    +(o.lectures||[]).map(l=>{const w=c.find(x=>x.work_id===l.work_id)||{};const ok=(w.lc_step>0)||(w.spark>0);return '<tr><td>'+l.title.replace(/^.*\) /,'')+' <span style="color:#8a8577">#'+l.id+'</span></td><td>'+lamp(ok)+(ok?'세팅 됨':'미세팅')+'</td><td>'+(ok?(l.assigned+'건'):'<span style="background:#eee;color:#999;padding:1px 6px;border-radius:4px;font-size:11px">잠금</span>')+'</td><td>'+l.taught+'</td><td>'+(l.last_taught||'—')+'</td></tr>';}).join('')+'</tbody></table>'
+    +'<div style="font-size:11px;margin-top:6px">③ 할 일: '+((o.todos||[]).map(t=>(t.is_done?'✅ ':'🔴 ')+t.content.slice(0,80)).join(' / ')||'없음')+'<br>⑫ 메모함: '+((o.memos||[]).map(m=>'<b>'+m.status+'</b>'+(m.refined?' · '+m.refined.slice(0,60):'')+(m.feedback?' · 피드백: '+m.feedback:'')).join(' / ')||'없음')+'</div>'
+    +'</div>';}).join('');}
+async function bfStatus(id,s){const j=await rpcJ('gz_order_status',{id:id,status:s});if(j&&j.ok)bfPick(BF_SID,BF_NAME);else alert('실패: '+((j&&j.reason)||''));}
+async function bfSave(){const paste=document.getElementById('bfPaste').value.trim();const m=document.getElementById('bfSaveMsg');if(!BF_SID||!paste){m.textContent='학생과 강좌 목록 필요';return;}m.textContent='저장 중…';
+  const j=await rpcJ('gz_order_save',{student_id:BF_SID,paste:paste,qty:+document.getElementById('bfQty').value||1,order_type:document.getElementById('bfType').value,requested_by:'원장'});
+  if(j&&j.ok){m.textContent='저장 #'+j.id+' · 강좌 '+j.lecture_ids.length+'건'+(j.unmatched&&j.unmatched.length?' · 미매칭 '+j.unmatched.length:'');document.getElementById('bfPaste').value='';bfPick(BF_SID,BF_NAME);}else m.textContent='실패: '+((j&&j.reason)||'')+((j&&j.unmatched)?' '+JSON.stringify(j.unmatched).slice(0,80):'');}
+document.getElementById('bfGo').onclick=bfLoad;document.getElementById('bfStu').addEventListener('keydown',e=>{if(e.key==='Enter')bfLoad();});document.getElementById('bfSave').onclick=bfSave;
+</script><script>
+/* [v2 새 판 · 2026-09-11] 두 칸 판 — 목록 gz2_prep_list(p_teacher) · 상세 gz2_exam_scope_status + gz_prep_exam_students · 국어일 저장 gz2_exam_schedule_upsert(기존, 입력 즉시 + 되돌리기) · 범위 등록·편집은 예전 화면의 범위 패널(scopePanel) 그대로 */
+(function(){
+ const U='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
+ const call=(f,b)=>fetch(U+f,{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify(b||{})}).then(r=>{if(!r.ok)throw new Error(f+' '+r.status);return r.json();});
+ const e=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ const md=s=>s?String(s).slice(5).replace('-','/'):'';
+ const ME=(window.__GZ_ME&&window.__GZ_ME.teacher_id)||null;
+ let ALL=[],MINE=!!ME,F='all',SEL=null,OPEN=null;
+ const $=id=>document.getElementById(id);
+ function toast(m,undo){$('nvtt').textContent=m;const t=$('nvtoast');$('nvundo').style.display=undo?'':'none';$('nvundo').onclick=async()=>{t.style.display='none';if(undo)await undo();};t.style.display='block';clearTimeout(window._nvt);window._nvt=setTimeout(()=>t.style.display='none',8000);}
+ async function load(){try{ALL=await call('gz2_prep_list',{p_teacher:ME});draw();if(!SEL){const f=rows()[0];if(f)pick(f.id);}}catch(err){$('nvlist').innerHTML='<p class="nvsub">불러오지 못했습니다: '+e(err.message)+'</p>';}}
+ function rows(){const q=$('nvq').value.trim(),g=$('nvg').value;return ALL.filter(r=>(!q||r.school.includes(q))&&(!g||r.grade===g)&&(!MINE||!ME||r.mine>0));}
+ function draw(){let L=rows();const nS=L.filter(r=>!r.scope).length,nK=L.filter(r=>!r.kd).length,nR=L.filter(r=>r.scope&&r.ready<r.scope).length;
+  $('nvchips').innerHTML=[['all','다가오는 시험 '+L.length],['scope','범위 미등록 '+nS],['kd','국어일 없음 '+nK],['ready','교안 덜 된 범위 '+nR]].map(c=>'<button class="'+(F===c[0]?'on':'')+'" data-f="'+c[0]+'">'+c[1]+'</button>').join('');
+  $('nvchips').querySelectorAll('button').forEach(b=>b.onclick=()=>{F=b.dataset.f;draw();});
+  if(F==='scope')L=L.filter(r=>!r.scope);if(F==='kd')L=L.filter(r=>!r.kd);if(F==='ready')L=L.filter(r=>r.scope&&r.ready<r.scope);
+  $('nvlist').innerHTML=L.map(r=>{const k=r.kd?'<span class="ok">국어 '+md(r.kd)+'</span>':'<span class="no">국어일 —</span>';const s=r.scope?'<span class="'+(r.ready>=r.scope?'ok':'mid')+'">범위 '+r.scope+' · 교안 '+r.ready+'</span>':'<span class="no">범위 미등록</span>';
+   return '<div class="nvrow'+(SEL===r.id?' sel':'')+'" data-id="'+r.id+'"><div class="nvdd">D-'+r.dd+'<small>'+md(r.kd||r.start)+'</small></div><div class="nvnm"><b>'+e(r.school)+' '+e(r.grade)+'</b><small>'+e(r.semester||'')+' '+e(r.name)+' · 재원 '+r.stu+'명'+(ME&&r.mine?' · 내 학생 '+r.mine:'')+'</small></div><div class="nvst">'+k+s+'</div></div>'+(OPEN===r.id&&!r.kd?'<div class="nvdt">국어 시험일 <input type="date" data-kd="'+r.id+'"'+(r.start?' min="'+r.start+'"':'')+(r.end?' max="'+r.end+'"':'')+'> <span class="nvsub">'+(r.start?'시험 기간 '+md(r.start)+(r.end?'~'+md(r.end):'')+' 안에서 · ':'')+'입력하면 바로 저장</span></div>':'');}).join('')||'<p class="nvsub">해당 시험 없음'+(MINE&&ME?' — 「내 학생 시험만」을 끄면 전체가 보입니다':'')+'</p>';
+  $('nvlist').querySelectorAll('.nvrow').forEach(d=>d.onclick=()=>pick(+d.dataset.id));
+  $('nvlist').querySelectorAll('input[data-kd]').forEach(i=>{i.onclick=ev=>ev.stopPropagation();i.onchange=()=>saveKd(+i.dataset.kd,i.value);});}
+ async function saveKd(id,v,quiet){const r=ALL.find(x=>x.id===id);if(!r)return;const prev=r.kd||'';const p={school:r.school,grade:r.grade,year:r.year,semester:r.semester,type:r.type,start:r.start||'',end:r.end||'',subject_date:v||'',exam_status:r.status||'예정',confirmed:!!r.confirmed};
+  try{const res=await call('gz2_exam_schedule_upsert',{p});if(!(res&&res.ok))throw new Error((res&&res.reason)||'저장 실패');r.kd=res.subject_date||null;OPEN=null;draw();if(SEL===id)det(r);
+   if(!quiet)toast(r.school+' '+r.grade+' 국어일 '+(v?md(v)+'로 저장했습니다':'을 비웠습니다'),()=>saveKd(id,prev,true));}catch(err){toast(/400/.test(err.message)&&r.start?'국어일은 시험 기간('+md(r.start)+(r.end?'~'+md(r.end):'')+') 안이어야 합니다':'저장하지 못했습니다: '+err.message);}}
+ async function pick(id){SEL=id;const r=ALL.find(x=>x.id===id);OPEN=(r&&!r.kd)?id:null;draw();if(r)det(r);}
+ async function det(r){const el=$('nvdet');el.innerHTML='<p class="nvsub">불러오는 중…</p>';
+  try{const [sc,st]=await Promise.all([r.scope?call('gz2_exam_scope_status',{p:{exam_id:r.id}}):Promise.resolve({items:[]}),call('gz_prep_exam_students',{p_exam_id:r.id})]);
+   const it=(sc&&sc.items)||[];const S=w=>['s1','s2','s3','s4','s5','s6','s7'].filter(k=>Number(w[k]||0)>0).length;
+   const full=it.filter(w=>S(w)>=7).length,none=it.filter(w=>S(w)===0).length;const stu=(st&&st.students)||[];
+   const wr=w=>{const n=S(w);return '<div class="nvw"><div>'+e(String(w.title||'').replace(/^\d{4} \d{1,2}월 고\d /,''))+(w.author&&w.author!=='작자 미상'?' <small>'+e(w.author)+'</small>':'')+(w.scope_type==='mock'?'<span class="nvtag">모의</span>':'')+'</div><div><div class="nvpb"><i style="width:'+(n/7*100)+'%;background:'+(n===0?'#A4472F':(n>=7?'#1E4D3B':'#B8892E'))+'"></i></div><div class="nvpbl">'+(n?'1~7단계 중 '+n:'교안 없음')+'</div></div><div class="nvx">연습 세트 '+(w.spark||0)+' · 마무리 '+(w.clear||0)+'</div></div>';};
+   const tb=it.filter(w=>w.scope_type!=='mock'),mk=it.filter(w=>w.scope_type==='mock');
+   el.innerHTML='<h2>'+e(r.school)+' '+e(r.grade)+' · '+e(r.semester||'')+' '+e(r.name)+'</h2><p class="nvsub">'+(r.kd?'국어 '+md(r.kd):'국어일 없음')+' (D-'+r.dd+') · '+(r.confirmed?'<span class="ok" style="border-radius:10px;padding:1px 7px">확정</span>':e(r.status||'예정'))+(r.start?' · 시험 기간 '+md(r.start)+(r.end?'~'+md(r.end):''):'')+' <button class="nvlink" id="nvkdfix">날짜 고치기</button></p>'
+    +'<div class="nvkpi"><div><b>'+it.length+'</b><span>범위 작품</span></div><div><b>'+full+'</b><span>7단계 다 있음</span></div><div><b style="color:#A4472F">'+none+'</b><span>교안 없음</span></div><div><b>'+stu.length+'</b><span>재원 학생</span></div></div>'
+    +(it.length?('<h3>범위 작품 — 교과서 '+tb.length+'<button class="nvbtn" id="nvscope">범위 편집</button></h3>'+tb.map(wr).join('')+(mk.length?'<h3>범위 작품 — 모의 '+mk.length+'</h3>'+mk.map(wr).join(''):'')):'<p style="color:#A4472F;margin-top:12px">범위가 아직 없습니다.</p><button class="nvbtn" id="nvscope">범위 등록 — 교과서 목차에서 고르기</button>')
+    +'<h3>학생 '+stu.length+'</h3>'+stu.map(s=>'<div class="nvw" style="grid-template-columns:1fr 1fr 1fr"><div><b>'+e(s.name)+'</b></div><div class="nvx">담당 '+e(s.teacher_name||'')+'</div><div class="nvx">'+e(s.slots||'')+'</div></div>').join('')
+    +'<details style="margin-top:12px;font-size:13.5px"><summary style="cursor:pointer;color:#555">단계별 자세히 (1~7단계 · 기출 문항 · 기출 분석) — 필요할 때만</summary><div id="nvfull" style="margin-top:6px"><button class="nvbtn" id="nvfullbtn">예전 화면의 단계별 표 열기</button></div></details>';
+   $('nvkdfix').onclick=()=>{OPEN=r.id;draw();};
+   $('nvscope').onclick=()=>openScope(r.id);$('nvfullbtn').onclick=()=>{showOld(true);if(typeof scopeStatus==='function')scopeStatus(r.id);};
+  }catch(err){el.innerHTML='<p class="nvsub">불러오지 못했습니다: '+e(err.message)+'</p>';}}
+ function showOld(on){const L=document.querySelector('.layout');if(L)L.style.display=on?'':'none';$('nvoldbtn').textContent=on?'예전 화면 닫기':'예전 화면 열기 (교재 흐름판 · 생산 현황판 · 시험일 표 · 단계별 표)';}
+ function openScope(id){showOld(true);const box=document.getElementById('prepbox');if(box)box.open=true;const tr=document.querySelector('#prepbox tr.main[data-id="'+id+'"]');
+  if(tr&&typeof scopePanel==='function'){scopePanel(id,tr);setTimeout(()=>tr.scrollIntoView({behavior:'smooth',block:'start'}),200);}else toast('예전 화면의 시험 표에서 이 시험을 찾지 못했습니다 — 시험 표에서 「등록」을 눌러 주세요');}
+ $('nvq').oninput=draw;$('nvg').onchange=draw;
+ $('nvmine').onclick=()=>{MINE=!MINE;$('nvmine').querySelector('.nvsw').classList.toggle('on',MINE);draw();};
+ if(!ME){$('nvmine').style.display='none';MINE=false;}
+ $('nvmore').onclick=()=>showOld(true);$('nvoldbtn').onclick=()=>{const L=document.querySelector('.layout');showOld(!(L&&L.style.display!=='none'));};
+ showOld(false);load();
+})();
+</script>
+</body></html>
