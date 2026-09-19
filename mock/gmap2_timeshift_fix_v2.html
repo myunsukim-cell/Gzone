@@ -1,0 +1,105 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>목업 v2 — 수업 시간 조정 (날짜 먼저)</title><style>
+:root{--ink:#1f2a24;--line:#d8d4c8;--deep:#1f4e79;--red:#A4472F;--dim:#6b675e;--grn:#1E7A46}
+body{margin:0;padding:12px 16px;font:14px/1.6 -apple-system,"Noto Sans KR",sans-serif;color:var(--ink);background:#f6f5f0;max-width:1180px;margin:0 auto}
+.sj .tsday{border:1px solid #d8d4c8;background:#fff;border-radius:7px;padding:3px 0}.sj .tsday.on,.sj .tshr.on,.sj .tslen.on,.sj .tsmode.on{background:#1f4e79!important;color:#fff!important;border-color:#1f4e79!important;font-weight:800}.tsmode{border:1px solid #d8d4c8;background:#fff;padding:3px 10px}.tsmode.on{background:#1f4e79;color:#fff;border-color:#1f4e79}.tshr,.tslen{border:1px solid #d8d4c8;background:#fff;border-radius:7px;padding:3px 9px}.tshr.on,.tslen.on{background:#1f4e79;color:#fff;border-color:#1f4e79;font-weight:800}
+.mockbar{background:#1E4D3B;color:#fff;border-radius:8px;padding:9px 14px;margin-bottom:10px;font-size:12.5px;line-height:1.6}.mockbar b{color:#f3d58b}
+.pin{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#A4472F;color:#fff;font-weight:800;font-size:11.5px;box-shadow:0 0 0 2px #fff;vertical-align:middle}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}.lab{font-size:12px;font-weight:800;color:var(--dim);margin-bottom:6px}.lab.af{color:var(--red)}
+.sj{border:1px solid var(--line);border-radius:10px;background:#fff;padding:12px 14px}.sj.af{border:2px solid #B8892E}
+.sjh{font-size:15px;font-weight:800;margin:4px 0 10px}.sjsm{font-size:11.5px;color:var(--dim);font-weight:400}
+.sjslot{border:1px solid var(--line);border-radius:9px;padding:10px 11px;margin-bottom:8px;background:#fff}
+.sjchip{display:inline-block;border-radius:5px;padding:1px 8px;font-size:11.5px;font-weight:700}.sjchip.reg{background:#eef6f0;color:#1E4D3B;border:1px solid #cfe0d4}.sjchip.hw{background:#fff8ea;color:#6d5212;border:1px solid #e3cf9f}
+.step{font-size:11.5px;font-weight:800;color:var(--deep);margin:9px 0 4px}.step i{font-style:normal;display:inline-flex;width:17px;height:17px;border-radius:50%;background:var(--deep);color:#fff;align-items:center;justify-content:center;font-size:11px;margin-right:5px}
+.row{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+input[type=date],input[type=time]{font:inherit;font-size:13px;border:1px solid var(--line);border-radius:7px;padding:5px 8px}
+input[type=date]{font-weight:700}
+.dowout{font-size:13px;font-weight:800;color:var(--deep);margin-left:6px}
+.diff{border:1px solid var(--line);border-radius:8px;background:#fbfaf6;padding:9px 11px;font-size:13px;min-height:36px}
+.diff b{color:var(--deep)}
+.arrow{color:var(--red);font-weight:800;margin:0 5px}
+.pmsg{border:1px solid #cfe0d4;background:#f4f8f5;border-radius:8px;padding:9px 11px;margin-top:6px}
+.pmsg textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:7px 8px;font:inherit;font-size:12.5px;min-height:62px;background:#fff}
+.pmsg .who{font-size:11.5px;color:var(--dim)}
+.btn{font:inherit;font-size:13px;border-radius:7px;border:1px solid var(--deep);background:var(--deep);color:#fff;padding:8px 15px;cursor:pointer}.btn.grn{background:var(--grn);border-color:var(--grn);font-weight:800}.btn.o{background:#fff;color:var(--deep)}.btn.add{background:#fff;color:var(--grn);border:1px dashed var(--grn);font-weight:700}
+.err{color:var(--red);font-size:12px;font-weight:700;margin-top:4px}.ok{color:var(--grn);font-size:12.5px;font-weight:800}
+.note{font-size:12px;color:var(--dim);background:#fffdf6;border:1px dashed #8a6d1f;border-radius:8px;padding:8px 11px;margin-top:10px;line-height:1.75}
+.badge{display:inline-block;background:#fbefeb;color:var(--red);border:1px solid #e3b9ab;border-radius:5px;padding:0 6px;font-size:11px;font-weight:700}
+@media(max-width:900px){.ba{grid-template-columns:1fr}}
+</style></head><body>
+<div class="mockbar"><b>목업 v2 · 승인 전</b> — 지시 반영: <b>① 날짜(달력)를 맨 위로</b>, 날짜를 고르면 요일이 자동으로 따라오고 요일 버튼으로도 바꿀 수 있음 → <b>② 시간만 선택</b> → <b>③ 계속/1회만</b> → <b>④ 학습관리 시간 「+ 추가」</b> → <b>⑤ 학부모 알림을 분명하게(문구 그대로 보이고 고칠 수 있음)</b>. 값은 위성헌 실제 시간표(보완확인 토 14:00~17:00 · 학습관리 없음). 오른쪽은 눌러 볼 수 있습니다.</div>
+<div class="ba">
+<div><div class="lab">지금 — 달력이 맨 아래, 요일·시각·길이·계속 순서가 뒤섞임</div>
+<div class="sj"><div class="sjh">위성헌 · 수업 시간 조정</div>
+<div class="sjslot"><span class="sjchip reg">보완확인 시간(정규수업)</span> <span class="sjsm">지금 매주 토 14:00~17:00 · 개별</span> <label class="sjsm" style="float:right"><input type="checkbox" checked disabled> 이 시간 바꾸기</label>
+<div class="step">요일</div><div class="row">월 화 수 목 금 토 일</div>
+<div class="step">시작 시각</div><div class="row">10:00 11:00 14:00 17:00 17:30 18:00 19:00 · 오후 02:0</div>
+<div class="step">수업 길이</div><div class="row">3시간 2시간 30분 2시간 · 끝 오후 05:0</div>
+<div class="row" style="margin-top:6px">계속 | 1회만 · 적용 시작일</div>
+<div class="row"><input type="date" value="2026-09-19" disabled> <span class="badge">달력이 맨 아래</span></div></div>
+<div class="sjslot" style="border-style:dashed"><span class="sjchip hw">학습관리 시간(과제관리)</span> <span class="sjsm">등록된 시간이 없습니다</span><label class="sjsm" style="float:right"><input type="checkbox" disabled> 이 시간 바꾸기</label>
+<div class="err">없는 시간을 「바꾸기」로 체크해야 함 — 추가 버튼이 없음</div></div>
+<div class="step">바뀌는 것</div><div class="diff">· 보완확인 — 요일과 시각을 고르세요</div>
+<div class="step">학부모에게 가는 알림</div><div class="diff">—</div>
+<div style="margin-top:10px"><button class="btn grn" disabled>저장하고 학부모에게 알리기</button></div></div></div>
+
+<div><div class="lab af">고친 뒤 (v0.24)</div>
+<div class="sj af"><div class="sjh">위성헌 · 수업 시간 조정 <span class="sjsm">날짜를 먼저 고르면 요일이 따라옵니다</span></div>
+<div id="slots"></div>
+<div id="addbox"></div>
+<div class="step" style="margin-top:12px">바뀌는 것</div><div class="diff" id="diff">아직 바꾼 것이 없습니다</div>
+<div class="pmsg"><div class="who">학부모에게 가는 문자 <span id="ptarget">— 받는 사람: 위성헌 학부모(010-****-1234)</span> · 보내기 전에 고칠 수 있습니다</div>
+<textarea id="pmsg" placeholder="바꿀 내용을 고르면 여기에 문자 문구가 만들어집니다"></textarea>
+<label class="sjsm"><input type="checkbox" id="psend" checked> 저장과 함께 이 문자를 보냅니다</label></div>
+<div style="margin-top:10px;display:flex;gap:8px;align-items:center"><button class="btn grn" onclick="save()">저장하고 학부모에게 알리기</button><span id="res"></span></div></div>
+<div class="note"><span class="pin">A</span> <b>①날짜 → ②시간 → ③계속/1회만</b> 순서. 날짜를 고르면 <b>요일이 자동</b>으로 표시되고, 요일 버튼을 누르면 <b>날짜가 그 요일의 가장 가까운 날</b>로 옮겨집니다(둘 다 수정 가능)<br>
+<span class="pin">B</span> 시간은 <b>시작 시각만</b> 고르면 되고, 수업 길이는 지금 길이(3시간)를 그대로 써서 <b>끝 시각이 자동</b>(필요하면 길이 칩으로 변경)<br>
+<span class="pin">C</span> 학습관리 시간이 없으면 <b>「+ 학습관리 시간 추가」 버튼</b>(체크박스 아님)<br>
+<span class="pin">D</span> 학부모 문자는 <b>문구 그대로 보이고 고칠 수 있으며</b>, 보낼지 여부도 선택. 저장 후에는 영수증(보낸 시각)으로 남습니다</div></div></div>
+<script>
+const DN=['월','화','수','목','금','토','일'];
+const TODAY=new Date('2026-09-19');
+let S=[{k:'reg',lbl:'보완확인 시간(정규수업)',cls:'reg',cur:{d:6,st:'14:00',en:'17:00'},len:180,hrs:['10:00','11:00','14:00','17:00','17:30','18:00','19:00']}];
+const st={};
+function fmt(dt){const z=n=>String(n).padStart(2,'0');return dt.getFullYear()+'-'+z(dt.getMonth()+1)+'-'+z(dt.getDate());}
+function dowOf(s){const d=new Date(s+'T00:00:00');return d.getDay()===0?7:d.getDay();}
+function nextOf(dow,from){const d=new Date((from||fmt(TODAY))+'T00:00:00');for(let i=0;i<8;i++){const dd=new Date(d.getTime()+i*864e5);const w=dd.getDay()===0?7:dd.getDay();if(w===dow)return fmt(dd);}return fmt(d);}
+function addMin(t,m){const[a,b]=t.split(':').map(Number);const d=new Date(2000,0,1,a,b+m);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function draw(){
+ document.getElementById('slots').innerHTML=S.map(s=>{const v=st[s.k]||{};const dow=v.date?dowOf(v.date):null;
+  return '<div class="sjslot" id="box_'+s.k+'"><div class="row"><span class="sjchip '+s.cls+'">'+s.lbl+'</span><span class="sjsm">'+(s.cur?('지금 매주 '+DN[s.cur.d-1]+' '+s.cur.st+'~'+s.cur.en+' · 개별'):'새로 추가')+'</span>'+
+  '<label class="sjsm" style="margin-left:auto"><input type="checkbox" id="on_'+s.k+'" '+(v.on?'checked':'')+' onchange="tog(\''+s.k+'\')"> 이 시간 바꾸기</label></div>'+
+  (v.on?('<div class="step"><i>1</i>언제부터 · 어느 날</div><div class="row"><input type="date" id="dt_'+s.k+'" value="'+(v.date||'')+'" onchange="pickDate(\''+s.k+'\',this.value)">'+
+   '<span class="dowout">'+(dow?DN[dow-1]+'요일':'날짜를 고르세요')+'</span></div>'+
+   '<div class="row" style="margin-top:4px">'+DN.map((d,i)=>'<button class="tsday'+(dow===i+1?' on':'')+'" style="min-width:36px" onclick="pickDow(\''+s.k+'\','+(i+1)+')">'+d+'</button>').join('')+'</div>'+
+   '<div class="step"><i>2</i>시작 시각</div><div class="row">'+s.hrs.map(h=>'<button class="tshr'+(v.s===h?' on':'')+'" onclick="pickH(\''+s.k+'\',\''+h+'\')">'+h+'</button>').join('')+'<input type="time" onchange="pickH(\''+s.k+'\',this.value)"></div>'+
+   '<div class="row" style="margin-top:4px"><span class="sjsm">수업 길이</span>'+[['3시간',180],['2시간 30분',150],['2시간',120],['1시간',60]].map(L=>'<button class="tslen'+((v.len||s.len)===L[1]?' on':'')+'" onclick="pickL(\''+s.k+'\','+L[1]+')">'+L[0]+'</button>').join('')+'<span class="sjsm">끝 '+(v.s?addMin(v.s,v.len||s.len):'—')+'</span></div>'+
+   '<div class="step"><i>3</i>계속 바꿀까요, 그날만일까요</div><div class="row">'+[['cont','계속 — 이 날짜부터 매주'],['once','1회만 — 그날만']].map(m=>'<button class="tsmode'+((v.mode||'cont')===m[0]?' on':'')+'" onclick="pickM(\''+s.k+'\',\''+m[0]+'\')">'+m[1]+'</button>').join('')+'</div>'+
+   (v.err?'<div class="err">'+v.err+'</div>':'')):'')+'</div>';}).join('');
+ document.getElementById('addbox').innerHTML = S.some(x=>x.k==='hw')?'' : '<button class="btn add" onclick="addHw()">+ 학습관리 시간(과제관리) 추가</button> <span class="sjsm">등록된 시간이 없습니다</span>';
+ const lines=[],msgs=[];
+ S.forEach(s=>{const v=st[s.k];if(!v||!v.on||!v.date||!v.s)return;const dow=dowOf(v.date),to=DN[dow-1]+' '+v.s+'~'+addMin(v.s,v.len||s.len);
+  if(v.mode==='once') {lines.push('<b>'+s.lbl.replace(/ 시간.*/,'')+'</b> '+v.date+' 그날만 <span class="arrow">→</span> '+v.s+' 시작');msgs.push(s.lbl.replace(/ 시간.*/,'')+' 수업을 '+v.date.slice(5).replace('-','/')+'('+DN[dow-1]+') '+v.s+'로 한 번 옮깁니다. 다음 주부터는 원래 시간입니다.');}
+  else if(!s.cur){lines.push('<b>'+s.lbl.replace(/ 시간.*/,'')+'</b> 새로 추가 <span class="arrow">→</span> 매주 '+to+' ('+v.date+'부터)');msgs.push(s.lbl.replace(/ 시간.*/,'')+' 시간이 '+v.date.slice(5).replace('-','/')+'부터 매주 '+to+'로 새로 생깁니다.');}
+  else {lines.push('<b>'+s.lbl.replace(/ 시간.*/,'')+'</b> 매주 '+DN[s.cur.d-1]+' '+s.cur.st+' <span class="arrow">→</span> 매주 '+to+' ('+v.date+'부터)');msgs.push(s.lbl.replace(/ 시간.*/,'')+' 수업 시간이 '+v.date.slice(5).replace('-','/')+'부터 매주 '+to+'로 바뀝니다.');}});
+ document.getElementById('diff').innerHTML=lines.length?lines.map(x=>'<div>· '+x+'</div>').join(''):'아직 바꾼 것이 없습니다';
+ const P=document.getElementById('pmsg');
+ if(msgs.length&&!P.dataset.touched) P.value='[국존] 위성헌 학생 '+msgs.join(' ')+' 확인 부탁드립니다. — 국존 국어전문학원';
+ if(!msgs.length&&!P.dataset.touched) P.value='';}
+function tog(k){st[k]=st[k]||{};const el=document.getElementById('on_'+k);st[k].on=el?el.checked:true;if(st[k].on&&!st[k].date){const s=S.find(x=>x.k===k);st[k].date=s.cur?nextOf(s.cur.d):fmt(TODAY);st[k].mode='cont';}st[k].err='';draw();}
+function pickDate(k,v){st[k].date=v;st[k].err='';draw();}
+function pickDow(k,d){st[k].date=nextOf(d,st[k].date);st[k].err='';draw();}
+function pickH(k,h){if(!h)return;st[k].s=h.slice(0,5);st[k].err='';draw();}
+function pickL(k,m){st[k].len=m;draw();}
+function pickM(k,m){st[k].mode=m;draw();}
+function addHw(){S.push({k:'hw',lbl:'학습관리 시간(과제관리)',cls:'hw',cur:null,len:60,hrs:['14:00','17:00','18:00','18:30','19:00','20:00']});st['hw']={on:true,date:fmt(TODAY),mode:'cont',len:60};draw();}
+function save(){const R=document.getElementById('res');const on=S.filter(s=>(st[s.k]||{}).on);
+ if(!on.length){R.innerHTML='<span class="err">바꿀 시간을 먼저 체크하세요</span>';return;}
+ let bad=false;on.forEach(s=>{const v=st[s.k];if(!v.date||!v.s){v.err='날짜와 시작 시각을 고르세요';bad=true;}});draw();
+ if(bad){R.innerHTML='<span class="err">빠진 항목이 있습니다</span>';return;}
+ const sent=document.getElementById('psend').checked;
+ const receipt='<div class="ok">바뀐 것 ✓ '+on.map(s=>{const v=st[s.k],dow=dowOf(v.date);return s.lbl.replace(/ 시간.*/,'')+' → '+(v.mode==='once'?(v.date+' 그날만 '+v.s):('매주 '+DN[dow-1]+' '+v.s))}).join(' · ')+' · 09/19 10:05 저장'+(sent?' · 학부모 문자 보냄':' · 문자 보내지 않음')+'</div>';
+ on.forEach(s=>{const v=st[s.k];const dow=dowOf(v.date);if(v.mode!=='once')s.cur={d:dow,st:v.s,en:addMin(v.s,v.len||s.len)};st[s.k]={on:false};});
+ const P=document.getElementById('pmsg');P.dataset.touched='';P.value='';R.innerHTML='';draw();document.getElementById('diff').innerHTML=receipt;}
+document.getElementById('pmsg').addEventListener('input',function(){this.dataset.touched='1';});
+draw();
+</script></body></html>
