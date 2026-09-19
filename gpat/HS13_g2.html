@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>인천과학고 2학년 1학기 중간 분석 — G-PAT/A v9</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700;900&display=swap');
+
+:root {
+  --primary: #2c3e50; --accent: #16a085; --danger: #c0392b;
+  --gold: #d4a72c; --bg: #f8f9fa; --line: #e9ecef;
+  --paper: #ffffff; --text: #333; --muted: #888;
+}
+@page { size: A4; margin: 0; }
+@media print {
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page-break { page-break-after: always; }
+  .sheet { margin: 0 !important; box-shadow: none !important; width: auto !important; height: 297mm !important; }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; font-size: 10pt; }
+.sheet { width: 210mm; height: 297mm; padding: 16mm 14mm; margin: 0 auto 16px; background: var(--paper); box-shadow: 0 0 15px rgba(0,0,0,0.08); position: relative; overflow: hidden; }
+
+/* 공통 */
+.group-badge { display: inline-block; padding: 4px 14px; background: var(--primary); color: #fff; font-size: 9pt; font-weight: 700; letter-spacing: 1px; border-radius: 3px; margin-bottom: 8px; }
+.group-badge.killer { background: var(--danger); }
+.group-badge.duel { background: var(--accent); }
+h1 { font-family: 'Noto Serif KR', serif; font-weight: 900; font-size: 22pt; color: var(--primary); line-height: 1.2; margin-bottom: 6px; }
+.lead { font-size: 11pt; color: var(--muted); margin-bottom: 12mm; font-weight: 400; }
+h2 { font-family: 'Noto Serif KR', serif; font-weight: 700; font-size: 14pt; color: var(--primary); margin: 8mm 0 4mm; padding-bottom: 4px; border-bottom: 2px solid var(--primary); }
+h3 { font-family: 'Noto Serif KR', serif; font-size: 11pt; font-weight: 700; color: var(--primary); margin: 4mm 0 2mm; }
+
+/* PAGE 1 */
+.cover-meta { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; margin-bottom: 6mm; }
+.meta-card { background: var(--bg); border-left: 4px solid var(--primary); padding: 4mm 5mm; border-radius: 0 4px 4px 0; }
+.meta-card .label { font-size: 8pt; color: var(--muted); letter-spacing: 0.5px; margin-bottom: 2px; }
+.meta-card .value { font-size: 13pt; font-weight: 700; color: var(--primary); font-family: 'Noto Serif KR', serif; }
+.meta-card .sub { font-size: 8pt; color: var(--muted); margin-top: 2px; }
+.key-msg { background: linear-gradient(135deg, #f9d976 0%, #d4a72c 100%); color: #4a3a08; padding: 5mm 6mm; border-radius: 5px; margin: 6mm 0; box-shadow: 0 2px 6px rgba(212,167,44,0.3); }
+.key-msg .km-label { font-size: 9pt; font-weight: 700; letter-spacing: 1.5px; margin-bottom: 4px; }
+.key-msg .km-text { font-size: 12pt; font-weight: 700; font-family: 'Noto Serif KR', serif; line-height: 1.5; }
+.scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; margin: 4mm 0; }
+.scope-item { background: #fff; border: 1px solid var(--line); padding: 3mm 4mm; border-radius: 4px; font-size: 9pt; }
+.scope-item .stitle { font-weight: 700; color: var(--primary); }
+.scope-item .swork { color: var(--text); margin-top: 1px; }
+.scope-item .smeta { color: var(--muted); font-size: 8pt; margin-top: 1px; }
+.bar-chart { margin: 4mm 0; }
+.bar-row { display: grid; grid-template-columns: 80px 1fr 60px; gap: 6px; align-items: center; margin-bottom: 4px; font-size: 9pt; }
+.bar-row .blabel { font-weight: 600; color: var(--primary); text-align: right; }
+.bar-row .btrack { background: var(--line); height: 14px; border-radius: 7px; overflow: hidden; }
+.bar-row .bfill { height: 100%; background: linear-gradient(90deg, var(--primary), #4a6b8a); border-radius: 7px; display: flex; align-items: center; padding-left: 6px; color: #fff; font-size: 8pt; font-weight: 700; }
+.bar-row .bcount { font-size: 8pt; color: var(--muted); }
+.note-box { background: var(--bg); border-left: 3px solid var(--accent); padding: 3mm 5mm; margin: 4mm 0; font-size: 9pt; line-height: 1.6; color: var(--text); }
+.note-box b { color: var(--accent); }
+
+/* PAGE 2 — 킬러 */
+.killer-grid { display: grid; grid-template-columns: 1fr; gap: 4mm; margin: 4mm 0; }
+.killer-card { background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--danger); border-radius: 0 5px 5px 0; padding: 4mm 5mm; }
+.killer-card .ktag { display: inline-block; background: var(--danger); color: #fff; padding: 2px 8px; border-radius: 3px; font-size: 8pt; font-weight: 700; margin-bottom: 4px; }
+.killer-card .ktitle { font-size: 11pt; font-weight: 700; color: var(--primary); margin-bottom: 2px; font-family: 'Noto Serif KR', serif; }
+.killer-card .kmeta { font-size: 8.5pt; color: var(--muted); margin-bottom: 4px; }
+.killer-card .kbody { font-size: 9pt; line-height: 1.65; color: var(--text); }
+.killer-card .kbody b { color: var(--danger); font-weight: 700; }
+.match-box { background: #e8f6f3; border-left: 3px solid var(--accent); padding: 3mm 4mm; margin-top: 3mm; border-radius: 0 3px 3px 0; font-size: 8.5pt; }
+.match-box .mlabel { display: inline-block; background: var(--accent); color: #fff; padding: 1px 6px; border-radius: 2px; font-size: 7.5pt; font-weight: 700; margin-bottom: 3px; }
+.match-box .mwid { font-family: 'Courier New', monospace; background: #fff; padding: 1px 6px; border-radius: 2px; font-size: 8pt; color: var(--accent); border: 1px solid var(--accent); margin-right: 4px; }
+.match-box .mbody { font-size: 8.5pt; line-height: 1.55; color: var(--text); }
+.dist-table { width: 100%; border-collapse: collapse; margin: 3mm 0; font-size: 9pt; }
+.dist-table th, .dist-table td { border: 1px solid var(--line); padding: 3px 8px; text-align: left; }
+.dist-table th { background: var(--primary); color: #fff; font-weight: 600; }
+.dist-table tr:nth-child(even) td { background: var(--bg); }
+.insight-box { background: var(--bg); padding: 4mm 5mm; border-radius: 4px; margin: 4mm 0; font-size: 9pt; line-height: 1.65; }
+.insight-box b { color: var(--primary); }
+
+/* PAGE 3 — 1:1 비교 */
+.duel-block { margin: 4mm 0; }
+.duel-meta { background: var(--bg); border-left: 4px solid var(--gold); padding: 4mm 5mm; border-radius: 0 4px 4px 0; margin-bottom: 4mm; font-size: 9pt; line-height: 1.65; }
+.duel-meta b { color: var(--gold); }
+.duel-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+.duel-side { background: #fff; border: 1px solid var(--line); padding: 4mm 5mm; border-radius: 4px; }
+.duel-side.school { border-left: 4px solid var(--danger); }
+.duel-side.gzone { border-left: 4px solid var(--accent); }
+.duel-side .dlabel { display: inline-block; padding: 2px 8px; font-size: 7.5pt; font-weight: 700; color: #fff; border-radius: 2px; margin-bottom: 3mm; letter-spacing: 0.5px; }
+.duel-side.school .dlabel { background: var(--danger); }
+.duel-side.gzone .dlabel { background: var(--accent); }
+.duel-side .dtitle { font-size: 10pt; font-weight: 700; color: var(--primary); margin-bottom: 2mm; font-family: 'Noto Serif KR', serif; }
+.duel-side .dquestion { font-size: 8.5pt; background: var(--bg); padding: 2mm 3mm; border-radius: 3px; margin: 2mm 0; line-height: 1.55; }
+.duel-side .danalysis { font-size: 8.5pt; line-height: 1.6; color: var(--text); }
+.duel-side .danalysis b { color: var(--primary); }
+.duel-conclusion { background: #e8f6f3; border: 2px solid var(--accent); padding: 4mm 5mm; border-radius: 5px; margin: 4mm 0; }
+.duel-conclusion .clabel { font-size: 9pt; color: var(--accent); font-weight: 700; margin-bottom: 2mm; letter-spacing: 0.5px; }
+.duel-conclusion .cbody { font-size: 9pt; line-height: 1.65; color: var(--primary); }
+.duel-conclusion .cbody b { color: var(--accent); }
+.bottom-summary { background: var(--bg); padding: 4mm 5mm; border-radius: 4px; margin-top: 4mm; font-size: 8.5pt; line-height: 1.65; color: var(--muted); }
+.bottom-summary .blabel { font-weight: 700; color: var(--primary); margin-bottom: 2mm; font-size: 9pt; }
+.footer { text-align: right; font-size: 7.5pt; color: var(--muted); margin-top: 4mm; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="group-badge">HS24 · 2026 · 고2 · 1중간</div>
+  <h1>인천과학고 2학년<br>1학기 중간고사 분석</h1>
+  <div class="lead">2026.04.28 시행 · 비상(강) 문학 · 30문항 · 5등급제 (1등급 컷 100점)</div>
+
+  <div class="cover-meta">
+    <div class="meta-card">
+      <div class="label">1등급 컷</div>
+      <div class="value">100점</div>
+      <div class="sub">5등급제 · 만점 1등급</div>
+    </div>
+    <div class="meta-card">
+      <div class="label">변별 구간</div>
+      <div class="value">서술형 4개</div>
+      <div class="sub">총 20점 · 한 개 -5점</div>
+    </div>
+    <div class="meta-card">
+      <div class="label">평균 KAR</div>
+      <div class="value">6.18</div>
+      <div class="sub">Lv.8~10 주력</div>
+    </div>
+  </div>
+
+  <div class="key-msg">
+    <div class="km-label">★ 핵심 메시지</div>
+    <div class="km-text">선택형 26문항은 표준 수준으로 1등급 컷 100점이 형성됨.<br>변별은 서술형 4개에 집중되어, 모두 <b>수능 개념(다층 의미·이중성·패러디·삽입 시가 다층 기능)</b>을 묻는 방식이라 <b>한 개라도 틀리면 5점 손실로 3등급까지 추락</b>.</div>
+  </div>
+
+  <h2>시험범위 7개 세트</h2>
+  <div class="scope-grid">
+    <div class="scope-item">
+      <div class="stitle">[세트 1] L-ED 갈래복합</div>
+      <div class="swork">빙그레의 영역 (김소연) + 통곡헌기 (허균)</div>
+      <div class="smeta">Q1~Q5 + 서1·서2 (7문항 · 23%)</div>
+    </div>
+    <div class="scope-item">
+      <div class="stitle">[세트 2] L-CN 고전소설</div>
+      <div class="swork">이생규장전 (김시습)</div>
+      <div class="smeta">Q6~Q8 + 서3·서4 (5문항 · 17%)</div>
+    </div>
+    <div class="scope-item">
+      <div class="stitle">[세트 3] L-MN 현대소설</div>
+      <div class="swork">도도한 생활 (김애란)</div>
+      <div class="smeta">Q9~Q11 + 서5·서6 (5문항 · 17%)</div>
+    </div>
+    <div class="scope-item">
+      <div class="stitle">[세트 4] L-LP 현대시 갈래복합</div>
+      <div class="swork">산이 날 에워싸고 (박목월) + 저 산이 날더러 (정희성)</div>
+      <div class="smeta">Q12~Q14 + 서7 (4문항 · 13%)</div>
+    </div>
+    <div class="scope-item">
+      <div class="stitle">[세트 5] L-MN 현대소설</div>
+      <div class="swork">그 많던 싱아는 누가 다 먹었을까 (박완서)</div>
+      <div class="smeta">Q15~Q16 (2문항 · 7%)</div>
+    </div>
+    <div class="scope-item">
+      <div class="stitle">[세트 6] L-LP 현대시 3편</div>
+      <div class="swork">첫사랑 (고재종) + 그 복숭아나무 곁으로 (나희덕) + 벼 (이성부)</div>
+      <div class="smeta">Q17~Q20 (4문항 · 13%)</div>
+    </div>
+    <div class="scope-item">
+      <div class="stitle">[세트 7] L-LP 현대시 갈래복합</div>
+      <div class="swork">쉽게 씌어진 시 (윤동주) + 풀벌레 소리 가득 차 있었다 (이용악)</div>
+      <div class="smeta">Q21~Q23 (3문항 · 10%)</div>
+    </div>
+  </div>
+
+  <h2>영역별 출제 분포</h2>
+  <div class="bar-chart">
+    <div class="bar-row"><div class="blabel">현대시 갈래복합</div><div class="btrack"><div class="bfill" style="width:40%">L-LP</div></div><div class="bcount">12문항 · 40%</div></div>
+    <div class="bar-row"><div class="blabel">수필 갈래복합</div><div class="btrack"><div class="bfill" style="width:23%">L-ED</div></div><div class="bcount">7문항 · 23%</div></div>
+    <div class="bar-row"><div class="blabel">현대소설</div><div class="btrack"><div class="bfill" style="width:20%">L-MN</div></div><div class="bcount">6문항 · 20%</div></div>
+    <div class="bar-row"><div class="blabel">고전소설</div><div class="btrack"><div class="bfill" style="width:17%">L-CN</div></div><div class="bcount">5문항 · 17%</div></div>
+  </div>
+
+  <div class="note-box">
+    <b>주목할 점:</b> 갈래복합 형식이 7세트 중 5세트(71%) — 일반 학교 평균(20~30%) 대비 <b>2~3배 높음</b>. 단일 작품 학습이 아닌 (가)/(나) 비교 사고 훈련이 필수. 외부지문 〈보기〉 연계 문항도 3건(Q7·Q14·서7)으로 본 시험 변별 장치로 활용됨.
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<div class="sheet">
+  <div class="group-badge killer">KILLER · TOP 3</div>
+  <h1>변별의 핵심<br>서술형 수능 개념</h1>
+  <div class="lead">선택형 만점에도 서술형에서 손실되면 등급 하락 — 사실상 본 시험의 모든 변별이 여기에 집중</div>
+
+  <div class="killer-grid">
+    
+    <div class="killer-card">
+      <div class="ktag">TOP 1 · 서7 (Q30) · 5.0점 · KAR 7.5</div>
+      <div class="ktitle">패러디·재구성 비교 분석 (서술형)</div>
+      <div class="kmeta">(가) 산이 날 에워싸고 (박목월) ↔ (나) 저 산이 날더러 (정희성) · 최고난도 메타비평</div>
+      <div class="kbody">
+        〈보기〉에서 '패러디=원작 재구성+새 의미' 정의 제시. <b>형식 유사점 2가지+ (통사 차용·명령형 어미·수미상관) + ㉮/㉯ 의미 각각(안빈낙도 ↔ 절망·냉소) + 패러디 명시</b>를 한 문장에 통합 서술해야 만점. 메타비평적 사고가 필요한 수능형 사고의 결정체.
+      </div>
+      <div class="match-box">
+        <div class="mlabel">국존 매칭</div>
+        <span class="mwid">W319</span><b>저 산이 날더러</b> exam_focus에 "패러디 기법(통사 차용+시어 교체) / -이나 보조사 의미 전복(자족→경멸) / 어조 차이(관조 vs 냉소) / 수미상관 구조" 명세 등록됨.
+        <div class="mbody" style="margin-top:3px"><span class="mwid">W318</span>STEP3·STEP5 풀세트 보유. SPARK·CLEAR 패러디 비교형 1:1 동형 문항 즉시 자동 생성 가능.</div>
+      </div>
+    </div>
+
+    <div class="killer-card">
+      <div class="ktag">TOP 2 · 서6 (Q29) · 5.0점 · KAR 7.0</div>
+      <div class="ktitle">표제 이중적 의미 분석 (서술형)</div>
+      <div class="kmeta">도도한 생활 (김애란) · 표제 Ⓐ 분석</div>
+      <div class="kbody">
+        〈보기〉가 '도도하다'를 ①사전적 의미(잘난 체·거만함) + ②피아노 음계 '도' 음의 침울한 울림으로 이중 정의. <b>두 의미 모두를 본문 인물 상황('나'의 자존심 vs 침수된 피아노의 좌절)과 연결</b>하여 통합 서술해야 함. 한쪽 의미만 답하면 -3점.
+      </div>
+      <div class="match-box">
+        <div class="mlabel">국존 매칭</div>
+        <span class="mwid">W2528</span><b>도도한 생활</b> <span style="color:var(--danger);font-weight:700">⚠️ 5460P 미적재</span> — STEP3·STEP5 생성 시급. 표제 이중 의미 분석은 국존 일반 표제 분석 매뉴얼(KB-Z02-L §표제 분석) 활용 가능하나, 작품별 풀세트 보강 필요.
+      </div>
+    </div>
+
+    <div class="killer-card">
+      <div class="ktag">TOP 3 · 서4 (Q27) · 5.0점 · KAR 7.2</div>
+      <div class="ktitle">삽입 시가의 다층 기능 분석 (서술형)</div>
+      <div class="kmeta">이생규장전 [A] 옥루춘 (김시습) · 정서적 + 서사적 기능 각 2가지+</div>
+      <div class="kbody">
+        도적이 부른 [A] 노래의 역할을 <b>정서적 기능(비애 응축·서정성 결합) + 서사적 기능(영원 이별 복선·장면 전환) 각 2가지 이상</b> 분리 서술해야 함. 정서/서사 한 축만 답하면 -1.5점, 각 한 가지만 답해도 -1.5점.
+      </div>
+      <div class="match-box">
+        <div class="mlabel">국존 매칭</div>
+        <span class="mwid">W2653</span><b>이생규장전 풀세트 보유</b>: 5460P·STEP3·STEP5·STEP6·STEP7·SPARK·CLEAR. exam_focus에 4장면 구조(담장만남→사별→환신재회→영원이별) 명시. 삽입가요 분석 1:1 동형 문항 즉시 출제 가능.
+      </div>
+    </div>
+
+  </div>
+
+  <h3>출제자 변별 패턴 (ACL 3대 함정)</h3>
+  <table class="dist-table">
+    <tr><th>순위</th><th>ACL 함정 유형</th><th>건수</th><th>전체 평균 대비</th><th>본 학교 특징</th></tr>
+    <tr><td>1위</td><td>ACL-CAT 범주 혼동</td><td>12 (40%)</td><td><b>3배 ↑</b></td><td>시점·갈래·인물·기법 미세 변경</td></tr>
+    <tr><td>2위</td><td>ACL-OV 범위 함정</td><td>8 (27%)</td><td><b>4배 ↑</b></td><td>'모두/공통/항상' 일반화 진술 + 서답형 조건 누락</td></tr>
+    <tr><td>3위</td><td>ACL-OP 정조 정반대</td><td>5 (17%)</td><td><b>2배 ↑</b></td><td>본문 정서를 반대로 진술 (시어 정조 빈발)</td></tr>
+  </table>
+
+  <div class="insight-box">
+    <b>종합 인사이트:</b> 본 시험은 선택형 26개가 표준 수준이나, <b>서술형 4개에서 수능형 사고를 집중 평가</b>하는 학교의 일관된 출제 전략을 보임. 변별 핵심은 ①다층 의미 분리 능력 ②〈보기〉 정의를 본문에 통합 적용 ③조건 정합(어절·종결·N가지+) 준수. 단순 본문 암기로는 1등급 불가능.
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<div class="sheet">
+  <div class="group-badge duel">1 : 1 매칭 사례</div>
+  <h1>학교 출제 vs 국존 자료<br>삽입가요 다층 기능</h1>
+  <div class="lead">이생규장전 [A] 옥루춘 — 국존 자료가 이 학교 출제를 어떻게 미리 준비하는지</div>
+
+  <div class="duel-meta">
+    <b>왜 이 사례를 선택했는가:</b> 본 시험에서 서4(Q27)는 KAR 7.2 · 5점 · 정서/서사 다층 기능을 묻는 서술형 — 본 시험 변별의 핵심 유형. 국존은 이생규장전(W2653)에 대해 5460P·STEP3·STEP5·STEP6·STEP7·SPARK·CLEAR 풀세트를 보유하고 있어 <b>완벽한 1:1 매칭 가능</b>. 학생이 국존 자료를 학습했다면 이 서술형은 만점 회수 100%.
+  </div>
+
+  <div class="duel-block">
+    <div class="duel-row">
+
+      <div class="duel-side school">
+        <div class="dlabel">학교 출제 (Q27 서4)</div>
+        <div class="dtitle">이생규장전 [A] 삽입가요 역할</div>
+        <div class="dquestion">[A]가 작품 중간에 삽입되면서 어떠한 역할을 하는지 〈조건〉에 따라 서술하시오. (5.0점)<br><br>
+        <b>〈조건〉</b><br>
+        · [A]의 역할을 정서적 기능, 서사적 기능으로 나누어 각각 두 가지 이상 서술<br>
+        · 평어형 종결어미 '-다' 사용</div>
+        <div class="danalysis">
+        <b>요구 사고력:</b> 옥루춘이라는 삽입 시가를 <b>독립 분석</b> 후 ①정서적 차원 ②서사적 차원으로 <b>다층 분리</b>하여 각 차원에 2가지 이상 기능을 도출. 한 축만 답하거나 각 1가지만 답하면 -1.5~3점.<br><br>
+        <b>난도:</b> KAR 7.2 (상) · KLA-E (표현) · ACL-OV (범위 축소 함정)<br>
+        <b>학생 실수 패턴:</b> 정서만 답하고 서사적 기능(복선·전환) 누락 → -1.5점
+        </div>
+      </div>
+
+      <div class="duel-side gzone">
+        <div class="dlabel">국존 자료 매칭</div>
+        <div class="dtitle">W2653 이생규장전 풀세트</div>
+        <div class="dquestion">
+        <b>적재 현황 (✅ 풀세트)</b><br>
+        · 5460P 38건 (raw_sentences 전수 분할)<br>
+        · STEP3 분석화 (4장면 구조 도식)<br>
+        · STEP5 단권 비급노트<br>
+        · STEP6/STEP7 20+10 문항 + SPARK·CLEAR
+        </div>
+        <div class="danalysis">
+        <b>exam_focus 명세:</b><br>
+        · 장면4 [천제 명령·옥루춘·영원 이별] 매핑 완료<br>
+        · 삽입가요 옥루춘 = 정서 응축(비애·이별의 한) + 서사 복선(영원 이별 예고) 명시<br><br>
+        <b>매칭 가능 자료:</b><br>
+        · STEP3 [A] 분석 카드 (정서/서사 2축 분리)<br>
+        · SPARK 회차 中 삽입가요 다층 기능 문항 보유<br>
+        · CLEAR 30문항 中 서답형 1문항 (동일 패턴)
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="duel-conclusion">
+    <div class="clabel">★ 매칭 결론</div>
+    <div class="cbody">
+    이 사례는 <b>국존 자료가 본 학교 출제 패턴을 정확히 선반영</b>한 대표 케이스. STEP3 [A] 분석에서 정서·서사 2축 분리 훈련이 이미 완료된 학생은 본 서술형에서 <b>조건 정합(2가지+)까지 자동 준수</b>하여 만점 회수. 반대로 단순 본문 암기 학생은 한 축만 답해 부분 점수 손실 — 사실상 본 시험 변별의 본질을 그대로 드러내는 사례. 다른 작품(W6236 통곡헌기·W2528 도도한 생활)도 동일 패턴 풀세트 보강 시 본 학교 대비 완전 자동화 가능.
+    </div>
+  </div>
+
+  <div class="bottom-summary">
+    <div class="blabel">학습 권고 (1등급 확보 루트)</div>
+    ① 갈래복합 (가)(나)(다) 비교 학습 — 단일 작품 학습 비효율<br>
+    ② 외부 작품 풀 사전 학습 (만복사저포기·남으로 창을 내겠소 등 동질갈래 풀)<br>
+    ③ 서술형 다층 의미·이중성·삽입가요·패러디 분석 답안 정형화 (각 4축 체크리스트화)<br>
+    ④ 조건 정합 체크리스트 (어절 수·종결 어미·N가지 이상·이중성 명시) 필수<br>
+    ⑤ ACL-CAT/OV 함정 50문항+ 반복 (시점·갈래·인물 범주 + 모두/공통 일반화)
+  </div>
+
+  <div class="footer">GZONE 국존 G-PAT/A v9 · HS24-2026-1-MID-G2 · 분석일 2026-05-22</div>
+</div>
+
+</body>
+</html>
