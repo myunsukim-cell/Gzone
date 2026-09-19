@@ -56,6 +56,7 @@ footer{margin-top:56px;font-size:12px;color:var(--dim);line-height:1.8}
 .tabs button{font:inherit;font-size:13px;padding:6px 12px;border:1px solid var(--mist);background:#fff;border-radius:20px;cursor:pointer}
 .tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 .pin .btn{margin-top:12px}
+.pin h3{font-family:"Noto Serif KR",serif;font-weight:600;font-size:15px;margin:16px 0 6px}.pin h3:first-child{margin-top:0}.kill{margin:0;padding-left:18px}.kill li{margin:4px 0;font-size:14px}
 .gp1{margin:0 0 10px;font-size:15px}.bar{display:flex;align-items:center;gap:8px;font-size:13px;margin:5px 0}.bar .bl{width:96px;color:var(--ink)}.bar .bt{flex:1;height:8px;background:#EEECE5;border-radius:4px;overflow:hidden}.bar .bt i{display:block;height:100%;background:var(--ink)}.bar .bp{width:36px;text-align:right;color:var(--dim)}
 .note{font-size:12px;color:var(--dim);margin-top:8px}
 </style></head><body>
@@ -114,7 +115,7 @@ async function boot(){
    get('v_public_times?select=branch,day_of_week,start_time,n&n=gte.5'),
    get('v_public_exam_prep?select=school,grade,exam_name,exam_date,seq,work_title&order=exam_date.desc.nullslast,seq'),
    get('lecture_categories?select=l1_name,grade,work_count,curriculum&is_active=eq.true&curriculum=in.(내신,수능)'),
-   get('v_public_school_gpat?select=school,exams,items,domains,top_kla')]);
+   get('v_public_school_gpat?select=school,exams,items,domains,top_kla,group_name,group_desc,profile,killers,solution,gpat_url')]);
   D.gp={};gp.forEach(x=>D.gp[x.school]=x);
   D.cnt={};D.sun=0;lc.forEach(x=>{if(x.curriculum==='수능'){D.sun+=(x.work_count||0)}else{const k=x.l1_name+'|'+x.grade;D.cnt[k]=(D.cnt[k]||0)+(x.work_count||0)}});
   const names=new Set(sc.map(x=>x.name));cs.forEach(x=>names.add(x.school));
@@ -136,17 +137,34 @@ grd.addEventListener('change',()=>{
  D.schools.filter(x=>x.endsWith(suf)).forEach(x=>{const o=document.createElement('option');o.value=o.textContent=x;sch.appendChild(o)});
 });
 function sugangUrl(cur,s,g){return 'sugang.html?cur='+encodeURIComponent(cur)+(s?'&school='+encodeURIComponent(s):'')+(g?'&grade='+encodeURIComponent(g):'')}
+function esc(x){return String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 window.openSchool=function(s,g){
  const gp=D.gp[s], ex=D.ex[s+'|'+g]; let inner='';
  if(gp){
-   const tot=gp.domains.reduce((a,b)=>a+b.n,0);
-   const bars=gp.domains.slice(0,4).map(d=>{const p=Math.round(d.n*100/tot);return '<div class="bar"><span class="bl">'+d.name+'</span><span class="bt"><i style="width:'+p+'%"></i></span><span class="bp">'+p+'%</span></div>'}).join('');
-   inner='<p class="gp1">분석한 시험 <b>'+gp.exams+'회</b> · 문항 <b>'+gp.items.toLocaleString()+'개</b></p>'+bars+'<p class="meta"><b>자주 묻는 사고력</b> '+(gp.top_kla||[]).join(' · ')+'</p>';
+   /* ① 학교 프로파일 */
+   inner+='<h3>① 이 학교 시험은</h3>';
+   if(gp.group_name){inner+='<p class="gp1"><b>'+esc(gp.group_name)+'</b> · '+esc(gp.group_desc)+'</p>'}
+   if(gp.profile){inner+='<p>'+esc(gp.profile)+'</p>'}
+   if(gp.items>0){
+     let doms=gp.domains; if(typeof doms==='string'){try{doms=JSON.parse(doms)}catch(_e){doms=[]}} doms=doms||[];
+     const tot=doms.reduce((a,b)=>a+(b.n||0),0)||1;
+     inner+='<p class="meta">국존이 분석한 시험 <b>'+gp.exams+'회</b> · 문항 <b>'+Number(gp.items).toLocaleString()+'개</b></p>';
+     inner+=doms.slice(0,4).map(d=>{const p=Math.round(d.n*100/tot);return '<div class="bar"><span class="bl">'+esc(d.name)+'</span><span class="bt"><i style="width:'+p+'%"></i></span><span class="bp">'+p+'%</span></div>'}).join('');
+     let tk=gp.top_kla; if(typeof tk==='string'){try{tk=JSON.parse(tk)}catch(_e){tk=[]}}
+     if(tk&&tk.length){inner+='<p class="meta"><b>자주 묻는 사고력</b> '+tk.map(esc).join(' · ')+'</p>'}
+   }
+   /* ② 킬러 */
+   let ks=gp.killers||[]; if(typeof ks==='string'){try{ks=JSON.parse(ks)}catch(_e){ks=[]}}
+   if(ks.length){inner+='<h3>② 등급을 가르는 문제</h3><ol class="kill">'+ks.map(k=>'<li>'+esc(k)+'</li>').join('')+'</ol>'}
+   /* ③ 대응 */
+   let so=gp.solution||[]; if(typeof so==='string'){try{so=JSON.parse(so)}catch(_e){so=[]}}
+   if(so.length){inner+='<h3>③ 국존은 이렇게 준비합니다</h3><ol class="kill">'+so.map(k=>'<li>'+esc(k)+'</li>').join('')+'</ol>'}
+   if(gp.gpat_url){inner+='<a class="btn" href="'+esc(gp.gpat_url)+'" target="_blank" rel="noopener">'+esc(s)+' 분석지 전체 보기</a>'}
  } else {
    inner='<p>이 학교 시험은 아직 분석 전입니다. 시험지를 가져오시면 같은 방식으로 분석합니다.</p>';
  }
- if(ex){inner+='<p class="meta"><b>다음 시험</b> '+ex.name+' '+fmtd(ex.date)+(ex.works.length?' · '+ex.works.join(', '):'')+'</p>'}
- document.getElementById('dest').innerHTML='<div class="panel on"><div class="ptag"><span>'+s+' 시험, 국존은 이렇게 알고 있습니다</span></div><div class="pin">'+inner+'</div></div>';
+ if(ex){inner+='<p class="meta" style="margin-top:14px"><b>다음 시험</b> '+esc(ex.name)+' '+fmtd(ex.date)+(ex.works.length?' · '+ex.works.map(esc).join(', '):'')+'</p>'}
+ document.getElementById('dest').innerHTML='<div class="panel on"><div class="ptag"><span>'+esc(s)+' 시험, 국존은 이렇게 알고 있습니다</span></div><div class="pin">'+inner+'</div></div>';
  document.getElementById('dest').scrollIntoView({behavior:'smooth',block:'start'});
 }
 sch.addEventListener('change',()=>{
