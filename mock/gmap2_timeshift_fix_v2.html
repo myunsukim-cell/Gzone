@@ -26,7 +26,7 @@ input[type=date]{font-weight:700}
 .badge{display:inline-block;background:#fbefeb;color:var(--red);border:1px solid #e3b9ab;border-radius:5px;padding:0 6px;font-size:11px;font-weight:700}
 @media(max-width:900px){.ba{grid-template-columns:1fr}}
 </style></head><body>
-<div class="mockbar"><b>목업 v2 · 승인 전</b> — 지시 반영: <b>① 날짜(달력)를 맨 위로</b>, 날짜를 고르면 요일이 자동으로 따라오고 요일 버튼으로도 바꿀 수 있음 → <b>② 시간만 선택</b> → <b>③ 계속/1회만</b> → <b>④ 학습관리 시간 「+ 추가」</b> → <b>⑤ 학부모 알림을 분명하게(문구 그대로 보이고 고칠 수 있음)</b>. 값은 위성헌 실제 시간표(보완확인 토 14:00~17:00 · 학습관리 없음). 오른쪽은 눌러 볼 수 있습니다.</div>
+<div class="mockbar"><b>목업 v2 · 승인 전</b> — 지시 반영: <b>① 날짜(달력)를 맨 위로</b>, 날짜를 고르면 요일이 자동으로 따라오고 요일 버튼으로도 바꿀 수 있음 → <b>② 시간만 선택</b> → <b>③ 계속/1회만</b> → <b>④ 학습관리 시간 「+ 추가」</b> → <b>⑤ 「바뀌는 것」 칸 삭제 — 학부모에게 가는 문자 한 곳으로 통일</b>(문구 그대로 보이고 고칠 수 있음). 값은 위성헌 실제 시간표(보완확인 토 14:00~17:00 · 학습관리 없음). 오른쪽은 눌러 볼 수 있습니다.</div>
 <div class="ba">
 <div><div class="lab">지금 — 달력이 맨 아래, 요일·시각·길이·계속 순서가 뒤섞임</div>
 <div class="sj"><div class="sjh">위성헌 · 수업 시간 조정</div>
@@ -40,21 +40,22 @@ input[type=date]{font-weight:700}
 <div class="err">없는 시간을 「바꾸기」로 체크해야 함 — 추가 버튼이 없음</div></div>
 <div class="step">바뀌는 것</div><div class="diff">· 보완확인 — 요일과 시각을 고르세요</div>
 <div class="step">학부모에게 가는 알림</div><div class="diff">—</div>
+<div class="err">같은 내용을 두 칸에 두 번 씀</div>
 <div style="margin-top:10px"><button class="btn grn" disabled>저장하고 학부모에게 알리기</button></div></div></div>
 
 <div><div class="lab af">고친 뒤 (v0.24)</div>
 <div class="sj af"><div class="sjh">위성헌 · 수업 시간 조정 <span class="sjsm">날짜를 먼저 고르면 요일이 따라옵니다</span></div>
 <div id="slots"></div>
 <div id="addbox"></div>
-<div class="step" style="margin-top:12px">바뀌는 것</div><div class="diff" id="diff">아직 바꾼 것이 없습니다</div>
-<div class="pmsg"><div class="who">학부모에게 가는 문자 <span id="ptarget">— 받는 사람: 위성헌 학부모(010-****-1234)</span> · 보내기 전에 고칠 수 있습니다</div>
-<textarea id="pmsg" placeholder="바꿀 내용을 고르면 여기에 문자 문구가 만들어집니다"></textarea>
+<div class="step" style="margin-top:12px">학부모에게 가는 문자</div>
+<div class="pmsg"><div class="who">받는 사람: 위성헌 학부모(010-****-1234) · 보내기 전에 고칠 수 있습니다</div>
+<textarea id="pmsg" placeholder="위에서 날짜와 시각을 고르면 여기에 문자 문구가 만들어집니다"></textarea><div class="who" id="pcount">아직 고른 것이 없습니다</div>
 <label class="sjsm"><input type="checkbox" id="psend" checked> 저장과 함께 이 문자를 보냅니다</label></div>
 <div style="margin-top:10px;display:flex;gap:8px;align-items:center"><button class="btn grn" onclick="save()">저장하고 학부모에게 알리기</button><span id="res"></span></div></div>
 <div class="note"><span class="pin">A</span> <b>①날짜 → ②시간 → ③계속/1회만</b> 순서. 날짜를 고르면 <b>요일이 자동</b>으로 표시되고, 요일 버튼을 누르면 <b>날짜가 그 요일의 가장 가까운 날</b>로 옮겨집니다(둘 다 수정 가능)<br>
 <span class="pin">B</span> 시간은 <b>시작 시각만</b> 고르면 되고, 수업 길이는 지금 길이(3시간)를 그대로 써서 <b>끝 시각이 자동</b>(필요하면 길이 칩으로 변경)<br>
 <span class="pin">C</span> 학습관리 시간이 없으면 <b>「+ 학습관리 시간 추가」 버튼</b>(체크박스 아님)<br>
-<span class="pin">D</span> 학부모 문자는 <b>문구 그대로 보이고 고칠 수 있으며</b>, 보낼지 여부도 선택. 저장 후에는 영수증(보낸 시각)으로 남습니다</div></div></div>
+<span class="pin">D</span> <b>「바뀌는 것」 칸은 없앴습니다.</b> 학부모에게 가는 문자 한 곳으로 통일 — 무엇이 어떻게 바뀌는지는 그 문구가 그대로 보여 줍니다. 고칠 수 있고, 보낼지 여부도 선택. 저장 결과는 다른 화면과 똑같이 버튼 옆 <b>「저장됨」</b> 한 줄</div></div></div>
 <script>
 const DN=['월','화','수','목','금','토','일'];
 const TODAY=new Date('2026-09-19');
@@ -81,10 +82,10 @@ function draw(){
   if(v.mode==='once') {lines.push('<b>'+s.lbl.replace(/ 시간.*/,'')+'</b> '+v.date+' 그날만 <span class="arrow">→</span> '+v.s+' 시작');msgs.push(s.lbl.replace(/ 시간.*/,'')+' 수업을 '+v.date.slice(5).replace('-','/')+'('+DN[dow-1]+') '+v.s+'로 한 번 옮깁니다. 다음 주부터는 원래 시간입니다.');}
   else if(!s.cur){lines.push('<b>'+s.lbl.replace(/ 시간.*/,'')+'</b> 새로 추가 <span class="arrow">→</span> 매주 '+to+' ('+v.date+'부터)');msgs.push(s.lbl.replace(/ 시간.*/,'')+' 시간이 '+v.date.slice(5).replace('-','/')+'부터 매주 '+to+'로 새로 생깁니다.');}
   else {lines.push('<b>'+s.lbl.replace(/ 시간.*/,'')+'</b> 매주 '+DN[s.cur.d-1]+' '+s.cur.st+' <span class="arrow">→</span> 매주 '+to+' ('+v.date+'부터)');msgs.push(s.lbl.replace(/ 시간.*/,'')+' 수업 시간이 '+v.date.slice(5).replace('-','/')+'부터 매주 '+to+'로 바뀝니다.');}});
- document.getElementById('diff').innerHTML=lines.length?lines.map(x=>'<div>· '+x+'</div>').join(''):'아직 바꾼 것이 없습니다';
  const P=document.getElementById('pmsg');
  if(msgs.length&&!P.dataset.touched) P.value='[국존] 위성헌 학생 '+msgs.join(' ')+' 확인 부탁드립니다. — 국존 국어전문학원';
- if(!msgs.length&&!P.dataset.touched) P.value='';}
+ if(!msgs.length&&!P.dataset.touched) P.value='';
+ document.getElementById('pcount').textContent=msgs.length?('바꾸는 시간 '+msgs.length+'건'):'아직 고른 것이 없습니다';}
 function tog(k){st[k]=st[k]||{};const el=document.getElementById('on_'+k);st[k].on=el?el.checked:true;if(st[k].on&&!st[k].date){const s=S.find(x=>x.k===k);st[k].date=s.cur?nextOf(s.cur.d):fmt(TODAY);st[k].mode='cont';}st[k].err='';draw();}
 function pickDate(k,v){st[k].date=v;st[k].err='';draw();}
 function pickDow(k,d){st[k].date=nextOf(d,st[k].date);st[k].err='';draw();}
@@ -97,9 +98,9 @@ function save(){const R=document.getElementById('res');const on=S.filter(s=>(st[
  let bad=false;on.forEach(s=>{const v=st[s.k];if(!v.date||!v.s){v.err='날짜와 시작 시각을 고르세요';bad=true;}});draw();
  if(bad){R.innerHTML='<span class="err">빠진 항목이 있습니다</span>';return;}
  const sent=document.getElementById('psend').checked;
- const receipt='<div class="ok">바뀐 것 ✓ '+on.map(s=>{const v=st[s.k],dow=dowOf(v.date);return s.lbl.replace(/ 시간.*/,'')+' → '+(v.mode==='once'?(v.date+' 그날만 '+v.s):('매주 '+DN[dow-1]+' '+v.s))}).join(' · ')+' · 09/19 10:05 저장'+(sent?' · 학부모 문자 보냄':' · 문자 보내지 않음')+'</div>';
+ const done='<span class="ok">저장됨 · '+on.map(s=>{const v=st[s.k],dow=dowOf(v.date);return s.lbl.replace(/ 시간.*/,'')+' → '+(v.mode==='once'?(v.date+' 그날만 '+v.s):('매주 '+DN[dow-1]+' '+v.s))}).join(' · ')+(sent?' 학부모 문자 보냄':' 문자 보내지 않음')+' · 10:05</span>';
  on.forEach(s=>{const v=st[s.k];const dow=dowOf(v.date);if(v.mode!=='once')s.cur={d:dow,st:v.s,en:addMin(v.s,v.len||s.len)};st[s.k]={on:false};});
- const P=document.getElementById('pmsg');P.dataset.touched='';P.value='';R.innerHTML='';draw();document.getElementById('diff').innerHTML=receipt;}
+ const P=document.getElementById('pmsg');P.dataset.touched='';P.value='';draw();R.innerHTML=done;}
 document.getElementById('pmsg').addEventListener('input',function(){this.dataset.touched='1';});
 draw();
 </script></body></html>
