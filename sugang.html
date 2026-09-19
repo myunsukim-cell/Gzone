@@ -1363,8 +1363,13 @@ async function deleteLecture(){
   }
 }
 
-// 초기: 내신 > 연송고 > 고1
+// 초기: 내신 > 연송고 > 고1 — [2026-09-20 공개면 진입 파라미터] ?cur=내신|수능|논술|책읽기&school=송도고&grade=고2 (송도 첫 화면 라우터가 넘김)
 cur='내신';sSch='연송고';sGrade='고1';
+(function(){try{var pc=GZP.get('cur')||GZP.get('mode');var ps=GZP.get('school'),pg=GZP.get('grade');
+  if(pc&&['내신','수능','논술','책읽기'].indexOf(pc)>=0){cur=pc;sL1=sL2=sL3=sSch=sGrade=sSubj=null;}
+  if(pc==='독서논술'){cur='책읽기';sSch=sGrade=null;}
+  if(ps){cur='내신';sSch=ps;sGrade=pg||null;}
+}catch(_e){}})();
 loadBigStats();
 render();
 </script>
