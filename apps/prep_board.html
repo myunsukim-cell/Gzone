@@ -497,8 +497,12 @@ document.getElementById('bfGo').onclick=bfLoad;document.getElementById('bfStu').
    $('nvscope').onclick=()=>openScope(r.id);$('nvfullbtn').onclick=()=>{showOld(true);if(typeof scopeStatus==='function')scopeStatus(r.id);};
   }catch(err){el.innerHTML='<p class="nvsub">불러오지 못했습니다: '+e(err.message)+'</p>';}}
  function showOld(on){const L=document.querySelector('.layout');if(L)L.style.display=on?'':'none';$('nvoldbtn').textContent=on?'예전 화면 닫기':'예전 화면 열기 (교재 흐름판 · 생산 현황판 · 시험일 표 · 단계별 표)';}
- function openScope(id){showOld(true);const box=document.getElementById('prepbox');if(box)box.open=true;const tr=document.querySelector('#prepbox tr.main[data-id="'+id+'"]');
-  if(tr&&typeof scopePanel==='function'){scopePanel(id,tr);setTimeout(()=>tr.scrollIntoView({behavior:'smooth',block:'start'}),200);}else toast('예전 화면의 시험 표에서 이 시험을 찾지 못했습니다 — 시험 표에서 「등록」을 눌러 주세요');}
+ async function openScope(id){const tr=document.querySelector('#prepbox tr.main[data-id="'+id+'"]');
+   if(tr&&typeof scopePanel==='function'){showOld(true);const box=document.getElementById('prepbox');if(box)box.open=true;scopePanel(id,tr);setTimeout(()=>tr.scrollIntoView({behavior:'smooth',block:'start'}),200);return;}
+   /* 예전 표에 없어도 새 화면 안에서 바로 편집 (KB-SCOPEGATE v1.1) */
+   const host=document.getElementById('nvscopebox')||(function(){const d=document.createElement('div');d.id='nvscopebox';d.style.cssText='margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff';const v=document.getElementById('viewer');(v||document.body).appendChild(d);return d;})();
+   host.innerHTML='<div class="mini">시험범위 편집 적재 중…</div>';
+   try{await scopeRender(id,host);host.scrollIntoView({behavior:'smooth',block:'start'});}catch(err){host.innerHTML='<p class="nvsub">범위 편집을 열지 못했습니다: '+e(err.message)+'</p>';}}
  $('nvq').oninput=draw;$('nvg').onchange=draw;
  $('nvmine').onclick=()=>{MINE=!MINE;$('nvmine').querySelector('.nvsw').classList.toggle('on',MINE);draw();};
  if(!ME){$('nvmine').style.display='none';MINE=false;}
