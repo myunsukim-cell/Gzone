@@ -57,7 +57,7 @@ footer{margin-top:56px;font-size:12px;color:var(--dim);line-height:1.8}
 .tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 .pin .btn{margin-top:12px}
 .pin h3{font-family:"Noto Serif KR",serif;font-weight:600;font-size:15px;margin:16px 0 6px}.pin h3:first-child{margin-top:0}.kill{margin:0;padding-left:18px}.kill li{margin:4px 0;font-size:14px}
-.gp1{margin:0 0 10px;font-size:15px}.bar{display:flex;align-items:center;gap:8px;font-size:13px;margin:5px 0}.bar .bl{width:96px;color:var(--ink)}.bar .bt{flex:1;height:8px;background:#EEECE5;border-radius:4px;overflow:hidden}.bar .bt i{display:block;height:100%;background:var(--ink)}.bar .bp{width:36px;text-align:right;color:var(--dim)}
+.gp1{margin:0 0 10px;font-size:15px}.dbar{display:flex;align-items:center;gap:8px;font-size:13px;margin:5px 0}.dbar .bl{width:96px;color:var(--ink)}.dbar .bt{flex:1;height:8px;background:#EEECE5;border-radius:4px;overflow:hidden}.dbar .bt i{display:block;height:100%;background:var(--ink)}.dbar .bp{width:36px;text-align:right;color:var(--dim)}
 .note{font-size:12px;color:var(--dim);margin-top:8px}
 </style></head><body>
 <main class="wrap">
@@ -149,7 +149,7 @@ window.openSchool=function(s,g){
      let doms=gp.domains; if(typeof doms==='string'){try{doms=JSON.parse(doms)}catch(_e){doms=[]}} doms=doms||[];
      const tot=doms.reduce((a,b)=>a+(b.n||0),0)||1;
      inner+='<p class="meta">국존이 분석한 시험 <b>'+gp.exams+'회</b> · 문항 <b>'+Number(gp.items).toLocaleString()+'개</b></p>';
-     inner+=doms.slice(0,4).map(d=>{const p=Math.round(d.n*100/tot);return '<div class="bar"><span class="bl">'+esc(d.name)+'</span><span class="bt"><i style="width:'+p+'%"></i></span><span class="bp">'+p+'%</span></div>'}).join('');
+     inner+=doms.slice(0,4).map(d=>{const p=Math.round(d.n*100/tot);return '<div class="dbar"><span class="bl">'+esc(d.name)+'</span><span class="bt"><i style="width:'+p+'%"></i></span><span class="bp">'+p+'%</span></div>'}).join('');
      let tk=gp.top_kla; if(typeof tk==='string'){try{tk=JSON.parse(tk)}catch(_e){tk=[]}}
      if(tk&&tk.length){inner+='<p class="meta"><b>자주 묻는 사고력</b> '+tk.map(esc).join(' · ')+'</p>'}
    }
