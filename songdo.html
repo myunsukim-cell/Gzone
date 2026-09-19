@@ -107,11 +107,13 @@ function fmtt(hm){const [H,M]=hm.split(':');const h=+H,h12=h>12?h-12:h;const s=h
 function timeline(rows){const wk=[...new Set(rows.filter(t=>t.day_of_week>=6).map(t=>t.start_time))].sort(),wd=[...new Set(rows.filter(t=>t.day_of_week<6).map(t=>t.start_time))].sort();const o=[];if(wk.length)o.push('토·일 '+wk.map(fmtt).join(' · '));if(wd.length)o.push('평일 '+wd.map(fmtt).join(' · '));return o.join(' / ')}
 async function boot(){
  try{
-  const [sc,cs,tm,ex]=await Promise.all([
+  const [sc,cs,tm,ex,lc]=await Promise.all([
    get('schools?select=name&is_active=eq.true&region=like.인천*&order=name'),
    get('v_public_class_status?select=school,grade,band,status'),
    get('v_public_times?select=branch,day_of_week,start_time,n&n=gte.5'),
-   get('v_public_exam_prep?select=school,grade,exam_name,exam_date,seq,work_title&order=exam_date.desc.nullslast,seq')]);
+   get('v_public_exam_prep?select=school,grade,exam_name,exam_date,seq,work_title&order=exam_date.desc.nullslast,seq'),
+   get('lecture_categories?select=l1_name,grade,work_count,curriculum&is_active=eq.true&curriculum=in.(내신,수능)')]);
+  D.cnt={};D.sun=0;lc.forEach(x=>{if(x.curriculum==='수능'){D.sun+=(x.work_count||0)}else{const k=x.l1_name+'|'+x.grade;D.cnt[k]=(D.cnt[k]||0)+(x.work_count||0)}});
   const names=new Set(sc.map(x=>x.name));cs.forEach(x=>names.add(x.school));
   D.schools=[...names].sort((a,b)=>{const k=s=>s.endsWith('초')?0:s.endsWith('중')?1:2;return k(a)-k(b)||a.localeCompare(b,'ko')});
   cs.forEach(x=>D.cs[x.school+'|'+x.grade]=x.status);
@@ -134,7 +136,7 @@ function sugangUrl(cur,s,g){return 'sugang.html?cur='+encodeURIComponent(cur)+(s
 window.openSchool=function(s,g){
  const ex=Object.values(D.exams[s+'|'+g]||{}).slice(0,5);
  const li=ex.map(x=>'<li><span>'+x.name+'</span><small>'+fmtd(x.date)+' · 범위 '+x.items+'항목'+(x.works.length?' · '+x.works.join(', '):'')+'</small></li>').join('')||'<li><span>등록된 시험 자료가 아직 없습니다. 상담에서 시험지부터 함께 봅니다.</span></li>';
- document.getElementById('dest').innerHTML='<div class="panel on"><div class="ptag"><span>'+s+' '+g+' 시험 자료</span></div><div class="pin"><ul>'+li+'</ul><a class="btn" href="'+sugangUrl('내신',s,g)+'">이 범위의 수업 보기</a></div></div>';
+ document.getElementById('dest').innerHTML='<div class="panel on"><div class="ptag"><span>'+s+' '+g+' 시험 자료</span></div><div class="pin"><ul>'+li+'</ul><a class="btn" href="'+sugangUrl('내신',s,g)+'">'+s+' '+g.replace(/^[초중고]/,'')+'학년 수업'+(D.cnt[s+'|'+g]?' '+D.cnt[s+'|'+g]+'개':'')+' 보기</a></div></div>';
  document.getElementById('dest').scrollIntoView({behavior:'smooth',block:'start'});
 }
 sch.addEventListener('change',()=>{
@@ -146,14 +148,14 @@ sch.addEventListener('change',()=>{
    h+='<p>아이마다 다른 자리를 짚어 주고, 매주 확인합니다.</p><p class="meta"><b>수업 시간</b> '+(D.T['국존']||'')+'</p>';
    if(st!=='C'){h+='<p class="meta">같은 학교 친구가 다니고 있습니다.</p>'}
    const cur=(g==='고3')?'수능':'내신';
-   h+='<div class="row"><button class="btn" onclick="openSchool('+q+')" style="flex:1">우리 학교 시험</button><a class="btn" href="'+(cur==='수능'?sugangUrl('수능'):sugangUrl('내신',s,g))+'" style="flex:1">'+(cur==='수능'?'수능 수업':'내신 수업')+'</a></div>';
+   h+='<div class="row"><button class="btn" onclick="openSchool('+q+')" style="flex:1">우리 학교 시험</button><a class="btn" href="'+(cur==='수능'?sugangUrl('수능'):sugangUrl('내신',s,g))+'" style="flex:1">'+(cur==='수능'?('수능 국어 수업'+(D.sun?' '+D.sun.toLocaleString()+'개':'')+' 보기'):(s+' '+gl+' 수업'+(D.cnt[k]?' '+D.cnt[k]+'개':'')+' 보기'))+'</a></div>';
  } else {
    h+='<p><b>'+s+' '+gl+'</b>은 씨앤에이에서 이렇게 공부합니다.</p>';
    if(st==='A'){h+='<p>같은 학교 친구들과 한 반에서 함께 읽고 씁니다.</p>'}
    else if(st==='B'){h+='<p>지금은 소수 인원으로 수업합니다. 반이 열리면 먼저 알려 드립니다.</p>'}
    else{h+='<p>이 학교는 아직 준비 중입니다.</p>'}
    h+='<p class="meta"><b>수업 시간</b> '+(D.T['시원']||'')+'</p>';
-   h+='<div class="row"><a class="btn" href="'+sugangUrl('책읽기')+'" style="flex:1">읽기·쓰기 수업</a>'+(g.startsWith('중')?'<button class="btn" onclick="openSchool('+q+')" style="flex:1">우리 학교 시험</button>':'')+'</div>';
+   h+='<div class="row"><a class="btn" href="'+sugangUrl('책읽기')+'" style="flex:1">읽기·쓰기 수업 보기</a>'+(g.startsWith('중')?'<button class="btn" onclick="openSchool('+q+')" style="flex:1">우리 학교 시험</button>':'')+'</div>';
  }
  h+='<div id="dest"></div>'; ans.innerHTML=h;
 });
