@@ -740,10 +740,15 @@ async function renderNaesin(){
   // 데이터 있는 학교를 앞으로
   const schWithData=new Set(NAE.map(l=>l.sch));
   const sortedSch=[...schools.filter(s=>schWithData.has(s)),...schools.filter(s=>!schWithData.has(s))];
+  // [2026-09-20] 송도 첫 화면에서 학교를 이미 고르고 온 경우(?school=) — 고른 학교 하나만 보이고 「다른 학교」로 펼침
+  if(window.GZ_COMPACT_SCHOOL&&sSch){
+    document.getElementById('chips-l1').innerHTML=`<div class="chip active">${sSch}</div><div class="chip" onclick="window.GZ_COMPACT_SCHOOL=false;render()">다른 학교 ▾</div>`;
+  } else {
   document.getElementById('chips-l1').innerHTML=sortedSch.map(s=>{
     const hasData=schWithData.has(s);
     return `<div class="chip ${sSch===s?'active':''}" style="${hasData?'':'opacity:0.4'}" onclick="selSchool('${s}')">${s}${hasData?'':''}</div>`;
   }).join('');
+  }
 
   if(sSch){
     const sc=SCHOOLS[sSch];
@@ -1368,7 +1373,7 @@ cur='내신';sSch='연송고';sGrade='고1';
 (function(){try{var pc=GZP.get('cur')||GZP.get('mode');var ps=GZP.get('school'),pg=GZP.get('grade');
   if(pc&&['내신','수능','논술','책읽기'].indexOf(pc)>=0){cur=pc;sL1=sL2=sL3=sSch=sGrade=sSubj=null;}
   if(pc==='독서논술'){cur='책읽기';sSch=sGrade=null;}
-  if(ps){cur='내신';sSch=ps;sGrade=pg||null;}
+  if(ps){cur='내신';sSch=ps;sGrade=pg||null;window.GZ_COMPACT_SCHOOL=true;}
 }catch(_e){}})();
 loadBigStats();
 render();
