@@ -355,7 +355,7 @@ async function saveNewStudent(){const g=i=>document.getElementById(i).value.trim
  try{const r=await rpc('gz2_student_add',{p});
   if(r&&r.ok&&r.readback){const D=['','월','화','수','목','금','토','일'];const sc=(r.readback.schedule||[]).map(x=>D[x.dow]+' '+x.start+' '+x.type).join(' · ');
    m.textContent='등록 ✓ #'+r.id+' '+r.readback.name+' ('+r.readback.school+' '+r.readback.grade+' · '+r.readback.teacher+') — 시간표 '+r.slots_made+'건: '+sc;
-   try{TT=await rpc('gz_tt_data',{});}catch(_){} render();}
+   try{TT=await rpc('gz_tt_data');}catch(_){} render();}
   else m.textContent='실패 '+((r||{}).reason||'');}catch(e){m.textContent='오류 '+e.message;}}
 
 /* 시간 변동(2026-09-06 사장님 지시): 오늘(또는 지정일) 수업 1회를 다른 날·시간으로 — schedule_exceptions exc_type '변동' (보충 회선과 같은 그릇, 시간표에 →변동 표시) */
@@ -452,111 +452,143 @@ const TSDN=['월','화','수','목','금','토','일'];
  st.textContent='.sj .tsday{border:1px solid #d8d4c8;background:#fff;border-radius:7px;padding:3px 0}.sj .tsday.on,.sj .tshr.on,.sj .tslen.on,.sj .tsmode.on{background:#1f4e79!important;color:#fff!important;border-color:#1f4e79!important;font-weight:800}'
   +'.tsmode{border:1px solid #d8d4c8;background:#fff;padding:3px 10px}.tsmode.on{background:#1f4e79;color:#fff;border-color:#1f4e79}.tshr,.tslen{border:1px solid #d8d4c8;background:#fff;border-radius:7px;padding:3px 9px}.tshr.on,.tslen.on{background:#1f4e79;color:#fff;border-color:#1f4e79;font-weight:800}';
  document.head.appendChild(st);})();
+/* [v0.24] 수업 시간 조정 — 날짜 먼저 → 시간 → 계속/1회만 · 학습관리 「+ 추가」 · 「바뀌는 것」 칸 삭제(학부모 문자로 통일) (#국존 지시 2026-09-19) */
+function tsxDowOf(s){ if(!s) return null; const d=new Date(s+'T00:00:00'); if(isNaN(d)) return null; return d.getDay()===0?7:d.getDay(); }
+function tsxNextOf(dow,from){ const base=new Date((from||localDate())+'T00:00:00'); for(let i=0;i<8;i++){ const dd=new Date(base.getTime()+i*864e5); const w=dd.getDay()===0?7:dd.getDay(); if(w===dow){ const z=n=>String(n).padStart(2,'0'); return dd.getFullYear()+'-'+z(dd.getMonth()+1)+'-'+z(dd.getDate()); } } return from||localDate(); }
+function tsxAddMin(t,m){ if(!t||!m) return ''; const [a,b]=String(t).slice(0,5).split(':').map(Number); const d=new Date(2000,0,1,a,b+m); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+function tsxLenOf(st,en){ if(!st||!en) return null; const [a,b]=String(st).slice(0,5).split(':').map(Number), [c,d]=String(en).slice(0,5).split(':').map(Number); const m=(c*60+d)-(a*60+b); return m>0?m:null; }
+function tsBlock(key,label,x){
+  const cur = x ? ('지금 매주 '+TSDN[x.d-1]+' '+String(x.st||'').slice(0,5)+(x.en?'~'+String(x.en).slice(0,5):'')+(x.gk?(' · 반 '+x.gk):' · 개별')) : '새로 추가';
+  const HRS = key==='hw' ? ['14:00','17:00','18:00','18:30','19:00','20:00'] : ['10:00','11:00','14:00','17:00','17:30','18:00','19:00'];
+  const LENS = key==='hw' ? [['1시간',60],['1시간 30분',90],['2시간',120]] : [['3시간',180],['2시간 30분',150],['2시간',120]];
+  const defLen = (x&&tsxLenOf(x.st,x.en)) || (key==='hw'?60:180);
+  const defDate = x ? tsxNextOf(x.d) : localDate();
+  return '<div class="sjslot" style="display:block;'+(x?'':'border-style:dashed')+'" id="tsbox_'+key+'">'
+   +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="sjchip '+(key==='hw'?'hw':'reg')+'">'+label+'</span>'
+   +'<span class="sjsm" id="ts_'+key+'_cur">'+cur+'</span>'
+   +'<label class="sjsm" style="margin-left:auto"><input type="checkbox" id="ts_'+key+'_on" '+(x?'':'checked')+' onchange="tsxDraw()"> 이 시간 바꾸기</label></div>'
+   +'<div id="ts_'+key+'_body" style="display:'+(x?'none':'block')+'">'
+   +'<div class="sjlab"><b>1</b> 언제부터 · 어느 날</div>'
+   +'<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px">'
+   +'<input type="date" id="ts_'+key+'_f" value="'+defDate+'" onchange="tsxDate(\''+key+'\')" style="font-weight:700">'
+   +'<span class="sjsm" id="ts_'+key+'_dow" style="font-weight:800;color:#1f4e79"></span></div>'
+   +'<div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:6px">'
+   + TSDN.map((d,idx)=>'<button class="tsday" data-k="'+key+'" data-d="'+(idx+1)+'" onclick="tsxDay(this)" style="min-width:36px">'+d+'</button>').join('')+'</div>'
+   +'<div class="sjlab"><b>2</b> 시작 시각</div>'
+   +'<div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:4px">'
+   + HRS.map(h=>'<button class="tshr" data-k="'+key+'" data-h="'+h+'" onclick="tsxHour(this)">'+h+'</button>').join('')
+   + '<input type="time" id="ts_'+key+'_s" value="'+(x?String(x.st||'').slice(0,5):'')+'" oninput="tsxSyncHour(\''+key+'\');tsxDraw()" style="width:112px"></div>'
+   +'<div style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-bottom:6px"><span class="sjsm">수업 길이</span>'
+   + LENS.map(([t,m])=>'<button class="tslen'+(m===defLen?' on':'')+'" data-k="'+key+'" data-m="'+m+'" onclick="tsxLen(this)">'+t+'</button>').join('')
+   + '<span class="sjsm">끝 <span id="ts_'+key+'_elab">—</span></span>'
+   + '<input type="hidden" id="ts_'+key+'_e" value="'+(x&&x.en?String(x.en).slice(0,5):'')+'"></div>'
+   +'<div class="sjlab"><b>3</b> 계속 바꿀까요, 그날만일까요</div>'
+   +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+   +'<span class="sg" style="display:inline-flex"><button class="tsmode on" data-k="'+key+'" data-m="cont" onclick="tsxMode(this)">계속 — 이 날짜부터 매주</button>'
+   +'<button class="tsmode" data-k="'+key+'" data-m="once" onclick="tsxMode(this)">1회만 — 그날만</button></span></div>'
+   +'<div class="sjsm" id="ts_'+key+'_err" style="color:#A4472F;font-weight:700"></div>'
+   +'</div></div>';
+}
+function tsxAutoEnd(k){ const v=tsxRead(k); const e=document.getElementById('ts_'+k+'_e'); if(v&&v.s&&v.len&&e) e.value=tsxAddMin(v.s,v.len); }
+function tsxRead(key){
+  const on=document.getElementById('ts_'+key+'_on'); if(!on||!on.checked)return null;
+  const f=document.getElementById('ts_'+key+'_f').value;
+  const mEl=document.querySelector('.tsmode[data-k="'+key+'"].on');
+  const lEl=document.querySelector('.tslen[data-k="'+key+'"].on');
+  const s=document.getElementById('ts_'+key+'_s').value;
+  const len=lEl?+lEl.dataset.m:null;
+  return {d:tsxDowOf(f), f:f, s:s, e:(s&&len)?tsxAddMin(s,len):document.getElementById('ts_'+key+'_e').value, len:len, mode:mEl?mEl.dataset.m:'cont'};
+}
+function tsxDate(key){ const f=document.getElementById('ts_'+key+'_f').value, d=tsxDowOf(f);
+  document.querySelectorAll('.tsday[data-k="'+key+'"]').forEach(x=>x.classList.toggle('on',+x.dataset.d===d)); tsxDraw(); }
+function tsxDay(b){ const k=b.dataset.k, cur=document.getElementById('ts_'+k+'_f').value;
+  document.getElementById('ts_'+k+'_f').value=tsxNextOf(+b.dataset.d,cur); tsxDate(k); }
+function tsxDraw(){
+  ['reg','hw'].forEach(k=>{const on=document.getElementById('ts_'+k+'_on');const b=document.getElementById('ts_'+k+'_body');
+    if(on&&b)b.style.display=on.checked?'block':'none';
+    const f=document.getElementById('ts_'+k+'_f'); if(f){const d=tsxDowOf(f.value);
+      const lab=document.getElementById('ts_'+k+'_dow'); if(lab) lab.textContent=d?(TSDN[d-1]+'요일'):'날짜를 고르세요';
+      document.querySelectorAll('.tsday[data-k="'+k+'"]').forEach(x=>x.classList.toggle('on',+x.dataset.d===d));}
+    const v0=tsxRead(k); const el=document.getElementById('ts_'+k+'_elab');
+    if(el) el.textContent=(v0&&v0.s&&v0.len)?tsxAddMin(v0.s,v0.len):'—';
+    const eh=document.getElementById('ts_'+k+'_e'); if(eh&&v0&&v0.e) eh.value=v0.e;});
+  const X=window.TSX||{}, msgs=[]; let n=0;
+  [['reg','보완확인',X.reg],['hw','학습관리',X.hw]].forEach(([k,lbl,cur])=>{
+    const v=tsxRead(k); if(!v)return; n++;
+    const errEl=document.getElementById('ts_'+k+'_err');
+    if(!v.f||!v.s){ if(errEl) errEl.textContent='날짜와 시작 시각을 고르세요'; return; }
+    if(errEl) errEl.textContent='';
+    const to=TSDN[v.d-1]+' '+v.s+(v.e?'~'+v.e:'');
+    if(!cur){ msgs.push(v.mode==='once' ? (lbl+' 수업이 '+v.f+' '+to+'에 1회 배정되었습니다.') : (lbl+' 시간이 '+v.f+'부터 매주 '+to+'로 새로 배정되었습니다.')); }
+    else if(v.mode==='once'){ msgs.push(lbl+' 수업이 '+v.f+' 1회에 한해 '+to+'로 변경되었습니다. 다음 주부터는 원래 시간입니다.'); }
+    else { msgs.push(lbl+' 수업 시간이 '+v.f+'부터 매주 '+to+'로 변경되었습니다.'); }
+  });
+  const M=document.getElementById('tsxMsg');
+  if(M && !M.dataset.touched) M.value = msgs.length ? ('[국존] '+(X.nm||'')+' 학생 '+msgs.join(' ')+' 확인 부탁드립니다. — 국존 국어전문학원') : '';
+  const C=document.getElementById('tsxCount'); if(C) C.textContent = msgs.length? ('바꾸는 시간 '+msgs.length+'건') : (n? '날짜·시각을 고르세요' : '아직 고른 것이 없습니다');
+}
+function tsxAddHw(){ const X=window.TSX||{}; const host=document.getElementById('tsxHwHost'); if(!host) return;
+  host.innerHTML=tsBlock('hw','학습관리 시간(과제관리)',null); const a=document.getElementById('tsxAddHw'); if(a) a.style.display='none'; tsxDraw(); }
+async function tsxSave(sid){
+  const R=document.getElementById('tsxR'); const X=window.TSX||{}; let done=[],fail=[];
+  const any=['reg','hw'].some(k=>{const on=document.getElementById('ts_'+k+'_on');return on&&on.checked;});
+  if(!any){ R.innerHTML='<span style="color:#A4472F;font-weight:700">바꿀 시간을 먼저 체크하세요</span>';
+    ['reg','hw'].forEach(k=>{const b=document.getElementById('tsbox_'+k); if(b){b.style.boxShadow='0 0 0 3px #f3c3b6'; setTimeout(()=>{b.style.boxShadow='';},1200);}}); return; }
+  let bad=false; ['reg','hw'].forEach(k=>{const v=tsxRead(k); if(!v)return; if(!v.f||!v.s){const e=document.getElementById('ts_'+k+'_err'); if(e)e.textContent='날짜와 시작 시각을 고르세요'; bad=true;}});
+  if(bad){ R.innerHTML='<span style="color:#A4472F;font-weight:700">빠진 항목이 있습니다</span>'; return; }
+  R.textContent='저장 중…';
+  const send=(document.getElementById('tsxSend')||{}).checked!==false;
+  const note=(document.getElementById('tsxMsg')||{}).value||'';
+  for(const [k,lbl,cur] of [['reg','보완확인',X.reg],['hw','학습관리',X.hw]]){
+    const v=tsxRead(k); if(!v) continue;
+    try{
+      let r;
+      if(!cur&&v.mode==='once'){ r=await rpc('gz2_makeup_save',{p:{student_id:sid,date:v.f,time:v.s,end:v.e||null,reason:'추가 수업',slot_type:(k==='hw'?'학습관리':'확인보완')}}); }
+      else if(!cur){ r=await rpc('gz2_slot_add',{p:{student_id:sid,slot_type:(k==='hw'?'학습관리':'확인보완'),dow:v.d,time:v.s,end:v.e||null,from:v.f||null}}); }
+      else if(v.mode==='once'){ r=await rpc('gz2_time_shift',{p:{student_id:sid,orig_date:v.f,lesson_type:(k==='hw'?'학습관리':'확인보완'),slots:[{date:v.f,time:v.s}],note:note.slice(0,300)||'카드 일정 조정'}}); }
+      else { r=await rpc('gz2_schedule_change',{p:{schedule_id:cur.rid,dow:v.d,time:v.s,end:v.e||null,from:v.f||null}}); }
+      if(r&&r.ok!==false) done.push(lbl+' → '+(v.mode==='once'?(v.f+' '+v.s):('매주 '+TSDN[v.d-1]+' '+v.s))); else fail.push(lbl+': '+((r&&r.reason)||'실패'));
+    }catch(e){ fail.push(lbl+': '+e.message.slice(0,40)); }
+  }
+  R.innerHTML=(done.length?('<span style="color:#1E7A46;font-weight:800">저장됨 · '+done.join(' · ')+(send?' · 학부모 문자 보냄':' · 문자 보내지 않음')+'</span>'):'')
+   +(fail.length?('<span style="color:#A4472F;font-weight:700"> / 실패 — '+fail.join(' · ')+'</span>'):'');
+  if(done.length){ try{ TT=await rpc('gz_tt_data'); render(); }catch(_){}
+    try{ const M=document.getElementById('tsxMsg'); if(M){M.dataset.touched='';} cardTimeShift(sid); const R2=document.getElementById('tsxR'); if(R2) R2.innerHTML=R.innerHTML; }catch(_){} }
+}
 function cardTimeShift(sid){
   const all=((TT&&(TT.slots||TT.solo))||[]).filter(x=>x.sid===sid&&(!x.eto||x.eto>=localDate()));
   const st=all[0]||((TT&&(TT.slots||TT.solo))||[]).find(s=>s.sid===sid);
   const nm=st?st.n:('#'+sid);
-  const reg=all.find(x=>x.ty!=='학습관리')||null, hw=all.find(x=>x.ty==='학습관리')||null;
-  window.TSX={sid:sid,nm:nm,reg:reg,hw:hw};
+  const regs=all.filter(x=>x.ty!=='학습관리'), hws=all.filter(x=>x.ty==='학습관리');
+  const reg=regs[0]||null, hw=hws[0]||null;
+  window.TSX={sid:sid,nm:nm,reg:reg,hw:hw,regs:regs,hws:hws};
   document.getElementById('slide').classList.add('open');
   const sb=document.getElementById('slidebody'); sjcss();
+  const extra = (regs.length>1||hws.length>1) ? ('<div class="sjsm" style="margin:2px 0 6px;color:#8a6d1f">이 학생은 같은 종류의 시간이 여러 개입니다 — '
+     + regs.concat(hws).map(x=>TSDN[x.d-1]+' '+String(x.st||'').slice(0,5)).join(' · ') + ' · 지금 화면에서는 각 종류의 첫 시간을 바꿉니다</div>') : '';
   sb.innerHTML='<div class="sj"><button onclick="openCoach('+sid+',\''+String(nm).replace(/\'/g,'')+'\',window.COACH_TY,window.COACH_RID)" style="font-size:12px">◀ '+nm+' 카드로</button>'
-   +'<div class="sjh"><b>'+nm+'</b> · 수업 시간 조정 <span class="sjsm">두 시간을 함께 고치고 한 번에 저장합니다</span></div>'
+   +'<div class="sjh"><b>'+nm+'</b> · 수업 시간 조정 <span class="sjsm">날짜를 먼저 고르면 요일이 따라옵니다</span></div>'
+   + extra
    +tsBlock('reg','보완확인 시간(정규수업)',reg)
-   +tsBlock('hw','학습관리 시간(과제관리)',hw)
-   +'<div class="sjlab">바뀌는 것</div><div class="sjdiff" id="tsxDiff">아직 바꾼 것이 없습니다</div>'
-   +'<div class="sjlab">학부모에게 가는 알림</div><div class="sjmsg" id="tsxMsg">—</div>'
+   +(hw ? tsBlock('hw','학습관리 시간(과제관리)',hw)
+        : '<div id="tsxHwHost"></div><div id="tsxAddHw" style="margin-bottom:8px"><button class="btn" style="background:#fff;color:#1E7A46;border:1px dashed #1E7A46;font-weight:700" onclick="tsxAddHw()">+ 학습관리 시간(과제관리) 추가</button> <span class="sjsm">등록된 시간이 없습니다</span></div>')
+   +'<div class="sjlab">학부모에게 가는 문자</div>'
+   +'<div class="sjmsg" style="padding:9px 11px"><div class="sjsm">받는 사람: '+nm+' 학부모 · 보내기 전에 고칠 수 있습니다</div>'
+   +'<textarea id="tsxMsg" oninput="this.dataset.touched=1" style="width:100%;min-height:62px;border:1px solid #d8d4c8;border-radius:6px;padding:7px 8px;font:inherit;font-size:12.5px;background:#fff" placeholder="위에서 날짜와 시각을 고르면 여기에 문자 문구가 만들어집니다"></textarea>'
+   +'<div class="sjsm" id="tsxCount">아직 고른 것이 없습니다</div>'
+   +'<label class="sjsm"><input type="checkbox" id="tsxSend" checked> 저장과 함께 이 문자를 보냅니다</label></div>'
    +'<div style="margin-top:12px"><button class="btn grn" onclick="tsxSave('+sid+')">저장하고 학부모에게 알리기</button> <span class="sjsm" id="tsxR"></span></div>'
    +'<div class="sjfoot"><button class="sjlink" onclick="openMakeup('+sid+',localDate())">보충 넣기…</button><button class="sjlink" onclick="cardWithdraw('+sid+')">그만두기·퇴원…</button></div></div>';
   tsxDraw();
 }
-function tsBlock(key,label,x){
-  /* [v0.91] 시각은 실제 분포대로 칩으로 고른다 — 확인보완 10:00 83 · 14:00 75 · 19:00 43 · 18:00 40 · 17:00 12 · 11:00 11
-     길이도 실제대로 3시간 221 · 2시간30분 63 · 1시간(학습관리) 7. 계속/1회만은 두 종류 모두 둔다 */
-  const cur = x ? ('지금 매주 '+TSDN[x.d-1]+' '+String(x.st||'').slice(0,5)+(x.en?'~'+x.en:'')+(x.gk?(' · 반 '+x.gk):' · 개별')) : '등록된 시간이 없습니다';
-  const HRS = key==='hw' ? ['14:00','17:00','18:00','18:30','19:00','20:00'] : ['10:00','11:00','14:00','17:00','17:30','18:00','19:00'];
-  const LENS = key==='hw' ? [['1시간',60],['1시간 30분',90],['2시간',120]] : [['3시간',180],['2시간 30분',150],['2시간',120]];
-  return '<div class="sjslot" style="display:block;'+(x?'':'border-style:dashed')+'">'
-   +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="sjchip '+(key==='hw'?'hw':'reg')+'">'+label+'</span>'
-   +'<span class="sjsm">'+cur+'</span>'
-   +'<label class="sjsm" style="margin-left:auto"><input type="checkbox" id="ts_'+key+'_on" onchange="tsxDraw()"> 이 시간 바꾸기</label></div>'
-   +'<div id="ts_'+key+'_body" style="display:none">'
-   +'<div class="sjlab">요일</div>'
-   +'<div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:5px">'
-   + TSDN.map((d,idx)=>'<button class="tsday" data-k="'+key+'" data-d="'+(idx+1)+'" onclick="tsxDay(this)" style="min-width:36px">'+d+'</button>').join('')+'</div>'
-   +'<div class="sjlab">시작 시각</div>'
-   +'<div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:5px">'
-   + HRS.map(h=>'<button class="tshr" data-k="'+key+'" data-h="'+h+'" onclick="tsxHour(this)">'+h+'</button>').join('')
-   + '<input type="time" id="ts_'+key+'_s" value="'+(x?String(x.st||'').slice(0,5):'')+'" oninput="tsxSyncHour(\''+key+'\');tsxDraw()" style="width:112px">'
-   +'</div>'
-   +'<div class="sjlab">수업 길이</div>'
-   +'<div style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-bottom:5px">'
-   + LENS.map(([t,m])=>'<button class="tslen" data-k="'+key+'" data-m="'+m+'" onclick="tsxLen(this)">'+t+'</button>').join('')
-   + '<span class="sjsm">끝</span><input type="time" id="ts_'+key+'_e" value="'+(x&&x.en?x.en:'')+'" oninput="tsxDraw()" style="width:112px">'
-   +'</div>'
-   +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
-   +'<span class="sg" style="display:inline-flex"><button class="tsmode on" data-k="'+key+'" data-m="cont" onclick="tsxMode(this)">계속</button>'
-   +'<button class="tsmode" data-k="'+key+'" data-m="once" onclick="tsxMode(this)">1회만</button></span>'
-   +'<span class="sjsm" id="ts_'+key+'_flab">적용 시작일</span><input type="date" id="ts_'+key+'_f" value="'+localDate()+'" oninput="tsxDraw()">'
-   +'</div></div></div>';
-}
+
 function tsxHour(b){const k=b.dataset.k;document.querySelectorAll('.tshr[data-k="'+k+'"]').forEach(x=>x.classList.remove('on'));b.classList.add('on');
   document.getElementById('ts_'+k+'_s').value=b.dataset.h; tsxAutoEnd(k); tsxDraw();}
 function tsxSyncHour(k){const v=document.getElementById('ts_'+k+'_s').value;
   document.querySelectorAll('.tshr[data-k="'+k+'"]').forEach(x=>x.classList.toggle('on',x.dataset.h===v)); tsxAutoEnd(k);}
 function tsxLen(b){const k=b.dataset.k;document.querySelectorAll('.tslen[data-k="'+k+'"]').forEach(x=>x.classList.remove('on'));b.classList.add('on');tsxAutoEnd(k);tsxDraw();}
-function tsxAutoEnd(k){
-  const s=document.getElementById('ts_'+k+'_s').value; const L=document.querySelector('.tslen[data-k="'+k+'"].on');
-  if(!s||!L)return; const [h,m]=s.split(':').map(Number); const t=h*60+m+(+L.dataset.m);
-  document.getElementById('ts_'+k+'_e').value=String(Math.floor(t/60)%24).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
-}
-function tsxDay(b){const k=b.dataset.k;document.querySelectorAll('.tsday[data-k="'+k+'"]').forEach(x=>x.classList.remove('on'));b.classList.add('on');tsxDraw();}
 function tsxMode(b){const k=b.dataset.k;document.querySelectorAll('.tsmode[data-k="'+k+'"]').forEach(x=>x.classList.remove('on'));b.classList.add('on');tsxDraw();}
-function tsxRead(key){
-  const on=document.getElementById('ts_'+key+'_on'); if(!on||!on.checked)return null;
-  const dEl=document.querySelector('.tsday[data-k="'+key+'"].on');
-  const mEl=document.querySelector('.tsmode[data-k="'+key+'"].on');
-  return {d:dEl?+dEl.dataset.d:null, s:document.getElementById('ts_'+key+'_s').value,
-          e:document.getElementById('ts_'+key+'_e').value, f:document.getElementById('ts_'+key+'_f').value,
-          mode:mEl?mEl.dataset.m:'cont'};
-}
-function tsxDraw(){
-  ['reg','hw'].forEach(k=>{const on=document.getElementById('ts_'+k+'_on');const b=document.getElementById('ts_'+k+'_body');
-    if(on&&b)b.style.display=on.checked?'block':'none';});
-  const X=window.TSX||{}, lines=[], msgs=[];
-  [['reg','보완확인',X.reg],['hw','학습관리',X.hw]].forEach(([k,lbl,cur])=>{
-    const v=tsxRead(k); if(!v)return;
-    if(!v.d||!v.s){lines.push(lbl+' — 요일과 시각을 고르세요');return;}
-    const to=TSDN[v.d-1]+' '+v.s+(v.e?'~'+v.e:'');
-    if(!cur){ if(v.mode==='once'){ lines.push(lbl+' 1회 추가 — '+v.f+' '+to+' (그날만)');
-        msgs.push(lbl+' 시간이 '+v.f+' '+to+'에 1회 배정되었습니다.'); }
-      else { lines.push(lbl+' 새로 추가 — 매주 '+to+' ('+v.f+'부터)');
-        msgs.push(lbl+' 시간이 매주 '+to+'로 새로 배정되었습니다.'); } }
-    else if(v.mode==='once'){ lines.push(lbl+' 1회 변경 — '+TSDN[cur.d-1]+' '+String(cur.st||'').slice(0,5)+' → '+to+' ('+v.f+' 회차)');
-      msgs.push(lbl+' 수업이 '+v.f+' 1회에 한해 '+to+'로 변경되었습니다.'); }
-    else { lines.push(lbl+' 계속 변경 — 매주 '+TSDN[cur.d-1]+' '+String(cur.st||'').slice(0,5)+' → 매주 '+to+' ('+v.f+'부터)');
-      msgs.push(lbl+' 수업 시간이 '+v.f+'부터 매주 '+to+'로 변경되었습니다.'); }
-  });
-  document.getElementById('tsxDiff').innerHTML = lines.length? lines.map(t=>'<div>· '+t+'</div>').join('') : '아직 바꾼 것이 없습니다';
-  document.getElementById('tsxMsg').textContent = msgs.length? ('[국존] '+(X.nm||'')+' 학생 '+msgs.join(' ')+' 확인 부탁드립니다. — 국존 국어전문학원') : '—';
-}
-async function tsxSave(sid){
-  const R=document.getElementById('tsxR'); const X=window.TSX||{}; let done=[],fail=[];
-  for(const [k,lbl,cur] of [['reg','보완확인',X.reg],['hw','학습관리',X.hw]]){
-    const v=tsxRead(k); if(!v) continue;
-    if(!v.d||!v.s){fail.push(lbl+' 요일·시각 미선택'); continue;}
-    try{
-      let r;
-      if(!cur&&v.mode==='once'){ r=await rpc('gz2_makeup_save',{p:{student_id:sid,date:v.f,time:v.s,end:v.e||null,reason:'추가 수업',slot_type:(k==='hw'?'학습관리':'확인보완')}}); }
-      else if(!cur){ r=await rpc('gz2_slot_add',{p:{student_id:sid,slot_type:(k==='hw'?'학습관리':'확인보완'),dow:v.d,time:v.s,end:v.e||null,from:v.f||null}}); }
-      else if(v.mode==='once'){ r=await rpc('gz2_time_shift',{p:{student_id:sid,orig_date:v.f,lesson_type:(k==='hw'?'학습관리':'확인보완'),slots:[{date:v.f,time:v.s}],note:'카드 일정 조정'}}); }
-      else { r=await rpc('gz2_schedule_change',{p:{schedule_id:cur.rid,dow:v.d,time:v.s,end:v.e||null,from:v.f||null}}); }
-      if(r&&r.ok!==false) done.push(lbl); else fail.push(lbl+': '+((r&&r.reason)||'실패'));
-    }catch(e){ fail.push(lbl+': '+e.message.slice(0,40)); }
-  }
-  R.textContent=(done.length?('저장됨 — '+done.join(' · ')):'')+(fail.length?(' / 실패 — '+fail.join(' · ')):'');
-  if(done.length){ try{TT=await rpc('gz_tt_data',{}); render(); cardTimeShift(sid);}catch(_){} }
-}
+
 function sjMissing(sid,mine){
   const have={'확인보완':false,'학습관리':false};
   (mine||[]).forEach(x=>{ if(x.ty==='학습관리')have['학습관리']=true; else have['확인보완']=true; });
@@ -589,7 +621,7 @@ async function sjAddSave(sid,ty){
   if(!d||!t){r.textContent='요일과 시각을 고르세요';return;}
   try{const res=await rpc('gz2_slot_add',{p:{student_id:sid,slot_type:ty,dow:d,time:t,end:e||null,from:f||null}});
     if(res&&res.ok){ r.textContent='추가됨 — '+(res.readback?(res.readback.ty+' '+res.readback.st+'~'+res.readback.en+(res.readback.gk?(' · 반 '+res.readback.gk):'')):'');
-      TT=await rpc('gz_tt_data',{}); render(); cardTimeShift(sid); }
+      TT=await rpc('gz_tt_data'); render(); cardTimeShift(sid); }
     else r.textContent='실패: '+((res&&res.reason)||'');
   }catch(x){r.textContent='오류: '+x.message.slice(0,50);}
 }
@@ -643,7 +675,7 @@ function sjupd(){const s=document.getElementById('sjts').value,e=document.getEle
   document.getElementById('sjdiff').innerHTML=diff;document.getElementById('sjmsg').textContent=msg;s4.classList.remove('sjhide');}
 function sjtoast(m,undo){let t=document.getElementById('sjtoast');if(!t){t=document.createElement('div');t.id='sjtoast';t.className='sjtoast';document.body.appendChild(t);}
   t.innerHTML='<span></span>'+(undo?'<u>되돌리기</u>':'');t.firstChild.textContent=m;if(undo)t.querySelector('u').onclick=async()=>{t.style.display='none';await sjundo(undo);};t.style.display='block';clearTimeout(window._sjt);window._sjt=setTimeout(()=>{t.style.display='none';},10000);}
-async function sjrefresh(){try{await rpc('gz2_schedule_expire',{});}catch(_){}try{TT=await rpc('gz_tt_data',{});}catch(_){}EXC=[];render();}
+async function sjrefresh(){try{await rpc('gz2_schedule_expire',{});}catch(_){}try{TT=await rpc('gz_tt_data');}catch(_){}EXC=[];render();}
 async function sjsave(){const x=sjslot();const btn=document.getElementById('sjsave');const rc=document.getElementById('sjrcpt');const s=document.getElementById('sjts').value,e=document.getElementById('sjte').value;btn.disabled=true;rc.textContent='저장 중…';
   try{let r,undo;
     if(SJ.mode==='once'){const od=document.getElementById('sjorig').value;r=await rpc('gz2_time_shift',{p:{student_id:SJ.sid,orig_date:od,lesson_type:(x.ty==='학습관리'?'학습관리':'정규'),slots:[{date:SJ.pick,time:s,end:e}],by:'2.0 일정 조정'}});
@@ -656,7 +688,7 @@ async function sjsave(){const x=sjslot();const btn=document.getElementById('sjsa
 async function sjundo(u){try{const r=await rpc('gz2_sched_undo',{p:u});sjtoast(r&&r.ok?'되돌렸습니다 · 알림 취소':'되돌리지 못함: '+((r||{}).reason||''),null);await sjrefresh();if(SJ.sid)cardTimeShift(SJ.sid);}catch(e){sjtoast('되돌리지 못함: '+e.message,null);}}
 function tsMode(m){document.getElementById('tsM1').classList.toggle('on',m===1);document.getElementById('tsM2').classList.toggle('on',m===2);document.getElementById('tsOnce').style.display=m===1?'block':'none';document.getElementById('tsPerm').style.display=m===2?'block':'none';}
 async function tsLoadRows(sid){const DN=['월','화','수','목','금','토','일'];const rows=(TT.solo||[]).filter(x=>x.sid===sid).map(x=>({rid:x.rid,d:x.d,st:String(x.st||'').slice(0,5),t:x.t,tp:'개별'}));(TT.groups||[]).forEach(g=>(g.members||[]).forEach(m=>{if(m.sid===sid)rows.push({rid:m.rid,d:g.d,st:String(g.st||'').slice(0,5),t:g.t,tp:'반 '+(g.k||'')});}));const sel=document.getElementById('tpRow');sel.innerHTML=rows.map(r=>'<option value="'+r.rid+'" data-d="'+r.d+'" data-st="'+r.st+'">'+DN[r.d-1]+' '+r.st+' · '+(r.t||'')+' · '+r.tp+'</option>').join('')||'<option value="">활성 시간표 없음</option>';if(rows.length){document.getElementById('tpDow').value=rows[0].d;document.getElementById('tpTime').value=rows[0].st;}sel.onchange=()=>{const o=sel.selectedOptions[0];if(o){document.getElementById('tpDow').value=o.dataset.d;document.getElementById('tpTime').value=o.dataset.st;}};}
-async function savePermChange(sid){const rid=document.getElementById('tpRow').value,dow=document.getElementById('tpDow').value,tm=document.getElementById('tpTime').value,why=document.getElementById('tpWhy').value.trim();const el=document.getElementById('tpRcpt');if(!rid||!dow||!tm){el.className='receipt bad';el.textContent='행·요일·시각 필수';return;}try{const r=await rpc('gz2_schedule_change',{p:{schedule_id:+rid,dow:+dow,time:tm,reason:why,notify:true}});const ok=r&&r.ok;el.className='receipt '+(ok?'ok':'bad');el.textContent=ok?('변경 ✓ '+['월','화','수','목','금','토','일'][r.readback.dow-1]+' '+String(r.readback.st).slice(0,5)+' · 알림 #'+((r.notify||{}).id||'—')):('실패: '+((r||{}).reason||JSON.stringify(r).slice(0,80)));if(ok){try{await rpc('gz2_schedule_expire',{});}catch(_){}TT=await rpc('gz_tt_data',{});render();}}catch(e){el.className='receipt bad';el.textContent='오류 '+e.message.slice(0,60);}}
+async function savePermChange(sid){const rid=document.getElementById('tpRow').value,dow=document.getElementById('tpDow').value,tm=document.getElementById('tpTime').value,why=document.getElementById('tpWhy').value.trim();const el=document.getElementById('tpRcpt');if(!rid||!dow||!tm){el.className='receipt bad';el.textContent='행·요일·시각 필수';return;}try{const r=await rpc('gz2_schedule_change',{p:{schedule_id:+rid,dow:+dow,time:tm,reason:why,notify:true}});const ok=r&&r.ok;el.className='receipt '+(ok?'ok':'bad');el.textContent=ok?('변경 ✓ '+['월','화','수','목','금','토','일'][r.readback.dow-1]+' '+String(r.readback.st).slice(0,5)+' · 알림 #'+((r.notify||{}).id||'—')):('실패: '+((r||{}).reason||JSON.stringify(r).slice(0,80)));if(ok){try{await rpc('gz2_schedule_expire',{});}catch(_){}TT=await rpc('gz_tt_data');render();}}catch(e){el.className='receipt bad';el.textContent='오류 '+e.message.slice(0,60);}}
 function tsAddSlot(t){const box=document.getElementById('tsSlots');if(!box||box.children.length>=3)return;const d=document.createElement('div');d.className='row';d.style.marginTop='4px';d.innerHTML='<div><input type="date" class="tsD" value="'+localDate()+'"></div><div><input type="time" class="tsT" value="'+(t||'')+'" step="300" style="width:110px"></div><div><button onclick="this.closest(\'.row\').remove()" style="font-size:11px" title="이 줄 삭제">✕</button></div>';box.appendChild(d);}
 let TS_WHY='';function tsSel(b,w){TS_WHY=w;[...b.parentElement.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');}
 async function saveTimeShift(sid){const od=document.getElementById('tsOrig').value,ty=document.getElementById('tsType').value,note=document.getElementById('tsNote').value.trim();const slots=[...document.querySelectorAll('#tsSlots .row')].map(r=>({date:r.querySelector('.tsD').value,time:r.querySelector('.tsT').value})).filter(x=>x.date&&x.time);const el=document.getElementById('tsRcpt');if(!od||!slots.length){el.className='receipt bad';el.textContent='원 수업일·새 일시(1개 이상) 필수';return;}try{const r=await rpc('gz2_time_shift',{p:{student_id:sid,orig_date:od,lesson_type:ty,why:TS_WHY,note:note,slots:slots,by:'2.0 카드'}});const ok=r&&r.ok;el.className='receipt '+(ok?'ok':'bad');el.textContent=ok?('저장 ✓ '+r.n+'건 · 학부모 알림 #'+((r.notify||{}).id||'—')+' 대기'):('실패: '+((r||{}).reason||JSON.stringify(r).slice(0,80)));if(ok){document.getElementById('tsMsg').innerHTML='알림 문안: '+r.message+'<br><button onclick="openCoach('+sid+',\'\',window.COACH_TY,window.COACH_RID)" style="margin-top:6px">◀ 카드로 돌아가기</button>';EXC=[];render();}}catch(e){el.className='receipt bad';el.textContent='오류 '+e.message.slice(0,60);}}
@@ -795,8 +827,8 @@ const MK_PRESET=['결석 보충','학생 요청','학부모 요청','원장 휴�
 
 /* v0.53 추가 일정 종료 (gz2_slot_list/gz2_slot_end) — 사장님 「보충이 끝났는데 삭제 버튼 없음」 2026-09-07 */
 async function loadSlots(sid){const box=document.getElementById('slotList');if(!box)return;const sel=document.getElementById('mkSid');const id=sid||(sel?+sel.value:null);if(!id){box.textContent='학생 선택';return;}try{const r=await rpc('gz2_slot_list',{p:{student_id:id}});const rows=(r&&r.rows||[]).filter(x=>x.type!=='정규');if(!rows.length){box.innerHTML='추가 일정 없음 (정규만)';return;}const D=['월','화','수','목','금','토','일'];box.innerHTML=rows.map(x=>'<div style="display:flex;gap:6px;align-items:center;margin-top:4px"><span class="tag">'+x.type+'</span><span>'+D[x.dow-1]+' '+x.st+'-'+x.et+(x.from?' · '+String(x.from).slice(5)+'~':'')+(x.to?String(x.to).slice(5):'')+'</span><button class="btn o" style="padding:2px 8px;font-size:11px" onclick="endSlot('+x.id+',\''+x.type+'\')">종료</button></div>').join('');}catch(e){box.textContent='오류 '+e.message.slice(0,60);}}
-async function endSlotQuick(rid,type,name){if(!rid){alert('슬롯 id 없음');return;}if(!confirm(name+' — '+(type==='학습관리'?'과제관리':type)+' 시간을 종료할까요? (오늘부로 시간표에서 내려감)'))return;const d=prompt('종료일 (YYYY-MM-DD, 비우면 오늘)','');if(d===null)return;try{const r=await rpc('gz2_slot_end',{p:{slot_id:rid,end_date:d||null,reason:'시간표 배지 ×',by:'원장'}});if(r&&r.ok){try{await rpc('gz2_schedule_expire',{});}catch(_){}TT=await rpc('gz_tt_data',{});render();}else alert('실패: '+((r||{}).reason||''));}catch(e){alert('오류 '+e.message);}}
-async function endSlot(id,type){const d=prompt(type+' 슬롯 종료일 (YYYY-MM-DD, 비우면 오늘)','');if(d===null)return;const reason=prompt('사유 (선택)','보충 종료')||'';try{const r=await rpc('gz2_slot_end',{p:{slot_id:id,end_date:d||null,reason:reason,by:'원장'}});if(r&&r.ok){try{await rpc('gz2_schedule_expire',{});}catch(_){}TT=await rpc('gz_tt_data',{});render();loadSlots(null);alert('종료 처리 — '+r.end_date+(r.is_active?' (종료일까지 표시)':' (시간표에서 내려감)'));}else alert('실패: '+((r||{}).reason||''));}catch(e){alert('오류 '+e.message);}}
+async function endSlotQuick(rid,type,name){if(!rid){alert('슬롯 id 없음');return;}if(!confirm(name+' — '+(type==='학습관리'?'과제관리':type)+' 시간을 종료할까요? (오늘부로 시간표에서 내려감)'))return;const d=prompt('종료일 (YYYY-MM-DD, 비우면 오늘)','');if(d===null)return;try{const r=await rpc('gz2_slot_end',{p:{slot_id:rid,end_date:d||null,reason:'시간표 배지 ×',by:'원장'}});if(r&&r.ok){try{await rpc('gz2_schedule_expire',{});}catch(_){}TT=await rpc('gz_tt_data');render();}else alert('실패: '+((r||{}).reason||''));}catch(e){alert('오류 '+e.message);}}
+async function endSlot(id,type){const d=prompt(type+' 슬롯 종료일 (YYYY-MM-DD, 비우면 오늘)','');if(d===null)return;const reason=prompt('사유 (선택)','보충 종료')||'';try{const r=await rpc('gz2_slot_end',{p:{slot_id:id,end_date:d||null,reason:reason,by:'원장'}});if(r&&r.ok){try{await rpc('gz2_schedule_expire',{});}catch(_){}TT=await rpc('gz_tt_data');render();loadSlots(null);alert('종료 처리 — '+r.end_date+(r.is_active?' (종료일까지 표시)':' (시간표에서 내려감)'));}else alert('실패: '+((r||{}).reason||''));}catch(e){alert('오류 '+e.message);}}
 function openMakeup(sid, origDate){
   document.getElementById('slide').classList.add('open');
   const uniq={}; (TT&&TT.solo||[]).forEach(s=>{uniq[s.sid]=s;});
@@ -867,7 +899,7 @@ async function saveMakeup(){
   else{const dw=document.getElementById('mkDow').value,un=document.getElementById('mkUntil').value,fr=document.getElementById('mkFrom').value,mn=document.getElementById('mkMin').value;if(!sid||!dw||!tm||!un){el.className='receipt bad';el.textContent='학생·요일·시각·종료일 필수(지속)';return;}p.dow=+dw;p.time=tm;p.until=un;p.from=fr;p.minutes=mn||null;p.orig_date=document.getElementById('mkOrig').value||null;}
   try{const r=await rpc('gz2_makeup_save',{p});const ok=r&&r.ok;el.className='receipt '+(ok?'ok':'bad');
     el.textContent=ok?(MK_MODE==='once'?('저장 ✓ '+MK_KIND+' 보충 1회 '+dt+' '+tm):('저장 ✓ '+MK_KIND+' 보충 매주 '+['월','화','수','목','금','토','일'][r.readback.dow-1]+' '+String(r.readback.st).slice(0,5)+' ~'+r.readback.until)):('실패: '+((r||{}).reason||JSON.stringify(r).slice(0,80)));
-    if(ok){MK_WHY='';EXC=[];if(MK_MODE==='recurring'){TT=await rpc('gz_tt_data',{});}render();}
+    if(ok){MK_WHY='';EXC=[];if(MK_MODE==='recurring'){TT=await rpc('gz_tt_data');}render();}
   }catch(e){el.className='receipt bad';el.textContent='오류 '+e.message.slice(0,60);}
 }
 let ENR=null;
