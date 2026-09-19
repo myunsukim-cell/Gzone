@@ -886,9 +886,11 @@ COACH_SID=sid;COACH_NAME=name;
 function closeSlide(){document.getElementById('slide').classList.remove('open');document.body.classList.remove('full');const fb=document.getElementById('fullbtn');if(fb)fb.textContent='⛶ 전체 화면';} function toggleFull(){const f=document.body.classList.toggle('full');document.getElementById('fullbtn').textContent=f?'▣ 카드로(시간표 옆)':'⛶ 전체 화면';} var V6={whisper:{},observe:{},disturb:new Set(),sdl:new Set(),feel:null,temperament:null,next_step:null,klean:{}}; function v6seg(el,grp,key,val){if(key===null){V6[grp]=val;}else{V6[grp]=V6[grp]||{};V6[grp][key]=val;}el.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));el.classList.add('on');} function v6chip(el,grp,val){const st=V6[grp];if(st.has(val)){st.delete(val);el.classList.remove('on');}else{st.add(val);el.classList.add('on');}} function v6klean(el,code){const q=(document.getElementById('kq')||{value:''}).value.trim()||'?';V6.klean[q]=V6.klean[q]||new Set();const st=V6.klean[q];if(st.has(code)){st.delete(code);el.classList.remove('on');}else{st.add(code);el.classList.add('on');}} function v6reset(){V6={whisper:{},observe:{},disturb:new Set(),sdl:new Set(),feel:null,temperament:null,next_step:null,klean:{}};}
 async function loadTray(){
   try{
-    const pend=await rpc('gz2_makeup_pending',{});
+    const pend=await rpc('gz2_makeup_pending');
     const el=document.getElementById('mkTray');
-    if(el) el.innerHTML=pend.length?('⏳ 보충 미정 '+pend.length+'명: '+pend.slice(0,6).map(x=>`<span style="cursor:pointer;border:1px solid var(--warn);border-radius:8px;padding:0 6px;margin:1px;" onclick="openMakeup(${x.sid},'${x.d}')">🔁${x.name}</span>`).join('')):'';
+    const over=pend.filter(x=>x.overdue).length;
+     if(el) el.innerHTML=pend.length?('⏳ 보충 미정 '+pend.length+'명'+(over?(' · <b style="color:#A4472F">기한 지남 '+over+'</b>'):'')+': '+pend.slice(0,8).map(x=>{const tip=[x.d.slice(5).replace('-','/')+' 결석',x.why||'사유 미기록',x.due?('기한 '+String(x.due).slice(5).replace('-','/')):'기한 없음'].join(' · ');
+       return `<span title="${tip}" style="cursor:pointer;border:1px solid ${x.overdue?'#A4472F':'var(--warn)'};border-radius:8px;padding:0 6px;margin:1px;${x.overdue?'background:#fbefeb;':''}" onclick="openCoach(${x.sid},'${String(x.name).replace(/'/g,'')}',null,null)">🔁${x.name}<span class="mini"> ${x.d.slice(5).replace('-','/')}${x.why?(' · '+String(x.why).slice(0,6)):''}${x.due?(' · ~'+String(x.due).slice(5).replace('-','/')):''}</span></span>`;}).join('')+(pend.length>8?(' <span class="mini">외 '+(pend.length-8)+'명</span>'):'')):'';
   }catch(e){}
 }
 const MK_PRESET=['결석 보충','학생 요청','학부모 요청','원장 휴가 대체','시험 대비 추가','추가 수업']; /* 현행 gzx_04 PRESET 정본 */
