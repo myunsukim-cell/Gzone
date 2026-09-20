@@ -62,14 +62,11 @@ footer{margin-top:56px;font-size:12px;color:var(--dim);line-height:1.8}
 .note{font-size:12px;color:var(--dim);margin-top:8px}
 </style></head><body>
 <main class="wrap">
-<div class="brand">송도 국어·독서논술 국존</div>
-<h1>혼자 공부하는 법까지 가르치는<br>국어전문학원, 국존</h1>
-<p class="sub">강의를 아무리 들어도 시험장의 지문은 처음 보는 글입니다. 혼자 읽어내는 힘을 매주 확인하며 만드는 곳, 국존입니다.</p>
+<div class="brand" id="brand">송도 국어·독서논술 국존</div>
+<h1 id="head">혼자 공부하는 법까지 가르치는<br>국어전문학원, 국존</h1>
+<p class="sub" id="sub">강의를 아무리 들어도 시험장의 지문은 처음 보는 글입니다. 혼자 읽어내는 힘을 매주 확인하며 만드는 곳, 국존입니다.</p>
 
-<div class="brands">
-<div><small>초·중</small><b>시원 씨앤에이 국어논술</b><em>since 2006</em></div>
-<div><small>중·고</small><b>국어의 지존 국존</b><em>since 2018</em></div>
-</div>
+<div class="brands" id="brands"></div>
 <div class="ask">
 <h2><label for="grd">우리 학교, 우리 학년은 어떻게 공부하나요</label></h2>
 <div class="row">
@@ -101,12 +98,12 @@ footer{margin-top:56px;font-size:12px;color:var(--dim);line-height:1.8}
 </section>
 
 <section>
-<div class="row"><a class="btn primary" href="#reserve" style="flex:1">상담 예약</a><a class="btn" href="#diag" style="flex:1">5분 진단</a></div>
+<div class="row"><a class="btn primary" href="#reserve" onclick="if(!A.place_url){event.preventDefault();reserve()}" style="flex:1">상담 예약</a><a class="btn" href="#diag" style="flex:1">5분 진단</a></div>
 </section>
 
 <footer>분석 · 김면수 (문학박사, 전 유웨이교육 수능 국어 분석위원)<br>국어의지존학원 · 시원씨앤에이국어학원 · 인천 송도</footer>
 </main>
-<div class="bar"><div class="in"><a class="btn seal" href="#reserve">상담 예약</a></div></div>
+<div class="bar"><div class="in"><a class="btn seal" href="#reserve" onclick="if(!A.place_url){event.preventDefault();reserve()}">상담 예약</a></div></div>
 <script>
 const SB_URL='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/',SB_KEY='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
 async function get(path){const r=await fetch(SB_URL+path,{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});if(!r.ok)throw new Error(path+' '+r.status);return r.json()}
@@ -115,10 +112,21 @@ const sch=document.getElementById('sch'),grd=document.getElementById('grd'),ans=
 function fmtd(d){return d?d.slice(5).replace('-','/'):'날짜 미정'}
 function fmtt(hm){const [H,M]=hm.split(':');const h=+H,h12=h>12?h-12:h;const s=h12+'시'+(M==='00'?'':' '+(+M)+'분');return [10,14,18].includes(h)?s:(h<12?'오전 ':h<18?'오후 ':'저녁 ')+s}
 function timeline(rows){const wk=[...new Set(rows.filter(t=>t.day_of_week>=6).map(t=>t.start_time))].sort(),wd=[...new Set(rows.filter(t=>t.day_of_week<6).map(t=>t.start_time))].sort();const o=[];if(wk.length)o.push('토·일 '+wk.map(fmtt).join(' · '));if(wd.length)o.push('평일 '+wd.map(fmtt).join(' · '));return o.join(' / ')}
+const A={slug:(new URLSearchParams(location.search).get('a')||'songdo'),region_prefix:'인천',brands:[],branch_map:{},place_url:null};
+function branchOf(g){const m=A.branch_map||{};return m[g]||m[g[0]]||(g==='중3'||g[0]==='고'?'국존':'시원')}
+function reserve(){if(A.place_url){location.href=A.place_url}else{alert('예약 페이지 준비 중입니다. 학원으로 전화해 주세요.')}}
 async function boot(){
  try{
+  const ac=await get('academies?select=slug,region_prefix,site_title,head,sub,brands,place_url,branch_map&is_active=eq.true&slug=eq.'+encodeURIComponent(A.slug));
+  if(ac[0]){Object.assign(A,ac[0]);
+    if(A.site_title){document.title=A.site_title+' — '+(A.head||'');document.getElementById('brand').textContent=A.site_title}
+    if(A.head){document.getElementById('head').innerHTML=esc(A.head).replace('가르치는 ','가르치는<br>')}
+    if(A.sub){document.getElementById('sub').textContent=A.sub}
+    document.getElementById('brands').innerHTML=(A.brands||[]).map(b=>'<div><small>'+esc(b.band)+'</small><b>'+esc(b.name)+'</b><em>since '+esc(b.since)+'</em></div>').join('');
+    document.querySelectorAll('a[href="#reserve" onclick="if(!A.place_url){event.preventDefault();reserve()}"]').forEach(a=>{if(A.place_url)a.href=A.place_url;else{a.href='#';a.onclick=e=>{e.preventDefault();reserve()}}});
+  }
   const [sc,cs,tm,ex,lc,gp]=await Promise.all([
-   get('schools?select=name&is_active=eq.true&region=like.인천*&order=name'),
+   get('schools?select=name&is_active=eq.true&region=like.'+encodeURIComponent(A.region_prefix)+'*&order=name'),
    get('v_public_class_status?select=school,grade,band,status'),
    get('v_public_times?select=branch,day_of_week,start_time,n&n=gte.5'),
    get('v_public_exam_prep?select=school,grade,exam_name,exam_date,seq,work_title&order=exam_date.desc.nullslast,seq'),
@@ -179,20 +187,20 @@ window.openSchool=function(s,g){
 }
 sch.addEventListener('change',()=>{
  const s=sch.value,g=grd.value;if(!s||!g)return;const k=s+'|'+g,st=D.cs[k]||'C',e=D.ex[k];const gl=g.replace(/^[초중고]/,'')+'학년';
- const gz=(g==='중3'||g.startsWith('고'));const q="'"+s+"','"+g+"'";let h='';
+ const br=branchOf(g),gz=(br==='국존');const bname=((A.brands||[]).find(b=>b.branch===br)||{}).name||br;const q="'"+s+"','"+g+"'";let h='';
  if(gz){
-   h+='<p><b>'+s+' '+gl+'</b>은 국존에서 이렇게 공부합니다.</p>';
+   h+='<p><b>'+s+' '+gl+'</b>은 '+esc(bname)+'에서 이렇게 공부합니다.</p>';
    if(e){h+='<p>KLEA가 '+s+' 이번 시험 범위를 분석해 두었습니다. <b>'+e.name+'</b> '+fmtd(e.date)+'</p>'}
-   h+='<p>아이마다 다른 자리를 짚어 주고, 매주 확인합니다.</p><p class="meta"><b>수업 시간</b> '+(D.T['국존']||'')+'</p>';
+   h+='<p>아이마다 다른 자리를 짚어 주고, 매주 확인합니다.</p><p class="meta"><b>수업 시간</b> '+(D.T[br]||'')+'</p>';
    if(st!=='C'){h+='<p class="meta">같은 학교 친구가 다니고 있습니다.</p>'}
    const cur=(g==='고3')?'수능':'내신';
    h+='<div class="row"><button class="btn" onclick="openSchool('+q+')" style="flex:1">우리 학교 시험</button><a class="btn" href="'+(cur==='수능'?sugangUrl('수능'):sugangUrl('내신',s,g))+'" style="flex:1">'+(cur==='수능'?('수능 국어 수업'+(D.sun?' '+D.sun.toLocaleString()+'개':'')+' 보기'):(s+' '+gl+' 수업 보기'))+'</a></div>';
  } else {
-   h+='<p><b>'+s+' '+gl+'</b>은 씨앤에이에서 이렇게 공부합니다.</p>';
+   h+='<p><b>'+s+' '+gl+'</b>은 '+esc(bname)+'에서 이렇게 공부합니다.</p>';
    if(st==='A'){h+='<p>같은 학교 친구들과 한 반에서 함께 읽고 씁니다.</p>'}
    else if(st==='B'){h+='<p>지금은 소수 인원으로 수업합니다. 반이 열리면 먼저 알려 드립니다.</p>'}
    else{h+='<p>이 학교는 아직 준비 중입니다.</p>'}
-   h+='<p class="meta"><b>수업 시간</b> '+(D.T['시원']||'')+'</p>';
+   h+='<p class="meta"><b>수업 시간</b> '+(D.T[br]||'')+'</p>';
    h+='<div class="row"><a class="btn" href="'+sugangUrl('책읽기')+'" style="flex:1">읽기·쓰기 수업 보기</a>'+(g.startsWith('중')?'<button class="btn" onclick="openSchool('+q+')" style="flex:1">우리 학교 시험</button>':'')+'</div>';
  }
  h+='<div id="dest"></div>'; ans.innerHTML=h;
