@@ -35,6 +35,7 @@ section p{margin:0 0 12px;word-break:keep-all}
 .cycle span{padding:4px 9px;border:1px solid var(--ink);border-radius:20px;background:#fff}
 .cycle i{font-style:normal;padding:0 6px;color:var(--dim)}
 .cap{font-size:13px;color:var(--dim)}
+.strip{display:flex;gap:6px;overflow-x:auto;padding:4px 0 6px;-webkit-overflow-scrolling:touch}.rp{flex:0 0 auto;min-width:104px;border:1px solid var(--mist);border-radius:6px;background:#fff;padding:10px 10px 12px;display:flex;flex-direction:column;gap:4px}.rp b{font-family:"Noto Serif KR",serif;font-weight:600;font-size:12px;color:var(--seal)}.rp span{font-size:13px;line-height:1.35}.rp.last{border-color:var(--ink)}
 .hold{border:1px dashed var(--mist);border-radius:6px;padding:26px 16px;text-align:center;color:var(--dim);font-size:14px;background:#fff}
 .bar{position:fixed;left:0;right:0;bottom:0;padding:10px 22px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(245,244,239,.94);border-top:1px solid var(--mist);backdrop-filter:blur(6px)}
 .bar .in{max-width:480px;margin:0 auto;display:flex;gap:10px}
@@ -87,9 +88,16 @@ footer{margin-top:56px;font-size:12px;color:var(--dim);line-height:1.8}
 </section>
 
 <section>
-<h2>한 아이의 두 달</h2>
-<p>입학 진단부터 시험 뒤의 새 계획까지 리포트로 보여 드립니다.</p>
-<div class="hold">성장 지도 실물은 학생 동의 후 이 자리에 실립니다.</div>
+<h2>한 아이의 100일</h2>
+<p>입학 진단에서 시작해, 매주 리포트가 쌓이고, 시험 하나를 지나, 100일째 성장 지도를 받습니다.</p>
+<div class="strip">
+ <div class="rp"><b>D0</b><span>입학진단 결과서</span></div>
+ <div class="rp"><b>D7 · D28 · D63</b><span>주간 리포트</span></div>
+ <div class="rp"><b>시험 뒤</b><span>시험 뒤 개인 진단서</span></div>
+ <div class="rp"><b>D35 · D70</b><span>월례 리포트</span></div>
+ <div class="rp last"><b>D100</b><span>성장 지도</span></div>
+</div>
+<p class="cap">첫 100일 기록은 2026년 12월에 이 자리에 실립니다.</p>
 </section>
 
 <section>
@@ -115,7 +123,7 @@ async function boot(){
    get('v_public_times?select=branch,day_of_week,start_time,n&n=gte.5'),
    get('v_public_exam_prep?select=school,grade,exam_name,exam_date,seq,work_title&order=exam_date.desc.nullslast,seq'),
    get('lecture_categories?select=l1_name,grade,work_count,curriculum&is_active=eq.true&curriculum=in.(내신,수능)'),
-   get('v_public_school_gpat?select=school,exams,items,domains,top_kla,group_name,group_desc,profile,killers,solution,gpat_url')]);
+   get('v_public_school_gpat_v2?select=school,exams,items,domains,top_kla,group_name,group_desc,profile,killers,solution,gpat_url,traps')]);
   D.gp={};gp.forEach(x=>D.gp[x.school]=x);
   D.cnt={};D.sun=0;lc.forEach(x=>{if(x.curriculum==='수능'){D.sun+=(x.work_count||0)}else{const k=x.l1_name+'|'+x.grade;D.cnt[k]=(D.cnt[k]||0)+(x.work_count||0)}});
   const names=new Set(sc.map(x=>x.name));cs.forEach(x=>names.add(x.school));
@@ -152,6 +160,8 @@ window.openSchool=function(s,g){
      inner+=doms.slice(0,4).map(d=>{const p=Math.round(d.n*100/tot);return '<div class="dbar"><span class="bl">'+esc(d.name)+'</span><span class="bt"><i style="width:'+p+'%"></i></span><span class="bp">'+p+'%</span></div>'}).join('');
      let tk=gp.top_kla; if(typeof tk==='string'){try{tk=JSON.parse(tk)}catch(_e){tk=[]}}
      if(tk&&tk.length){inner+='<p class="meta"><b>자주 묻는 사고력</b> '+tk.map(esc).join(' · ')+'</p>'}
+     let tr=gp.traps; if(typeof tr==='string'){try{tr=JSON.parse(tr)}catch(_e){tr=[]}}
+     if(tr&&tr.length){inner+='<p class="meta"><b>자주 나오는 함정</b> '+tr.map(esc).join(' · ')+'</p>'}
    }
    /* ② 킬러 */
    let ks=gp.killers||[]; if(typeof ks==='string'){try{ks=JSON.parse(ks)}catch(_e){ks=[]}}
