@@ -100,7 +100,7 @@ textarea{min-height:52px;resize:vertical;}
 </head>
 <body>
 <header>
-  <h1 title="v0.91">국존 MAP <span class="v">수업</span></h1>
+  <h1 title="v0.97">국존 MAP <span class="v">수업</span></h1>
   <nav class="tabs" id="tabs"></nav>
   <div class="role">역할 <select id="role" onchange="localStorage.setItem('g2role',this.value)">
     <option value="teacher">교사</option><option value="student">학생</option><option value="director">분원 원장</option><option value="hq">총관리</option>
@@ -528,8 +528,8 @@ function tsxLenOf(st,en){ if(!st||!en) return null; const [a,b]=String(st).slice
 function tsBlock(key,label,x){
   const cur = x ? ('지금 매주 '+TSDN[x.d-1]+' '+String(x.st||'').slice(0,5)+(x.en?'~'+String(x.en).slice(0,5):'')+(x.gk?(' · 반 '+x.gk):' · 개별')) : '새로 추가';
   const HRS = key==='hw' ? ['14:00','17:00','18:00','18:30','19:00','20:00'] : ['10:00','11:00','14:00','17:00','17:30','18:00','19:00'];
-  const LENS = key==='hw' ? [['1시간',60],['1시간 30분',90],['2시간',120]] : [['3시간',180],['2시간 30분',150],['2시간',120]];
-  const defLen = (x&&tsxLenOf(x.st,x.en)) || (key==='hw'?60:180);
+  const LENS = key==='hw' ? [['1시간',60],['1시간 30분',90],['2시간',120],['3시간',180]] : [['3시간',180],['2시간 30분',150],['2시간',120]];
+  const defLen = (x&&tsxLenOf(x.st,x.en)) || 180;
   const defDate = x ? tsxNextOf(x.d) : localDate();
   return '<div class="sjslot" style="display:block;'+(x?'':'border-style:dashed')+'" id="tsbox_'+key+'">'
    +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="sjchip '+(key==='hw'?'hw':'reg')+'">'+label+'</span>'
@@ -1262,13 +1262,15 @@ function draftRestore(){try{const j=localStorage.getItem(draftKey());if(!j)retur
       <input type="text" id="wq" placeholder="작품·교재 검색 (제목 2자 이상)" oninput="searchWork(this.value)">
       <div class="wres" id="wres" style="display:none"></div>
       <div class="wtag" id="wtag"></div>
+      <div id="rtbox" style="margin-top:6px"><span class="mini">족보 시험지(선택) — 고르면 작품 대신 시험지 번호로 저장되고 오답 정답이 바로 나옵니다</span><div class="row" style="margin-top:3px"><input type="text" id="rtq" placeholder="족보 검색 (출판사·단원·회차) — 비우면 이 학생 배포분 먼저" oninput="rtSearch(this.value)" onfocus="rtLoad(this.value)"><button type="button" class="btn" onclick="rtClear()" style="font-size:11px;max-width:90px">선택 해제</button></div><div class="wres" id="rtres" style="display:none"></div><div class="wtag" id="rttag"></div></div>
       <div style="height:6px"></div>
       <div class="row">
         <select id="pno" style="max-width:110px;"><option value="1">1교시</option><option value="2">2교시</option><option value="3">3교시</option></select>
         <input type="number" id="round" min="1" max="9" placeholder="회차 1~9">
         <input type="number" id="totq" min="1" placeholder="총 문항수">
         <input type="text" id="wrongs" placeholder="오답 번호 예: 3,7,12"></div><div id="wcause" style="margin-top:4px"><span class="mini">왜 틀렸나 — 문항마다 (정본 FROG 18·ACL 7)</span> <span id="wqtabs" class="qtabs" style="display:inline-flex;gap:4px;margin-left:6px"></span><div style="margin-top:3px"><span class="mini" style="display:inline-block;width:52px">읽기</span><span class="ch"><button type="button" onclick="frogPick(this,'RE-1')" title="RE-1">구조 못 봄</button><button type="button" onclick="frogPick(this,'RE-2')" title="RE-2">연결 놓침</button><button type="button" onclick="frogPick(this,'RE-3')" title="RE-3">화제 벗어남</button><button type="button" onclick="frogPick(this,'RE-4')" title="RE-4">위계 헷갈림</button><button type="button" onclick="frogPick(this,'RE-5')" title="RE-5">너무 빨리</button><button type="button" onclick="frogPick(this,'RE-6')" title="RE-6">다시 안 읽음</button></span></div><div style="margin-top:3px"><span class="mini" style="display:inline-block;width:52px">이해·판단</span><span class="ch"><button type="button" onclick="frogPick(this,'CE')" title="CE">이해 오류</button><button type="button" onclick="frogPick(this,'JE')" title="JE">판단 오류</button><button type="button" onclick="frogPick(this,'VE')" title="VE">검토 안 함</button><button type="button" onclick="frogPick(this,'SE')" title="SE">독해 오류</button></span></div><div style="margin-top:3px"><span class="mini" style="display:inline-block;width:52px">선택지</span><span class="ch"><button type="button" onclick="frogPick(this,'ACL-교체')" title="ACL-교체">바꿔치기</button><button type="button" onclick="frogPick(this,'ACL-반대')" title="ACL-반대">반대말</button><button type="button" onclick="frogPick(this,'ACL-과잉')" title="ACL-과잉">과장</button><button type="button" onclick="frogPick(this,'ACL-무관')" title="ACL-무관">무관한 것</button><button type="button" onclick="frogPick(this,'ACL-없음')" title="ACL-없음">근거 없음</button><button type="button" onclick="frogPick(this,'ACL-복합')" title="ACL-복합">복합</button><button type="button" onclick="frogPick(this,'ACL-보기')" title="ACL-보기">보기 오독</button></span></div><span class="mini" id="wcv"></span></div>
-      <div class="mini">저장 시 서버가 번호 정규화(규칙 26) 후 KLEA 문항 매칭·처방 큐 생성</div></div>
+      <div id="rtan" style="margin-top:6px"></div>
+      <div class="mini">저장 시 서버가 번호 정규화(규칙 26) 후 KLEA 문항 매칭·처방 큐 생성 · 족보 시험지는 정답·처방 즉시 표시</div></div>
     <div class="zone"><h3><span class="zn">C</span>1:1 코칭 — 4 카테고리 (매뉴얼 정본: 한 가지에 집중) <button type="button" onclick="coachDraft()" style="font-size:11px;margin-left:6px">4칩 초안(기록 기반)</button></h3>
       <div class="p1" id="chipcat">
         <button onclick="selCat(this,'학습전략')">학습전략</button><button onclick="selCat(this,'과제평가')">과제평가</button><button onclick="selCat(this,'동기부여')">동기부여</button><button onclick="selCat(this,'연습방법')">연습방법</button>
@@ -1284,7 +1286,7 @@ function draftRestore(){try{const j=localStorage.getItem(draftKey());if(!j)retur
       <button class="btn grn" onclick="saveWrong()">오답 기록 저장</button>
       <span id="rcpt"></span></div>
   </div>`;
-  ACTS={p1:[],p2:[],p3:[]};TAGS=[];CAT='';drawActs();drawTags();loadPrefill();loadCycle();setTimeout(cardTidy,900);setTimeout(cardTidy7,1150);if(PIN&&!document.getElementById('p2paper').value)document.getElementById('p2paper').value=PIN.title.slice(0,40);
+  ACTS={p1:[],p2:[],p3:[]};TAGS=[];CAT='';rtInit();drawActs();drawTags();loadPrefill();loadCycle();setTimeout(cardTidy,900);setTimeout(cardTidy7,1150);if(PIN&&!document.getElementById('p2paper').value)document.getElementById('p2paper').value=PIN.title.slice(0,40);
 }
 async function loadCycle(){
   const band=document.getElementById('cycband');
@@ -1410,15 +1412,40 @@ async function saveCard(_silent){
 }
 let WCAUSE='';var FROG={},FQ=null;function frogTabs(){const w=(document.getElementById('wrongs')||{value:''}).value.split(/[ ,]+/).map(x=>x.trim()).filter(x=>/^\d+$/.test(x));const t=document.getElementById('wqtabs');if(!t)return;if(!w.length){t.innerHTML='<span class="mini">오답 번호를 먼저 입력</span>';FQ=null;return;}if(!FQ||!w.includes(FQ))FQ=w[0];t.innerHTML=w.map(n=>'<button type="button" class="'+(n===FQ?'on':(FROG[n]&&FROG[n].size?'done':''))+'" onclick="FQ=\''+n+'\';frogTabs()">'+n+'번'+(FROG[n]&&FROG[n].size?' ✓':'')+'</button>').join('');document.querySelectorAll('#wcause .ch button').forEach(b=>b.classList.toggle('on',!!(FROG[FQ]&&FROG[FQ].has(b.title))));frogSummary();} function frogPick(b,code){if(!FQ){alert('오답 번호를 먼저 입력하세요');return;}FROG[FQ]=FROG[FQ]||new Set();const st=FROG[FQ];if(st.has(code))st.delete(code);else st.add(code);setDirty(true);frogTabs();} function frogSummary(){const arr=[];Object.entries(FROG).forEach(([n,st])=>st.forEach(c=>arr.push(n+':'+c)));const first=arr[0]?arr[0].split(':')[1]:'';WCAUSE=first;document.getElementById('wcv').textContent=arr.length?('코드 '+arr.length+'개 · 저장 시 문항별 기록'):'';return arr;} document.addEventListener('input',e=>{if(e.target&&e.target.id==='wrongs')frogTabs();});
 let DRAFT=null;async function coachDraft(){try{DRAFT=await rpc('gz2_coach_draft',{p_sid:COACH_SID});const box=document.getElementById('chipdraft')||(()=>{const d=document.createElement('div');d.id='chipdraft';d.className='mini';d.style.margin='4px 0';document.getElementById('chipcat').parentNode.insertBefore(d,document.getElementById('chipcat').nextSibling);return d;})();box.innerHTML='<b>초안</b> <span style="color:#8a8577">'+DRAFT.source+'</span><br>학습전략 — '+DRAFT.strategy+'<br>과제평가 — '+DRAFT.task+'<br>동기부여 — '+DRAFT.motive+'<br>연습방법 — '+DRAFT.practice+'<br><span style="color:#8a8577">카테고리 칩을 누르면 해당 초안이 코칭 한 줄에 들어갑니다 — 교사 수정 후 저장</span>';}catch(e){alert('초안 실패 '+e.message);}}
+/* [v0.97 #7085 B] 족보 시험지 선택 — gz2_review_tests_search 재사용 · 기본 목록 = 이 학생에게 배포된 review_test 최신순 → 그 아래 검색 결과.
+   선택 시 review_test_id 로 저장(시험지 이중 등재·조교 큐 없음), 문항 수 자동 채움·잠금, 저장 후 analysis 표(오답 번호·정답·영역·처방). */
+var RT=null,RTMINE=[],_rtT=null;
+async function rtInit(){RT=null;RTMINE=[];try{const a=await rest('assignments?select=content_id,assigned_date&student_id=eq.'+COACH_SID+'&content_type=eq.review_test&order=assigned_date.desc,id.desc&limit=30');const seen=[];(a||[]).forEach(x=>{if(x.content_id!=null&&!seen.includes(+x.content_id))seen.push(+x.content_id);});RTMINE=seen;}catch(e){RTMINE=[];}}
+function rtSearch(v){clearTimeout(_rtT);_rtT=setTimeout(()=>rtLoad(v),250);}
+async function rtLoad(v){const box=document.getElementById('rtres');if(!box)return;let L=[];const qv=(v||'').trim();
+  try{L=await rpc('gz2_review_tests_search',{p_q:qv||null,p_grade:null})||[];}catch(e){box.style.display='block';box.innerHTML='<span class="mini">검색 실패 '+esc(e.message)+'</span>';return;}
+  let mine=[];if(RTMINE.length){try{const m=await rpc('gz2_review_tests_search',{p_q:null,p_grade:null})||[];mine=RTMINE.map(id=>m.find(x=>+x.id===id)||L.find(x=>+x.id===id)).filter(Boolean);if(qv){const t=qv.toLowerCase();mine=mine.filter(x=>String(x.name||'').toLowerCase().includes(t));}}catch(e){mine=[];}}
+  const ids=mine.map(x=>+x.id), others=L.filter(x=>!ids.includes(+x.id));
+  const row=(x,tag)=>'<div class="wr" style="cursor:pointer;padding:3px 4px" onclick="rtPick('+(+x.id)+')">'+(tag?'<b style="color:#2e7d32">'+tag+'</b> ':'')+esc(x.name||('시험지 '+x.id))+' <span class="mini">#'+(+x.id)+' · '+(x.n||'?')+'문항</span></div>';
+  window._RTL={};mine.concat(others).forEach(x=>{window._RTL[+x.id]=x;});
+  box.style.display='block';
+  box.innerHTML=(mine.length?mine.map(x=>row(x,'배포됨')).join(''):'<div class="mini">이 학생에게 배포된 족보 없음 — 첫 저장 때 배포 기록이 생깁니다</div>')+(others.length?others.map(x=>row(x,'')).join(''):'<div class="mini">검색 결과 없음</div>');}
+function rtPick(id){const x=(window._RTL||{})[id];if(!x)return;RT={id:+x.id,name:x.name||('시험지 '+x.id),n:x.n||null};
+  const tq=document.getElementById('totq');if(tq){tq.value=RT.n||'';tq.readOnly=true;tq.title='족보 시험지 문항 수(자동)';}
+  document.getElementById('rttag').textContent='족보 선택: #'+RT.id+' · '+RT.name;document.getElementById('rtres').style.display='none';const an=document.getElementById('rtan');if(an)an.innerHTML='';setDirty(true);}
+function rtClear(){RT=null;const tq=document.getElementById('totq');if(tq){tq.readOnly=false;tq.title='';}const g=document.getElementById('rttag');if(g)g.textContent='';const b=document.getElementById('rtres');if(b)b.style.display='none';const an=document.getElementById('rtan');if(an)an.innerHTML='';}
+function rtAnalysis(res){const an=document.getElementById('rtan');if(!an)return;const A=(res&&res.analysis)||[];if(!res||!res.review_test_id){an.innerHTML='';return;}
+  if(!A.length){an.innerHTML='<span class="mini">오답 번호가 시험지 문항과 맞지 않습니다</span>';return;}
+  const cut=t=>{t=String(t==null?'':t);return t.length>40?t.slice(0,40)+'…':t;};
+  an.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:12px"><tr style="background:#f3f1ea"><th style="text-align:left;padding:3px">오답 번호</th><th style="text-align:left;padding:3px">정답</th><th style="text-align:left;padding:3px">영역(KLA)</th><th style="text-align:left;padding:3px">처방</th></tr>'+
+   A.map(r=>'<tr><td style="padding:3px;border-top:1px solid #e4e0d4">'+esc(r.q_no==null?'?':r.q_no)+'번</td><td style="padding:3px;border-top:1px solid #e4e0d4" title="'+esc(r.answer||'')+'">'+(r.answer!=null&&r.answer!==''?esc(cut(r.answer)):'<span class="mini">없음</span>')+'</td><td style="padding:3px;border-top:1px solid #e4e0d4">'+esc(r.kla_code||'')+'</td><td style="padding:3px;border-top:1px solid #e4e0d4">'+esc(r.clinic||'')+'</td></tr>').join('')+'</table>';}
 async function saveWrong(){
   const round=+document.getElementById('round').value, totq=+document.getElementById('totq').value;
   const wrongs=document.getElementById('wrongs').value.trim();
-  if(!COACH_SID||!WORK||!round||!wrongs){receipt(false,'판정 필수: 학생·작품·회차·오답 번호');return;}
+  if(!COACH_SID||(!WORK&&!RT)||!round||!wrongs){receipt(false,'판정 필수: 학생·작품 또는 족보 시험지·회차·오답 번호');return;}
   try{
-    const res=await rpc('gz_save_period_wrong',{p:{student_id:COACH_SID,log_date:localDate(),
-      period_no:+document.getElementById('pno').value||1,round_no:round,work_id:WORK.id,wrong_nums:wrongs,total_questions:totq||null,cause_tag:WCAUSE||null}});
-    const ok=res&&(res.ok===true||res.id||res.item_id||res.saved); let fr=null; if(ok){const codes=frogSummary(); if(codes.length){try{fr=await rpc('gz_set_frog_codes',{p:{student_id:COACH_SID,log_date:localDate(),period_no:+document.getElementById('pno').value||1,round_no:round,codes}});}catch(e){fr={ok:false,err:e.message};}}} if(ok)setDirty(false);
-    receipt(!!ok,ok?(COACH_NAME+' 오답 기록 저장됨 · 취약 분석에 반영'+(fr?(fr.ok?' · 문항별 코드 '+frogSummary().length+'개 ✓':' · 코드 저장 실패'):'')):'저장 실패 — 다시 시도 (입력은 유지됨)'); console.log('gz_save_period_wrong',res,fr);
+    const pno=+document.getElementById('pno').value||1;
+    const p=RT?{student_id:COACH_SID,log_date:localDate(),period_no:pno,round_no:round,review_test_id:RT.id,file_name:RT.name,wrong_nums:wrongs,cause_tag:WCAUSE||null}
+             :{student_id:COACH_SID,log_date:localDate(),period_no:pno,round_no:round,work_id:WORK.id,wrong_nums:wrongs,total_questions:totq||null,cause_tag:WCAUSE||null};
+    const res=await rpc('gz_save_period_wrong',{p});
+    const ok=res&&(res.ok===true||res.id||res.item_id||res.saved); let fr=null; if(ok){const codes=frogSummary(); if(codes.length){try{fr=await rpc('gz_set_frog_codes',{p:{student_id:COACH_SID,log_date:localDate(),period_no:pno,round_no:round,wrong_id:res.wrong_id||null,codes}});}catch(e){fr={ok:false,err:e.message};}}} if(ok)setDirty(false);
+    if(ok)rtAnalysis(res);
+    receipt(!!ok,ok?(COACH_NAME+' 오답 기록 저장됨 · '+(res.review_test_id?'족보 #'+res.review_test_id+' 정답 '+((res.analysis||[]).length)+'개 표시':'취약 분석에 반영')+(fr?(fr.ok?' · 문항별 코드 '+frogSummary().length+'개 ✓':' · 코드 저장 실패'):'')):'저장 실패 — 다시 시도 (입력은 유지됨)'); console.log('gz_save_period_wrong',res,fr);
   }catch(e){receipt(false,'판정 저장 실패: '+e.message);}
 }
 async function renderParent(m){
