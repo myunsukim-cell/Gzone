@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>국존 판독 검수대</title>
+<style>
+:root{--ink:#1a1a1a;--line:#d6dee6;--head:#1a3a5c;--ok:#1e7a4a;--warn:#c8801a;--bg:#f6f8fa}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Noto Sans KR","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);font-size:14px}
+header{background:var(--head);color:#fff;padding:9px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:20}
+header h1{font-size:15px;margin:0;font-weight:700}
+header .sp{flex:1}
+header input,header select{font-size:13px;padding:4px 7px;border-radius:5px;border:1px solid #446;background:#fff}
+.stat{font-size:12px;background:#ffffff22;padding:3px 9px;border-radius:10px}
+.wrap{display:flex;height:calc(100vh - 46px)}
+.side{width:210px;background:#fff;border-right:1px solid var(--line);overflow:auto;flex:none}
+.it{padding:8px 10px;border-bottom:1px solid #eef2f5;cursor:pointer;font-size:13px}
+.it:hover{background:#eef4fa}
+.it.on{background:#e3edf7;border-left:3px solid var(--head);font-weight:600}
+.it .s{font-size:11px;color:#778}
+.it.done{color:#1e7a4a}
+.it.done .s::before{content:"검수완료 · "}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.bar{padding:7px 12px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tag{font-size:11px;border:1px solid var(--line);border-radius:9px;padding:1px 8px;color:#556}
+.tag.w{border-color:var(--warn);color:var(--warn)}
+.panes{flex:1;display:flex;overflow:hidden}
+.pane{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--line);overflow:hidden}
+.pane:last-child{border-right:0}
+.ph{padding:5px 10px;background:#eef2f6;font-size:12px;font-weight:700;color:#445;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center}
+.ph .sp{flex:1}
+.pb{flex:1;overflow:auto;padding:10px}
+.pb img{width:100%;display:block}
+textarea{width:100%;height:100%;border:0;outline:0;resize:none;font-family:inherit;font-size:14px;line-height:1.85;padding:10px;background:#fffdf7}
+.raw{white-space:pre-wrap;line-height:1.85;font-size:14px;color:#334;background:#f9fafb;padding:10px;height:100%;overflow:auto}
+.foot{padding:8px 12px;background:#fff;border-top:1px solid var(--line);display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+button{font-family:inherit;font-size:13px;padding:6px 14px;border-radius:6px;border:1px solid var(--line);background:#fff;cursor:pointer}
+button.p{background:var(--head);color:#fff;border-color:var(--head);font-weight:700}
+button.g{background:var(--ok);color:#fff;border-color:var(--ok);font-weight:700}
+button:disabled{opacity:.45;cursor:default}
+.msg{font-size:12px;color:#556}
+.diff{font-size:12px;color:#a33}
+mark{background:#ffe9a8;padding:0 1px}
+.unc{border-top:2px solid var(--warn);background:#fffdf5;max-height:190px;overflow:auto;padding:6px 10px}
+.unc h4{margin:0 0 5px 0;font-size:12px;color:var(--warn)}
+.uit{display:flex;gap:8px;align-items:center;padding:4px 0;border-bottom:1px solid #f0ead8;font-size:13px}
+.uit .ctx{flex:1;line-height:1.6}
+.uit .ctx b{background:#ffe08a;padding:0 3px;border-radius:3px}
+.uit input{width:88px;font-size:13px;padding:3px 6px;border:1px solid var(--line);border-radius:4px}
+.uit button{padding:3px 9px;font-size:12px}
+.uit.ok{opacity:.45}
+.badge{background:var(--warn);color:#fff;border-radius:9px;padding:0 6px;font-size:10px;margin-left:4px}
+.zoom{cursor:zoom-in}
+.zoom.z{cursor:zoom-out;width:200%!important;max-width:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>국존 판독 검수대</h1>
+  <select id="filt"><option value="todo">미검수만</option><option value="all">전체</option><option value="done">검수완료</option></select>
+  <span class="sp"></span>
+  <span class="stat" id="stat">불러오는 중…</span>
+  <input id="who" placeholder="검수자 이름" style="width:110px">
+</header>
+
+<div class="wrap">
+  <div class="side" id="list"></div>
+  <div class="main">
+    <div class="bar" id="bar"><span class="msg">왼쪽에서 학생을 고르세요.</span></div>
+    <div class="panes">
+      <div class="pane" style="flex:1.05">
+        <div class="ph">답안 사진 <span class="sp"></span><span class="msg">클릭하면 확대</span></div>
+        <div class="pb" id="imgbox"></div>
+      </div>
+      <div class="pane">
+        <div class="ph">1차 판독본 (AI) <span class="sp"></span><span class="msg" id="rawinfo"></span></div>
+        <div class="pb" style="padding:0"><div class="raw" id="raw"></div></div>
+      </div>
+      <div class="pane">
+        <div class="ph">확정본 — 여기를 고치세요 <span class="sp"></span><span class="diff" id="dif"></span></div>
+        <div class="pb" style="padding:0"><textarea id="txt" spellcheck="false"></textarea></div>
+      </div>
+    </div>
+    <div class="unc" id="unc" style="display:none"></div>
+    <div class="foot">
+      <button class="p" id="copy">판독본 그대로 가져오기</button>
+      <button class="g" id="save">검수 확정 저장</button>
+      <button id="next">다음 →</button>
+      <span class="msg" id="note"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+const URL_="https://qcnsadcpsonuxnjyrlez.supabase.co";
+const KEY="sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0";
+const H={apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json"};
+let ROWS=[],CUR=null;
+
+async function rest(p){const r=await fetch(URL_+"/rest/v1/"+p,{headers:H});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function rpc(f,b){const r=await fetch(URL_+"/rest/v1/rpc/"+f,{method:"POST",headers:H,body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());return r.json();}
+
+function norm(s){return (s||"").replace(/\s+/g,"");}
+// 판독본↔확정본 글자 차이 추출 → {src,fix,kind}
+function diffPairs(a,b){
+  const A=norm(a),B=norm(b),out=[];
+  let i=0,j=0;
+  while(i<A.length&&j<B.length){
+    if(A[i]===B[j]){i++;j++;continue;}
+    let k=1,hit=false;
+    while(k<=12&&!hit){
+      if(A[i+k]===B[j]){out.push({src:A.substr(i,k),fix:"",kind:"삽입"});i+=k;hit=true;break;}
+      if(A[i]===B[j+k]){out.push({src:"",fix:B.substr(j,k),kind:"누락"});j+=k;hit=true;break;}
+      if(A[i+k]===B[j+k]){out.push({src:A.substr(i,k),fix:B.substr(j,k),kind:"혼동"});i+=k;j+=k;hit=true;break;}
+      k++;
+    }
+    if(!hit){out.push({src:A[i],fix:B[j],kind:"혼동"});i++;j++;}
+  }
+  if(i<A.length)out.push({src:A.slice(i),fix:"",kind:"삽입"});
+  if(j<B.length)out.push({src:"",fix:B.slice(j),kind:"누락"});
+  return out.filter(x=>x.src!==x.fix);
+}
+
+function paintList(){
+  const f=document.getElementById("filt").value;
+  const rs=ROWS.filter(r=>f==="all"?1:f==="done"?r.reviewed:!r.reviewed);
+  document.getElementById("list").innerHTML=rs.map(r=>
+    `<div class="it ${r.reviewed?'done':''} ${CUR&&CUR.id===r.id?'on':''}" onclick="pick(${r.id})">
+      <div>${r.student_name||'(이름없음)'}</div>
+      <div class="s">${r.chars||0}자${r.pend_n?'<span class="badge">확인 '+r.pend_n+'</span>':''}</div></div>`).join("")
+    ||'<div class="it">해당 항목 없음</div>';
+  const d=ROWS.filter(r=>r.reviewed).length;
+  const p=ROWS.reduce((a,b)=>a+(b.pend_n||0),0);
+  document.getElementById("stat").textContent=`검수 ${d} / 전체 ${ROWS.length} · 글자확인 대기 ${p}`;
+}
+
+async function load(){
+  ROWS=await rest("v_hw_review_queue?select=*&order=student_name");
+  paintList();
+  const t=ROWS.find(r=>!r.reviewed); if(t)pick(t.id);
+}
+
+async function pick(id){
+  CUR=ROWS.find(r=>r.id===id); if(!CUR)return;
+  paintList();
+  document.getElementById("raw").textContent=CUR.htr_raw||"";
+  document.getElementById("txt").value=CUR.answer_text||CUR.htr_raw||"";
+  document.getElementById("rawinfo").textContent=CUR.engine||"";
+  const tr=(CUR.traits||[]).map(t=>`<span class="tag w">${t}</span>`).join("");
+  document.getElementById("bar").innerHTML=
+    `<b>${CUR.student_name}</b><span class="tag">${CUR.chars||0}자</span>`+
+    (CUR.uncertain?`<span class="tag w">불확실 ${CUR.uncertain}</span>`:"")+tr+
+    (CUR.reviewed?`<span class="tag" style="border-color:#1e7a4a;color:#1e7a4a">검수완료 · ${CUR.htr_meta.reviewed_by||''}</span>`:"");
+  document.getElementById("imgbox").innerHTML='<div class="msg">사진 불러오는 중…</div>';
+  showDiff(); loadUnc();
+  try{
+    const s=await rpc("gz_hw_sign_read",{p_bucket:"klean-students",p_path:CUR.img_path,p_expires:3600});
+    document.getElementById("imgbox").innerHTML=`<img class="zoom" src="${s.url}" onclick="this.classList.toggle('z')">`;
+  }catch(e){document.getElementById("imgbox").innerHTML='<div class="msg">사진 오류: '+e.message.slice(0,80)+'</div>';}
+}
+
+function showDiff(){
+  if(!CUR)return;
+  const d=diffPairs(CUR.htr_raw,document.getElementById("txt").value);
+  const c=norm(document.getElementById("txt").value).length;
+  document.getElementById("dif").textContent=d.length?`고친 곳 ${d.length} · 오독률 ${(d.length/(c||1)*100).toFixed(2)}%`:"고친 곳 없음";
+}
+let UNC=[];
+async function loadUnc(){
+  const box=document.getElementById("unc");
+  if(!CUR){box.style.display="none";return;}
+  try{
+    UNC=await rest(`v_hw_unc?select=id,guess,ctx_before,ctx_after,status,fix,item_type,candidates&feedback_id=eq.${CUR.id}&order=seq`);
+  }catch(e){UNC=[];}
+  if(!UNC.length){box.style.display="none";return;}
+  box.style.display="block";
+  const pend=UNC.filter(u=>u.status==="pending").length;
+  box.innerHTML=`<h4>1단 · AI가 확신하지 못한 글자 ${pend}건 — 맞으면 「확인」, 틀리면 고쳐서 「수정」</h4>`+
+   UNC.map(u=>`<div class="uit ${u.status!=='pending'?'ok':''}" id="u${u.id}">
+     <span class="ctx">${(u.ctx_before||"").slice(-14)}<b>${u.guess||"□"}</b>${(u.ctx_after||"").slice(0,14)}</span>
+     ${u.item_type!=='glyph'?'<span class="msg">본인 확인</span>':''}
+     <input id="uf${u.id}" value="${u.fix||u.guess||''}" ${u.status!=='pending'?'disabled':''}>
+     ${u.status==='pending'?`<button onclick="uok(${u.id},1)">확인</button><button class="p" onclick="uok(${u.id},0)">수정</button>`:'<span class="msg">완료</span>'}
+   </div>`).join("");
+}
+async function uok(id,same){
+  const u=UNC.find(x=>x.id===id); if(!u)return;
+  const who=document.getElementById("who").value.trim();
+  if(!who){alert("검수자 이름을 입력하세요.");return;}
+  const fix=same?(u.guess||""):document.getElementById("uf"+id).value.trim();
+  if(!fix){alert("글자를 입력하세요.");return;}
+  try{
+    const r=await rpc("gz_hw_confirm",{p_id:id,p_fix:fix,p_by:who});
+    if(r.ok){
+      u.status="confirmed"; u.fix=fix;
+      document.getElementById("note").textContent=`글자 확정 — ${u.guess||"□"} → ${fix}`;
+      // 확정본 갱신본 다시 읽기
+      const nw=await rest(`v_hw_review_queue?select=*&id=eq.${CUR.id}`);
+      if(nw[0]){ const keep=document.getElementById("txt").value;
+        CUR.answer_text=nw[0].answer_text; CUR.htr_raw=nw[0].htr_raw;
+        if(keep===""||keep===nw[0].htr_raw) document.getElementById("txt").value=nw[0].answer_text||"";
+      }
+      const row=ROWS.find(x=>x.id===CUR.id); if(row&&row.pend_n)row.pend_n--;
+      loadUnc(); paintList(); showDiff();
+    } else document.getElementById("note").textContent="실패: "+(r.err||"");
+  }catch(e){document.getElementById("note").textContent="오류: "+e.message.slice(0,80);}
+}
+document.getElementById("txt").addEventListener("input",showDiff);
+document.getElementById("filt").addEventListener("change",paintList);
+document.getElementById("copy").onclick=()=>{if(CUR){document.getElementById("txt").value=CUR.htr_raw||"";showDiff();}};
+document.getElementById("next").onclick=()=>{
+  const f=document.getElementById("filt").value;
+  const rs=ROWS.filter(r=>f==="all"?1:f==="done"?r.reviewed:!r.reviewed);
+  const i=rs.findIndex(r=>CUR&&r.id===CUR.id);
+  if(rs[i+1])pick(rs[i+1].id); else document.getElementById("note").textContent="마지막 항목입니다.";
+};
+document.getElementById("save").onclick=async()=>{
+  if(!CUR)return;
+  const who=document.getElementById("who").value.trim();
+  if(!who){alert("검수자 이름을 입력하세요.");return;}
+  const txt=document.getElementById("txt").value.trim();
+  if(!txt){alert("확정본이 비어 있습니다.");return;}
+  const corr=diffPairs(CUR.htr_raw,txt);
+  const btn=document.getElementById("save"); btn.disabled=true;
+  document.getElementById("note").textContent="저장 중…";
+  try{
+    const r=await rpc("gz_hw_review_save",{p_id:CUR.id,p_text:txt,p_reviewer:who,p_corrections:corr});
+    if(r.ok){
+      document.getElementById("note").textContent=`저장됨 — ${r.chars}자 중 ${r.err}곳 수정 (오독률 ${r.err_pct}%)`;
+      const row=ROWS.find(x=>x.id===CUR.id);
+      row.reviewed=true; row.answer_text=txt; row.htr_meta={...row.htr_meta,reviewed_by:who};
+      paintList(); document.getElementById("next").click();
+    } else document.getElementById("note").textContent="실패: "+(r.reason||"");
+  }catch(e){document.getElementById("note").textContent="오류: "+e.message.slice(0,90);}
+  btn.disabled=false;
+};
+load().catch(e=>document.getElementById("stat").textContent="불러오기 실패: "+e.message.slice(0,60));
+</script>
+</body>
+</html>
