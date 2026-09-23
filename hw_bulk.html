@@ -58,6 +58,7 @@ button:disabled{opacity:.45;cursor:default}
 <div class="bulkbar">
   <button class="g" id="allok">화면의 대기 전부 「확인」으로 저장</button>
   <button class="p" id="saveEdited">고친 것만 저장</button>
+  <button id="pickstart" style="border-color:var(--warn);color:var(--warn);font-weight:700">위치 찍기 연속 시작</button>
   <span class="msg" id="note">① 원본 조각 · ② AI 판독 · ③ 수정. 조각이 없으면 클릭해 원본에서 드래그로 위치를 찍으세요.</span>
 </div>
 <div id="body"></div>
@@ -65,7 +66,7 @@ button:disabled{opacity:.45;cursor:default}
 <div class="big" id="big">
   <div class="hint" id="bighint"></div>
   <div class="wrap" id="bigwrap"><img id="bigimg"><div class="box" id="bigbox"></div></div>
-  <div class="ctl"><button class="g" id="bigsave" style="display:none">이 위치로 저장</button><button onclick="closeBig()">닫기</button></div>
+  <div class="ctl"><button class="g" id="bignext" style="display:none">저장 후 다음 →</button><button id="bigsave" style="display:none">저장만</button><button onclick="closeBig()">닫기</button><span class="msg" id="bigcnt" style="color:#ddd;align-self:center"></span></div>
 </div>
 
 <script>
@@ -137,7 +138,9 @@ function openBig(id){
   if(it.bbox&&d){bx.style.display="block";bx.style.left=(it.bbox.x*d.w*sc)+"px";bx.style.top=(it.bbox.y*d.h*sc)+"px";bx.style.width=(it.bbox.w*d.w*sc)+"px";bx.style.height=(it.bbox.h*d.h*sc)+"px";}
   else bx.style.display="none";
   document.getElementById("bighint").textContent=`${it.student_name} · 「${it.guess||"□"}」 — 원본에서 이 글자를 드래그해 네모로 감싸세요 (문맥: …${(it.ctx_before||"").slice(-10)}[${it.guess}]${(it.ctx_after||"").slice(0,10)}…)`;
-  document.getElementById("bigsave").style.display="none";
+  document.getElementById("bigsave").style.display="none";document.getElementById("bignext").style.display="none";
+  const left=ITEMS.filter(i=>i.status==="pending"&&needPick(i)).length;
+  document.getElementById("bigcnt").textContent=`위치 미확정 ${left}건 남음`;
   document.getElementById("big").style.display="flex";
 }
 function closeBig(){document.getElementById("big").style.display="none";PICK=null;DRAG=null;}
@@ -150,12 +153,22 @@ wrap.addEventListener("mouseup",e=>{if(!DRAG)return;const img=document.getElemen
   const W=img.clientWidth,Hh=img.clientHeight;
   const nb={x:+(parseFloat(bx.style.left)/W).toFixed(4),y:+(parseFloat(bx.style.top)/Hh).toFixed(4),w:+(parseFloat(bx.style.width)/W).toFixed(4),h:+(parseFloat(bx.style.height)/Hh).toFixed(4)};
   DRAG=null;if(nb.w<0.003||nb.h<0.003)return;
-  PICK._nb=nb;document.getElementById("bigsave").style.display="inline-block";});
-document.getElementById("bigsave").onclick=async()=>{
-  const w=who();if(!w||!PICK||!PICK._nb)return;
+  PICK._nb=nb;document.getElementById("bigsave").style.display="inline-block";document.getElementById("bignext").style.display="inline-block";});
+function needPick(i){return !i.bbox||i.bbox.src==='band'||i.bbox.src==='header';}
+async function saveBox(){
+  const w=who();if(!w||!PICK||!PICK._nb)return false;
   try{const r=await rpc("gz_hw_set_bbox",{p_id:PICK.id,p_bbox:PICK._nb,p_by:w});
-    if(r.ok){PICK.bbox=PICK._nb;note(`위치 저장 — ${PICK.student_name} 「${PICK.guess}」`);closeBig();paint();repaintCrops();}
-    else note("실패: "+r.reason);}catch(e){note("오류: "+e.message.slice(0,80));}
+    if(r.ok){PICK.bbox={...PICK._nb,by:w,src:'grid'};note(`위치 저장 — ${PICK.student_name} 「${PICK.guess}」`);return true;}
+    note("실패: "+r.reason);}catch(e){note("오류: "+e.message.slice(0,80));}
+  return false;
+}
+document.getElementById("bigsave").onclick=async()=>{if(await saveBox()){closeBig();paint();repaintCrops();}};
+document.getElementById("bignext").onclick=async()=>{
+  if(!(await saveBox()))return;
+  const f=document.getElementById("filt").value;
+  const vis=ITEMS.filter(i=>(f==="all"?1:f==="done"?i.status!=="pending":i.status==="pending")&&needPick(i)&&i.id!==PICK.id);
+  paint();repaintCrops();
+  if(vis.length){openBig(vis[0].id);}else{closeBig();note("위치 찍을 항목이 더 없습니다.");}
 };
 
 function mark(it,by){it.status="confirmed";it.reviewed_by=by;}
@@ -174,6 +187,7 @@ function collect(fid){return ITEMS.filter(i=>i.status==="pending"&&(!fid||i.feed
 function grpOk(fid){bulk(collect(fid));}
 document.getElementById("allok").onclick=()=>{const n=ITEMS.filter(i=>i.status==="pending").length;if(!confirm(`대기 ${n}건을 칸에 있는 값으로 저장합니다. 진행할까요?`))return;bulk(collect(null));};
 document.getElementById("saveEdited").onclick=()=>{bulk(ITEMS.filter(i=>i.status==="pending").map(i=>{const el=document.getElementById("f"+i.id);if(!el)return null;const v=el.value.trim();return(v&&v!==(i.guess||""))?{id:i.id,fix:v}:null;}).filter(Boolean));};
+document.getElementById("pickstart").onclick=()=>{const t=ITEMS.find(i=>i.status==="pending"&&needPick(i));if(t)openBig(t.id);else note("위치 찍을 항목이 없습니다.");};
 document.getElementById("filt").addEventListener("change",()=>{paint();repaintCrops();});
 load().catch(e=>document.getElementById("stat").textContent="불러오기 실패: "+e.message.slice(0,60));
 </script>
