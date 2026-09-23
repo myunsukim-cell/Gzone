@@ -32,6 +32,7 @@ button:disabled{opacity:.45;cursor:default}
 .crop{width:150px;height:56px;border:1px solid var(--line);border-radius:5px;background-repeat:no-repeat;background-color:#f1f4f7;cursor:zoom-in;position:relative;overflow:hidden}
 .crop.none{display:flex;align-items:center;justify-content:center;font-size:11px;color:#a55;cursor:pointer;background:#fff4f4;border-color:#e0b0b0;text-align:center}
 .crop .adj{position:absolute;right:2px;bottom:2px;font-size:10px;background:#0009;color:#fff;border-radius:3px;padding:0 4px}
+.crop .adj.b{background:#c8801a}
 .ctx{line-height:1.7;font-size:13.5px;min-width:0}
 .ctx b{background:#ffe08a;padding:0 3px;border-radius:3px;font-weight:700}
 .guess{font-size:16px;font-weight:700;text-align:center;padding:6px;background:#fff9e8;border:1px solid #f0dca0;border-radius:5px}
@@ -89,14 +90,17 @@ async function load(){
 }
 function cropStyle(it){
   const u=IMG[it.img_path],d=DIM[it.img_path];if(!u||!d||!it.bbox)return null;
-  const b=it.bbox,W=150,Hh=56,pad=0.6;
-  const bw=b.w*(1+pad*2),bh=Math.max(b.h*(1+pad*2),bw*Hh/W*(d.w/d.h));
-  const bx=Math.max(0,b.x-b.w*pad),by=Math.max(0,b.y-(bh-b.h)/2);
+  const b=it.bbox,W=150,Hh=56;
+  const band=(b.src==='band'||b.src==='header');
+  const pad=band?0.02:0.6;
+  const bw=b.w*(1+pad*2),bh=band?b.h:Math.max(b.h*(1+pad*2),bw*Hh/W*(d.w/d.h));
+  const bx=Math.max(0,b.x-b.w*pad),by=band?b.y:Math.max(0,b.y-(bh-b.h)/2);
   const scale=Math.min(W/(bw*d.w),Hh/(bh*d.h));
   return `background-image:url("${u}");background-size:${d.w*scale}px ${d.h*scale}px;background-position:-${bx*d.w*scale}px -${by*d.h*scale}px`;
 }
 function repaintCrops(){ITEMS.forEach(i=>{const el=document.getElementById("c"+i.id);if(!el)return;const st=cropStyle(i);
-  if(st){el.className="crop";el.setAttribute("style",st);el.innerHTML='<span class="adj">위치 조정</span>';}});}
+  if(st){const band=(i.bbox.src==='band'||i.bbox.src==='header');el.className="crop";el.setAttribute("style",st);
+    el.innerHTML=band?'<span class="adj b">대략 · 클릭해 정확히</span>':'<span class="adj">위치 조정</span>';}});}
 
 function paint(){
   const f=document.getElementById("filt").value;
@@ -109,7 +113,7 @@ function paint(){
       <div class="row hd"><span>① 원본 조각</span><span>문맥</span><span>② AI 판독</span><span>③ 수정</span></div>`+
       g.map(i=>{const st=cropStyle(i);
         return `<div class="row ${i.status!=='pending'?'done':''} ${i.item_type!=='glyph'?'idt':''}" id="r${i.id}">
-        <div id="c${i.id}" class="crop ${st?'':'none'}" ${st?`style="${st}"`:''} onclick="openBig(${i.id})">${st?'<span class="adj">위치 조정</span>':'위치 없음<br>클릭해 찍기'}</div>
+        <div id="c${i.id}" class="crop ${st?'':'none'}" ${st?`style="${st}"`:''} onclick="openBig(${i.id})">${st?((i.bbox.src==='band'||i.bbox.src==='header')?'<span class="adj b">대략 · 클릭해 정확히</span>':'<span class="adj">위치 조정</span>'):'위치 없음<br>클릭해 찍기'}</div>
         <div class="ctx">${esc((i.ctx_before||"").slice(-20))}<b>${esc(i.guess||"□")}</b>${esc((i.ctx_after||"").slice(0,20))}${i.item_type!=='glyph'?' <span class="tag w">본인 확인</span>':''}</div>
         <div class="guess">${esc(i.guess||"□")}</div>
         <div>${i.status==='pending'
@@ -118,14 +122,17 @@ function paint(){
       </div>`;}).join("")+`</div>`;
   }).join("")||'<div class="grp"><div class="row">해당 항목 없음</div></div>';
   const p=ITEMS.filter(i=>i.status==="pending").length,nb=ITEMS.filter(i=>!i.bbox).length;
-  document.getElementById("stat").textContent=`대기 ${p} / 전체 ${ITEMS.length} · 위치없음 ${nb}`;
+  const ap=ITEMS.filter(i=>i.bbox&&i.bbox.src!=="grid"&&i.bbox.by!=="_smoketest"&&!(i.bbox.by&&i.bbox.by!=="sim")).length;
+  document.getElementById("stat").textContent=`대기 ${p} / 전체 ${ITEMS.length} · 대략위치 ${ap}`;
 }
 
 function openBig(id){
   const it=ITEMS.find(x=>x.id===id);if(!it||!IMG[it.img_path])return;
   PICK=it;const img=document.getElementById("bigimg");img.src=IMG[it.img_path];
-  const d=DIM[it.img_path];const sc=Math.min(1,(window.innerWidth*0.94)/(d?d.w:2000));
+  const d=DIM[it.img_path];let sc=Math.min(1,(window.innerWidth*0.94)/(d?d.w:2000));
+  if(it.bbox&&d&&(it.bbox.src==='band'||it.bbox.src==='header')) sc=Math.min(2.2,(window.innerWidth*0.92)/(it.bbox.w*d.w));
   img.style.width=(d?d.w*sc:2000)+"px";
+  img.onload=()=>{if(it.bbox&&d){wrap.scrollTop=Math.max(0,it.bbox.y*d.h*sc-40);wrap.scrollLeft=Math.max(0,it.bbox.x*d.w*sc-20);}};
   const bx=document.getElementById("bigbox");
   if(it.bbox&&d){bx.style.display="block";bx.style.left=(it.bbox.x*d.w*sc)+"px";bx.style.top=(it.bbox.y*d.h*sc)+"px";bx.style.width=(it.bbox.w*d.w*sc)+"px";bx.style.height=(it.bbox.h*d.h*sc)+"px";}
   else bx.style.display="none";
