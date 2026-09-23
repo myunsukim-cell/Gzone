@@ -9,8 +9,7 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:"Noto Sans KR","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
 header{background:var(--head);color:#fff;padding:9px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:30}
-header b{font-size:15px}
-header .sp{flex:1}
+header b{font-size:15px}.sp{flex:1}
 header input,header select{font-size:13px;padding:4px 7px;border:1px solid #446;border-radius:5px}
 .stat{background:#ffffff22;border-radius:10px;padding:3px 9px;font-size:12px}
 .bulkbar{position:sticky;top:44px;z-index:25;background:#fff;border-bottom:1px solid var(--line);padding:7px 14px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}
@@ -21,23 +20,30 @@ button.s{padding:3px 9px;font-size:12px}
 button:disabled{opacity:.45;cursor:default}
 .msg{font-size:12px;color:#556}
 .grp{margin:12px 14px;background:#fff;border:1px solid var(--line);border-radius:9px;overflow:hidden}
-.gh{background:#eef2f6;padding:7px 11px;display:flex;gap:9px;align-items:center;font-size:13px;border-bottom:1px solid var(--line);position:sticky;top:88px;z-index:15}
+.gh{background:#eef2f6;padding:7px 11px;display:flex;gap:9px;align-items:center;font-size:13px;border-bottom:1px solid var(--line)}
 .gh b{font-size:14px}
-.gh .sp{flex:1}
 .tag{border:1px solid var(--line);border-radius:9px;padding:0 7px;font-size:11px;color:#667}
 .tag.w{border-color:var(--warn);color:var(--warn)}
-.row{display:flex;gap:9px;align-items:center;padding:7px 11px;border-bottom:1px solid #f1f4f7}
+.row{display:grid;grid-template-columns:150px 1fr 150px 120px;gap:10px;align-items:center;padding:8px 11px;border-bottom:1px solid #f1f4f7}
 .row:last-child{border-bottom:0}
 .row.done{background:#f3faf6;opacity:.6}
-.row .ctx{flex:1;line-height:1.7;font-size:13.5px;min-width:0}
-.row .ctx b{background:#ffe08a;padding:0 3px;border-radius:3px;font-weight:700}
-.row input{width:110px;font-size:13px;padding:4px 7px;border:1px solid var(--line);border-radius:5px}
+.row.idt{background:#fff6e5}
+.hd{padding:3px 11px;background:#fafbfc;font-size:10px;color:#889}
+.crop{width:150px;height:56px;border:1px solid var(--line);border-radius:5px;background-repeat:no-repeat;background-color:#f1f4f7;cursor:zoom-in;position:relative;overflow:hidden}
+.crop.none{display:flex;align-items:center;justify-content:center;font-size:11px;color:#a55;cursor:pointer;background:#fff4f4;border-color:#e0b0b0;text-align:center}
+.crop .adj{position:absolute;right:2px;bottom:2px;font-size:10px;background:#0009;color:#fff;border-radius:3px;padding:0 4px}
+.ctx{line-height:1.7;font-size:13.5px;min-width:0}
+.ctx b{background:#ffe08a;padding:0 3px;border-radius:3px;font-weight:700}
+.guess{font-size:16px;font-weight:700;text-align:center;padding:6px;background:#fff9e8;border:1px solid #f0dca0;border-radius:5px}
+.row input{width:100%;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:5px}
 .row input.ch{border-color:var(--warn);background:#fffdf5}
-.thumb{width:54px;height:40px;object-fit:cover;border:1px solid var(--line);border-radius:4px;cursor:zoom-in;flex:none;background:#f1f4f7}
-.big{position:fixed;inset:0;background:#000c;z-index:50;display:none;align-items:center;justify-content:center;padding:18px}
-.big img{max-width:96%;max-height:96%;background:#fff}
 .done-b{color:var(--ok);font-size:12px;font-weight:700}
-.idt{background:#fff6e5}
+.big{position:fixed;inset:0;background:#000d;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;padding:14px}
+.big .hint{color:#fff;font-size:13px;margin-bottom:8px}
+.big .wrap{position:relative;max-width:96vw;max-height:84vh;overflow:auto;background:#fff;cursor:crosshair}
+.big img{display:block;max-width:none;user-select:none}
+.big .box{position:absolute;border:2px solid #e33;background:#e3333322;pointer-events:none}
+.big .ctl{margin-top:8px;display:flex;gap:8px}
 </style>
 </head>
 <body>
@@ -48,106 +54,120 @@ button:disabled{opacity:.45;cursor:default}
   <span class="stat" id="stat">불러오는 중…</span>
   <input id="who" placeholder="검수자 이름" style="width:110px">
 </header>
-
 <div class="bulkbar">
   <button class="g" id="allok">화면의 대기 전부 「확인」으로 저장</button>
   <button class="p" id="saveEdited">고친 것만 저장</button>
-  <span class="msg" id="note">글자가 맞으면 그대로 두고, 틀린 것만 칸을 고치세요.</span>
+  <span class="msg" id="note">① 원본 조각 · ② AI 판독 · ③ 수정. 조각이 없으면 클릭해 원본에서 드래그로 위치를 찍으세요.</span>
 </div>
-
 <div id="body"></div>
-<div class="big" id="big" onclick="this.style.display='none'"><img id="bigimg"></div>
+
+<div class="big" id="big">
+  <div class="hint" id="bighint"></div>
+  <div class="wrap" id="bigwrap"><img id="bigimg"><div class="box" id="bigbox"></div></div>
+  <div class="ctl"><button class="g" id="bigsave" style="display:none">이 위치로 저장</button><button onclick="closeBig()">닫기</button></div>
+</div>
 
 <script>
 const URL_="https://qcnsadcpsonuxnjyrlez.supabase.co";
 const KEY="sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0";
 const H={apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json"};
-let ITEMS=[],IMG={};
+let ITEMS=[],IMG={},DIM={},PICK=null,DRAG=null;
 async function rest(p){const r=await fetch(URL_+"/rest/v1/"+p,{headers:H});if(!r.ok)throw new Error(await r.text());return r.json();}
 async function rpc(f,b){const r=await fetch(URL_+"/rest/v1/rpc/"+f,{method:"POST",headers:H,body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());return r.json();}
-
-function esc(s){return (s||"").replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+const esc=s=>(s||"").replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+function note(t){document.getElementById("note").textContent=t;}
+function who(){const w=document.getElementById("who").value.trim();if(!w){alert("검수자 이름을 입력하세요.");return null;}return w;}
 
 async function load(){
   ITEMS=await rest("v_hw_unc_all?select=*&order=student_name,seq");
   paint();
-  const paths=[...new Set(ITEMS.map(i=>i.img_path).filter(Boolean))];
-  for(const p of paths){
+  for(const p of [...new Set(ITEMS.map(i=>i.img_path).filter(Boolean))]){
     try{const s=await rpc("gz_hw_sign_read",{p_bucket:"klean-students",p_path:p,p_expires:7200});
-      IMG[p]=s.url; document.querySelectorAll(`img[data-p="${p}"]`).forEach(el=>el.src=s.url);}catch(e){}
+      IMG[p]=s.url;const im=new Image();im.onload=()=>{DIM[p]={w:im.naturalWidth,h:im.naturalHeight};repaintCrops();};im.src=s.url;
+    }catch(e){}
   }
 }
+function cropStyle(it){
+  const u=IMG[it.img_path],d=DIM[it.img_path];if(!u||!d||!it.bbox)return null;
+  const b=it.bbox,W=150,Hh=56,pad=0.6;
+  const bw=b.w*(1+pad*2),bh=Math.max(b.h*(1+pad*2),bw*Hh/W*(d.w/d.h));
+  const bx=Math.max(0,b.x-b.w*pad),by=Math.max(0,b.y-(bh-b.h)/2);
+  const scale=Math.min(W/(bw*d.w),Hh/(bh*d.h));
+  return `background-image:url("${u}");background-size:${d.w*scale}px ${d.h*scale}px;background-position:-${bx*d.w*scale}px -${by*d.h*scale}px`;
+}
+function repaintCrops(){ITEMS.forEach(i=>{const el=document.getElementById("c"+i.id);if(!el)return;const st=cropStyle(i);
+  if(st){el.className="crop";el.setAttribute("style",st);el.innerHTML='<span class="adj">위치 조정</span>';}});}
 
 function paint(){
   const f=document.getElementById("filt").value;
   const rows=ITEMS.filter(i=>f==="all"?1:f==="done"?i.status!=="pending":i.status==="pending");
-  const by={};
-  rows.forEach(i=>{(by[i.feedback_id]=by[i.feedback_id]||[]).push(i);});
+  const by={};rows.forEach(i=>{(by[i.feedback_id]=by[i.feedback_id]||[]).push(i);});
   document.getElementById("body").innerHTML=Object.values(by).map(g=>{
-    const h=g[0], tr=(h.traits||[]).map(t=>`<span class="tag w">${esc(t)}</span>`).join("");
-    return `<div class="grp"><div class="gh">
-      <b>${esc(h.student_name)}</b><span class="tag">${g.length}건</span>${tr}
-      <span class="sp"></span>
-      <button class="s" onclick="grpOk(${h.feedback_id})">이 학생 전부 확인</button></div>`+
-      g.map(i=>`<div class="row ${i.status!=='pending'?'done':''} ${i.item_type!=='glyph'?'idt':''}" id="r${i.id}">
-        <img class="thumb" data-p="${i.img_path}" ${IMG[i.img_path]?`src="${IMG[i.img_path]}"`:''} onclick="zoom('${i.img_path}')">
-        <span class="ctx">${esc((i.ctx_before||"").slice(-18))}<b>${esc(i.guess||"□")}</b>${esc((i.ctx_after||"").slice(0,18))}</span>
-        ${i.item_type!=='glyph'?'<span class="tag w">본인 확인</span>':''}
-        <input id="f${i.id}" value="${esc(i.fix||i.guess||"")}" ${i.status!=='pending'?'disabled':''}
-               oninput="this.classList.toggle('ch',this.value!==this.dataset.o)" data-o="${esc(i.guess||"")}">
-        ${i.status==='pending'
-          ? `<button class="s" onclick="one(${i.id})">저장</button>`
-          : `<span class="done-b">완료 ${esc(i.reviewed_by||"")}</span>`}
-      </div>`).join("")+`</div>`;
+    const h=g[0],tr=(h.traits||[]).map(t=>`<span class="tag w">${esc(t)}</span>`).join("");
+    return `<div class="grp"><div class="gh"><b>${esc(h.student_name)}</b><span class="tag">${g.length}건</span>${tr}<span class="sp"></span>
+      <button class="s" onclick="grpOk(${h.feedback_id})">이 학생 전부 확인</button></div>
+      <div class="row hd"><span>① 원본 조각</span><span>문맥</span><span>② AI 판독</span><span>③ 수정</span></div>`+
+      g.map(i=>{const st=cropStyle(i);
+        return `<div class="row ${i.status!=='pending'?'done':''} ${i.item_type!=='glyph'?'idt':''}" id="r${i.id}">
+        <div id="c${i.id}" class="crop ${st?'':'none'}" ${st?`style="${st}"`:''} onclick="openBig(${i.id})">${st?'<span class="adj">위치 조정</span>':'위치 없음<br>클릭해 찍기'}</div>
+        <div class="ctx">${esc((i.ctx_before||"").slice(-20))}<b>${esc(i.guess||"□")}</b>${esc((i.ctx_after||"").slice(0,20))}${i.item_type!=='glyph'?' <span class="tag w">본인 확인</span>':''}</div>
+        <div class="guess">${esc(i.guess||"□")}</div>
+        <div>${i.status==='pending'
+          ?`<input id="f${i.id}" value="${esc(i.fix||i.guess||"")}" data-o="${esc(i.guess||"")}" oninput="this.classList.toggle('ch',this.value!==this.dataset.o)"><button class="s" style="margin-top:4px;width:100%" onclick="one(${i.id})">저장</button>`
+          :`<input value="${esc(i.fix||"")}" disabled><div class="done-b">완료 ${esc(i.reviewed_by||"")}</div>`}</div>
+      </div>`;}).join("")+`</div>`;
   }).join("")||'<div class="grp"><div class="row">해당 항목 없음</div></div>';
-  const p=ITEMS.filter(i=>i.status==="pending").length;
-  document.getElementById("stat").textContent=`대기 ${p} / 전체 ${ITEMS.length}`;
+  const p=ITEMS.filter(i=>i.status==="pending").length,nb=ITEMS.filter(i=>!i.bbox).length;
+  document.getElementById("stat").textContent=`대기 ${p} / 전체 ${ITEMS.length} · 위치없음 ${nb}`;
 }
 
-function zoom(p){if(!IMG[p])return;document.getElementById("bigimg").src=IMG[p];document.getElementById("big").style.display="flex";}
+function openBig(id){
+  const it=ITEMS.find(x=>x.id===id);if(!it||!IMG[it.img_path])return;
+  PICK=it;const img=document.getElementById("bigimg");img.src=IMG[it.img_path];
+  const d=DIM[it.img_path];const sc=Math.min(1,(window.innerWidth*0.94)/(d?d.w:2000));
+  img.style.width=(d?d.w*sc:2000)+"px";
+  const bx=document.getElementById("bigbox");
+  if(it.bbox&&d){bx.style.display="block";bx.style.left=(it.bbox.x*d.w*sc)+"px";bx.style.top=(it.bbox.y*d.h*sc)+"px";bx.style.width=(it.bbox.w*d.w*sc)+"px";bx.style.height=(it.bbox.h*d.h*sc)+"px";}
+  else bx.style.display="none";
+  document.getElementById("bighint").textContent=`${it.student_name} · 「${it.guess||"□"}」 — 원본에서 이 글자를 드래그해 네모로 감싸세요 (문맥: …${(it.ctx_before||"").slice(-10)}[${it.guess}]${(it.ctx_after||"").slice(0,10)}…)`;
+  document.getElementById("bigsave").style.display="none";
+  document.getElementById("big").style.display="flex";
+}
+function closeBig(){document.getElementById("big").style.display="none";PICK=null;DRAG=null;}
+const wrap=document.getElementById("bigwrap");
+function pos(e){const r=document.getElementById("bigimg").getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
+wrap.addEventListener("mousedown",e=>{if(!PICK)return;DRAG=pos(e);e.preventDefault();});
+wrap.addEventListener("mousemove",e=>{if(!DRAG)return;const p=pos(e),bx=document.getElementById("bigbox");
+  bx.style.display="block";bx.style.left=Math.min(DRAG.x,p.x)+"px";bx.style.top=Math.min(DRAG.y,p.y)+"px";bx.style.width=Math.abs(p.x-DRAG.x)+"px";bx.style.height=Math.abs(p.y-DRAG.y)+"px";});
+wrap.addEventListener("mouseup",e=>{if(!DRAG)return;const img=document.getElementById("bigimg"),bx=document.getElementById("bigbox");
+  const W=img.clientWidth,Hh=img.clientHeight;
+  const nb={x:+(parseFloat(bx.style.left)/W).toFixed(4),y:+(parseFloat(bx.style.top)/Hh).toFixed(4),w:+(parseFloat(bx.style.width)/W).toFixed(4),h:+(parseFloat(bx.style.height)/Hh).toFixed(4)};
+  DRAG=null;if(nb.w<0.003||nb.h<0.003)return;
+  PICK._nb=nb;document.getElementById("bigsave").style.display="inline-block";});
+document.getElementById("bigsave").onclick=async()=>{
+  const w=who();if(!w||!PICK||!PICK._nb)return;
+  try{const r=await rpc("gz_hw_set_bbox",{p_id:PICK.id,p_bbox:PICK._nb,p_by:w});
+    if(r.ok){PICK.bbox=PICK._nb;note(`위치 저장 — ${PICK.student_name} 「${PICK.guess}」`);closeBig();paint();repaintCrops();}
+    else note("실패: "+r.reason);}catch(e){note("오류: "+e.message.slice(0,80));}
+};
 
-function who(){const w=document.getElementById("who").value.trim();if(!w){alert("검수자 이름을 입력하세요.");return null;}return w;}
 function mark(it,by){it.status="confirmed";it.reviewed_by=by;}
-
-async function one(id){
-  const w=who(); if(!w)return;
-  const it=ITEMS.find(x=>x.id===id); const fix=document.getElementById("f"+id).value.trim();
+async function one(id){const w=who();if(!w)return;const it=ITEMS.find(x=>x.id===id);const fix=document.getElementById("f"+id).value.trim();
   if(!fix){alert("글자를 입력하세요.");return;}
   try{const r=await rpc("gz_hw_confirm",{p_id:id,p_fix:fix,p_by:w});
-    if(r.ok){mark(it,w);it.fix=fix;paint();note(`1건 저장 — ${it.guess||"□"} → ${fix}`);}
-    else note("실패: "+(r.err||""));
-  }catch(e){note("오류: "+e.message.slice(0,80));}
-}
-async function bulk(list){
-  const w=who(); if(!w)return;
-  if(!list.length){note("저장할 항목이 없습니다.");return;}
-  note(`저장 중… ${list.length}건`);
-  try{
-    const r=await rpc("gz_hw_confirm_bulk",{p_items:list.map(x=>({id:x.id,fix:x.fix})),p_by:w});
-    list.forEach(x=>{const it=ITEMS.find(y=>y.id===x.id); if(it){mark(it,w);it.fix=x.fix;}});
-    paint(); note(`저장 완료 — ${r.done}건${r.fail?` · 실패 ${r.fail}`:""}`);
-  }catch(e){note("오류: "+e.message.slice(0,90));}
-}
-function collect(fid){
-  return ITEMS.filter(i=>i.status==="pending"&&(!fid||i.feedback_id===fid))
-    .map(i=>({id:i.id,fix:(document.getElementById("f"+i.id)||{}).value?.trim()||i.guess||""}))
-    .filter(x=>x.fix);
-}
+    if(r.ok){mark(it,w);it.fix=fix;paint();repaintCrops();note(`저장 — ${it.guess||"□"} → ${fix}`);}else note("실패: "+(r.err||""));
+  }catch(e){note("오류: "+e.message.slice(0,80));}}
+async function bulk(list){const w=who();if(!w)return;if(!list.length){note("저장할 항목이 없습니다.");return;}note(`저장 중… ${list.length}건`);
+  try{const r=await rpc("gz_hw_confirm_bulk",{p_items:list.map(x=>({id:x.id,fix:x.fix})),p_by:w});
+    list.forEach(x=>{const it=ITEMS.find(y=>y.id===x.id);if(it){mark(it,w);it.fix=x.fix;}});
+    paint();repaintCrops();note(`저장 완료 — ${r.done}건${r.fail?` · 실패 ${r.fail}`:""}`);
+  }catch(e){note("오류: "+e.message.slice(0,90));}}
+function collect(fid){return ITEMS.filter(i=>i.status==="pending"&&(!fid||i.feedback_id===fid))
+  .map(i=>({id:i.id,fix:(document.getElementById("f"+i.id)||{}).value?.trim()||i.guess||""})).filter(x=>x.fix);}
 function grpOk(fid){bulk(collect(fid));}
-document.getElementById("allok").onclick=()=>{
-  const f=document.getElementById("filt").value;
-  const vis=ITEMS.filter(i=>i.status==="pending"&&(f!=="done"));
-  if(!confirm(`화면의 대기 ${vis.length}건을 지금 칸에 있는 값으로 저장합니다. 진행할까요?`))return;
-  bulk(collect(null));
-};
-document.getElementById("saveEdited").onclick=()=>{
-  const ed=ITEMS.filter(i=>i.status==="pending").map(i=>{
-    const el=document.getElementById("f"+i.id); if(!el)return null;
-    const v=el.value.trim(); return (v&&v!==(i.guess||""))?{id:i.id,fix:v}:null;}).filter(Boolean);
-  bulk(ed);
-};
-function note(t){document.getElementById("note").textContent=t;}
-document.getElementById("filt").addEventListener("change",paint);
+document.getElementById("allok").onclick=()=>{const n=ITEMS.filter(i=>i.status==="pending").length;if(!confirm(`대기 ${n}건을 칸에 있는 값으로 저장합니다. 진행할까요?`))return;bulk(collect(null));};
+document.getElementById("saveEdited").onclick=()=>{bulk(ITEMS.filter(i=>i.status==="pending").map(i=>{const el=document.getElementById("f"+i.id);if(!el)return null;const v=el.value.trim();return(v&&v!==(i.guess||""))?{id:i.id,fix:v}:null;}).filter(Boolean));};
+document.getElementById("filt").addEventListener("change",()=>{paint();repaintCrops();});
 load().catch(e=>document.getElementById("stat").textContent="불러오기 실패: "+e.message.slice(0,60));
 </script>
 </body>
