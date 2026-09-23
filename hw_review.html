@@ -101,7 +101,7 @@ let ROWS=[],CUR=null;
 async function rest(p){const r=await fetch(URL_+"/rest/v1/"+p,{headers:H});if(!r.ok)throw new Error(await r.text());return r.json();}
 async function rpc(f,b){const r=await fetch(URL_+"/rest/v1/rpc/"+f,{method:"POST",headers:H,body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());return r.json();}
 
-function norm(s){return (s||"").replace(/\s+/g,"");}
+function norm(s){return (s||"").replace(/\{표시:[^}]*\}/g,"").replace(/\[([^\]\?]*)\??\]/g,"$1").replace(/\s+/g,"");}
 // 판독본↔확정본 글자 차이 추출 → {src,fix,kind}
 function diffPairs(a,b){
   const A=norm(a),B=norm(b),out=[];
