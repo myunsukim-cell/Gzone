@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>첨삭 · 판독 검수</title>
+<style>
+:root{--line:#d6dee6;--head:#1a3a5c;--ok:#1e7a4a;--warn:#c8801a;--bg:#f6f8fa}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Noto Sans KR","Malgun Gothic",sans-serif;background:var(--bg);color:#1a1a1a;font-size:14px}
+.top{background:#fff;border-bottom:1px solid var(--line);padding:8px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.top b{font-size:15px;color:var(--head)}
+.top .sp{flex:1}
+.tabs{display:flex;gap:4px}
+.tab{padding:6px 14px;border:1px solid var(--line);border-bottom:0;border-radius:7px 7px 0 0;background:#eef2f6;cursor:pointer;font-size:13px}
+.tab.on{background:#fff;font-weight:700;color:var(--head);border-color:var(--head)}
+.tab .n{display:inline-block;min-width:18px;background:var(--warn);color:#fff;border-radius:9px;font-size:11px;padding:0 6px;margin-left:4px;text-align:center}
+.tab .n.z{background:#aab}
+.kpi{display:flex;gap:8px;font-size:12px}
+.kpi span{background:#fff;border:1px solid var(--line);border-radius:9px;padding:2px 9px}
+.kpi b{color:var(--head)}
+iframe{width:100%;height:calc(100vh - 46px);border:0;background:#fff;display:block}
+</style>
+</head>
+<body>
+<div class="top">
+  <b>첨삭 · 판독 검수</b>
+  <div class="tabs">
+    <div class="tab on" data-f="hw_bulk.html" id="t1">1단 글자 확인 <span class="n" id="n1">…</span></div>
+    <div class="tab" data-f="hw_review.html" id="t2">2단 답안 검수 <span class="n" id="n2">…</span></div>
+  </div>
+  <span class="sp"></span>
+  <div class="kpi" id="kpi"></div>
+</div>
+<iframe id="fr" src="hw_bulk.html"></iframe>
+<script>
+const URL_="https://qcnsadcpsonuxnjyrlez.supabase.co";
+const KEY="sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0";
+const H={apikey:KEY,Authorization:"Bearer "+KEY};
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));t.classList.add("on");
+  document.getElementById("fr").src=t.dataset.f;
+});
+async function cnt(){
+  try{
+    const a=await (await fetch(URL_+"/rest/v1/v_hw_unc_all?select=status",{headers:H})).json();
+    const p1=a.filter(x=>x.status==="pending").length;
+    const b=await (await fetch(URL_+"/rest/v1/v_hw_review_queue?select=reviewed",{headers:H})).json();
+    const p2=b.filter(x=>!x.reviewed).length;
+    const n1=document.getElementById("n1"),n2=document.getElementById("n2");
+    n1.textContent=p1;n1.className="n"+(p1?"":" z");n2.textContent=p2;n2.className="n"+(p2?"":" z");
+    const w=await (await fetch(URL_+"/rest/v1/v_hw_writer?select=pages_read,errs,chars",{headers:H})).json();
+    const chars=w.reduce((s,x)=>s+(x.chars||0),0),errs=w.reduce((s,x)=>s+(x.errs||0),0);
+    document.getElementById("kpi").innerHTML=
+      `<span>판독 <b>${b.length}</b>장</span><span>학생 <b>${w.length}</b>명</span>`+
+      `<span>글자확인 <b>${a.length-p1}</b>/${a.length}</span><span>답안검수 <b>${b.length-p2}</b>/${b.length}</span>`+
+      `<span>오독률 <b>${chars?(errs/chars*100).toFixed(2):"–"}%</b></span>`;
+  }catch(e){document.getElementById("kpi").textContent="현황 로드 실패";}
+}
+cnt();setInterval(cnt,30000);
+</script>
+</body>
+</html>
