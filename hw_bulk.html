@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>국존 일괄 검수</title>
+<style>
+:root{--ink:#1a1a1a;--line:#d6dee6;--head:#1a3a5c;--ok:#1e7a4a;--warn:#c8801a;--bg:#f6f8fa}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Noto Sans KR","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+header{background:var(--head);color:#fff;padding:9px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:30}
+header b{font-size:15px}
+header .sp{flex:1}
+header input,header select{font-size:13px;padding:4px 7px;border:1px solid #446;border-radius:5px}
+.stat{background:#ffffff22;border-radius:10px;padding:3px 9px;font-size:12px}
+.bulkbar{position:sticky;top:44px;z-index:25;background:#fff;border-bottom:1px solid var(--line);padding:7px 14px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+button{font-family:inherit;font-size:13px;padding:6px 13px;border:1px solid var(--line);border-radius:6px;background:#fff;cursor:pointer}
+button.p{background:var(--head);color:#fff;border-color:var(--head);font-weight:700}
+button.g{background:var(--ok);color:#fff;border-color:var(--ok);font-weight:700}
+button.s{padding:3px 9px;font-size:12px}
+button:disabled{opacity:.45;cursor:default}
+.msg{font-size:12px;color:#556}
+.grp{margin:12px 14px;background:#fff;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.gh{background:#eef2f6;padding:7px 11px;display:flex;gap:9px;align-items:center;font-size:13px;border-bottom:1px solid var(--line);position:sticky;top:88px;z-index:15}
+.gh b{font-size:14px}
+.gh .sp{flex:1}
+.tag{border:1px solid var(--line);border-radius:9px;padding:0 7px;font-size:11px;color:#667}
+.tag.w{border-color:var(--warn);color:var(--warn)}
+.row{display:flex;gap:9px;align-items:center;padding:7px 11px;border-bottom:1px solid #f1f4f7}
+.row:last-child{border-bottom:0}
+.row.done{background:#f3faf6;opacity:.6}
+.row .ctx{flex:1;line-height:1.7;font-size:13.5px;min-width:0}
+.row .ctx b{background:#ffe08a;padding:0 3px;border-radius:3px;font-weight:700}
+.row input{width:110px;font-size:13px;padding:4px 7px;border:1px solid var(--line);border-radius:5px}
+.row input.ch{border-color:var(--warn);background:#fffdf5}
+.thumb{width:54px;height:40px;object-fit:cover;border:1px solid var(--line);border-radius:4px;cursor:zoom-in;flex:none;background:#f1f4f7}
+.big{position:fixed;inset:0;background:#000c;z-index:50;display:none;align-items:center;justify-content:center;padding:18px}
+.big img{max-width:96%;max-height:96%;background:#fff}
+.done-b{color:var(--ok);font-size:12px;font-weight:700}
+.idt{background:#fff6e5}
+</style>
+</head>
+<body>
+<header>
+  <b>국존 일괄 검수</b>
+  <select id="filt"><option value="pending">대기만</option><option value="all">전체</option><option value="done">완료</option></select>
+  <span class="sp"></span>
+  <span class="stat" id="stat">불러오는 중…</span>
+  <input id="who" placeholder="검수자 이름" style="width:110px">
+</header>
+
+<div class="bulkbar">
+  <button class="g" id="allok">화면의 대기 전부 「확인」으로 저장</button>
+  <button class="p" id="saveEdited">고친 것만 저장</button>
+  <span class="msg" id="note">글자가 맞으면 그대로 두고, 틀린 것만 칸을 고치세요.</span>
+</div>
+
+<div id="body"></div>
+<div class="big" id="big" onclick="this.style.display='none'"><img id="bigimg"></div>
+
+<script>
+const URL_="https://qcnsadcpsonuxnjyrlez.supabase.co";
+const KEY="sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0";
+const H={apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json"};
+let ITEMS=[],IMG={};
+async function rest(p){const r=await fetch(URL_+"/rest/v1/"+p,{headers:H});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function rpc(f,b){const r=await fetch(URL_+"/rest/v1/rpc/"+f,{method:"POST",headers:H,body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());return r.json();}
+
+function esc(s){return (s||"").replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+
+async function load(){
+  ITEMS=await rest("v_hw_unc_all?select=*&order=student_name,seq");
+  paint();
+  const paths=[...new Set(ITEMS.map(i=>i.img_path).filter(Boolean))];
+  for(const p of paths){
+    try{const s=await rpc("gz_hw_sign_read",{p_bucket:"klean-students",p_path:p,p_expires:7200});
+      IMG[p]=s.url; document.querySelectorAll(`img[data-p="${p}"]`).forEach(el=>el.src=s.url);}catch(e){}
+  }
+}
+
+function paint(){
+  const f=document.getElementById("filt").value;
+  const rows=ITEMS.filter(i=>f==="all"?1:f==="done"?i.status!=="pending":i.status==="pending");
+  const by={};
+  rows.forEach(i=>{(by[i.feedback_id]=by[i.feedback_id]||[]).push(i);});
+  document.getElementById("body").innerHTML=Object.values(by).map(g=>{
+    const h=g[0], tr=(h.traits||[]).map(t=>`<span class="tag w">${esc(t)}</span>`).join("");
+    return `<div class="grp"><div class="gh">
+      <b>${esc(h.student_name)}</b><span class="tag">${g.length}건</span>${tr}
+      <span class="sp"></span>
+      <button class="s" onclick="grpOk(${h.feedback_id})">이 학생 전부 확인</button></div>`+
+      g.map(i=>`<div class="row ${i.status!=='pending'?'done':''} ${i.item_type!=='glyph'?'idt':''}" id="r${i.id}">
+        <img class="thumb" data-p="${i.img_path}" ${IMG[i.img_path]?`src="${IMG[i.img_path]}"`:''} onclick="zoom('${i.img_path}')">
+        <span class="ctx">${esc((i.ctx_before||"").slice(-18))}<b>${esc(i.guess||"□")}</b>${esc((i.ctx_after||"").slice(0,18))}</span>
+        ${i.item_type!=='glyph'?'<span class="tag w">본인 확인</span>':''}
+        <input id="f${i.id}" value="${esc(i.fix||i.guess||"")}" ${i.status!=='pending'?'disabled':''}
+               oninput="this.classList.toggle('ch',this.value!==this.dataset.o)" data-o="${esc(i.guess||"")}">
+        ${i.status==='pending'
+          ? `<button class="s" onclick="one(${i.id})">저장</button>`
+          : `<span class="done-b">완료 ${esc(i.reviewed_by||"")}</span>`}
+      </div>`).join("")+`</div>`;
+  }).join("")||'<div class="grp"><div class="row">해당 항목 없음</div></div>';
+  const p=ITEMS.filter(i=>i.status==="pending").length;
+  document.getElementById("stat").textContent=`대기 ${p} / 전체 ${ITEMS.length}`;
+}
+
+function zoom(p){if(!IMG[p])return;document.getElementById("bigimg").src=IMG[p];document.getElementById("big").style.display="flex";}
+
+function who(){const w=document.getElementById("who").value.trim();if(!w){alert("검수자 이름을 입력하세요.");return null;}return w;}
+function mark(it,by){it.status="confirmed";it.reviewed_by=by;}
+
+async function one(id){
+  const w=who(); if(!w)return;
+  const it=ITEMS.find(x=>x.id===id); const fix=document.getElementById("f"+id).value.trim();
+  if(!fix){alert("글자를 입력하세요.");return;}
+  try{const r=await rpc("gz_hw_confirm",{p_id:id,p_fix:fix,p_by:w});
+    if(r.ok){mark(it,w);it.fix=fix;paint();note(`1건 저장 — ${it.guess||"□"} → ${fix}`);}
+    else note("실패: "+(r.err||""));
+  }catch(e){note("오류: "+e.message.slice(0,80));}
+}
+async function bulk(list){
+  const w=who(); if(!w)return;
+  if(!list.length){note("저장할 항목이 없습니다.");return;}
+  note(`저장 중… ${list.length}건`);
+  try{
+    const r=await rpc("gz_hw_confirm_bulk",{p_items:list.map(x=>({id:x.id,fix:x.fix})),p_by:w});
+    list.forEach(x=>{const it=ITEMS.find(y=>y.id===x.id); if(it){mark(it,w);it.fix=x.fix;}});
+    paint(); note(`저장 완료 — ${r.done}건${r.fail?` · 실패 ${r.fail}`:""}`);
+  }catch(e){note("오류: "+e.message.slice(0,90));}
+}
+function collect(fid){
+  return ITEMS.filter(i=>i.status==="pending"&&(!fid||i.feedback_id===fid))
+    .map(i=>({id:i.id,fix:(document.getElementById("f"+i.id)||{}).value?.trim()||i.guess||""}))
+    .filter(x=>x.fix);
+}
+function grpOk(fid){bulk(collect(fid));}
+document.getElementById("allok").onclick=()=>{
+  const f=document.getElementById("filt").value;
+  const vis=ITEMS.filter(i=>i.status==="pending"&&(f!=="done"));
+  if(!confirm(`화면의 대기 ${vis.length}건을 지금 칸에 있는 값으로 저장합니다. 진행할까요?`))return;
+  bulk(collect(null));
+};
+document.getElementById("saveEdited").onclick=()=>{
+  const ed=ITEMS.filter(i=>i.status==="pending").map(i=>{
+    const el=document.getElementById("f"+i.id); if(!el)return null;
+    const v=el.value.trim(); return (v&&v!==(i.guess||""))?{id:i.id,fix:v}:null;}).filter(Boolean);
+  bulk(ed);
+};
+function note(t){document.getElementById("note").textContent=t;}
+document.getElementById("filt").addEventListener("change",paint);
+load().catch(e=>document.getElementById("stat").textContent="불러오기 실패: "+e.message.slice(0,60));
+</script>
+</body>
+</html>
