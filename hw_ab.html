@@ -14,7 +14,7 @@ button.g{background:#fff;color:var(--head);border-color:var(--head)}button:disab
 table{border-collapse:collapse;width:100%;min-width:720px}td,th{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left}
 th{font-size:12px;color:var(--mut)}td img{height:46px;max-width:380px;border:1px solid var(--line);border-radius:4px}td.r{font-size:18px;font-weight:600}.w{color:var(--mut);font-size:12px}
 </style></head><body>
-<div class="top"><b>필적 인식 A/B 실측</b><span>A = 글자 모양만 · B = 모양 + 문장 위치 + 반 어휘 + 자모 경향</span><span class="sp"></span><span id="who"></span></div>
+<div class="top"><b>필적 인식 A/B 실측</b><span style="font-size:12px;opacity:.7">v3</span><span>A = 글자 모양만 · B = 모양 + 문장 위치 + 반 어휘 + 자모 경향</span><span class="sp"></span><span id="who"></span></div>
 <div class="bar"><button id="go" disabled>실측 시작</button><button class="g" id="stop" disabled>멈춤</button><div class="pg"><i id="pgi"></i></div><span id="msg" class="w">연결 중…</span></div>
 <div class="note">정답은 이 화면에 없습니다. 판독은 서버(DB)가 Claude API로 하고 결과를 저장합니다. 중간에 멈추거나 닫아도 다시 누르면 남은 것부터 이어갑니다. 원장 계정만 실행됩니다.</div>
 <div class="tb"><table><thead><tr><th>#</th><th>원본 조각</th><th>A 모양만</th><th>B 모양+문맥</th></tr></thead><tbody id="tb"></tbody></table></div>
@@ -47,6 +47,8 @@ async function init(){paint();
   if(!JWT){$("msg").innerHTML='<span class="err">G-MAP에 로그인한 상태에서 「첨삭 → A/B 실측」 탭으로 여세요.</span>';return;}
   if(!s.has_key){$("msg").innerHTML='<span class="err">Anthropic API 키가 아직 등록되지 않았습니다(연구방에 요청).</span>';return;}
   $("go").disabled=false;}catch(e){$("msg").innerHTML=`<span class="err">${esc(e.message)}</span>`;}}
+window.addEventListener("error",e=>{const m=document.getElementById("msg");if(m)m.innerHTML='<span class="err">화면 오류: '+esc(e.message)+'</span>';});
+window.addEventListener("unhandledrejection",e=>{const m=document.getElementById("msg");if(m)m.innerHTML='<span class="err">요청 오류: '+esc(String(e.reason&&e.reason.message||e.reason))+'</span>';});
 window.addEventListener("message",e=>{if(e.data&&e.data.gz_jwt){JWT=e.data.gz_jwt;$("who").textContent=e.data.gz_name||"";init();}});
 setTimeout(()=>{if(!JWT)init();},2500);
 </script></body></html>
