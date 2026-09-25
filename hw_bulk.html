@@ -24,7 +24,8 @@ button:disabled{opacity:.45;cursor:default}
 .gh b{font-size:14px}
 .tag{border:1px solid var(--line);border-radius:9px;padding:0 7px;font-size:11px;color:#667}
 .tag.w{border-color:var(--warn);color:var(--warn)}
-.row{display:grid;grid-template-columns:minmax(0,560px) minmax(260px,1fr);gap:16px;align-items:start;padding:12px 14px;border-bottom:1px solid #e8edf2}
+.row{display:block;padding:12px 14px 14px;border-bottom:1px solid #e8edf2}
+.row .crop{max-width:1100px}
 .row:last-child{border-bottom:0}
 .row.done{background:#f3faf6}
 .row.done .crop{opacity:.55}
@@ -39,7 +40,11 @@ button:disabled{opacity:.45;cursor:default}
 .crop .seen{position:absolute;right:6px;top:6px;font-size:11px;background:#1e7a4a;color:#fff;border-radius:4px;padding:1px 6px;display:none}
 .row.seen .crop .seen{display:block}
 .crop.none{display:flex;align-items:center;justify-content:center;font-size:12px;color:#a55;cursor:pointer;background:#fff4f4;border-color:#e0b0b0;text-align:center;height:80px}
-.side{display:flex;flex-direction:column;gap:8px;min-width:0}
+.side{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,380px);gap:8px 18px;margin-top:10px;align-items:start;max-width:1100px}
+.side .ctx{grid-column:1;grid-row:1 / span 2}
+.side .ai,.side>div[id^=a]{grid-column:2}
+.ctx .u{color:#a0a8b2}
+.ctx mark{background:#ffe08a;font-weight:700;padding:1px 4px;border-radius:3px;outline:2px solid #d8342c}
 .ctx{line-height:1.8;font-size:15px}
 .ctx b{background:#ffe08a;padding:1px 4px;border-radius:3px;font-weight:700}
 .ai{font-size:12px;color:#667}
@@ -51,7 +56,7 @@ button:disabled{opacity:.45;cursor:default}
 .act button.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
 .act button.fx{background:var(--warn);color:#fff;border-color:var(--warn)}
 .keys{font-size:11px;color:#8a94a0}
-@media (max-width:760px){.row{grid-template-columns:1fr}}
+@media (max-width:760px){.side{grid-template-columns:1fr}.side .ctx,.side .ai,.side>div[id^=a]{grid-column:1;grid-row:auto}}
 .done-b{color:var(--ok);font-size:12px;font-weight:700}
 .big{position:fixed;inset:0;background:#000d;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;padding:14px}
 .big .hint{color:#fff;font-size:13px;margin-bottom:8px}
@@ -87,7 +92,7 @@ button:disabled{opacity:.45;cursor:default}
 const URL_="https://qcnsadcpsonuxnjyrlez.supabase.co";
 const KEY="sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0";
 const H={apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json"};
-let ITEMS=[],IMG={},DIM={},PICK=null,DRAG=null;
+let ITEMS=[],IMG={},DIM={},RAW={},PICK=null,DRAG=null;
 async function rest(p){const r=await fetch(URL_+"/rest/v1/"+p,{headers:H});if(!r.ok)throw new Error(await r.text());return r.json();}
 async function rpc(f,b){const r=await fetch(URL_+"/rest/v1/rpc/"+f,{method:"POST",headers:H,body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());return r.json();}
 const esc=s=>(s||"").replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
@@ -96,6 +101,7 @@ function who(){const w=document.getElementById("who").value.trim();if(!w){alert(
 
 async function load(){
   ITEMS=await rest("v_hw_unc_all?select=*&order=student_name,seq");
+  try{(await rest("v_hw_review_queue?select=id,htr_raw")).forEach(r=>RAW[r.id]=r.htr_raw||"");}catch(e){}
   paint();
   for(const p of [...new Set(ITEMS.map(i=>i.img_path).filter(Boolean))]){
     try{const s=await rpc("gz_hw_sign_read",{p_bucket:"klean-students",p_path:p,p_expires:7200});
@@ -105,11 +111,23 @@ async function load(){
 }
 const SEEN=new Set();let OBS=null;
 const isBand=it=>it.bbox&&(it.bbox.src==='band'||it.bbox.src==='header');
-function cropBox(it){ // 보여줄 원본 영역(비율)
+function cropBox(it){ // 원고지 반면 폭 × 위아래 2행 — 사람도 문맥으로 읽는다
   const b=it.bbox;
-  if(isBand(it)) return {x:Math.max(0,b.x-0.01),y:b.y,w:Math.min(1,b.w+0.02),h:b.h};
-  const w=Math.min(1,Math.max(b.w*5,0.28)),h=Math.min(1,Math.max(b.h*3.4,0.07));
-  return {x:Math.min(Math.max(0,b.x+b.w/2-w/2),1-w),y:Math.min(Math.max(0,b.y+b.h/2-h/2),1-h),w,h};
+  if(b.src==='header'||(it.item_type&&it.item_type!=='glyph')){const w=Math.max(b.w*3,0.3),h=Math.max(b.h*2.6,0.08);
+    return {x:Math.min(Math.max(0,b.x+b.w/2-w/2),1-w),y:Math.min(Math.max(0,b.y+b.h/2-h/2),1-h),w,h};}
+  const L=(b.x+b.w/2)<0.5,x=L?0.035:0.505,w=0.48;
+  const rh=Math.min(Math.max(b.h,0.026),0.034),y=Math.max(0,b.y-rh*2.2),h=Math.min(1-y,b.h+rh*4.4);
+  return {x,y,w,h};
+}
+function ctxHTML(it){ // 답안 전문에서 앞뒤 문장까지
+  const raw=RAW[it.feedback_id]||"",g=it.guess||"",key="["+g+"?]";
+  let k=-1,p=raw.indexOf(key);const cb=(it.ctx_before||"").replace(/\s+$/,"").slice(-6);
+  while(p>=0){if(k<0)k=p;if(cb&&raw.slice(Math.max(0,p-40),p).replace(/\[([^\]]*)\?\]/g,"$1").includes(cb)){k=p;break;}p=raw.indexOf(key,p+1);}
+  if(k<0) return `${esc((it.ctx_before||"").slice(-22))}<mark>${esc(g||"□")}</mark>${esc((it.ctx_after||"").slice(0,22))}`;
+  const clean=t=>esc(t.replace(/\[([^\]]*)\?\]/g,"$1").replace(/\n/g," "));
+  let a=Math.max(0,k-110),b=Math.min(raw.length,k+key.length+110);
+  const s0=raw.lastIndexOf(". ",k-60);if(s0>a)a=s0+2;const s1=raw.indexOf(".",k+key.length+40);if(s1>0&&s1<b)b=s1+1;
+  return `${a>0?'<span class="u">…</span>':''}${clean(raw.slice(a,k))}<mark>${esc(g||"□")}</mark>${clean(raw.slice(k+key.length,b))}${b<raw.length?'<span class="u">…</span>':''}`;
 }
 function cropHTML(it){
   const u=IMG[it.img_path],d=DIM[it.img_path];
@@ -126,7 +144,7 @@ function cropHTML(it){
 function cropAttr(it){
   const d=DIM[it.img_path];if(!it.bbox)return '';
   const v=cropBox(it);
-  return d?`style="aspect-ratio:${(v.w*d.w).toFixed(1)}/${(v.h*d.h).toFixed(1)};max-height:${isBand(it)?420:220}px"`:'style="height:160px"';
+  return d?`style="aspect-ratio:${(v.w*d.w).toFixed(1)}/${(v.h*d.h).toFixed(1)};max-height:420px"`:'style="height:160px"';
 }
 function repaintCrops(p){ITEMS.forEach(i=>{if(p&&i.img_path!==p)return;const el=document.getElementById("c"+i.id);if(!el||!i.bbox)return;
   const at=cropAttr(i).match(/style="([^"]*)"/);el.setAttribute("style",at?at[1]:"");el.className="crop";el.innerHTML=cropHTML(i);});
@@ -158,7 +176,7 @@ function paint(){
         return `<div class="row ${i.status!=='pending'?'done':''} ${i.item_type!=='glyph'?'idt':''} ${SEEN.has(i.id)?'seen':''}" id="r${i.id}">
         <div id="c${i.id}" data-id="${i.id}" class="crop ${i.bbox?'':'none'}" ${cropAttr(i)} onclick="openBig(${i.id})">${c!==null?c:'위치 없음<br>눌러서 원본에서 찍기'}</div>
         <div class="side">
-          <div class="ctx">${esc((i.ctx_before||"").slice(-22))}<b>${esc(i.guess||"□")}</b>${esc((i.ctx_after||"").slice(0,22))}${i.item_type!=='glyph'?' <span class="tag w">본인 확인</span>':''}</div>
+          <div class="ctx">${ctxHTML(i)}${i.item_type!=='glyph'?' <span class="tag w">본인 확인</span>':''}</div>
           <div class="ai">AI 판독 <b>${esc(i.guess||"□")}</b></div>
           <div id="a${i.id}">${actHTML(i)}</div>
         </div>
