@@ -32,12 +32,12 @@ function pB(it){return HEAD+(it.ctx?("이 조각은 같은 학생 답안의 다�
  "같은 반 학생들은 모두 미술 감상문(책 「똑같은 빨강은 없다」)을 썼다. 반 답안에 여러 번 나온 어휘: "+D.lex.join(", ")+"\n"+
  "이 반 손글씨의 자모 오독 경향: ㅈ을 ㄱ으로, ㅁ을 ㅇ으로, ㅕ를 ㅓ로, ㅣ를 ㅏ로 잘못 읽기 쉽고, 받침 없는 글자에 ㅇ·ㄱ 받침을 붙여 읽기 쉽다.\n"+
  "원칙: 글자 모양이 1순위다. 문맥·어휘·오독 경향은 모양이 애매한 글자의 후보를 고를 때만 쓴다. 문맥에 맞추려고 모양과 다른 글자를 만들지 않는다.\n"+RULE;}
-function row(it){const r=RES[it.id]||{};return `<tr id="t${it.id}"><td>${it.id}</td><td><img src="data:image/jpeg;base64,${it.img}" alt=""></td><td class="r">${r.A!=null?esc(r.A):'<span class="w">대기</span>'}</td><td class="r">${r.B!=null?esc(r.B):'<span class="w">대기</span>'}</td></tr>`;}
+function row(it){const r=RES[it.id]||{};return `<tr id="t${it.id}"><td>${it.id}</td><td><img src="data:image/jpeg;base64,${it.img}" alt=""></td><td class="r" id="a${it.id}">${r.A!=null?esc(r.A):'<span class="w">대기</span>'}</td><td class="r">${r.B!=null?esc(r.B):'<span class="w">대기</span>'}</td></tr>`;}
 function paint(){$("tb").innerHTML=D.items.map(row).join("");prog();}
 function prog(){const n=D.items.filter(i=>RES[i.id]&&RES[i.id].A!=null&&RES[i.id].B!=null).length;$("pgi").style.width=(n/D.items.length*100)+"%";$("msg").textContent=`${n} / ${D.items.length} 완료`;return n;}
-async function call(it,c){const r=await rpc("gz_hw_ab_call",{p_item:it.id,p_cond:c,p_prompt:c==="A"?pA():pB(it),p_img_b64:it.img});
+async function call(it,c){const cell=document.querySelector("#t"+it.id+" td:nth-child("+(c==="A"?3:4)+")");if(cell)cell.innerHTML='<span class="w">판독 중…</span>';const r=await rpc("gz_hw_ab_call",{p_item:it.id,p_cond:c,p_prompt:c==="A"?pA():pB(it),p_img_b64:it.img});
  if(!r||!r.ok)throw new Error(r&&r.msg||r&&r.err||"실패");(RES[it.id]=RES[it.id]||{})[c]=r.answer;const t=$("t"+it.id);if(t)t.outerHTML=row(it);prog();}
-async function run(){STOP=false;$("go").disabled=true;$("stop").disabled=false;
+async function run(){STOP=false;$("go").disabled=true;$("stop").disabled=false;$("msg").textContent="판독 요청 중… 첫 결과까지 10~40초 걸립니다";
  const q=[];D.items.forEach(it=>["A","B"].forEach(c=>{if(!(RES[it.id]&&RES[it.id][c]!=null))q.push([it,c]);}));let k=0;
  const w=async()=>{while(!STOP&&k<q.length){const [it,c]=q[k++];try{await call(it,c);}catch(e){$("msg").innerHTML=`<span class="err">중단: ${esc(e.message)}</span>`;STOP=true;}}};
  await Promise.all([w(),w()]);$("go").disabled=false;$("stop").disabled=true;if(prog()===D.items.length)$("msg").textContent="전체 완료 — 연구방에 「채점」이라고 말씀하세요";}
