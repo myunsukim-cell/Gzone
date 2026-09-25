@@ -30,7 +30,7 @@ button:disabled{opacity:.45;cursor:default}
 .row.done .crop{opacity:.55}
 .row.idt{background:#fff6e5}
 .row.cur{box-shadow:inset 4px 0 0 var(--head)}
-.crop{position:relative;width:100%;overflow:hidden;border:1px solid var(--line);border-radius:6px;background:#eef1f4;cursor:zoom-in;min-height:60px}
+.crop{position:relative;width:100%;overflow:hidden;border:0;outline:1px solid var(--line);border-radius:6px;background:#eef1f4;cursor:zoom-in;min-height:60px}
 .crop img{position:absolute;max-width:none;user-select:none;pointer-events:none}
 .crop .ln{position:absolute;left:0;right:0;border-top:2px solid #c8801acc;border-bottom:2px solid #c8801acc;background:#ffd76a26;pointer-events:none}
 .crop .gb{position:absolute;border:2px solid #d8342c;border-radius:3px;pointer-events:none}
@@ -116,7 +116,7 @@ function cropHTML(it){
   if(!it.bbox) return null;
   if(!u||!d) return `<span class="adj">원본 불러오는 중…</span>`;
   const v=cropBox(it),b=it.bbox,pct=n=>(n*100).toFixed(3)+'%';
-  let h=`<img src="${u}" alt="" style="width:${pct(1/v.w)};left:${pct(-v.x/v.w)};top:${pct(-v.y/v.h)}">`;
+  let h=`<img src="${u}" alt="" style="width:${pct(1/v.w)};left:0;top:0;transform:translate(${pct(-v.x)},${pct(-v.y)})">`;
   if(isBand(it)&&b.src==='band'){ // ±3행 밴드: 가운데 1행이 추정 위치
     h+=`<div class="ln" style="top:${pct(3/7)};height:${pct(1/7)}"></div><span class="adj b">위치가 대략입니다 · 눌러서 정확히</span>`;
   }else if(isBand(it)){h+=`<span class="adj b">위치가 대략입니다 · 눌러서 정확히</span>`;}
