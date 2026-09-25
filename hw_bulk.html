@@ -24,20 +24,34 @@ button:disabled{opacity:.45;cursor:default}
 .gh b{font-size:14px}
 .tag{border:1px solid var(--line);border-radius:9px;padding:0 7px;font-size:11px;color:#667}
 .tag.w{border-color:var(--warn);color:var(--warn)}
-.row{display:grid;grid-template-columns:150px 1fr 150px 120px;gap:10px;align-items:center;padding:8px 11px;border-bottom:1px solid #f1f4f7}
+.row{display:grid;grid-template-columns:minmax(0,560px) minmax(260px,1fr);gap:16px;align-items:start;padding:12px 14px;border-bottom:1px solid #e8edf2}
 .row:last-child{border-bottom:0}
-.row.done{background:#f3faf6;opacity:.6}
+.row.done{background:#f3faf6}
+.row.done .crop{opacity:.55}
 .row.idt{background:#fff6e5}
-.hd{padding:3px 11px;background:#fafbfc;font-size:10px;color:#889}
-.crop{width:150px;height:56px;border:1px solid var(--line);border-radius:5px;background-repeat:no-repeat;background-color:#f1f4f7;cursor:zoom-in;position:relative;overflow:hidden}
-.crop.none{display:flex;align-items:center;justify-content:center;font-size:11px;color:#a55;cursor:pointer;background:#fff4f4;border-color:#e0b0b0;text-align:center}
-.crop .adj{position:absolute;right:2px;bottom:2px;font-size:10px;background:#0009;color:#fff;border-radius:3px;padding:0 4px}
+.row.cur{box-shadow:inset 4px 0 0 var(--head)}
+.crop{position:relative;width:100%;overflow:hidden;border:1px solid var(--line);border-radius:6px;background:#eef1f4;cursor:zoom-in;min-height:60px}
+.crop img{position:absolute;max-width:none;user-select:none;pointer-events:none}
+.crop .ln{position:absolute;left:0;right:0;border-top:2px solid #c8801acc;border-bottom:2px solid #c8801acc;background:#ffd76a26;pointer-events:none}
+.crop .gb{position:absolute;border:2px solid #d8342c;border-radius:3px;pointer-events:none}
+.crop .adj{position:absolute;left:6px;bottom:6px;font-size:11.5px;background:#1a3a5cdd;color:#fff;border-radius:4px;padding:2px 7px}
 .crop .adj.b{background:#c8801a}
-.ctx{line-height:1.7;font-size:13.5px;min-width:0}
-.ctx b{background:#ffe08a;padding:0 3px;border-radius:3px;font-weight:700}
-.guess{font-size:16px;font-weight:700;text-align:center;padding:6px;background:#fff9e8;border:1px solid #f0dca0;border-radius:5px}
-.row input{width:100%;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:5px}
-.row input.ch{border-color:var(--warn);background:#fffdf5}
+.crop .seen{position:absolute;right:6px;top:6px;font-size:11px;background:#1e7a4a;color:#fff;border-radius:4px;padding:1px 6px;display:none}
+.row.seen .crop .seen{display:block}
+.crop.none{display:flex;align-items:center;justify-content:center;font-size:12px;color:#a55;cursor:pointer;background:#fff4f4;border-color:#e0b0b0;text-align:center;height:80px}
+.side{display:flex;flex-direction:column;gap:8px;min-width:0}
+.ctx{line-height:1.8;font-size:15px}
+.ctx b{background:#ffe08a;padding:1px 4px;border-radius:3px;font-weight:700}
+.ai{font-size:12px;color:#667}
+.ai b{font-size:14px;color:var(--ink)}
+.act{display:flex;gap:6px}
+.act input{flex:1;min-width:0;font-size:17px;padding:7px 9px;border:1px solid var(--line);border-radius:6px}
+.act input.ch{border-color:var(--warn);background:#fffdf5}
+.act button{white-space:nowrap;font-weight:700}
+.act button.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+.act button.fx{background:var(--warn);color:#fff;border-color:var(--warn)}
+.keys{font-size:11px;color:#8a94a0}
+@media (max-width:760px){.row{grid-template-columns:1fr}}
 .done-b{color:var(--ok);font-size:12px;font-weight:700}
 .big{position:fixed;inset:0;background:#000d;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;padding:14px}
 .big .hint{color:#fff;font-size:13px;margin-bottom:8px}
@@ -56,10 +70,10 @@ button:disabled{opacity:.45;cursor:default}
   <input id="who" placeholder="검수자 이름" style="width:110px">
 </header>
 <div class="bulkbar">
-  <button class="g" id="allok">화면의 대기 전부 「확인」으로 저장</button>
+  <button class="g" id="allok" disabled>본 항목 「맞음」 저장</button>
   <button class="p" id="saveEdited">고친 것만 저장</button>
   <button id="pickstart" style="border-color:var(--warn);color:var(--warn);font-weight:700">위치 찍기 연속 시작</button>
-  <span class="msg" id="note">① 원본 조각 · ② AI 판독 · ③ 수정. 조각이 없으면 클릭해 원본에서 드래그로 위치를 찍으세요.</span>
+  <span class="msg" id="note">원본을 보고 맞으면 Enter, 틀리면 고쳐 쓰고 Enter. 화면에 1초 이상 보인 항목만 일괄 저장됩니다.</span>
 </div>
 <div id="body"></div>
 
@@ -85,51 +99,82 @@ async function load(){
   paint();
   for(const p of [...new Set(ITEMS.map(i=>i.img_path).filter(Boolean))]){
     try{const s=await rpc("gz_hw_sign_read",{p_bucket:"klean-students",p_path:p,p_expires:7200});
-      IMG[p]=s.url;const im=new Image();im.onload=()=>{DIM[p]={w:im.naturalWidth,h:im.naturalHeight};repaintCrops();};im.src=s.url;
+      IMG[p]=s.url;const im=new Image();im.onload=()=>{DIM[p]={w:im.naturalWidth,h:im.naturalHeight};repaintCrops(p);};im.src=s.url;
     }catch(e){}
   }
 }
-function cropStyle(it){
-  const u=IMG[it.img_path],d=DIM[it.img_path];if(!u||!d||!it.bbox)return null;
-  const b=it.bbox,W=150,Hh=56;
-  const band=(b.src==='band'||b.src==='header');
-  const pad=band?0.02:0.6;
-  const bw=b.w*(1+pad*2),bh=band?b.h:Math.max(b.h*(1+pad*2),bw*Hh/W*(d.w/d.h));
-  const bx=Math.max(0,b.x-b.w*pad),by=band?b.y:Math.max(0,b.y-(bh-b.h)/2);
-  const scale=Math.min(W/(bw*d.w),Hh/(bh*d.h));
-  return `background-image:url("${u}");background-size:${d.w*scale}px ${d.h*scale}px;background-position:-${bx*d.w*scale}px -${by*d.h*scale}px`;
+const SEEN=new Set();let OBS=null;
+const isBand=it=>it.bbox&&(it.bbox.src==='band'||it.bbox.src==='header');
+function cropBox(it){ // 보여줄 원본 영역(비율)
+  const b=it.bbox;
+  if(isBand(it)) return {x:Math.max(0,b.x-0.01),y:b.y,w:Math.min(1,b.w+0.02),h:b.h};
+  const w=Math.min(1,Math.max(b.w*5,0.28)),h=Math.min(1,Math.max(b.h*3.4,0.07));
+  return {x:Math.min(Math.max(0,b.x+b.w/2-w/2),1-w),y:Math.min(Math.max(0,b.y+b.h/2-h/2),1-h),w,h};
 }
-function repaintCrops(){ITEMS.forEach(i=>{const el=document.getElementById("c"+i.id);if(!el)return;const st=cropStyle(i);
-  if(st){const band=(i.bbox.src==='band'||i.bbox.src==='header');el.className="crop";el.setAttribute("style",st);
-    el.innerHTML=band?'<span class="adj b">대략 · 클릭해 정확히</span>':'<span class="adj">위치 조정</span>';}});}
-
+function cropHTML(it){
+  const u=IMG[it.img_path],d=DIM[it.img_path];
+  if(!it.bbox) return null;
+  if(!u||!d) return `<span class="adj">원본 불러오는 중…</span>`;
+  const v=cropBox(it),b=it.bbox,pct=n=>(n*100).toFixed(3)+'%';
+  let h=`<img src="${u}" alt="" style="width:${pct(1/v.w)};left:${pct(-v.x/v.w)};top:${pct(-v.y/v.h)}">`;
+  if(isBand(it)&&b.src==='band'){ // ±3행 밴드: 가운데 1행이 추정 위치
+    h+=`<div class="ln" style="top:${pct(3/7)};height:${pct(1/7)}"></div><span class="adj b">위치가 대략입니다 · 눌러서 정확히</span>`;
+  }else if(isBand(it)){h+=`<span class="adj b">위치가 대략입니다 · 눌러서 정확히</span>`;}
+  else{h+=`<div class="gb" style="left:${pct((b.x-v.x)/v.w)};top:${pct((b.y-v.y)/v.h)};width:${pct(b.w/v.w)};height:${pct(b.h/v.h)}"></div><span class="adj">위치 조정</span>`;}
+  return h+`<span class="seen">봤음</span>`;
+}
+function cropAttr(it){
+  const d=DIM[it.img_path];if(!it.bbox)return '';
+  const v=cropBox(it);
+  return d?`style="aspect-ratio:${(v.w*d.w).toFixed(1)}/${(v.h*d.h).toFixed(1)};max-height:${isBand(it)?420:220}px"`:'style="height:160px"';
+}
+function repaintCrops(p){ITEMS.forEach(i=>{if(p&&i.img_path!==p)return;const el=document.getElementById("c"+i.id);if(!el||!i.bbox)return;
+  const at=cropAttr(i).match(/style="([^"]*)"/);el.setAttribute("style",at?at[1]:"");el.className="crop";el.innerHTML=cropHTML(i);});
+  observe();}
+function observe(){
+  if(OBS)OBS.disconnect();
+  const T={};
+  OBS=new IntersectionObserver(es=>es.forEach(e=>{const id=+e.target.dataset.id,it=ITEMS.find(x=>x.id===id);
+    if(e.isIntersecting&&it&&DIM[it.img_path]){T[id]=setTimeout(()=>{markSeen(id);},1000);}else{clearTimeout(T[id]);}}),{threshold:0.6});
+  document.querySelectorAll(".crop[data-id]").forEach(el=>{if(!SEEN.has(+el.dataset.id))OBS.observe(el);});
+}
+function markSeen(id){if(SEEN.has(id))return;SEEN.add(id);const r=document.getElementById("r"+id);if(r)r.classList.add("seen");stat();}
+function visRows(){const f=document.getElementById("filt").value;return ITEMS.filter(i=>f==="all"?1:f==="done"?i.status!=="pending":i.status==="pending");}
+function actHTML(i){
+  if(i.status!=='pending') return `<div class="done-b">완료 · ${esc(i.fix||"")} · ${esc(i.reviewed_by||"")}</div>`;
+  return `<div class="act"><input id="f${i.id}" value="${esc(i.fix||i.guess||"")}" data-o="${esc(i.guess||"")}" oninput="chg(${i.id})" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();one(${i.id},true);}" onfocus="cur(${i.id})"><button class="ok" id="b${i.id}" onclick="one(${i.id},true)">맞음</button></div>`;
+}
+function chg(id){const el=document.getElementById("f"+id),b=document.getElementById("b"+id);const c=el.value.trim()!==el.dataset.o;
+  el.classList.toggle("ch",c);b.textContent=c?"고쳐 저장":"맞음";b.className=c?"fx":"ok";}
+function cur(id){document.querySelectorAll(".row.cur").forEach(r=>r.classList.remove("cur"));const r=document.getElementById("r"+id);if(r){r.classList.add("cur");markSeen(id);}}
 function paint(){
-  const f=document.getElementById("filt").value;
-  const rows=ITEMS.filter(i=>f==="all"?1:f==="done"?i.status!=="pending":i.status==="pending");
-  const by={};rows.forEach(i=>{(by[i.feedback_id]=by[i.feedback_id]||[]).push(i);});
-  document.getElementById("body").innerHTML=Object.values(by).map(g=>{
+  const rows=visRows();
+  const by=new Map();rows.forEach(i=>{if(!by.has(i.feedback_id))by.set(i.feedback_id,[]);by.get(i.feedback_id).push(i);});
+  document.getElementById("body").innerHTML=[...by.values()].map(g=>{
     const h=g[0],tr=(h.traits||[]).map(t=>`<span class="tag w">${esc(t)}</span>`).join("");
     return `<div class="grp"><div class="gh"><b>${esc(h.student_name)}</b><span class="tag">${g.length}건</span>${tr}<span class="sp"></span>
-      <button class="s" onclick="grpOk(${h.feedback_id})">이 학생 전부 확인</button></div>
-      <div class="row hd"><span>① 원본 조각</span><span>문맥</span><span>② AI 판독</span><span>③ 수정</span></div>`+
-      g.map(i=>{const st=cropStyle(i);
-        return `<div class="row ${i.status!=='pending'?'done':''} ${i.item_type!=='glyph'?'idt':''}" id="r${i.id}">
-        <div id="c${i.id}" class="crop ${st?'':'none'}" ${st?`style="${st}"`:''} onclick="openBig(${i.id})">${st?((i.bbox.src==='band'||i.bbox.src==='header')?'<span class="adj b">대략 · 클릭해 정확히</span>':'<span class="adj">위치 조정</span>'):'위치 없음<br>클릭해 찍기'}</div>
-        <div class="ctx">${esc((i.ctx_before||"").slice(-20))}<b>${esc(i.guess||"□")}</b>${esc((i.ctx_after||"").slice(0,20))}${i.item_type!=='glyph'?' <span class="tag w">본인 확인</span>':''}</div>
-        <div class="guess">${esc(i.guess||"□")}</div>
-        <div>${i.status==='pending'
-          ?`<input id="f${i.id}" value="${esc(i.fix||i.guess||"")}" data-o="${esc(i.guess||"")}" oninput="this.classList.toggle('ch',this.value!==this.dataset.o)"><button class="s" style="margin-top:4px;width:100%" onclick="one(${i.id})">저장</button>`
-          :`<input value="${esc(i.fix||"")}" disabled><div class="done-b">완료 ${esc(i.reviewed_by||"")}</div>`}</div>
+      <button class="s" onclick="grpOk(${h.feedback_id})">이 학생 본 항목 「맞음」</button></div>`+
+      g.map(i=>{const c=cropHTML(i);
+        return `<div class="row ${i.status!=='pending'?'done':''} ${i.item_type!=='glyph'?'idt':''} ${SEEN.has(i.id)?'seen':''}" id="r${i.id}">
+        <div id="c${i.id}" data-id="${i.id}" class="crop ${i.bbox?'':'none'}" ${cropAttr(i)} onclick="openBig(${i.id})">${c!==null?c:'위치 없음<br>눌러서 원본에서 찍기'}</div>
+        <div class="side">
+          <div class="ctx">${esc((i.ctx_before||"").slice(-22))}<b>${esc(i.guess||"□")}</b>${esc((i.ctx_after||"").slice(0,22))}${i.item_type!=='glyph'?' <span class="tag w">본인 확인</span>':''}</div>
+          <div class="ai">AI 판독 <b>${esc(i.guess||"□")}</b></div>
+          <div id="a${i.id}">${actHTML(i)}</div>
+        </div>
       </div>`;}).join("")+`</div>`;
   }).join("")||'<div class="grp"><div class="row">해당 항목 없음</div></div>';
-  const p=ITEMS.filter(i=>i.status==="pending").length,nb=ITEMS.filter(i=>!i.bbox).length;
-  const ap=ITEMS.filter(i=>i.bbox&&i.bbox.src!=="grid"&&i.bbox.by!=="_smoketest"&&!(i.bbox.by&&i.bbox.by!=="sim")).length;
-  document.getElementById("stat").textContent=`대기 ${p} / 전체 ${ITEMS.length} · 대략위치 ${ap}`;
+  observe();stat();
 }
-
+function stat(){
+  const p=ITEMS.filter(i=>i.status==="pending"),sp=p.filter(i=>SEEN.has(i.id)).length;
+  const ap=ITEMS.filter(i=>i.status==="pending"&&needPick(i)).length;
+  document.getElementById("stat").textContent=`대기 ${p.length} / 전체 ${ITEMS.length} · 봤음 ${sp} · 위치 대략 ${ap}`;
+  const b=document.getElementById("allok");b.disabled=!sp;b.textContent=`본 항목 ${sp}건 「맞음」 저장`;
+}
 function openBig(id){
   const it=ITEMS.find(x=>x.id===id);if(!it||!IMG[it.img_path])return;
-  PICK=it;const img=document.getElementById("bigimg");img.src=IMG[it.img_path];
+  PICK=it;markSeen(it.id);const img=document.getElementById("bigimg");img.src=IMG[it.img_path];
   const d=DIM[it.img_path];let sc=Math.min(1,(window.innerWidth*0.94)/(d?d.w:2000));
   if(it.bbox&&d&&(it.bbox.src==='band'||it.bbox.src==='header')) sc=Math.min(2.2,(window.innerWidth*0.92)/(it.bbox.w*d.w));
   img.style.width=(d?d.w*sc:2000)+"px";
@@ -143,6 +188,7 @@ function openBig(id){
   document.getElementById("bigcnt").textContent=`위치 미확정 ${left}건 남음`;
   document.getElementById("big").style.display="flex";
 }
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeBig();});
 function closeBig(){document.getElementById("big").style.display="none";PICK=null;DRAG=null;}
 const wrap=document.getElementById("bigwrap");
 function pos(e){const r=document.getElementById("bigimg").getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
@@ -172,20 +218,30 @@ document.getElementById("bignext").onclick=async()=>{
 };
 
 function mark(it,by){it.status="confirmed";it.reviewed_by=by;}
-async function one(id){const w=who();if(!w)return;const it=ITEMS.find(x=>x.id===id);const fix=document.getElementById("f"+id).value.trim();
+function doneRow(it){const r=document.getElementById("r"+it.id);if(!r)return;r.classList.add("done");r.classList.remove("cur");
+  const a=document.getElementById("a"+it.id);if(a)a.innerHTML=actHTML(it);}
+function nextPending(id){const v=visRows().filter(i=>i.status==="pending");const k=v.findIndex(i=>i.id===id);
+  return v.slice(k+1).concat(v.slice(0,Math.max(k,0))).find(i=>i.id!==id);}
+async function one(id,adv){const w=who();if(!w)return;const it=ITEMS.find(x=>x.id===id);const fix=document.getElementById("f"+id).value.trim();
   if(!fix){alert("글자를 입력하세요.");return;}
+  markSeen(id);
   try{const r=await rpc("gz_hw_confirm",{p_id:id,p_fix:fix,p_by:w});
-    if(r.ok){mark(it,w);it.fix=fix;paint();repaintCrops();note(`저장 — ${it.guess||"□"} → ${fix}`);}else note("실패: "+(r.err||""));
+    if(r.ok){mark(it,w);it.fix=fix;doneRow(it);stat();note(`저장 — ${it.guess||"□"} → ${fix}`);
+      if(adv){const n=nextPending(id);if(n){const el=document.getElementById("f"+n.id);if(el){document.getElementById("r"+n.id).scrollIntoView({block:"center",behavior:"smooth"});el.focus({preventScroll:true});el.select();}}}
+    }else note("실패: "+(r.err||r.reason||""));
   }catch(e){note("오류: "+e.message.slice(0,80));}}
 async function bulk(list){const w=who();if(!w)return;if(!list.length){note("저장할 항목이 없습니다.");return;}note(`저장 중… ${list.length}건`);
   try{const r=await rpc("gz_hw_confirm_bulk",{p_items:list.map(x=>({id:x.id,fix:x.fix})),p_by:w});
-    list.forEach(x=>{const it=ITEMS.find(y=>y.id===x.id);if(it){mark(it,w);it.fix=x.fix;}});
-    paint();repaintCrops();note(`저장 완료 — ${r.done}건${r.fail?` · 실패 ${r.fail}`:""}`);
+    list.forEach(x=>{const it=ITEMS.find(y=>y.id===x.id);if(it){mark(it,w);it.fix=x.fix;doneRow(it);}});
+    stat();note(`저장 완료 — ${r.done}건${r.fail?` · 실패 ${r.fail}`:""}`);
   }catch(e){note("오류: "+e.message.slice(0,90));}}
-function collect(fid){return ITEMS.filter(i=>i.status==="pending"&&(!fid||i.feedback_id===fid))
+function collect(fid){ // 화면에서 실제로 본 대기 항목만
+  return ITEMS.filter(i=>i.status==="pending"&&SEEN.has(i.id)&&(!fid||i.feedback_id===fid))
   .map(i=>({id:i.id,fix:(document.getElementById("f"+i.id)||{}).value?.trim()||i.guess||""})).filter(x=>x.fix);}
-function grpOk(fid){bulk(collect(fid));}
-document.getElementById("allok").onclick=()=>{const n=ITEMS.filter(i=>i.status==="pending").length;if(!confirm(`대기 ${n}건을 칸에 있는 값으로 저장합니다. 진행할까요?`))return;bulk(collect(null));};
+function grpOk(fid){const all=ITEMS.filter(i=>i.status==="pending"&&i.feedback_id===fid).length,l=collect(fid);
+  if(l.length<all)note(`안 본 ${all-l.length}건은 제외했습니다. 원본을 보고 다시 누르세요.`);bulk(l);}
+document.getElementById("allok").onclick=()=>{const n=ITEMS.filter(i=>i.status==="pending").length,l=collect(null);
+  if(!confirm(`본 항목 ${l.length}건을 칸에 있는 값으로 저장합니다.${n-l.length?`\n안 본 ${n-l.length}건은 저장하지 않습니다.`:""}`))return;bulk(l);};
 document.getElementById("saveEdited").onclick=()=>{bulk(ITEMS.filter(i=>i.status==="pending").map(i=>{const el=document.getElementById("f"+i.id);if(!el)return null;const v=el.value.trim();return(v&&v!==(i.guess||""))?{id:i.id,fix:v}:null;}).filter(Boolean));};
 document.getElementById("pickstart").onclick=()=>{const t=ITEMS.find(i=>i.status==="pending"&&needPick(i));if(t)openBig(t.id);else note("위치 찍을 항목이 없습니다.");};
 document.getElementById("filt").addEventListener("change",()=>{paint();repaintCrops();});
