@@ -265,5 +265,8 @@ document.getElementById("pickstart").onclick=()=>{const t=ITEMS.find(i=>i.status
 document.getElementById("filt").addEventListener("change",()=>{paint();repaintCrops();});
 load().catch(e=>document.getElementById("stat").textContent="불러오기 실패: "+e.message.slice(0,60));
 </script>
+<script>(function(){try{const w=new URLSearchParams(location.search).get("who");if(!w)return;
+const set=()=>{const el=document.getElementById("who");if(!el)return;el.value=w;el.readOnly=true;el.title="G-MAP 로그인 계정";el.style.background="#eef6f1";};
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",set);else set();}catch(e){}})();</script>
 </body>
 </html>
