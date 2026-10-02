@@ -425,19 +425,7 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
       </div>
       <div class="card">
         <h3>강의 보기<span class="sub">영상과 교안을 같이 봐요 · 확인 문제는 영상 아래</span></h3>
-        <div class="sync" id="gzPlayer"><div class="screen"><span class="playbtn">▶</span><span id="gzPlayTtl">불러오는 중…</span></div><div class="gyoan" id="gzGyoan"></div></div>
-        <div class="checkq">
-          <p class="cap">확인 문제</p>
-          <p style="font-size:16.2px"><b>Q.</b> ‘국물’→[궁물]의 변동은?</p>
-          <span class="opt">① 교체</span><span class="opt">② 탈락</span><span class="opt">③ 첨가</span><span class="opt">④ 축약</span>
-          <p class="mini" style="margin-top:5px">틀리면 그 자리에서 오답노트로 저장.</p>
-        </div>
-        <div style="margin-top:9px;border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:#fff">
-          <div style="display:flex;align-items:baseline;gap:10px"><b style="font-family:'Noto Serif KR';font-size:16.2px">📖 교안 전체 보기</b><span class="mini">음운의 변동 step3 · 6쪽</span>
-            <span style="margin-left:auto"><button class="btn ghost sm">◀ 이전</button> <b class="mini" style="color:var(--ink)">2 / 6</b> <button class="btn ghost sm">다음 ▶</button></span></div>
-          <div style="margin-top:7px;border:1px solid var(--line);border-radius:6px;padding:12px;background:#fdfdfb;font-size:15.6px;line-height:1.8">
-            <b>2. 교체 — 음절의 끝소리 규칙</b><br>국어의 음절 끝에서 발음되는 자음은 ㄱ, ㄴ, ㄷ, ㄹ, ㅁ, ㅂ, ㅇ의 일곱 가지뿐이다. 이 밖의 자음이 음절 끝에 오면 이 일곱 자음 중 하나로 바뀌어 발음되는데, 이를 음절의 끝소리 규칙이라 한다. … <span class="frogmark">밑줄을 그으면 오답노트에 표시</span>로 저장된다.</div>
-        </div>
+        <div id="gzWatch"><p class="mini">내 교안 불러오는 중…</p></div>
         <p class="wire">페어링 work_id+STEP / video_links.seg / 확인문제→frog / 교안 페이지 뷰=lecture_contents 본문(6,853건)·밑줄=전자노트 ｜ 영상 5,944편 적재 완(#3274) — 강좌↔편 결속·Bunny 전환 대기 · 진도=편 단위</p>
       
       </div>
@@ -862,6 +850,7 @@ function gzBuildLesson(){
     gzLessonState.list=list; gzLessonState.done=done;
     var nxt=Math.min(done, list.length-1);
     var head=document.getElementById('gzLessonHead');
+    if(!list.length){ head.innerHTML='<b>'+GZT()+'</b><span class="mini">이 책의 교안이 아직 올라오지 않았어요</span>'; return; } /* [seq 278] 0단원인데 「1번째 단원 열기」가 뜨던 결함 */
     head.innerHTML='<b>'+GZT()+'</b><span class="mini">'+done+' / '+list.length+' 단원</span>'
       +'<button onclick="gzOpenLesson()" style="margin-left:auto;background:#12211a;color:#fff;border:0;border-radius:8px;padding:9px 15px;font-size:13px;font-weight:800;cursor:pointer">이어서 '+(done+1)+'번째 단원 열기</button>';
   });
@@ -1499,16 +1488,27 @@ gzLoadFill();
     fill('gzCourse',h);
   });
 
-  /* ── 플레이어 ── 영상 자산 0건: 화면 자리 유지 + 교안 편 목록 결선 */
-  q("SELECT coalesce(lc.work_title,'') AS wt, lc.content_type AS ct FROM lecture_contents lc ORDER BY lc.updated_at DESC NULLS LAST LIMIT 4")
-  .then(function(r){
-    var t=document.getElementById('gzPlayTtl');
-    if(t)t.textContent = '등록된 영상 없음 — 영상이 올라오면 여기서 재생됩니다';
-    fill('gzGyoan', r.length? r.map(function(x,i){
-      return '<div class="sec'+(i===0?' nowseg':'')+'">'+esc((x.wt||'교안').slice(0,26))
-        +' <span class="mini">'+esc(x.ct||'')+'</span>'+(i===0?' <span class="mini">◀ 최근 교안</span>':'')+'</div>'; }).join('')
-      : '<div class="sec">교안이 등록되면 여기에 표시됩니다</div>');
-  });
+  /* ── 강의 보기 [seq 278 · 2026-10-02] — 목업 고정 글자(국물→궁물 문제·음운의 변동 6쪽·2/6)와
+       학원 전체 최근 교안 4건 표시를 걷어내고, 이 학생이 지금 공부하는 책의 단원 목록으로 바꾼다.
+       원천 = 「이어서 공부하기」가 이미 불러온 gzLessonState(같은 조회 재사용 — 새 조회 형태 없음) */
+  (function watch(n){
+    var st=window.gzLessonState, box=document.getElementById('gzWatch'); if(!box)return;
+    var none=function(id,msg){ box.innerHTML='<div style="border:1px dashed var(--line);border-radius:9px;padding:12px;color:var(--dim);font-size:15.6px">'+msg+'</div>'; };
+    if(!st||!st.list){ if((n||0)<40) setTimeout(function(){watch((n||0)+1);},500); else none('gzWatch','공부할 책이 아직 정해지지 않았어요'); return; }
+    var L=st.list.length, d=Math.min(st.done,L), t=(typeof GZT==='function'?GZT():'')||'내 책';
+    if(!L){ none('gzWatch','📖 '+esc(t)+' — 이 책의 교안이 아직 올라오지 않았어요. 선생님께 알려 주세요.'); return; }
+    var chips=st.list.map(function(x,i){
+      var on=i<d, nx=i===d;
+      return '<span style="display:inline-block;min-width:30px;text-align:center;margin:2px;padding:4px 7px;border-radius:8px;font-size:12.5px;font-weight:800;'
+        +(on?'background:#2c6e49;color:#fff':nx?'background:#ffd23f;color:#12211a;border:1px solid #12211a':'background:#f2efe6;color:#8a8577')+'">'+(i+1)+(on?' ✓':nx?' 다음':'')+'</span>';}).join('');
+    box.innerHTML='<div style="border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:#fff">'
+      +'<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><b style="font-family:\'Noto Serif KR\';font-size:16.2px">📖 '+esc(t)+'</b>'
+      +'<span class="mini">'+d+' / '+L+' 단원 마침</span></div>'
+      +'<div style="margin:8px 0">'+chips+'</div>'
+      +(d<L?'<button onclick="gzOpenLesson()" style="background:#12211a;color:#fff;border:0;border-radius:8px;padding:9px 15px;font-size:13px;font-weight:800;cursor:pointer">'+(d+1)+'번째 단원 열기</button>'
+           :'<b style="color:#2c6e49">이 책의 단원을 모두 마쳤어요</b>')
+      +'<p class="mini" style="margin-top:6px">단원을 열면 영상·교안·확인 문제가 차례로 나와요. 틀린 문제는 오답 노트에 저장돼요.</p></div>';
+  })(0);
 })();
 </script>
 
