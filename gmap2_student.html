@@ -268,6 +268,9 @@ function gzOrder(){
     var d1=document.getElementById('pmDone'), d3=document.getElementById('qmDone');
     function mark(id,ok,lab){var e=document.getElementById(id); if(!e)return; e.classList.toggle('ok',!!ok); e.textContent=lab+(ok?' ✓':'');}
     mark('gr1',d1&&d1.style.display!=='none','① 수업 전'); mark('gr3',d3&&d3.style.display!=='none','③ 수업 후');
+    /* [seq 277] 「점수와 출석」 다음 일정 줄 — 고정 글자(월 18:00 · 10/28) 대신 실제 값 */
+    var pe=document.getElementById('pbExam'), ex=(pe&&/D-\d+/.test(pe.textContent))?pe.textContent.match(/D-\d+/)[0]:'';
+    document.querySelectorAll('.gzNextLine').forEach(function(x){ x.textContent='🗓 '+w.textContent+(ex?' · 학교 시험 '+ex:''); });
   }
   var n=0, t=setInterval(function(){ paint(); gzOrder(); if(++n>20)clearInterval(t); },1000);
   document.addEventListener('click',function(e){ if(e.target&&(e.target.id==='pmBtn'||e.target.id==='qmBtn'))setTimeout(paint,1500); });
@@ -311,6 +314,8 @@ function e(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {
 function md(d){return d?String(d).slice(5).replace('-','/'):'';}
 fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_week_review',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify({p_sid:sk.sid,p_k:sk.k})}).then(function(r){return r.json();}).then(function(w){
  var box=document.getElementById('wrBox');if(!box||!w||!w.ok)return;
+ /* [seq 277] 과제 기한 — 고정 글자 8/14(금) 대신 최근 수업의 과제 기한 */
+ (function(){var d=(w.lesson||{}).due,el=document.getElementById('gzHwDueSub');if(!el)return;if(!d){el.textContent='기한 미정';return;}var D=new Date(d+'T00:00:00+09:00');el.textContent='기한 '+(D.getMonth()+1)+'/'+D.getDate()+'('+'일월화수목금토'[D.getDay()]+')';})();
  var L=w.lesson||{},G=w.goals||{},S=w.study||{},W=w.wrong||{},X=w.exam;
  var row=function(h,b){return '<div style="display:grid;grid-template-columns:112px 1fr;gap:8px;padding:5px 0;border-top:1px dashed #e3d6b8"><b style="color:#7a5a12">'+h+'</b><div>'+b+'</div></div>';};
  var hw=L.date?(md(L.date)+' 수업 · 과제 '+(L.hw?'「'+e(L.hw)+'」':'')+(L.hw_status?' <b>'+e(L.hw_status)+'</b>':' 결과 미기록')+(L.next?' · 다음: '+e(L.next):'')):'아직 수업 기록이 없어요';
@@ -415,7 +420,7 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
     <div>
       <p class="axcap">내가 하는 것</p>
       <div class="card">
-        <h3>이번 주 과제 내기<span class="sub">기한 8/14(금)</span></h3>
+        <h3>이번 주 과제 내기<span class="sub" id="gzHwDueSub">기한 확인 중</span></h3>
         <div id="gzHwCard"><p class="mini">불러오는 중…</p></div>
       </div>
       <div class="card">
@@ -991,7 +996,7 @@ function gzBuildRec(){
       +'<div class="mini" style="margin-top:3px">출석 구분은 그날 수업 기록 기준이에요</div>'
       +'<table style="width:100%;border-collapse:collapse;font-size:11.5px;margin-top:7px">'+(tl||'<tr><td class="mini">시험 기록이 등록되면 여기에</td></tr>')+'</table>'
       +'<div class="mini" style="margin-top:5px">점이 3개 되면 선그래프로 · 내신·모의 점수는 기록이 시작되면 여기에</div>'
-      +'<div style="font-size:12px;margin-top:7px">🗓 다음 일정 — 정규 월 18:00 · 학교 시험 10/28</div></div>';
+      +'<div class="gzNextLine" style="font-size:12px;margin-top:7px">🗓 다음 일정 불러오는 중…</div></div>';
     /* 1 통장 — [수업+자습+받은 것] 주 통합 + 주 펼침 */
     var wkMap={};
     wkC.forEach(function(w){wkMap[w.wk]=wkMap[w.wk]||{}; wkMap[w.wk].c=w;});
