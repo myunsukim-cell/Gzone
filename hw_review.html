@@ -95,7 +95,9 @@ mark{background:#ffe9a8;padding:0 1px}
 <script>
 const URL_="https://qcnsadcpsonuxnjyrlez.supabase.co";
 const KEY="sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0";
-const H={apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json"};
+/* [2026-10-02] 공개 키 읽기 회수(v_hw_* anon 401) → 관문이 postMessage로 넘기는 로그인 토큰(gz_jwt)으로 부른다 */
+let JWT=null;
+const H={apikey:KEY,get Authorization(){return "Bearer "+(JWT||KEY);},"Content-Type":"application/json"};
 let ROWS=[],CUR=null;
 
 async function rest(p){const r=await fetch(URL_+"/rest/v1/"+p,{headers:H});if(!r.ok)throw new Error(await r.text());return r.json();}
@@ -235,7 +237,11 @@ document.getElementById("save").onclick=async()=>{
   }catch(e){document.getElementById("note").textContent="오류: "+e.message.slice(0,90);}
   btn.disabled=false;
 };
-load().catch(e=>document.getElementById("stat").textContent="불러오기 실패: "+e.message.slice(0,60));
+let STARTED=false;function start(){if(STARTED)return;STARTED=true;
+  if(!JWT){document.getElementById("stat").textContent="로그인 필요 — 관문(G-MAP 2.0)에 로그인한 뒤 「첨삭」 탭에서 여세요";return;}
+  load().catch(e=>document.getElementById("stat").textContent="불러오기 실패: "+e.message.slice(0,60));}
+window.addEventListener("message",e=>{if(e.origin.indexOf("supabase.co")<0&&e.origin.indexOf("github.io")<0&&e.origin!=="null")return;if(e.data&&e.data.gz_jwt){JWT=e.data.gz_jwt;start();}});
+setTimeout(start,3000);
 </script>
 <script>(function(){try{const w=new URLSearchParams(location.search).get("who");if(!w)return;
 const set=()=>{const el=document.getElementById("who");if(!el)return;el.value=w;el.readOnly=true;el.title="G-MAP 로그인 계정";el.style.background="#eef6f1";};
