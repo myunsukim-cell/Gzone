@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><!-- 2.0 학생 페이지 · 보안 교체 gz_read→gz2_student_read 2026-09-05 #5911 결재① --><script>
+<head><script>/* [2026-10-02] 학생 링크 토큰 공통 — 학습 기록은 gz2_plan_day_add(토큰·계획 소유·날짜 검사) 경유 */
+window.gzSK=function(){var s=(location.search||'')+(window.__DESK_Q||'');return {sid:+((s.match(/[?&]sid=(\d+)/)||[])[1]||0),k:((s.match(/[?&]k=([a-f0-9]{32})/)||[])[1]||'')};};
+window.gzPlanAdd=function(row){var t=gzSK(),PK0='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';return fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_plan_day_add',{method:'POST',headers:{apikey:PK0,Authorization:'Bearer '+PK0,'Content-Type':'application/json'},body:JSON.stringify({p_sid:t.sid,p_k:t.k,p_row:row})}).then(function(r){return r.json();}).then(function(j){return new Response(JSON.stringify(j),{status:(j&&j.ok)?201:400});});};
+</script><!-- 2.0 학생 페이지 · 보안 교체 gz_read→gz2_student_read 2026-09-05 #5911 결재① --><script>
 /* [v0.42 seq10·11·12] 학생 고정값 해제 — 지금 작품·계획·영역을 학생에서 판정(gz_student_focus).
    페이지 어느 블록보다 먼저 필요해 동기 호출 1회로 받는다. 판정 불가면 area는 비고, 공부법 문장은 뜨지 않는다(틀린 문장 대신 침묵). */
 var GZFOCUS={work_id:null,title:'',genre:'',area:null,area_src:'',plan_id:null};
@@ -240,8 +243,8 @@ footer{max-width:1280px;margin:0 auto;padding:14px 26px 40px;color:var(--dim);fo
 <div><button id="pmBtn" type="button" style="padding:6px 12px;background:#1E4D3B;color:#fff;border:0;border-radius:6px;font-weight:700">보내기</button> <span id="pmR" style="font-size:12px;color:#8a8577"></span></div></div>
 <script>(function(){var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};var m=(location.search||'').match(/[?&]sid=(\d+)/);var sid=m?+m[1]:0;if(!sid)return;
 function g(i){return document.getElementById(i).value;}
-fetch(B+'gz2_card_context',{method:'POST',headers:H,body:JSON.stringify({p_sid:sid})}).then(function(r){return r.json();}).then(function(c){var p=c&&c.pre;var today=new Date(Date.now()+9*36e5).toISOString().slice(0,10);if(p&&String(p.created_at).slice(0,10)===today){document.getElementById('pmDone').style.display='block';document.getElementById('pmDone').textContent='오늘 답 완료 ✓ — 과제 '+((p.routines||{}).hw_done_pct==null?'—':(p.routines||{}).hw_done_pct+'%')+' · 어려웠던 것 '+(p.weaknesses||'—')+' · 목표 '+((p.challenge||{}).today_goal||'—')+' · 자신감 '+((p.mindset||{}).confidence||'—')+'/5';document.getElementById('pmForm').style.display='none';}}).catch(function(){});
-document.getElementById('pmBtn').onclick=function(){if(!g('pm4')){document.getElementById('pmR').textContent='4번 오늘 목표는 꼭 적어 주세요';return;}fetch(B+'gz2_pre_meta_save',{method:'POST',headers:H,body:JSON.stringify({p:{student_id:sid,hw_done_pct:g('pm1'),amount:g('pm2a'),difficulty:g('pm2b'),weakness:g('pm3'),today_goal:g('pm4'),confidence:g('pm5'),by:'학생 페이지'}})}).then(function(r){return r.json();}).then(function(r){document.getElementById('pmR').textContent=r.ok?'보냈어요 ✓ 선생님 카드에 표시됩니다':'실패 '+(r.reason||'');if(r.ok){document.getElementById('pmForm').style.display='none';document.getElementById('pmDone').style.display='block';document.getElementById('pmDone').textContent='오늘 답 완료 ✓';}});};})();</script></section>
+fetch(B+'gz2_card_context',{method:'POST',headers:H,body:JSON.stringify({p_sid:sid,p_k:gzSK().k})}).then(function(r){return r.json();}).then(function(c){var p=c&&c.pre;var today=new Date(Date.now()+9*36e5).toISOString().slice(0,10);if(p&&String(p.created_at).slice(0,10)===today){document.getElementById('pmDone').style.display='block';document.getElementById('pmDone').textContent='오늘 답 완료 ✓ — 과제 '+((p.routines||{}).hw_done_pct==null?'—':(p.routines||{}).hw_done_pct+'%')+' · 어려웠던 것 '+(p.weaknesses||'—')+' · 목표 '+((p.challenge||{}).today_goal||'—')+' · 자신감 '+((p.mindset||{}).confidence||'—')+'/5';document.getElementById('pmForm').style.display='none';}}).catch(function(){});
+document.getElementById('pmBtn').onclick=function(){if(!g('pm4')){document.getElementById('pmR').textContent='4번 오늘 목표는 꼭 적어 주세요';return;}fetch(B+'gz2_pre_meta_save',{method:'POST',headers:H,body:JSON.stringify({p:{student_id:sid,k:gzSK().k,hw_done_pct:g('pm1'),amount:g('pm2a'),difficulty:g('pm2b'),weakness:g('pm3'),today_goal:g('pm4'),confidence:g('pm5'),by:'학생 페이지'}})}).then(function(r){return r.json();}).then(function(r){document.getElementById('pmR').textContent=r.ok?'보냈어요 ✓ 선생님 카드에 표시됩니다':'실패 '+(r.reason||'');if(r.ok){document.getElementById('pmForm').style.display='none';document.getElementById('pmDone').style.display='block';document.getElementById('pmDone').textContent='오늘 답 완료 ✓';}});};})();</script></section>
 <section id="postmeta" style="margin:10px 12px;padding:12px 14px;border:1.5px solid #1E4D3B;border-radius:10px;background:#eef5f1;font-size:13px">
 <b style="font-size:14px">오늘 수업 후 15문항</b> <span style="font-size:11px;color:#8a8577">수업 끝나고 답하면 선생님 코칭 카드 ③ 아래에 바로 뜹니다 · 같은 날 다시 보내면 덮어씁니다</span>
 <div id="qmDone" style="display:none;margin-top:6px;color:#1E4D3B;font-weight:700"></div>
@@ -269,7 +272,7 @@ document.getElementById('pmBtn').onclick=function(){if(!g('pm4')){document.getEl
 <div><button id="qmBtn" type="button" style="padding:6px 12px;background:#1E4D3B;color:#fff;border:0;border-radius:6px;font-weight:700">보내기</button> <span id="qmR" style="font-size:12px;color:#8a8577"></span></div></div>
 <script>(function(){var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};var m=(location.search||'').match(/[?&]sid=(\d+)/),km=(location.search||'').match(/[?&]k=([a-f0-9]{32})/);var sid=m?+m[1]:0;if(!sid)return;
 function g(i){var e=document.getElementById(i);return e?e.value.trim():'';}
-fetch(B+'gz2_card_context',{method:'POST',headers:H,body:JSON.stringify({p_sid:sid})}).then(function(r){return r.json();}).then(function(c){var p=c&&c.post;var today=new Date(Date.now()+9*36e5).toISOString().slice(0,10);if(p&&String(p.created_at).slice(0,10)===today){var sc=p.scores||{},st=p.strategy||{},ch=p.challenge||{};document.getElementById('qmDone').style.display='block';document.getElementById('qmDone').textContent='오늘 답 완료 ✓ — 만족도 '+(sc.satisfaction||'—')+'/5 · 집중 '+(sc.focus||'—')+'/5 · 어려웠던 것 '+(st.hard||'—')+' · 다음 주 목표 '+((ch.goals||[]).filter(Boolean).join(', ')||'—')+' · 잘한 점 '+(p.strengths||'—');}}).catch(function(){});
+fetch(B+'gz2_card_context',{method:'POST',headers:H,body:JSON.stringify({p_sid:sid,p_k:gzSK().k})}).then(function(r){return r.json();}).then(function(c){var p=c&&c.post;var today=new Date(Date.now()+9*36e5).toISOString().slice(0,10);if(p&&String(p.created_at).slice(0,10)===today){var sc=p.scores||{},st=p.strategy||{},ch=p.challenge||{};document.getElementById('qmDone').style.display='block';document.getElementById('qmDone').textContent='오늘 답 완료 ✓ — 만족도 '+(sc.satisfaction||'—')+'/5 · 집중 '+(sc.focus||'—')+'/5 · 어려웠던 것 '+(st.hard||'—')+' · 다음 주 목표 '+((ch.goals||[]).filter(Boolean).join(', ')||'—')+' · 잘한 점 '+(p.strengths||'—');}}).catch(function(){});
 document.getElementById('qmBtn').onclick=function(){if(!g('qm1')||!g('qm5')||!g('qm10a')){document.getElementById('qmR').textContent='1·5·10번은 꼭 적어 주세요';return;}var habits=[].slice.call(document.querySelectorAll('.qm6:checked')).map(function(x){return x.value;});var p={student_id:sid,k:km?km[1]:null,q1:g('qm1'),q2:g('qm2'),q3:g('qm3'),q4:g('qm4'),q5:g('qm5'),q6:habits,q7:g('qm7'),q8:g('qm8'),q9:g('qm9'),q10:[g('qm10a'),g('qm10b'),g('qm10c')].filter(Boolean),q11:g('qm11'),q12:g('qm12'),q13:g('qm13'),q14:g('qm14'),q15:g('qm15'),by:'2.0 학생'};
 fetch(B+'gz2_post_meta_save',{method:'POST',headers:H,body:JSON.stringify({p:p})}).then(function(r){return r.json();}).then(function(r){if(r&&r.ok){document.getElementById('qmR').textContent='';document.getElementById('qmDone').style.display='block';document.getElementById('qmDone').textContent='보냈습니다 ✓ 선생님 카드에 바로 반영됩니다';document.getElementById('qmForm').style.display='none';}else{document.getElementById('qmR').textContent='저장 실패: '+((r&&r.reason)||'');}}).catch(function(e){document.getElementById('qmR').textContent='오류 '+e;});};})();</script>
 </section><section id="lessonflow" style="margin:10px 12px;padding:12px 14px;border:1px solid #d8d4c8;border-radius:10px;background:#fff;font-size:13px">
@@ -610,7 +613,7 @@ function gzTurn(){
   var no=wFaces.filter(function(x){return GZF.done[x.id];}).length+1;
   var row={plan_id:GZP(),plan_date:gzD(new Date()),seq:100+Math.floor(Math.random()*150),kind:'세션',status:'완료',
     work_id:f.work_id,session_no:no,step_range:'lc'+f.id+'·'+f.content_type,alloc_minutes:f.m,done_at:new Date().toISOString()};
-  fetch(BASE+'/rest/v1/study_plan_day',{method:'POST',headers:{'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(row)})
+  gzPlanAdd(row)
   .then(function(r){ if(r.status===201){ document.getElementById('gzTurnMsg').textContent='기록됨 — '+row.step_range+' · 누적에 더해졌어요 (깎이지 않아요)'; gzLoadFill(); }
     else{ r.text().then(function(t){document.getElementById('gzTurnMsg').textContent='기록 실패 '+r.status;}); }
     btn.disabled=false; btn.textContent='이 면 넘김 ✓'; });
@@ -753,9 +756,7 @@ window.gzChk=function(el){
     el.dataset.saved='1';
     var body={plan_id:GZP(), plan_date:(function(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})(new Date()), kind:'점검', status:'완료',
       step_range:'mc:'+el.dataset.mid, seq:600+Number(el.dataset.mid), alloc_minutes:0};
-    fetch(BASE+'/rest/v1/study_plan_day',{method:'POST',
-      headers:{apikey:AK,Authorization:'Bearer '+AK,'Content-Type':'application/json','Prefer':'resolution=ignore-duplicates'},
-      body:JSON.stringify(body)}).then(function(){ gzWeekChk(); });
+    gzPlanAdd(body).then(function(){ gzWeekChk(); });
   }
 };
 window.gzWeekChk=function(){
@@ -1099,16 +1100,12 @@ window.gzRetryPick=function(fid,pick){
                         :'<b style="color:#a33">아직이에요</b> — 정답은 '+ans+'번.')
     +'<div style="margin-top:5px;color:#4a5550;line-height:1.6"><b>왜 틀렸었나</b> — '+(w.cause||'')+'<br><b>처방</b> — '+(w.clinic||'')+'</div>';
   var today=(function(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})(new Date());
-  fetch(BASE+'/rest/v1/study_plan_day',{method:'POST',
-    headers:{apikey:AK,Authorization:'Bearer '+AK,'Content-Type':'application/json','Prefer':'resolution=ignore-duplicates'},
-    body:JSON.stringify({plan_id:GZP(), plan_date:today, kind:'퀴즈', status:'완료', step_range:'frog:'+fid+':'+(ok?'O':'X'), seq:900+Number(fid), alloc_minutes:0, session_no:(ok?1:0), session_total:1})});
+  gzPlanAdd({plan_id:GZP(), plan_date:today, kind:'퀴즈', status:'완료', step_range:'frog:'+fid+':'+(ok?'O':'X'), seq:900+Number(fid), alloc_minutes:0, session_no:(ok?1:0), session_total:1});
 };
 
 window.gzRate=function(videoId,mood){
   var today=(function(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})(new Date());
-  fetch(BASE+'/rest/v1/study_plan_day',{method:'POST',
-    headers:{apikey:AK,Authorization:'Bearer '+AK,'Content-Type':'application/json','Prefer':'resolution=ignore-duplicates'},
-    body:JSON.stringify({plan_id:GZP(), plan_date:today, kind:'평가', status:'완료', step_range:'vid:'+videoId+':'+mood, seq:800+videoId, alloc_minutes:0})})
+  gzPlanAdd({plan_id:GZP(), plan_date:today, kind:'평가', status:'완료', step_range:'vid:'+videoId+':'+mood, seq:800+videoId, alloc_minutes:0})
   .then(function(){ var e=document.getElementById('gzVidRate'); if(e)e.innerHTML='<div style="text-align:center;font-size:12.5px;color:#2c6e49;font-weight:800;padding:6px">고마워요! 다음 영상 고를 때 참고할게요 ✓</div>'; });
 };
 
