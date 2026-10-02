@@ -232,21 +232,42 @@ footer{max-width:1280px;margin:0 auto;padding:14px 26px 40px;color:var(--dim);fo
   </div>
 </header><section id="firstSec" style="display:none;margin:10px 12px;padding:12px 14px;border:2px solid #8a6d1f;border-radius:10px;background:#fffdf5;font-size:13px"></section>
 <section id="premeta" style="margin:10px 12px;padding:12px 14px;border:1.5px solid #B8892E;border-radius:10px;background:#fff8ea;font-size:13px">
-<b style="font-size:14px">오늘 수업 전 5문항</b> <span style="font-size:11px;color:#8a8577">수업 시작 전에 답해 두면 선생님 코칭 카드에 바로 뜹니다</span>
+<b style="font-size:14px">수업 전: 한 주 돌아보기 · 오늘 목표</b> <span style="font-size:11px;color:#8a8577">지난 한 주를 보고 오늘 해낼 것을 정해요</span>
+<div id="wrBox" style="margin-top:8px"></div>
 <div id="pmDone" style="display:none;margin-top:6px;color:#1E4D3B;font-weight:700"></div>
 <div id="pmForm" style="margin-top:8px;display:grid;gap:6px">
 <label>1. 지난 과제를 얼마나 했나요? <select id="pm1"><option value="">—</option><option value="15">0~30%</option><option value="50">~70%</option><option value="80">~90%</option><option value="100">100%</option></select></label>
 <label>2. 과제 양은? <select id="pm2a"><option value="">—</option><option>적음</option><option>적정</option><option>많음</option></select> 난이도는? <select id="pm2b"><option value="">—</option><option>쉬움</option><option>적정</option><option>어려움</option></select></label>
 <label>3. 가장 어려웠던 개념·유형 하나 <input id="pm3" style="width:100%;padding:5px" placeholder="예: 형태소 분석"></label>
-<label>4. 오늘 반드시 해결할 목표 하나 <input id="pm4" style="width:100%;padding:5px" placeholder="예: 품사 구분 5문항 맞히기"></label>
+<div>4. 오늘 반드시 해결할 목표 하나 <button type="button" id="wrPick" style="display:none;margin-left:6px;padding:2px 8px;font-size:12px;border:1px solid #B8892E;background:#fff;border-radius:5px;cursor:pointer">지난 주 목표에서 고르기</button><span id="wrPickList"></span> <input id="pm4" style="width:100%;padding:5px" placeholder="예: 품사 구분 5문항 맞히기"></div>
 <label>5. 오늘 수업 자신감 <select id="pm5"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select> /5</label>
 <div><button id="pmBtn" type="button" style="padding:6px 12px;background:#1E4D3B;color:#fff;border:0;border-radius:6px;font-weight:700">보내기</button> <span id="pmR" style="font-size:12px;color:#8a8577"></span></div></div>
 <script>(function(){var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};var m=(location.search||'').match(/[?&]sid=(\d+)/);var sid=m?+m[1]:0;if(!sid)return;
 function g(i){return document.getElementById(i).value;}
 fetch(B+'gz2_card_context',{method:'POST',headers:H,body:JSON.stringify({p_sid:sid,p_k:gzSK().k})}).then(function(r){return r.json();}).then(function(c){var p=c&&c.pre;var today=new Date(Date.now()+9*36e5).toISOString().slice(0,10);if(p&&String(p.created_at).slice(0,10)===today){document.getElementById('pmDone').style.display='block';document.getElementById('pmDone').textContent='오늘 답 완료 ✓ — 과제 '+((p.routines||{}).hw_done_pct==null?'—':(p.routines||{}).hw_done_pct+'%')+' · 어려웠던 것 '+(p.weaknesses||'—')+' · 목표 '+((p.challenge||{}).today_goal||'—')+' · 자신감 '+((p.mindset||{}).confidence||'—')+'/5';document.getElementById('pmForm').style.display='none';}}).catch(function(){});
 document.getElementById('pmBtn').onclick=function(){if(!g('pm4')){document.getElementById('pmR').textContent='4번 오늘 목표는 꼭 적어 주세요';return;}fetch(B+'gz2_pre_meta_save',{method:'POST',headers:H,body:JSON.stringify({p:{student_id:sid,k:gzSK().k,hw_done_pct:g('pm1'),amount:g('pm2a'),difficulty:g('pm2b'),weakness:g('pm3'),today_goal:g('pm4'),confidence:g('pm5'),by:'학생 페이지'}})}).then(function(r){return r.json();}).then(function(r){document.getElementById('pmR').textContent=r.ok?'보냈어요 ✓ 선생님 카드에 표시됩니다':'실패 '+(r.reason||'');if(r.ok){document.getElementById('pmForm').style.display='none';document.getElementById('pmDone').style.display='block';document.getElementById('pmDone').textContent='오늘 답 완료 ✓';}});};})();</script></section>
+<script>/* seq 274 「지난 한 주」 상자 — gz2_week_review(토큰) 읽기 전용 */
+(function(){var sk=gzSK();if(!sk.sid)return;var K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
+function e(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function md(d){return d?String(d).slice(5).replace('-','/'):'';}
+fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_week_review',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify({p_sid:sk.sid,p_k:sk.k})}).then(function(r){return r.json();}).then(function(w){
+ var box=document.getElementById('wrBox');if(!box||!w||!w.ok)return;
+ var L=w.lesson||{},G=w.goals||{},S=w.study||{},W=w.wrong||{},X=w.exam;
+ var row=function(h,b){return '<div style="display:grid;grid-template-columns:112px 1fr;gap:8px;padding:5px 0;border-top:1px dashed #e3d6b8"><b style="color:#7a5a12">'+h+'</b><div>'+b+'</div></div>';};
+ var hw=L.date?(md(L.date)+' 수업 · 과제 '+(L.hw?'「'+e(L.hw)+'」':'')+(L.hw_status?' <b>'+e(L.hw_status)+'</b>':' 결과 미기록')+(L.next?' · 다음: '+e(L.next):'')):'아직 수업 기록이 없어요';
+ var gl=(G.list||[]).filter(function(x){return x&&String(x).trim();});
+ var gs=gl.length?gl.map(function(x,i){return (i+1)+'. '+e(x);}).join('<br>')+(G.plan?'<br><span style="color:#8a8577">계획: '+e(G.plan)+'</span>':''):'지난 「수업 후」에 적은 목표가 없어요';
+ var st=S.planned?('계획 '+S.planned+'개 중 <b>'+S.done+'개 완료</b> · 공부한 날 '+S.days+'일'):'이번 주 공부 계획이 아직 없어요';
+ var wr=(W.new7?'새 오답 <b>'+W.new7+'개</b>':'새 오답 없음')+' · 아직 못 넘은 오답 '+(W.open||0)+'개'+((W.top||[]).length?'<br>자주 틀린 유형: '+W.top.map(function(t){return e(t.t)+' '+t.n;}).join(' · '):'');
+ var ex=X?('<b>'+e(X.name)+' D-'+X.dd+'</b> ('+md(X.date)+')'+((X.scope||[]).length?'<br>범위: '+X.scope.map(e).join(' · '):'<br>범위가 아직 등록되지 않았어요')):'잡힌 시험이 없어요';
+ box.innerHTML='<details open style="background:#fff;border:1px solid #e3d6b8;border-radius:8px;padding:6px 10px"><summary style="cursor:pointer;font-weight:800;color:#1E4D3B">지난 한 주 (목표를 정하기 전에 보세요)</summary>'
+  +row('지난 수업 과제',hw)+row('내가 세운 목표',gs)+row('이번 주 공부',st)+row('오답',wr)+row('다음 시험',ex)+'</details>';
+ if(gl.length){var b=document.getElementById('wrPick');b.style.display='inline-block';b.onclick=function(){var l=document.getElementById('wrPickList');
+  l.innerHTML=gl.map(function(x,i){return ' <button type="button" data-i="'+i+'" style="margin:2px;padding:2px 8px;font-size:12px;border:1px solid #1E4D3B;background:#eef5f1;border-radius:5px;cursor:pointer">'+e(x)+'</button>';}).join('');
+  l.querySelectorAll('button').forEach(function(x){x.onclick=function(){document.getElementById('pm4').value=gl[+x.dataset.i];l.innerHTML='';};});};}
+}).catch(function(){});})();</script>
 <section id="postmeta" style="margin:10px 12px;padding:12px 14px;border:1.5px solid #1E4D3B;border-radius:10px;background:#eef5f1;font-size:13px">
-<b style="font-size:14px">오늘 수업 후 15문항</b> <span style="font-size:11px;color:#8a8577">수업 끝나고 답하면 선생님 코칭 카드 ③ 아래에 바로 뜹니다 · 같은 날 다시 보내면 덮어씁니다</span>
+<b style="font-size:14px">수업 후: 오늘 수업 돌아보기</b> <span style="font-size:11px;color:#8a8577">배운 것·어려운 것·다음 주 목표를 적어요 · 같은 날 다시 보내면 고쳐 써져요</span>
 <div id="qmDone" style="display:none;margin-top:6px;color:#1E4D3B;font-weight:700"></div>
 <div id="qmForm" style="margin-top:8px;display:grid;gap:8px">
 <div style="font-weight:700;color:#1E4D3B">1단계 · 수업 내용</div>
@@ -276,7 +297,7 @@ fetch(B+'gz2_card_context',{method:'POST',headers:H,body:JSON.stringify({p_sid:s
 document.getElementById('qmBtn').onclick=function(){if(!g('qm1')||!g('qm5')||!g('qm10a')){document.getElementById('qmR').textContent='1·5·10번은 꼭 적어 주세요';return;}var habits=[].slice.call(document.querySelectorAll('.qm6:checked')).map(function(x){return x.value;});var p={student_id:sid,k:km?km[1]:null,q1:g('qm1'),q2:g('qm2'),q3:g('qm3'),q4:g('qm4'),q5:g('qm5'),q6:habits,q7:g('qm7'),q8:g('qm8'),q9:g('qm9'),q10:[g('qm10a'),g('qm10b'),g('qm10c')].filter(Boolean),q11:g('qm11'),q12:g('qm12'),q13:g('qm13'),q14:g('qm14'),q15:g('qm15'),by:'2.0 학생'};
 fetch(B+'gz2_post_meta_save',{method:'POST',headers:H,body:JSON.stringify({p:p})}).then(function(r){return r.json();}).then(function(r){if(r&&r.ok){document.getElementById('qmR').textContent='';document.getElementById('qmDone').style.display='block';document.getElementById('qmDone').textContent='보냈습니다 ✓ 선생님 카드에 바로 반영됩니다';document.getElementById('qmForm').style.display='none';}else{document.getElementById('qmR').textContent='저장 실패: '+((r&&r.reason)||'');}}).catch(function(e){document.getElementById('qmR').textContent='오류 '+e;});};})();</script>
 </section><section id="lessonflow" style="margin:10px 12px;padding:12px 14px;border:1px solid #d8d4c8;border-radius:10px;background:#fff;font-size:13px">
-<b style="font-size:14px">오늘·최근 수업 흐름</b> <span style="font-size:11px;color:#8a8577">선생님 코칭 카드와 같은 기록 — 저장되면 여기에 바로 보입니다</span>
+<b style="font-size:14px">최근 수업 기록</b> <span style="font-size:11px;color:#8a8577">선생님이 적은 수업 내용</span>
 <div id="lfBody" style="margin-top:8px;color:#8a8577">불러오는 중…</div>
 <script>(function(){var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};var m=(location.search||'').match(/[?&]sid=(\d+)/),k=(location.search||'').match(/[?&]k=([a-f0-9]{32})/);if(!m||!k)return;
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -285,22 +306,22 @@ function render(rows){var el=document.getElementById('lfBody');if(!rows.length){
 fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+m[1],p_k:k[1]})}).then(function(r){return r.json();}).then(render).catch(function(){document.getElementById('lfBody').textContent='불러오기 실패';});})();</script></section>
 
 <nav class="toptabs">
-  <a href="#gzPos">내 위치</a><a href="#gzFill" style="font-weight:800">내 공부</a><a href="#pA">수업</a><a href="#pC">내 기록</a>
+  <a href="#gzPos">시험 준비</a><a href="#gzFill" style="font-weight:800">내 공부</a><a href="#pA">수업</a><a href="#pC">내 기록</a>
 </nav>
 <div class="phasebar">
-  <span class="pb-cap">지금 국면</span>
-  <button class="pb on" onclick="setPhase('평상',this)">방학 집중 · 처서</button>
+  <span class="pb-cap">지금 시기</span>
+  <button class="pb on" onclick="setPhase('평상',this)">방학</button>
   <button class="pb" id="pbExam" onclick="setPhase('내신',this)">내신 준비</button>
   <button class="pb" onclick="setPhase('내신',this)">내신 직전</button>
   <button class="pb" onclick="setPhase('복기',this)">시험 복기</button>
-  <span id="pbinfo" class="pb-info">방학 집중 — 약점 훈련이 중심인 시기입니다. 시험 구간은 다음 시험이 잡히면 채워집니다.</span>
+  <span id="pbinfo" class="pb-info">방학 — 약점 훈련이 중심인 시기입니다. 시험 구간은 다음 시험이 잡히면 채워집니다.</span>
 </div>
 
 <div class="frame">
 
 <!-- ═══ 구간 A · 오늘 ═══ -->
 <div class="phase" id="pA">
-  <div class="phase-cap"><span class="pn" id="pnA">오늘</span><h2 id="h2A">지금 여기서 시작</h2><span class="nowbadge" id="nbA" style="display:none;font-size:13px;font-weight:800;background:var(--hl);border-radius:11px;padding:2px 9px;margin-left:4px">지금 이 구간</span><span class="jz">여정 27(수업 준비) → 34(수업 진입)</span></div>
+  <div class="phase-cap"><span class="pn" id="pnA">오늘</span><h2 id="h2A">오늘 할 일</h2><span class="nowbadge" id="nbA" style="display:none;font-size:13px;font-weight:800;background:var(--hl);border-radius:11px;padding:2px 9px;margin-left:4px">지금 이 구간</span><span class="jz">여정 27(수업 준비) → 34(수업 진입)</span></div>
   <!-- [오리엔테이션 v1 · 2026-09-10 계획 #17 · 강좌 6405 · lecture_contents 오리엔테이션 1~7 · 읽음=gz2_student_write ot_page] -->
   <div id="oriCard" style="margin:8px 0 12px;border:1px solid #e2ddd0;border-radius:14px;padding:13px 15px;background:#faf9f5;display:none">
     <div style="font-size:12.5px;color:#6b6b7b">가장 먼저 하는 것</div>
@@ -336,7 +357,7 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
     <div>
       <p class="axcap">선생님에게서 온 것</p>
       <div class="card">
-        <h3>오늘 수업 카드 — 수업 중 라이브<span class="sub">과제를 어떻게 해왔는지에 따라 오늘 흐름이 달라집니다</span></h3>
+        <h3>오늘 수업 순서<span class="sub">과제 결과에 따라 순서가 달라져요</span></h3>
         <div id="gzTodayCard"><p class="mini">불러오는 중…</p></div>
       </div>
     </div>
@@ -345,16 +366,16 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
 
 <!-- ═══ 구간 B · 이번 주 ═══ -->
 <div class="phase" id="pB">
-  <div class="phase-cap"><span class="pn" id="pnB">이번 주</span><h2 id="h2B">과제 · 영상 · 오답</h2><span class="nowbadge" id="nbB" style="display:none;font-size:13px;font-weight:800;background:var(--hl);border-radius:11px;padding:2px 9px;margin-left:4px">지금 이 구간</span><span class="jz">여정 27(과제 관리) · 35(훈련·과제)</span></div>
+  <div class="phase-cap"><span class="pn" id="pnB">이번 주</span><h2 id="h2B">과제 · 강의 · 오답</h2><span class="nowbadge" id="nbB" style="display:none;font-size:13px;font-weight:800;background:var(--hl);border-radius:11px;padding:2px 9px;margin-left:4px">지금 이 구간</span><span class="jz">여정 27(과제 관리) · 35(훈련·과제)</span></div>
   <div class="duo">
     <div>
       <p class="axcap">내가 하는 것</p>
       <div class="card">
-        <h3>과제와 인증<span class="sub">기한 8/14(금)</span></h3>
+        <h3>이번 주 과제 내기<span class="sub">기한 8/14(금)</span></h3>
         <div id="gzHwCard"><p class="mini">불러오는 중…</p></div>
       </div>
       <div class="card">
-        <h3>플레이어<span class="sub">영상+교안 함께 · 확인 학습은 영상 아래</span></h3>
+        <h3>강의 보기<span class="sub">영상과 교안을 같이 봐요 · 확인 문제는 영상 아래</span></h3>
         <div class="sync" id="gzPlayer"><div class="screen"><span class="playbtn">▶</span><span id="gzPlayTtl">불러오는 중…</span></div><div class="gyoan" id="gzGyoan"></div></div>
         <div class="checkq">
           <p class="cap">확인 학습 — 책갈피 2 통과</p>
@@ -363,7 +384,7 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
           <p class="mini" style="margin-top:5px">틀리면 그 자리에서 오답노트로 저장.</p>
         </div>
         <div style="margin-top:9px;border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:#fff">
-          <div style="display:flex;align-items:baseline;gap:10px"><b style="font-family:'Noto Serif KR';font-size:16.2px">📖 교안 전체 — 페이지로 보기</b><span class="mini">음운의 변동 step3 · 6쪽</span>
+          <div style="display:flex;align-items:baseline;gap:10px"><b style="font-family:'Noto Serif KR';font-size:16.2px">📖 교안 전체 보기</b><span class="mini">음운의 변동 step3 · 6쪽</span>
             <span style="margin-left:auto"><button class="btn ghost sm">◀ 이전</button> <b class="mini" style="color:var(--ink)">2 / 6</b> <button class="btn ghost sm">다음 ▶</button></span></div>
           <div style="margin-top:7px;border:1px solid var(--line);border-radius:6px;padding:12px;background:#fdfdfb;font-size:15.6px;line-height:1.8">
             <b>2. 교체 — 음절의 끝소리 규칙</b><br>국어의 음절 끝에서 발음되는 자음은 ㄱ, ㄴ, ㄷ, ㄹ, ㅁ, ㅂ, ㅇ의 일곱 가지뿐이다. 이 밖의 자음이 음절 끝에 오면 이 일곱 자음 중 하나로 바뀌어 발음되는데, 이를 음절의 끝소리 규칙이라 한다. … <span class="frogmark">밑줄을 그으면 오답노트에 표시</span>로 저장된다.</div>
@@ -372,12 +393,12 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
       
       </div>
       <div class="card">
-        <h3>내 강좌 · 진도<span class="sub">내신/수능 갈래 · step마다 강의와 시험 나란히 (1.5 승계+상향)</span></h3><div id="gzCourse"><p class="mini">수강 정보 불러오는 중…</p></div><p class="wire">v_screen_student_steps(step_type·lc_id)·enroll_steps·exam_sessions / 진도율 분모=실보유 편 수(#3274) / 내신·수능 갈래=1.5 승계</p>
+        <h3>내 강좌와 진도<span class="sub">단계마다 강의와 시험</span></h3><div id="gzCourse"><p class="mini">수강 정보 불러오는 중…</p></div><p class="wire">v_screen_student_steps(step_type·lc_id)·enroll_steps·exam_sessions / 진도율 분모=실보유 편 수(#3274) / 내신·수능 갈래=1.5 승계</p>
     </div>
     <div>
       <p class="axcap">나에게 쌓이는 것</p>
       <div class="card">
-        <h3>오답노트<span class="sub">이력 · 통계 · 극복</span></h3>
+        <h3>오답 노트<span class="sub">틀린 문제를 다시 풀어요</span></h3>
         <div id="gzWrongStat"><p class="mini">불러오는 중…</p></div>
         <table class="tb" style="margin-top:8px" id="gzWnTb"><tr><td class="mini">불러오는 중…</td></tr></table>
         <p class="wire">v_wrong_note·frog_entries·is_overcome / 유형=허용 표현</p>
@@ -388,14 +409,14 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
 
 <!-- ═══ 구간 C · 매주 쌓임 — 학습 통장 ═══ -->
 <div class="phase" id="pC">
-  <div class="phase-cap"><span class="pn" id="pnC">매주</span><h2 id="h2C">내 학습 통장 — 한 주 한 줄, 전부 남는다</h2><span class="nowbadge" id="nbC" style="display:none;font-size:13px;font-weight:800;background:var(--hl);border-radius:11px;padding:2px 9px;margin-left:4px">지금 이 구간</span><span class="jz">모든 국면의 기록 축 · G-MAP 회차별 격자 이력 승계</span></div>
+  <div class="phase-cap"><span class="pn" id="pnC">매주</span><h2 id="h2C">주별 공부 기록</h2><span class="nowbadge" id="nbC" style="display:none;font-size:13px;font-weight:800;background:var(--hl);border-radius:11px;padding:2px 9px;margin-left:4px">지금 이 구간</span><span class="jz">모든 국면의 기록 축 · G-MAP 회차별 격자 이력 승계</span></div>
   <div class="bank">
-    <div style="padding:8px 12px;background:#f2f0ea;border-bottom:1px solid var(--line);font-size:15.6px"><b class="serif">🔥 과제 리듬 3주 연속</b> <span class="mini">— 한 주도 빠짐없이 과제 인증·리뷰를 마치면 연속이 이어집니다 (습관 정착의 표시)</span></div>
+    <div style="padding:8px 12px;background:#f2f0ea;border-bottom:1px solid var(--line);font-size:15.6px"><b class="serif">🔥 과제 3주 연속</b> <span class="mini">— 매주 과제를 내고 돌아보기를 마치면 이어져요</span></div>
     <div class="bhead"><div>주차</div><div>수업·진도</div><div>과제</div><div>오답</div><div>리포트</div><div></div></div>
     <div id="gzBank"><div class="brow"><div class="mini">불러오는 중…</div></div></div>
   </div>
   <div class="card" style="margin-top:10px;border-style:dashed">
-    <h3 id="gzWeekTtl">▼ 최근 주 열림<span class="sub">교사 평가가 누적되는 자리</span></h3>
+    <h3 id="gzWeekTtl">▼ 최근 주 · 선생님 평가<span class="sub"></span></h3>
     <div class="duo" style="gap:10px">
       <div>
         <p class="mini" style="margin-bottom:4px">그 주 수업 기록</p>
@@ -412,23 +433,23 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
   </div>
   <p class="wire" style="background:transparent">coaching_logs 주차 집계(log_date 783건)·hw_status(해옴/부분/안해옴 — 회차 격자 배지 승계)·frog 주차 합계·student_reports 발행/열람 — 한 행 = 한 주, 최근이 위 / 보상 「해내기」 3종(결재 확정): 주 완성 도장=과제 인증+리뷰 완료, 극복 배지=overcome 5회 계수, 챌린지 완주=중간점검 1·2+종결 — 점수·등수형 보상 미도입</p>
   <div class="card" style="margin-top:10px">
-    <h3>이번 달 한눈에<span class="sub">월간 캘린더 — 수업·시험·내 일정 (1.5 승계 + 개인일정 등록)</span></h3>
+    <h3>이번 달 일정<span class="sub">수업·시험·내 일정 · 내 일정은 직접 추가</span></h3>
     <div id="gzMonth"><p class="mini">불러오는 중…</p></div>
   </div>
 </div>
 
 <div class="phase" id="pE">
-  <div class="phase-cap"><span class="pn" id="pnE">성장</span><h2 id="h2E">얼마나 왔고, 다음은 무엇인가</h2><span class="nowbadge" id="nbE" style="display:none;font-size:13px;font-weight:800;background:var(--hl);border-radius:11px;padding:2px 9px;margin-left:4px">지금 이 구간</span><span class="jz">여정 58(성장·재등록)</span></div>
+  <div class="phase-cap"><span class="pn" id="pnE">성장</span><h2 id="h2E">성적과 시험 기록</h2><span class="nowbadge" id="nbE" style="display:none;font-size:13px;font-weight:800;background:var(--hl);border-radius:11px;padding:2px 9px;margin-left:4px">지금 이 구간</span><span class="jz">여정 58(성장·재등록)</span></div>
   <div class="duo">
     <div>
       <p class="axcap">쌓인 성장</p>
       <div class="card">
-        <h3>성취도 그래프<span class="sub">선이 오르는 것이 보이게 — 내신·모의 함께</span></h3>
+        <h3>성적 그래프<span class="sub">내신과 모의고사</span></h3>
         <div id="gzGraph"><p class="mini">성적 기록 불러오는 중…</p></div>
         <p class="wire">school_exams·모의 — 선그래프, 상승폭 자동</p>
       </div>
       <div class="card" style="margin-top:12px">
-        <h3>모의고사 기록<span class="sub">분석지 보기 · 즉시 응시 (1.5 승계)</span></h3>
+        <h3>모의고사 기록<span class="sub">분석지 보기 · 바로 응시</span></h3>
         <table class="tb">
           <tr><th>시험</th><th>점수</th><th>날짜</th></tr><tbody id="gzMockTb"><tr><td class="mini" colspan="3">불러오는 중…</td></tr></tbody>
         </table>
@@ -436,14 +457,14 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
         <p class="wire">mock_exams·분석지=G-PAT / 모의 강의 즉시 수강=검색→재생(별도 신청 불요)</p>
       </div>
       <div class="card" style="margin-top:12px">
-        <h3>학습시험 기록<span class="sub">확인·심화·복습테스트 점수 전부 (1.5 승계)</span></h3>
+        <h3>학원 테스트 점수<span class="sub">확인·심화·복습 테스트</span></h3>
         <table class="tb">
           <tr><th>날짜</th><th>시험</th><th>점수</th><th>유형</th></tr><tbody id="gzTestTb"><tr><td class="mini" colspan="4">불러오는 중…</td></tr></tbody>
         </table>
         <p class="wire">student_tests 175행(test_type·score·review_test_id)·exam_sessions — 통장 주차 행과 동일 원천</p>
       </div>
       <div class="card">
-        <h3>선생님 평가 모아보기<span class="sub">14주 전부 — 학습 통장에서 주별, 여기서 한눈에</span></h3>
+        <h3>선생님 평가 전체<span class="sub">지금까지 받은 평가 전부</span></h3>
         <table class="tb">
           <tbody id="gzEvalTb"><tr><td class="mini">불러오는 중…</td></tr></tbody>
         </table>
@@ -454,9 +475,9 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
     <div>
       <p class="axcap">다음으로</p>
       <div class="newlec" id="gzReqBox"><!-- v0.43 신청·알림·이번 주 새 강좌 (#6951 · gz_stu_req_list/submit, 학생 링크 sid+k) -->
-        <h3 style="font-family:'Noto Serif KR';font-weight:900;font-size:18.1px">🆕 이번 주 새로 올라온 강좌<span class="sub" style="font-size:13.8px;color:var(--plan)" id="gzNewSub">최근 7일 공개 · 내 학년 먼저</span></h3>
+        <h3 style="font-family:'Noto Serif KR';font-weight:900;font-size:18.1px">🆕 새 강좌 (최근 7일)<span class="sub" style="font-size:13.8px;color:var(--plan)" id="gzNewSub">내 학년 먼저</span></h3>
         <table class="tb" style="margin-top:6px" id="gzNewTb"><tr><td class="mini">불러오는 중…</td></tr></table>
-        <h3 style="font-family:'Noto Serif KR';font-weight:900;font-size:17px;margin-top:14px">📮 필요한 강의·자료 신청<span class="sub" style="font-size:13.4px;color:var(--plan)">본점이 확인하고 만들어 드려요</span></h3>
+        <h3 style="font-family:'Noto Serif KR';font-weight:900;font-size:17px;margin-top:14px">📮 강의·자료 신청하기<span class="sub" style="font-size:13.4px;color:var(--plan)">본점이 만들어 드려요</span></h3>
         <table class="tb" style="margin-top:4px">
           <tr><td style="width:84px"><b>무엇이</b></td><td><select id="gzReqKind" style="font:inherit;font-size:15px;padding:3px 6px"><option>강좌</option><option>자료</option><option>질문</option></select></td></tr>
           <tr><td><b>내용</b></td><td><input id="gzReqSubj" style="width:100%;font:inherit;font-size:15px;padding:4px 7px;box-sizing:border-box" placeholder="예: 해송고 1학년 2학기 중간 문학 3단원 강의가 필요해요"></td></tr>
@@ -475,7 +496,7 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
         <p class="wire">book_catalog · student_book_log(상태·쪽) · student_book_entry(쪽 기록·느낀 점) — 확인 문제는 작품 DB 문항이 있는 책만</p>
       </div>
       <div class="card" style="margin-top:12px">
-        <h3>내 정보 — 어디로 가는가<span class="sub">진로·희망 (1.5 승계 — 시험 목표와 이어짐)</span></h3>
+        <h3>내 진로와 목표<span class="sub">시험 목표와 이어져요</span></h3>
         <div id="gzCareer"><p class="mini">불러오는 중…</p></div>
       </div>
     </div>
@@ -493,12 +514,12 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
    (v1은 appendChild 로 구간을 재배치해 화면이 통째로 뒤바뀌었다 — 폐기) */
 var ORDER=['pA','pB','pC','pD','pE'];
 var COPY={
- '평상':{ now:'A', info:'방학 집중 — 약점 훈련이 중심인 시기입니다. 시험 구간은 다음 시험이 잡히면 채워집니다.',
-   A:['오늘','지금 여기서 시작'],
-   B:['이번 주','과제 · 영상 · 오답'],
-   C:['매주','내 학습 통장 — 한 주 한 줄, 전부 남는다'],
+ '평상':{ now:'A', info:'방학 — 약점 훈련이 중심인 시기입니다. 시험 구간은 다음 시험이 잡히면 채워집니다.',
+   A:['오늘','오늘 할 일'],
+   B:['이번 주','과제 · 강의 · 오답'],
+   C:['매주','주별 공부 기록'],
    D:['시험','다음 시험 — 범위와 내 일정'],
-   E:['성장','얼마나 왔고, 다음은 무엇인가'] },
+   E:['성장','성적과 시험 기록'] },
  '내신':{ now:'D', info:'내신 준비 기간입니다. 시험 구간을 먼저 보시면 됩니다 — 자리는 그대로입니다.',
    A:['오늘','시험까지 남은 날, 오늘 할 것'],
    B:['이번 주','시험 범위 과제부터'],
@@ -654,7 +675,7 @@ function gzBuildPos(){
       
       var sec=document.createElement('div');
       sec.id='gzPos'; sec.className='phase';
-      sec.innerHTML='<div style="padding:14px 22px 4px"><h2 style="margin:0;font-family:\'Noto Serif KR\',serif;font-size:22px">지금 나의 위치</h2>'
+      sec.innerHTML='<div style="padding:14px 22px 4px"><h2 style="margin:0;font-family:\'Noto Serif KR\',serif;font-size:22px">시험까지 남은 공부</h2>'
         +'<div style="font-size:12px;color:#98a49e;margin:2px 0 10px">'+(ex.phase||'')+' · '+(ex.jeolgi||'')+' · 다음 시험 '+((ex.exam_start||'미정').slice(5).replace('-','/'))+'</div>'
         +'<div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap"><div style="width:300px;flex:none">'+L+'</div><div style="flex:1;min-width:330px">'+R+'</div></div></div>';
       host.parentElement.insertBefore(sec,host);
@@ -1325,7 +1346,7 @@ gzLoadFill();
   .then(function(r){
     fill('gzTestTb', r.length? r.map(function(x){
       return '<tr><td class="mini">'+esc(x.d)+'</td><td>'+esc((x.nm||'').slice(0,46))+'</td><td class="me">'+(x.sc==null?'–':x.sc)+'</td><td class="mini">'+esc(LBL[x.tp]||x.tp||'')+'</td></tr>'; }).join('')
-      : '<tr><td class="mini" colspan="4">학습시험 기록이 등록되면 표시됩니다.</td></tr>');
+      : '<tr><td class="mini" colspan="4">학원 테스트 점수가 등록되면 표시됩니다.</td></tr>');
   });
 
   /* 오답노트 — 통계 + 최근 목록 */
@@ -1351,7 +1372,7 @@ gzLoadFill();
     if(!r.length){ fill('gzWeekTb','<tr><td class="mini">수업 기록이 저장되면 주차별로 쌓입니다.</td></tr>');
       fill('gzEvalTb','<tr><td class="mini">교사 평가가 저장되면 표시됩니다.</td></tr>'); return; }
     var top=r[0];
-    var e=el('gzWeekTtl'); if(e)e.firstChild&&(e.firstChild.textContent='▼ '+top.d+' 주 기록 ');
+    var e=el('gzWeekTtl'); if(e)e.firstChild&&(e.firstChild.textContent='▼ '+top.d+' 주 · 선생님 평가 ');
     var lines=(top.nt||'').split('\n').filter(Boolean).slice(0,4);
     fill('gzWeekTb', lines.length? lines.map(function(l){
       var m=l.match(/^\[([^\]]+)\]\s*(.*)$/);
@@ -1758,7 +1779,7 @@ gzLoadFill();
     var tb=document.getElementById('gzNewTb'), nl=j.new_lectures||[]; NL={}; nl.forEach(function(l){NL[l.id]=l;});
     if(!nl.length) tb.innerHTML='<tr><td class="mini">이번 주에 새로 올라온 강좌가 아직 없어요. 필요한 강의는 아래에서 신청하세요.</td></tr>';
     else tb.innerHTML=nl.slice(0,8).map(function(l){return '<tr><td><span class="mini" style="background:var(--plan);color:#fff;border-radius:4px;padding:0 5px">NEW</span>'+(l.mine?' <span class="mini" style="border:1px solid var(--plan);color:var(--plan);border-radius:4px;padding:0 5px">내 신청 반영</span>':'')+' <b>'+esc(l.title)+'</b> <span class="mini">'+d(l.published_at)+' 공개'+(l.subject?' · '+esc(l.subject):'')+(l.grade?' · '+esc(l.grade):'')+'</span></td><td><button class="btn'+(l.mine?'':' ghost')+' sm" onclick="gzOpenLecture('+l.id+')">'+(l.mine?'바로 수강':'보기')+'</button></td></tr>';}).join('');
-    document.getElementById('gzNewSub').textContent='최근 7일 공개 '+nl.length+'개 · 내 학년 먼저';
+    document.getElementById('gzNewSub').textContent=nl.length+'개 · 내 학년 먼저';
     var rows=j.rows||[], M=document.getElementById('gzReqMine');
     M.innerHTML=rows.length?'<p class="mini" style="font-weight:700;margin-bottom:3px">내 신청</p>'+rows.slice(0,5).map(function(r){return '<p class="mini" style="margin:2px 0"><b>'+esc(r.title)+'</b> — '+(ST[r.stage]||r.stage)+(r.due&&r.stage==='진행'?' (예정 '+d(r.due)+')':'')+(r.feedback&&r.feedback.length?'<br>본점 피드백: 「'+esc(r.feedback[r.feedback.length-1])+'」':'')+'</p>';}).join(''):'';
     var noti=j.noti||[], N=document.getElementById('gzReqNoti');
