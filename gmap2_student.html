@@ -178,7 +178,7 @@ table.tb td{border-bottom:1px solid var(--line);padding:6px 7px}
   #gzSubRail a.on{background:#12211a;color:#fff;font-weight:800}
   .frame{margin-left:176px}
   #gzExamBn{margin-left:176px}
-  #premeta,#postmeta{margin-left:188px!important} /* 서브레일 아래 가림 수정 2026-09-05 */
+  #gzRitual{margin-left:188px!important} /* 서브레일 아래 가림 — 2026-10-02 수업 카드는 frame 안으로 옮김(seq 276) */
   header.id{margin-left:176px}
   .phasebar{margin-left:176px}
   .toptabs{margin-left:176px}
@@ -231,8 +231,67 @@ footer{max-width:1280px;margin:0 auto;padding:14px 26px 40px;color:var(--dim);fo
     <span id="gzScore" class="mini">성적 기록이 등록되면 여기에 표시됩니다</span>
   </div>
 </header><section id="firstSec" style="display:none;margin:10px 12px;padding:12px 14px;border:2px solid #8a6d1f;border-radius:10px;background:#fffdf5;font-size:13px"></section>
+<div id="gzRitual" style="margin:10px 12px;padding:9px 14px;border:1.5px solid #B8892E;border-radius:10px;background:#fff8ea;font-size:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+<b id="grWhen">수업 일정 불러오는 중…</b>
+<a href="javascript:void(0)" onclick="document.getElementById('premeta').scrollIntoView({behavior:'smooth',block:'start'})" id="gr1" class="grs">① 수업 전</a><span class="grA">→</span><a href="javascript:void(0)" onclick="document.getElementById('gzStep2').scrollIntoView({behavior:'smooth',block:'start'})" id="gr2" class="grs">② 수업 중</a><span class="grA">→</span><a href="javascript:void(0)" onclick="document.getElementById('postmeta').scrollIntoView({behavior:'smooth',block:'start'})" id="gr3" class="grs">③ 수업 후</a>
+</div>
+<style>.grs{padding:4px 11px;border:1px solid #B8892E;border-radius:14px;background:#fff;color:#5a4410;text-decoration:none;font-weight:700}.grs.ok{background:#1E4D3B;border-color:#1E4D3B;color:#fff}.grA{color:#B8892E}
+.gzStepCap{margin:16px 12px 2px;font-size:13px;font-weight:800;color:#8a5a00;letter-spacing:.5px}
+#premeta,#postmeta,#gzStep2{scroll-margin-top:110px} .phase-cap .jz{display:none} /* 여정 번호는 내부 용어 — 학생 화면에서 숨김(seq 275 원칙) */</style>
+<script>
+/* [seq 276] 배치 고정: 오늘 수업(pA) → 시험 준비(gzPos) → 내 공부 → … / 최근 수업 기록은 내 기록 안으로 */
+function gzOrder(){
+  var pa=document.getElementById('pA'); if(!pa||!pa.parentElement)return;
+  var fr=pa.parentElement, first=fr.querySelector(':scope > .phase');
+  /* 정적 HTML에서 pC·pE가 pB 안에 들어가 있음(종전 setPhase가 매번 꺼내 주던 것) → 한 번만 frame으로 꺼낸다 */
+  ['pB','pC','pD','pE'].forEach(function(id){var e=document.getElementById(id); if(e&&e.parentElement!==fr) fr.appendChild(e);});
+  if(first&&first!==pa) fr.insertBefore(pa,first);
+  var pos=document.getElementById('gzPos'); if(pos&&pa.nextElementSibling!==pos) fr.insertBefore(pos,pa.nextSibling);
+  var rc=document.getElementById('gzRec'), lf=document.getElementById('lessonflow');
+  if(rc&&lf&&lf.parentElement!==rc){ var h=rc.querySelector('h2'); var at=h?(h.closest('div')||h):null;
+    if(at&&at.parentElement===rc) rc.insertBefore(lf,at.nextSibling); else rc.insertBefore(lf,rc.firstChild);
+    lf.style.display=''; }
+}
+/* 탭 위 한 줄 띠: 오늘 수업 날인지 + 단계 완료 표시 */
+(function(){
+  var DW=['일','월','화','수','목','금','토'];
+  function paint(){
+    var c=(document.getElementById('gzClass')||{}).textContent||'';
+    var w=document.getElementById('grWhen'); if(!w)return;
+    var now=new Date(Date.now()+9*36e5), td=DW[now.getUTCDay()];
+    var slots=c.split('·').map(function(x){return x.trim();}).filter(function(x){return /^[일월화수목금토]\s/.test(x);});
+    if(!slots.length){ w.textContent=(c&&c!=='—')?('내 수업 '+c):'수업 일정 불러오는 중…'; }
+    else{ var t=slots.filter(function(x){return x[0]===td;})[0];
+      if(t) w.textContent='오늘 수업 '+t.slice(1).trim();
+      else{ var i=now.getUTCDay(),nx=null; for(var k=1;k<=7&&!nx;k++){var d=DW[(i+k)%7]; nx=slots.filter(function(x){return x[0]===d;})[0];}
+        w.textContent='다음 수업 '+(nx||slots[0]); } }
+    var d1=document.getElementById('pmDone'), d3=document.getElementById('qmDone');
+    function mark(id,ok,lab){var e=document.getElementById(id); if(!e)return; e.classList.toggle('ok',!!ok); e.textContent=lab+(ok?' ✓':'');}
+    mark('gr1',d1&&d1.style.display!=='none','① 수업 전'); mark('gr3',d3&&d3.style.display!=='none','③ 수업 후');
+  }
+  var n=0, t=setInterval(function(){ paint(); gzOrder(); if(++n>20)clearInterval(t); },1000);
+  document.addEventListener('click',function(e){ if(e.target&&(e.target.id==='pmBtn'||e.target.id==='qmBtn'))setTimeout(paint,1500); });
+})();
+</script>
+<nav class="toptabs">
+  <a href="#pA" style="font-weight:800">오늘 수업</a><a href="#gzPos">시험 준비</a><a href="#gzFill">내 공부</a><a href="#pC">내 기록</a>
+</nav>
+<div class="phasebar">
+  <span class="pb-cap">지금 시기</span>
+  <button class="pb on" id="pbRest" onclick="setPhase('평상',this)">평소</button>
+  <button class="pb" id="pbExam" onclick="setPhase('내신',this)">내신 준비</button>
+  <button class="pb" id="pbNear" onclick="setPhase('내신',this)">내신 직전</button>
+  <button class="pb" id="pbReview" onclick="setPhase('복기',this)">시험 복기</button>
+  <span id="pbinfo" class="pb-info">시기 확인 중…</span>
+</div>
+
+<div class="frame">
+
+<!-- ═══ 구간 A · 오늘 ═══ -->
+<div class="phase" id="pA">
+  <div class="phase-cap"><span class="pn" id="pnA">오늘</span><h2 id="h2A">오늘 수업</h2><span class="nowbadge" id="nbA" style="display:none;font-size:13px;font-weight:800;background:var(--hl);border-radius:11px;padding:2px 9px;margin-left:4px">지금 이 구간</span><span class="jz">여정 27(수업 준비) → 34(수업 진입)</span></div>
 <section id="premeta" style="margin:10px 12px;padding:12px 14px;border:1.5px solid #B8892E;border-radius:10px;background:#fff8ea;font-size:13px">
-<b style="font-size:14px">수업 전: 한 주 돌아보기 · 오늘 목표</b> <span style="font-size:11px;color:#8a8577">지난 한 주를 보고 오늘 해낼 것을 정해요</span>
+<b style="font-size:14px">① 수업 전: 한 주 돌아보기 · 오늘 목표</b> <span style="font-size:11px;color:#8a8577">지난 한 주를 보고 오늘 해낼 것을 정해요</span>
 <div id="wrBox" style="margin-top:8px"></div>
 <div id="pmDone" style="display:none;margin-top:6px;color:#1E4D3B;font-weight:700"></div>
 <div id="pmForm" style="margin-top:8px;display:grid;gap:6px">
@@ -266,62 +325,8 @@ fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_week_review',{me
   l.innerHTML=gl.map(function(x,i){return ' <button type="button" data-i="'+i+'" style="margin:2px;padding:2px 8px;font-size:12px;border:1px solid #1E4D3B;background:#eef5f1;border-radius:5px;cursor:pointer">'+e(x)+'</button>';}).join('');
   l.querySelectorAll('button').forEach(function(x){x.onclick=function(){document.getElementById('pm4').value=gl[+x.dataset.i];l.innerHTML='';};});};}
 }).catch(function(){});})();</script>
-<section id="postmeta" style="margin:10px 12px;padding:12px 14px;border:1.5px solid #1E4D3B;border-radius:10px;background:#eef5f1;font-size:13px">
-<b style="font-size:14px">수업 후: 오늘 수업 돌아보기</b> <span style="font-size:11px;color:#8a8577">배운 것·어려운 것·다음 주 목표를 적어요 · 같은 날 다시 보내면 고쳐 써져요</span>
-<div id="qmDone" style="display:none;margin-top:6px;color:#1E4D3B;font-weight:700"></div>
-<div id="qmForm" style="margin-top:8px;display:grid;gap:8px">
-<div style="font-weight:700;color:#1E4D3B">1단계 · 수업 내용</div>
-<label>1. 가장 인상 깊은 내용 <input id="qm1" style="width:100%;padding:5px"></label>
-<label>2. 새로 깨달은 것 한 가지 <input id="qm2" style="width:100%;padding:5px"></label>
-<label>3. 오늘 수업 만족도 <select id="qm3"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select> /5</label>
-<div style="font-weight:700;color:#1E4D3B;margin-top:4px">2단계 · 학습 방법</div>
-<label>4. 효과적이었던 방법 <input id="qm4" style="width:100%;padding:5px" placeholder="예: 밑줄 치며 읽기"></label>
-<label>5. 어려웠던 부분 <input id="qm5" style="width:100%;padding:5px"></label>
-<div>6. 오늘 지킨 습관 <label><input type="checkbox" class="qm6" value="예습"> 예습</label> <label><input type="checkbox" class="qm6" value="필기"> 필기</label> <label><input type="checkbox" class="qm6" value="질문"> 질문</label> <label><input type="checkbox" class="qm6" value="복습"> 복습</label></div>
-<div style="font-weight:700;color:#1E4D3B;margin-top:4px">3단계 · 시간·집중</div>
-<label>7. 오늘 스스로 공부한 시간 <input id="qm7" type="number" min="0" max="600" style="width:80px;padding:5px"> 분</label>
-<label>8. 집중도 <select id="qm8"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select> /5</label>
-<label>9. 집중이 흐트러졌을 때 다시 잡은 방법 <input id="qm9" style="width:100%;padding:5px"></label>
-<div style="font-weight:700;color:#1E4D3B;margin-top:4px">4단계 · 다음 주</div>
-<label>10. 다음 주 목표 3개 <input id="qm10a" style="width:100%;padding:5px;margin-bottom:3px" placeholder="목표 1"><input id="qm10b" style="width:100%;padding:5px;margin-bottom:3px" placeholder="목표 2"><input id="qm10c" style="width:100%;padding:5px" placeholder="목표 3"></label>
-<label>11. 실행 계획(언제·얼마나) <input id="qm11" style="width:100%;padding:5px" placeholder="예: 화·목 30분"></label>
-<label>12. 고칠 습관 하나 <input id="qm12" style="width:100%;padding:5px"></label>
-<div style="font-weight:700;color:#1E4D3B;margin-top:4px">5단계 · 나에게</div>
-<label>13. 나에게 한 마디 <input id="qm13" style="width:100%;padding:5px"></label>
-<label>14. 오늘 잘한 점 <input id="qm14" style="width:100%;padding:5px"></label>
-<label>15. 다음 수업 동기 <select id="qm15"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select> /5</label>
-<div><button id="qmBtn" type="button" style="padding:6px 12px;background:#1E4D3B;color:#fff;border:0;border-radius:6px;font-weight:700">보내기</button> <span id="qmR" style="font-size:12px;color:#8a8577"></span></div></div>
-<script>(function(){var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};var m=(location.search||'').match(/[?&]sid=(\d+)/),km=(location.search||'').match(/[?&]k=([a-f0-9]{32})/);var sid=m?+m[1]:0;if(!sid)return;
-function g(i){var e=document.getElementById(i);return e?e.value.trim():'';}
-fetch(B+'gz2_card_context',{method:'POST',headers:H,body:JSON.stringify({p_sid:sid,p_k:gzSK().k})}).then(function(r){return r.json();}).then(function(c){var p=c&&c.post;var today=new Date(Date.now()+9*36e5).toISOString().slice(0,10);if(p&&String(p.created_at).slice(0,10)===today){var sc=p.scores||{},st=p.strategy||{},ch=p.challenge||{};document.getElementById('qmDone').style.display='block';document.getElementById('qmDone').textContent='오늘 답 완료 ✓ — 만족도 '+(sc.satisfaction||'—')+'/5 · 집중 '+(sc.focus||'—')+'/5 · 어려웠던 것 '+(st.hard||'—')+' · 다음 주 목표 '+((ch.goals||[]).filter(Boolean).join(', ')||'—')+' · 잘한 점 '+(p.strengths||'—');}}).catch(function(){});
-document.getElementById('qmBtn').onclick=function(){if(!g('qm1')||!g('qm5')||!g('qm10a')){document.getElementById('qmR').textContent='1·5·10번은 꼭 적어 주세요';return;}var habits=[].slice.call(document.querySelectorAll('.qm6:checked')).map(function(x){return x.value;});var p={student_id:sid,k:km?km[1]:null,q1:g('qm1'),q2:g('qm2'),q3:g('qm3'),q4:g('qm4'),q5:g('qm5'),q6:habits,q7:g('qm7'),q8:g('qm8'),q9:g('qm9'),q10:[g('qm10a'),g('qm10b'),g('qm10c')].filter(Boolean),q11:g('qm11'),q12:g('qm12'),q13:g('qm13'),q14:g('qm14'),q15:g('qm15'),by:'2.0 학생'};
-fetch(B+'gz2_post_meta_save',{method:'POST',headers:H,body:JSON.stringify({p:p})}).then(function(r){return r.json();}).then(function(r){if(r&&r.ok){document.getElementById('qmR').textContent='';document.getElementById('qmDone').style.display='block';document.getElementById('qmDone').textContent='보냈습니다 ✓ 선생님 카드에 바로 반영됩니다';document.getElementById('qmForm').style.display='none';}else{document.getElementById('qmR').textContent='저장 실패: '+((r&&r.reason)||'');}}).catch(function(e){document.getElementById('qmR').textContent='오류 '+e;});};})();</script>
-</section><section id="lessonflow" style="margin:10px 12px;padding:12px 14px;border:1px solid #d8d4c8;border-radius:10px;background:#fff;font-size:13px">
-<b style="font-size:14px">최근 수업 기록</b> <span style="font-size:11px;color:#8a8577">선생님이 적은 수업 내용</span>
-<div id="lfBody" style="margin-top:8px;color:#8a8577">불러오는 중…</div>
-<script>(function(){var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};var m=(location.search||'').match(/[?&]sid=(\d+)/),k=(location.search||'').match(/[?&]k=([a-f0-9]{32})/);if(!m||!k)return;
-function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-function actLine(a){return (a.act||'')+(a.min?' '+a.min+'분':'')+(a.pages?' · '+a.pages+'쪽':'')+(a.test?' · 시험지: '+a.test:'')+(a.name?' '+a.name:'');}
-function render(rows){var el=document.getElementById('lfBody');if(!rows.length){el.textContent='최근 3주 수업 기록이 아직 없어요';return;}el.style.color='#1f2a24';el.innerHTML=rows.map(function(r){var p=r.acts||{};var lines=[];['p1','p2','p3'].forEach(function(k,i){var arr=p[k]||[];if(arr.length)lines.push('<div><b>'+(i+1)+'교시</b> '+arr.map(function(a){return typeof a==='string'?a:actLine(a);}).join(' · ')+'</div>');});return '<div style="padding:6px 0;border-top:1px solid #f0ede4"><div style="font-size:12px;color:#8a8577">'+String(r.date).slice(5)+(r.session&&r.session!=='REG'?' · '+r.session:'')+(r.hw?' · 지난 과제 '+esc(r.hw):'')+'</div>'+(lines.join('')||'<div style="color:#8a8577">활동 기록 없음</div>')+(r.praise?'<div style="color:#1E4D3B">👍 '+esc(r.praise)+'</div>':'')+(r.next?'<div>다음 과제: '+esc(r.next)+(r.due?' (~'+String(r.due).slice(5)+')':'')+'</div>':'')+'</div>';}).join('');}
-fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+m[1],p_k:k[1]})}).then(function(r){return r.json();}).then(render).catch(function(){document.getElementById('lfBody').textContent='불러오기 실패';});})();</script></section>
+<div class="gzStepCap" id="gzStep2">② 수업 중 — 오늘 수업 순서와 오늘 할 일</div>
 
-<nav class="toptabs">
-  <a href="#gzPos">시험 준비</a><a href="#gzFill" style="font-weight:800">내 공부</a><a href="#pA">수업</a><a href="#pC">내 기록</a>
-</nav>
-<div class="phasebar">
-  <span class="pb-cap">지금 시기</span>
-  <button class="pb on" onclick="setPhase('평상',this)">방학</button>
-  <button class="pb" id="pbExam" onclick="setPhase('내신',this)">내신 준비</button>
-  <button class="pb" onclick="setPhase('내신',this)">내신 직전</button>
-  <button class="pb" onclick="setPhase('복기',this)">시험 복기</button>
-  <span id="pbinfo" class="pb-info">방학 — 약점 훈련이 중심인 시기입니다. 시험 구간은 다음 시험이 잡히면 채워집니다.</span>
-</div>
-
-<div class="frame">
-
-<!-- ═══ 구간 A · 오늘 ═══ -->
-<div class="phase" id="pA">
-  <div class="phase-cap"><span class="pn" id="pnA">오늘</span><h2 id="h2A">오늘 할 일</h2><span class="nowbadge" id="nbA" style="display:none;font-size:13px;font-weight:800;background:var(--hl);border-radius:11px;padding:2px 9px;margin-left:4px">지금 이 구간</span><span class="jz">여정 27(수업 준비) → 34(수업 진입)</span></div>
   <!-- [오리엔테이션 v1 · 2026-09-10 계획 #17 · 강좌 6405 · lecture_contents 오리엔테이션 1~7 · 읽음=gz2_student_write ot_page] -->
   <div id="oriCard" style="margin:8px 0 12px;border:1px solid #e2ddd0;border-radius:14px;padding:13px 15px;background:#faf9f5;display:none">
     <div style="font-size:12.5px;color:#6b6b7b">가장 먼저 하는 것</div>
@@ -362,7 +367,46 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
       </div>
     </div>
   </div>
-</div>
+<section id="postmeta" style="margin:10px 12px;padding:12px 14px;border:1.5px solid #1E4D3B;border-radius:10px;background:#eef5f1;font-size:13px">
+<b style="font-size:14px">③ 수업 후: 오늘 수업 돌아보기</b> <span style="font-size:11px;color:#8a8577">배운 것·어려운 것·다음 주 목표를 적어요 · 같은 날 다시 보내면 고쳐 써져요</span>
+<div id="qmDone" style="display:none;margin-top:6px;color:#1E4D3B;font-weight:700"></div>
+<div id="qmForm" style="margin-top:8px;display:grid;gap:8px">
+<div style="font-weight:700;color:#1E4D3B">1단계 · 수업 내용</div>
+<label>1. 가장 인상 깊은 내용 <input id="qm1" style="width:100%;padding:5px"></label>
+<label>2. 새로 깨달은 것 한 가지 <input id="qm2" style="width:100%;padding:5px"></label>
+<label>3. 오늘 수업 만족도 <select id="qm3"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select> /5</label>
+<div style="font-weight:700;color:#1E4D3B;margin-top:4px">2단계 · 학습 방법</div>
+<label>4. 효과적이었던 방법 <input id="qm4" style="width:100%;padding:5px" placeholder="예: 밑줄 치며 읽기"></label>
+<label>5. 어려웠던 부분 <input id="qm5" style="width:100%;padding:5px"></label>
+<div>6. 오늘 지킨 습관 <label><input type="checkbox" class="qm6" value="예습"> 예습</label> <label><input type="checkbox" class="qm6" value="필기"> 필기</label> <label><input type="checkbox" class="qm6" value="질문"> 질문</label> <label><input type="checkbox" class="qm6" value="복습"> 복습</label></div>
+<div style="font-weight:700;color:#1E4D3B;margin-top:4px">3단계 · 시간·집중</div>
+<label>7. 오늘 스스로 공부한 시간 <input id="qm7" type="number" min="0" max="600" style="width:80px;padding:5px"> 분</label>
+<label>8. 집중도 <select id="qm8"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select> /5</label>
+<label>9. 집중이 흐트러졌을 때 다시 잡은 방법 <input id="qm9" style="width:100%;padding:5px"></label>
+<div style="font-weight:700;color:#1E4D3B;margin-top:4px">4단계 · 다음 주</div>
+<label>10. 다음 주 목표 3개 <input id="qm10a" style="width:100%;padding:5px;margin-bottom:3px" placeholder="목표 1"><input id="qm10b" style="width:100%;padding:5px;margin-bottom:3px" placeholder="목표 2"><input id="qm10c" style="width:100%;padding:5px" placeholder="목표 3"></label>
+<label>11. 실행 계획(언제·얼마나) <input id="qm11" style="width:100%;padding:5px" placeholder="예: 화·목 30분"></label>
+<label>12. 고칠 습관 하나 <input id="qm12" style="width:100%;padding:5px"></label>
+<div style="font-weight:700;color:#1E4D3B;margin-top:4px">5단계 · 나에게</div>
+<label>13. 나에게 한 마디 <input id="qm13" style="width:100%;padding:5px"></label>
+<label>14. 오늘 잘한 점 <input id="qm14" style="width:100%;padding:5px"></label>
+<label>15. 다음 수업 동기 <select id="qm15"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select> /5</label>
+<div><button id="qmBtn" type="button" style="padding:6px 12px;background:#1E4D3B;color:#fff;border:0;border-radius:6px;font-weight:700">보내기</button> <span id="qmR" style="font-size:12px;color:#8a8577"></span></div></div>
+<script>(function(){var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};var m=(location.search||'').match(/[?&]sid=(\d+)/),km=(location.search||'').match(/[?&]k=([a-f0-9]{32})/);var sid=m?+m[1]:0;if(!sid)return;
+function g(i){var e=document.getElementById(i);return e?e.value.trim():'';}
+fetch(B+'gz2_card_context',{method:'POST',headers:H,body:JSON.stringify({p_sid:sid,p_k:gzSK().k})}).then(function(r){return r.json();}).then(function(c){var p=c&&c.post;var today=new Date(Date.now()+9*36e5).toISOString().slice(0,10);if(p&&String(p.created_at).slice(0,10)===today){var sc=p.scores||{},st=p.strategy||{},ch=p.challenge||{};document.getElementById('qmDone').style.display='block';document.getElementById('qmDone').textContent='오늘 답 완료 ✓ — 만족도 '+(sc.satisfaction||'—')+'/5 · 집중 '+(sc.focus||'—')+'/5 · 어려웠던 것 '+(st.hard||'—')+' · 다음 주 목표 '+((ch.goals||[]).filter(Boolean).join(', ')||'—')+' · 잘한 점 '+(p.strengths||'—');}}).catch(function(){});
+document.getElementById('qmBtn').onclick=function(){if(!g('qm1')||!g('qm5')||!g('qm10a')){document.getElementById('qmR').textContent='1·5·10번은 꼭 적어 주세요';return;}var habits=[].slice.call(document.querySelectorAll('.qm6:checked')).map(function(x){return x.value;});var p={student_id:sid,k:km?km[1]:null,q1:g('qm1'),q2:g('qm2'),q3:g('qm3'),q4:g('qm4'),q5:g('qm5'),q6:habits,q7:g('qm7'),q8:g('qm8'),q9:g('qm9'),q10:[g('qm10a'),g('qm10b'),g('qm10c')].filter(Boolean),q11:g('qm11'),q12:g('qm12'),q13:g('qm13'),q14:g('qm14'),q15:g('qm15'),by:'2.0 학생'};
+fetch(B+'gz2_post_meta_save',{method:'POST',headers:H,body:JSON.stringify({p:p})}).then(function(r){return r.json();}).then(function(r){if(r&&r.ok){document.getElementById('qmR').textContent='';document.getElementById('qmDone').style.display='block';document.getElementById('qmDone').textContent='보냈습니다 ✓ 선생님 카드에 바로 반영됩니다';document.getElementById('qmForm').style.display='none';}else{document.getElementById('qmR').textContent='저장 실패: '+((r&&r.reason)||'');}}).catch(function(e){document.getElementById('qmR').textContent='오류 '+e;});};})();</script>
+</section></div>
+
+<section id="lessonflow" data-move="gzRec" style="display:none;margin:10px 12px;padding:12px 14px;border:1px solid #d8d4c8;border-radius:10px;background:#fff;font-size:13px">
+<b style="font-size:14px">최근 수업 기록</b> <span style="font-size:11px;color:#8a8577">선생님이 적은 수업 내용</span>
+<div id="lfBody" style="margin-top:8px;color:#8a8577">불러오는 중…</div>
+<script>(function(){var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};var m=(location.search||'').match(/[?&]sid=(\d+)/),k=(location.search||'').match(/[?&]k=([a-f0-9]{32})/);if(!m||!k)return;
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function actLine(a){return (a.act||'')+(a.min?' '+a.min+'분':'')+(a.pages?' · '+a.pages+'쪽':'')+(a.test?' · 시험지: '+a.test:'')+(a.name?' '+a.name:'');}
+function render(rows){var el=document.getElementById('lfBody');if(!rows.length){el.textContent='최근 3주 수업 기록이 아직 없어요';return;}el.style.color='#1f2a24';el.innerHTML=rows.map(function(r){var p=r.acts||{};var lines=[];['p1','p2','p3'].forEach(function(k,i){var arr=p[k]||[];if(arr.length)lines.push('<div><b>'+(i+1)+'교시</b> '+arr.map(function(a){return typeof a==='string'?a:actLine(a);}).join(' · ')+'</div>');});return '<div style="padding:6px 0;border-top:1px solid #f0ede4"><div style="font-size:12px;color:#8a8577">'+String(r.date).slice(5)+(r.session&&r.session!=='REG'?' · '+r.session:'')+(r.hw?' · 지난 과제 '+esc(r.hw):'')+'</div>'+(lines.join('')||'<div style="color:#8a8577">활동 기록 없음</div>')+(r.praise?'<div style="color:#1E4D3B">👍 '+esc(r.praise)+'</div>':'')+(r.next?'<div>다음 과제: '+esc(r.next)+(r.due?' (~'+String(r.due).slice(5)+')':'')+'</div>':'')+'</div>';}).join('');}
+fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+m[1],p_k:k[1]})}).then(function(r){return r.json();}).then(render).catch(function(){document.getElementById('lfBody').textContent='불러오기 실패';});})();</script></section>
 
 <!-- ═══ 구간 B · 이번 주 ═══ -->
 <div class="phase" id="pB">
@@ -514,29 +558,28 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
    (v1은 appendChild 로 구간을 재배치해 화면이 통째로 뒤바뀌었다 — 폐기) */
 var ORDER=['pA','pB','pC','pD','pE'];
 var COPY={
- '평상':{ now:'A', info:'방학 — 약점 훈련이 중심인 시기입니다. 시험 구간은 다음 시험이 잡히면 채워집니다.',
-   A:['오늘','오늘 할 일'],
+ '평상':{ now:'A', info:'시험이 없는 기간입니다. 약점 훈련이 중심이에요. 시험 일정이 잡히면 「시험 준비」가 채워집니다.',
+   A:['오늘','오늘 수업'],
    B:['이번 주','과제 · 강의 · 오답'],
    C:['매주','주별 공부 기록'],
-   D:['시험','다음 시험 — 범위와 내 일정'],
+   D:['시험','시험 범위와 내 일정'],
    E:['성장','성적과 시험 기록'] },
- '내신':{ now:'D', info:'내신 준비 기간입니다. 시험 구간을 먼저 보시면 됩니다 — 자리는 그대로입니다.',
-   A:['오늘','시험까지 남은 날, 오늘 할 것'],
-   B:['이번 주','시험 범위 과제부터'],
-   C:['매주','시험 전까지 쌓아 온 기록'],
-   D:['시험','범위 → 내 일정 — 지금 여기가 중심입니다'],
-   E:['성장','시험이 끝나면 여기가 채워집니다'] },
- '복기':{ now:'D', info:'시험 복기 기간입니다. 시험 구간의 네 가지 질문을 먼저 채우시면 됩니다 — 자리는 그대로입니다.',
-   A:['오늘','시험 끝난 뒤 첫 수업'],
-   B:['이번 주','틀린 문항 다시 보기'],
-   C:['매주','시험 전후로 무엇이 달라졌나'],
-   D:['시험','시험 후 네 질문 — 지금 여기가 중심입니다'],
-   E:['성장','이번 시험이 남긴 것'] }
+ '내신':{ now:'D', info:'내신 기간입니다. 「시험 준비」 탭에서 범위와 남은 공부를 먼저 보세요.',
+   A:['오늘','오늘 수업'],
+   B:['이번 주','과제 · 강의 · 오답'],
+   C:['매주','주별 공부 기록'],
+   D:['시험','시험 범위와 내 일정'],
+   E:['성장','성적과 시험 기록'] },
+ '복기':{ now:'D', info:'시험이 끝났어요. 틀린 문항을 다시 보고 시험 후 질문에 답하세요.',
+   A:['오늘','오늘 수업'],
+   B:['이번 주','과제 · 강의 · 오답'],
+   C:['매주','주별 공부 기록'],
+   D:['시험','시험 범위와 내 일정'],
+   E:['성장','성적과 시험 기록'] }
 };
 function setPhase(k, btn){
   var c=COPY[k]; if(!c) return;
   var frame=document.querySelector('.frame');
-  ORDER.forEach(function(id){ var el=document.getElementById(id); if(el) frame.appendChild(el); });
   ['A','B','C','D','E'].forEach(function(x){
     var pn=document.getElementById('pn'+x), h2=document.getElementById('h2'+x), nb=document.getElementById('nb'+x);
     if(pn) pn.textContent=c[x][0];
@@ -551,7 +594,7 @@ function setPhase(k, btn){
 }
 document.addEventListener('DOMContentLoaded',function(){
   var b=document.querySelector('.phasebar .pb.on');
-  setPhase('평상', b);
+  setPhase('평상', b); gzOrder();
 });
 function setHw(k, btn){
   ['ok','pt','no'].forEach(function(x){document.getElementById('hw-'+x).style.display = (x===k?'block':'none');});
@@ -593,7 +636,7 @@ function gzLoadFill(){
 function gzRenderFill(recs){
   var _pa=document.getElementById('pA'), _pb=document.getElementById('pB');
   var _pos=document.getElementById('gzPos'), _fl=document.getElementById('gzFill');
-  if(_pos&&_pa&&_pa.parentElement&&_pos.nextElementSibling!==_pa){_pa.parentElement.insertBefore(_pos,_pa);}
+  gzOrder();
   var _st=document.getElementById('gzStudy');
   if(_st&&_pb&&_pb.parentElement&&_st.nextElementSibling!==_pb){_pb.parentElement.insertBefore(_st,_pb);}
   var _rc=document.getElementById('gzRec'); var _pc=document.getElementById('pC');
@@ -676,9 +719,9 @@ function gzBuildPos(){
       var sec=document.createElement('div');
       sec.id='gzPos'; sec.className='phase';
       sec.innerHTML='<div style="padding:14px 22px 4px"><h2 style="margin:0;font-family:\'Noto Serif KR\',serif;font-size:22px">시험까지 남은 공부</h2>'
-        +'<div style="font-size:12px;color:#98a49e;margin:2px 0 10px">'+(ex.phase||'')+' · '+(ex.jeolgi||'')+' · 다음 시험 '+((ex.exam_start||'미정').slice(5).replace('-','/'))+'</div>'
+        +'<div style="font-size:12px;color:#98a49e;margin:2px 0 10px">'+(ex.phase||'')+' · 다음 시험 '+((ex.exam_start||'미정').slice(5).replace('-','/'))+'</div>'
         +'<div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap"><div style="width:300px;flex:none">'+L+'</div><div style="flex:1;min-width:330px">'+R+'</div></div></div>';
-      host.parentElement.insertBefore(sec,host);
+      host.parentElement.insertBefore(sec,host.nextSibling); gzOrder();
       var a=document.getElementById('gzAtt'); if(a)set('gzPosAtt',a.textContent);
       var c=document.getElementById('gzCoach'); if(c)set('gzPosCo',c.textContent);
       set('gzPosStreak',document.getElementById('gzStreak').textContent);
@@ -871,7 +914,7 @@ function gzBuildRec(){
   if(!pc||!pc.parentElement){setTimeout(gzBuildRec,400);return;}
   var d=document.createElement('div'); d.id='gzRec'; d.className='phase';
   d.innerHTML='<div style="padding:14px 22px 4px"><h2 style="margin:0 0 8px;font-family:\'Noto Serif KR\',serif;font-size:22px">내 기록</h2><div id="gzRecBody"><p class="mini">불러오는 중…</p></div></div>';
-  pc.parentElement.insertBefore(d,pc);
+  pc.parentElement.insertBefore(d,pc); gzOrder();
   var C='border:1px solid #ded7c3;border-radius:11px;background:#fff;padding:12px 14px;margin-bottom:10px;max-width:760px';
   var CAP='font-size:11.5px;font-weight:800;color:#8a5a00;margin-bottom:6px';
   var mon=(new Date()).getMonth()+1;
@@ -1031,8 +1074,8 @@ gzBuildBanner();
 
 /* 태블릿 — 상단 탭 하이라이트 + 좌측 서브레일(세부 항목) */
 (function(){
-  var SECS=['gzPos','pA','gzStudy','pB','gzRec'];
-  var LABEL={gzPos:'내 위치',pA:'수업',gzStudy:'내 공부',pB:'학습',gzRec:'내 기록'};
+  var SECS=['pA','gzPos','gzStudy','pB','gzRec'];
+  var LABEL={pA:'오늘 수업',gzPos:'시험 준비',gzStudy:'내 공부',pB:'과제 · 강의 · 오답',gzRec:'내 기록'};
   function caps(sec){
     var el=document.getElementById(sec); if(!el)return[];
     var out=[]; var seen={};
@@ -1080,7 +1123,7 @@ gzBuildBanner();
       }});
     },{rootMargin:'-20% 0px -60% 0px'});
     SECS.forEach(function(id){var el=document.getElementById(id); if(el&&map[resolve(id)])obs.observe(el);});
-    renderRail('gzPos');
+    renderRail('pA');
   }
   boot();
 })();
@@ -1207,11 +1250,12 @@ setTimeout(function(){
 /* v6: 국면 엔진 결선 — v_student_phase 실값으로 라벨·활성 버튼 갱신 */
 q("select phase, jeolgi, d_day from v_student_phase where student_id="+sid()).then(function(r){
   if(!r||!r[0])return; var p=r[0];
-  var bs=document.querySelectorAll('.phasebar .pb');
-  for(var i=0;i<bs.length;i++){ var on=(p.phase||'') && bs[i].textContent.indexOf(p.phase)>=0;
-    bs[i].className='pb'+(on?' on':''); }
-  var first=document.querySelector('.phasebar .pb');
-  if(first && (p.phase||'').indexOf('방학')>=0) first.textContent=p.phase+' · '+(p.jeolgi||'');
+  /* [seq 276] 선택 표시만 바꾸고 안내줄은 그대로 두던 결함 수정 — setPhase로 단추·안내줄을 함께 바꾼다. 절기 이름은 붙이지 않는다 */
+  var ph=p.phase||'', E=function(i){return document.getElementById(i);};
+  if(ph==='내신 준비') setPhase('내신',E('pbExam'));
+  else if(ph==='내신 직전') setPhase('내신',E('pbNear'));
+  else if(ph==='시험 복기') setPhase('복기',E('pbReview'));
+  else { var R=E('pbRest'); if(R) R.textContent=({'방학 집중':'방학','모의 국면':'모의고사 시기','평상':'평소'})[ph]||'평소'; setPhase('평상',R); }
 });
 
 
