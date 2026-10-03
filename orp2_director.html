@@ -177,7 +177,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
   <span class="chip sc" id="scChip" onclick="scGo()" title="누르면 사례 후보 칸으로 이동">🌱 이 주의 사례 후보 <span class="n" id="scN">…</span></span>
   <span class="chip hq" id="hqChip" onclick="hqGo()" style="display:none"></span>
   <span class="hint">상단 고정 · 어느 상태든 1클릭 = ritual_runs</span>
-  <span class="right">로그인 직후 이 화면(본판=시간표) · orp2 v3 · v0.63</span>
+  <span class="right">로그인 직후 이 화면(본판=시간표) · orp2 v3 · v0.66</span>
 </div>
 <div class="greet" id="greet">오늘의 리추얼을 불러오는 중…</div>
 <div class="wrap">
@@ -195,8 +195,8 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
     <div class="rule">비교 없음 · 본인 수신 · 온보딩 첫 달 무평가 · 질=시장 평가 · 주지표=유지·재등록 · 조망(G-ZONE·여정) 하단 접이 ▾</div>
     <div id="loading">DB 적재 중 — rituals · ritual_runs · v_orp_myrecord · v_orp_myday</div>
     <div id="app" style="display:none">
-      <nav class="otabs" id="otabs"><span class="lb">오거나이저</span><button data-p="p14" id="hqTab" style="display:none">📥 본점</button><button data-p="p15" id="rlTab" style="display:none">📜 원칙</button><button data-p="p16">✍ 검수</button><button data-p="p1">① 년간 계획표</button><button data-p="p3">③ 이 달 목표</button><button data-p="p4">④ 달력·발행판</button><button data-p="p13">🌱 사례 후보</button><button data-p="p5">⑤ 회의·교육</button><button data-p="p6">⑥ 내 성과물</button><button data-p="p8">⑧ 담당 학생</button><button data-p="p9">⑨ 교사 통계판</button><button data-p="p10">⑩ 내 할 일</button><button data-p="p11">⑪ 월요 점검</button><button data-p="p12">⑫ 메모·보고<span id="p12q"></span></button><span class="gp"></span><span class="lb">조망(경험여정)</span><button data-p="jn:pg-struct">G-ZONE 구조</button><button data-p="jn:pg-journey">경험여정</button><button data-p="jn:pg-asset">자산·아키텍처</button><button data-p="jn:pg-rnd">정부과제</button><button data-p="jn:pg-rnd2">정부과제 2</button><button data-p="jn:pg-bizc">사업계획 B2C</button><button data-p="jn:pg-bizb">사업계획 B2B</button><button data-p="jn:pg-notes">연구노트</button><button data-p="jn:pg-axes">판독 현황</button><button data-p="jn:pg-mock2">목업</button><button data-p="jn:pg-refs">📖 참고문헌</button></nav>
-      <div class="sec opane" id="s14box"><div class="h"><b id="s14t">📥 본점</b><span class="tag">선생님·원장=신청 · 본점=확인·피드백·제작·배급</span><span class="m" style="font-size:11px;color:var(--dim)" id="s14c">적재 전</span><span class="tag" style="margin-left:auto;cursor:pointer" onclick="hqLoad(1)">↻ 새로고침</span></div><div id="s14"><div class="sc-empty">탭을 열면 적재합니다.</div></div></div>
+      <nav class="otabs" id="otabs"><span class="lb">오거나이저</span><button data-p="p14" id="hqTab" style="display:none">📥 본점</button><button data-p="p15" id="rlTab" style="display:none">📜 원칙</button><button data-p="p16">✍ 검수</button><button data-p="p1">① 년간 계획표</button><button data-p="p3">③ 이 달 목표</button><button data-p="p4">④ 달력·발행판</button><button data-p="p13">🌱 사례 후보</button><button data-p="p5">⑤ 회의·교육</button><button data-p="p6">⑥ 내 성과물</button><button data-p="p8">⑧ 담당 학생</button><button data-p="p9">⑨ 교사 통계판</button><button data-p="p10">⑩ 내 할 일</button><button data-p="p11">⑪ 월요 점검</button><button data-p="p12">⑫ 메모·보고<span id="p12q"></span></button><span class="gp" data-org="hq"></span><span class="lb" data-org="hq">조망(경험여정)</span><button data-p="jn:pg-struct">G-ZONE 구조</button><button data-p="jn:pg-journey">경험여정</button><button data-p="jn:pg-asset">자산·아키텍처</button><button data-p="jn:pg-rnd">정부과제</button><button data-p="jn:pg-rnd2">정부과제 2</button><button data-p="jn:pg-bizc">사업계획 B2C</button><button data-p="jn:pg-bizb">사업계획 B2B</button><button data-p="jn:pg-notes">연구노트</button><button data-p="jn:pg-axes">판독 현황</button><button data-p="jn:pg-mock2">목업</button><button data-p="jn:pg-refs">📖 참고문헌</button></nav>
+      <div class="sec opane" id="s14box"><div class="h"><b id="s14t">📥 본점</b><span class="tag">선생님·원장=신청 · 본점=확인·피드백·제작·배급</span><span class="m" style="font-size:11px;color:var(--dim)" id="s14c">적재 전</span><span class="tag" style="margin-left:auto;cursor:pointer" onclick="hqLoad(1)">↻ 새로고침</span></div><div id="s14"><div class="sc-empty">탭을 열면 적재합니다.</div></div><div id="fbBox" style="margin-top:14px"></div></div>
       <div class="sec opane" id="s15box"><div class="h"><b>📜 원장 원칙 표</b><span class="tag">원칙 1건 = 표 1행 · gz_rule_check가 이 표를 읽음</span><span class="m" style="font-size:11px;color:var(--dim)" id="s15c">적재 전</span><span class="tag" style="margin-left:auto;cursor:pointer" onclick="rlLoad(1)">↻ 새로고침</span></div><div id="s15"><div class="sc-empty">탭을 열면 적재합니다.</div></div></div>
       <div class="sec opane" id="s16box"><div class="h"><b>✍ 발행 전 검수</b><span class="tag">블로그·홍보 원고 · 문체 v1.4 부속 게이트 · FAIL 0이면 통과</span><span class="tag">원칙 R-STYLE — 발행계획 번호를 넣으면 발행 체크가 이 결과를 읽음</span></div>
         <div class="rl-two"><div><textarea id="stSrc" class="st-src" placeholder="블로그 HTML 또는 본문 텍스트를 붙여넣기"></textarea>
@@ -205,7 +205,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
           <div id="stOut"><div class="sc-empty">원고를 넣고 「검수 실행」을 누르세요.</div></div></div></div>
       <div class="sec"><div class="h"><b>① 년간 계획표 — 학원 + 내 행</b><span class="tag">이행</span></div><div id="s1"></div></div>
       <div class="sec"><div class="h"><b>② 리추얼</b><span class="tag">체크</span><span class="m" id="s2c" style="font-size:11px;color:var(--dim)"></span></div><div id="s2"></div></div>
-      <div class="sec"><div class="h"><b id="s3t">③ 이 달 목표</b><span class="tag">기여</span></div><div id="s3"></div></div><div class="sec" id="s8box"><div class="h"><b>④ 달력·발행판</b><span class="tag">원천 v_mkt_events 하나</span><span class="tag">체크 1회 = 리추얼 완료 + 발행 대장</span><span class="m" style="font-size:11px;color:var(--dim)" id="s8c">적재 중…</span></div><div class="mk-bar"><span class="zg" id="mkZoom"><button data-z="year" onclick="mkZoom('year')">연간</button><button data-z="month" onclick="mkZoom('month')">월</button><button data-z="week" onclick="mkZoom('week')">이 주</button></span><button onclick="mkNav(-1)">◀</button><span id="mkLbl"></span><button onclick="mkNav(1)">▶</button><button onclick="MK.anchor=null;loadMkt(1)">오늘</button><label><input type="checkbox" checked onchange="mkToggle('시험',this)"> 시험</label><label><input type="checkbox" checked onchange="mkToggle('플레이북',this)"> 플레이북</label><span class="up"><span id="mkSheetMsg">달력 xlsx(일정목록) → 발행 행 반영 · 「발행일」 열 우선</span><label class="mk-b2 o" style="cursor:pointer;color:var(--deep)">시트 반영<input type="file" accept=".xlsx" style="display:none" onchange="mkSheet(this)"></label></span></div><div id="s8"></div></div>
+      <div class="sec"><div class="h"><b id="s3t">③ 이 달 목표</b><span class="tag">기여</span></div><div id="s3"></div></div><div class="sec" id="s8box"><div class="h"><b>④ 달력·발행판</b><span class="tag">원천 v_mkt_events 하나</span><span class="tag">체크 1회 = 리추얼 완료 + 발행 대장</span><span class="m" style="font-size:11px;color:var(--dim)" id="s8c">적재 중…</span></div><div class="mk-bar"><span class="zg" id="mkZoom"><button data-z="year" onclick="mkZoom('year')">연간</button><button data-z="month" onclick="mkZoom('month')">월</button><button data-z="week" onclick="mkZoom('week')">이 주</button></span><button onclick="mkNav(-1)">◀</button><span id="mkLbl"></span><button onclick="mkNav(1)">▶</button><button onclick="MK.anchor=null;loadMkt(1)">오늘</button><label><input type="checkbox" checked onchange="mkToggle('시험',this)"> 시험</label><label><input type="checkbox" checked onchange="mkToggle('플레이북',this)"> 플레이북</label><span class="up"><span id="mkSheetMsg">달력 xlsx(일정목록) → 발행 행 반영 · 「발행일」 열 우선</span><label class="mk-b2 o" data-org="dir" style="cursor:pointer;color:var(--deep)">시트 반영<input type="file" accept=".xlsx" style="display:none" onchange="mkSheet(this)"></label></span></div><div id="s8"></div></div>
       <div class="sec opane" id="s13box"><div class="h"><b>🌱 이 주의 사례 후보</b><span class="tag">원장 칼럼·성과 홍보 소재</span><span class="tag">동의 없으면 발행 잠금</span><span class="m" style="font-size:11px;color:var(--dim)" id="s13c">적재 전</span><span class="tag" style="margin-left:auto;cursor:pointer" onclick="scLoad(1)">↻ 새로고침</span></div>
 <div class="sc-filter" id="scFilt"><span id="scKinds"></span><span class="rt"><select id="scT" onchange="scRender()" style="display:none"><option value="">담당 전체</option></select><label><input type="checkbox" id="scRecent" checked onchange="scRender()"> 최근 90일 안에 기록이 있는 학생만</label></span></div>
 <div class="sc-grid"><div class="sc-list" id="s13"><div class="sc-empty">탭을 열면 적재합니다.</div></div><aside class="sc-draft" id="scDraft"><h3>칼럼 초안 틀</h3><div class="sc-empty">왼쪽에서 학생을 누르면 근거 숫자가 채워진 초안 틀이 열립니다.</div></aside></div>
@@ -224,12 +224,16 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
 <script>
 const URL_='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/';
 const KEY='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
-const H={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json',Prefer:'return=representation'};
+/* v0.64 (2026-10-01) 관문 JWT 우선 — KB-KEY 6단계(#8387) anon 회수 후 rituals·ritual_runs·meeting_actions 401 해소 */
+function gzJwt(){try{if(window.__GZ_JWT)return window.__GZ_JWT;}catch(_){}try{if(window.parent&&window.parent!==window){if(window.parent.__GZ_JWT)return window.parent.__GZ_JWT;const s=JSON.parse(window.parent.sessionStorage.getItem('gz_session')||'null');if(s&&s.jwt)return s.jwt;}}catch(_){}return null;}
+const H={apikey:KEY,get Authorization(){return 'Bearer '+(gzJwt()||KEY);},'Content-Type':'application/json',Prefer:'return=representation'};
+async function gzRetry401(){try{if(window.parent&&window.parent!==window&&typeof window.parent.gzRefresh==='function'){const ok=await window.parent.gzRefresh();if(ok){const s=JSON.parse(window.parent.sessionStorage.getItem('gz_session')||'null');if(s&&s.jwt)window.__GZ_JWT=s.jwt;}return ok;}}catch(_){}return false;}
 const DAYS=['일','월','화','수','목','금','토'];
 const KST=()=>new Date(Date.now()+9*3600e3);
 const ymd=d=>d.toISOString().slice(0,10);
-let TID=3, D={};
-async function get(p){const r=await fetch(URL_+p,{headers:H});if(!r.ok)throw new Error(p+' '+r.status);return r.json();}
+/* v0.65 (2026-10-01) 기본 교사 = 로그인 계정(종전 3 고정 → 원장 로그인에도 이현수 기록·「현수 원장님」 인사) */
+let TID=(window.__GZ_ME&&window.__GZ_ME.teacher_id)||3, D={};
+async function get(p){let r=await fetch(URL_+p,{headers:H});if(r.status===401&&await gzRetry401())r=await fetch(URL_+p,{headers:H});if(!r.ok)throw new Error(p+' '+r.status+(r.status===401&&!gzJwt()?' (로그인 토큰 없음 — 관문 gmap2.html에서 다시 로그인)':''));return r.json();}
 function week(){const n=KST();const dow=(n.getUTCDay()+6)%7;const mon=new Date(n);mon.setUTCDate(n.getUTCDate()-dow);return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setUTCDate(mon.getUTCDate()+i);return ymd(d);});}
 async function load(){
   const wk=week();
@@ -273,13 +277,8 @@ function render(){
   const doneCnt=D.runs.filter(r=>r.status==='완료').length;
   document.getElementById('s2c').textContent='주 5칸 · 이번 주 '+doneCnt+'/5 · ritual_runs '+D.runs.length+'행(내 것)';
   document.getElementById('s2').innerHTML='<div class="wk">'+D.wk.slice(0,5).map((d,i)=>{const dn=DAYS[(i+1)%7];const r=wkR.find(x=>x.anchor_value===dn);const rn=r&&D.runs.find(x=>x.ritual_id===r.id&&x.run_date===d);return '<div class="d'+(d===today?' today':'')+(rn&&rn.status==='완료'?' done':'')+'"><b>'+dn+' '+d.slice(5)+'</b>'+(r?(r.value_code||r.layer)+': '+r.title+'<div class="how" title="'+String((ROLE2!=='teacher'&&r.guide_director)?r.guide_director:(r.guide||'')).replace(/"/g,'&quot;')+'">'+(r.how||'')+(r.caution?'<br>⚠ '+r.caution:'')+'</div>':'—')+(rn?'<div style="color:var(--deep);font-weight:700">'+rn.status+(rn.target_name?' · '+rn.target_name:'')+'</div>':'')+'</div>';}).join('')+'</div>';
-  // ③ 이 달 목표
-  const mo=KST().getUTCMonth()+1;document.getElementById('s3t').textContent='③ '+mo+'월 목표';
-  const ac=rec('학원목표'),mg=rec('목표').filter(r=>r.meta.level!=='annual');
-  document.getElementById('s3').innerHTML=ac.map(r=>'<div class="band">학원: '+r.label+'<span class="m">'+r.detail+(r.meta.owner?' · '+r.meta.owner:'')+'</span></div>').join('')+
-    (mg.length?mg.map(r=>'<div class="row me">'+r.label+'<span class="m">'+r.detail+'</span>'+(r.meta.status==='완료'?' <span class="tag" style="background:var(--deep);color:#fff">완료</span>':' <span class="tag" style="cursor:pointer" onclick="doneGoal('+r.meta.goal_id+')">완료 처리</span>')+'</div>').join(''):'<div class="empty">내게 부여·도전 0 — goals(period='+KST().toISOString().slice(0,7)+', owner='+me.nick+') 없음. <i>미결 ② 입력 UI</i>.</div>')+
-    '<div class="kpis"><div class="kpi"><div class="t">부여</div><div class="v">'+mg.filter(r=>r.meta.status==='완료').length+'/'+mg.length+'</div></div></div>';
-  document.getElementById('s3').innerHTML+=goalForm('month');
+  // ③ 10~11월 목표 — 순위 묶음·입력·초안·가치 (plan.js)
+  loadPlan();
   // ④ 회의
   const mt=rec('회의');
   document.getElementById('s4').innerHTML=mt.length?mt.map(r=>'<div class="row">'+r.label+'<span class="m">'+r.detail+' · '+(r.meta.attended?'참석':(r.meta.attendees?'불참':'참석자 미기록'))+'</span></div>').join(''):'<div class="empty">최근 60일 회의록 0</div>';
@@ -453,6 +452,21 @@ function hqWho(r){return (r.requester_role==='교사'||r.requester_role==='원�
   :'<span class="hq-who rm">방 · '+hqEsc(r.from_room)+'</span>';}
 function hqFb(r){const f=r.feedback||[];return f.length?'<div class="hq-fb">'+f.map(x=>'<div><b>본점 피드백</b> '+hqEsc(x.t)+'<span>'+hqDT(x.at)+'</span></div>').join('')+'</div>':'';}
 function hqGo(){if(typeof OP!=='undefined'&&OP.p14){oTab('p14');const b=document.getElementById('s14box');if(b&&b.scrollIntoView)b.scrollIntoView({behavior:'smooth'});}}
+
+/* [2026-10-02 seq 270 ③] 건의함 — 원장·교사(디렉터·디자이너) → 본점. 그릇 tenant_feedback · gz_feedback_submit/list/answer. 본점만 답변. */
+var FB={d:null};
+async function fbLoad(){const box=document.getElementById('fbBox');if(!box)return;let j;try{j=await rpcJ('gz_feedback_list',{});}catch(e){j={ok:false,reason:e.message};}
+  if(!j||!j.ok){box.innerHTML='';return;} FB.d=j; fbRender();}
+function fbRender(){const j=FB.d,box=document.getElementById('fbBox');if(!j||!box)return;const hq=j.role==='본점';const rows=j.rows||[];
+  const chip=st=>'<span class="hq-imp" style="background:'+(st==='접수'?'#fdecec;color:#b42318':st==='답변'?'#fff4dc;color:#8a5a00':'#e8f4ee;color:#1E4D3B')+';padding:0 6px;border-radius:6px;font-size:11px">'+hqEsc(st)+'</span>';
+  const form='<div class="hq-frm"><span></span><b style="font-size:12.5px">'+(hq?'건의 기록(본점 메모)':'본점에 건의')+'</b><label>분류</label><select id="fbCat"><option>시스템</option><option>교안품질</option><option>운영정책</option><option>기타</option></select><label>내용</label><textarea id="fbBody" placeholder="불편한 점·바라는 점을 한 건씩 적어 주세요"></textarea><span></span><div><button type="button" class="btn" onclick="fbSend(this)">보내기</button> <span class="hq-meta" id="fbMsg"></span></div></div>';
+  const card=r=>'<div class="hq-card" style="border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0"><div>'+chip(r.status)+' <b>'+hqEsc(r.category)+'</b> <span class="hq-meta">'+hqEsc(r.branch||'')+' · '+hqEsc(r.who||r.role||'')+' · '+hqEsc(String(r.at||'').slice(0,10))+'</span></div><div style="margin-top:4px;white-space:pre-wrap">'+hqEsc(r.body)+'</div>'
+    +(r.answer?'<div style="margin-top:6px;padding:6px 8px;background:#f4f8f5;border-radius:6px"><b>본점 답변</b> <span class="hq-meta">'+hqEsc(r.answered_by||'')+' · '+hqEsc(String(r.answered_at||'').slice(0,10))+'</span><div style="white-space:pre-wrap">'+hqEsc(r.answer)+'</div></div>':'')
+    +(hq&&r.status!=='종결'?'<div style="margin-top:6px;display:flex;gap:6px"><textarea id="fbA'+r.id+'" placeholder="답변" style="flex:1;min-height:38px"></textarea><button type="button" class="btn o" onclick="fbAns('+r.id+',false,this)">답변</button><button type="button" class="btn" onclick="fbAns('+r.id+',true,this)">답변 후 종결</button></div>':'')+'</div>';
+  box.innerHTML='<div class="h" style="margin-bottom:6px"><b>💬 건의함</b><span class="tag">'+(hq?'학원 전체 건의 · 본점 답변':(j.role==='원장'?'우리 지점 건의':'내 건의'))+' · 접수 '+(j.open||0)+'</span></div>'+form+(rows.length?rows.map(card).join(''):'<div class="sc-empty">건의가 없습니다.</div>');}
+async function fbSend(btn){const m=document.getElementById('fbMsg');const b=document.getElementById('fbBody').value;btn.disabled=true;m.textContent='보내는 중…';const j=await rpcJ('gz_feedback_submit',{category:document.getElementById('fbCat').value,body:b});btn.disabled=false;
+  if(!j||!j.ok){m.textContent=(j&&j.reason)||'저장 실패';m.style.color='#A4472F';return;} await fbLoad();const m2=document.getElementById('fbMsg');if(m2){m2.textContent='접수됨 #'+j.id;m2.style.color='var(--deep)';}}
+async function fbAns(id,close,btn){const a=(document.getElementById('fbA'+id)||{}).value||'';btn.disabled=true;const j=await rpcJ('gz_feedback_answer',{id:id,answer:a,close:close});btn.disabled=false;if(!j||!j.ok){alert((j&&j.reason)||'답변 실패');return;} fbLoad();}
 async function hqLoad(force){
   if((HQ.d&&!force)||HQ.busy) return; HQ.busy=true;
   let j; try{ j=await rpcJ('gz_req_list',{}); }catch(e){ j={ok:false,reason:e.message}; }
@@ -466,7 +480,7 @@ async function hqLoad(force){
   document.getElementById('s14t').textContent=isHQ?'📥 본점 접수함':'📮 본점에 제작 신청';
   document.getElementById('s14c').textContent=isHQ?('학생·선생님·원장 신청 + 각 방 요청 · 대기 '+j.open+' · 제작 중 '+j.making)
     :(j.role==='원장'?(j.from+' 전체 신청'):'내 신청')+' · 신청 → 본점 확인·피드백 → 제작 → 배급';
-  hqRender();
+  hqRender(); fbLoad();
 }
 function hqSteps(r){
   if(r.stage==='반려') return '<div class="hq-steps"><span class="on">신청됨</span><span class="no">반려</span><span>—</span></div>';
@@ -543,12 +557,24 @@ async function hqSubmit(btn){
 let RL={d:null,busy:false};
 const RL_KINDS=[['url_http','URL이 http로 시작','값 이름 (기본 url)'],['nonblank','값이 비어 있지 않음','값 이름 (기본 url)'],['count_min','개수가 N 이상','값이름:N (예 published_count:1)'],['flag_true','예/아니오 표시가 예','값 이름 (예 consent_ok)'],['manual','전용 함수 새로 만듦 (DB방)','']];
 function rlEsc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+/* [2026-10-02 seq 270 ②] 계정별 칸 — DB 판정(gz_req_me: 본점·원장·교사)으로 노출. 관리자(본점) = ✍ 검수·⑪ 월요 점검·조망 11탭 / 원장 이상 = ⑨ 교사 통계판·시트 반영. 함수도 같은 검사(gz_org_role). */
+function applyOrgRole(role){
+  const hq=role==='본점', dir=hq||role==='원장';
+  const show=(el,on)=>{ if(el) el.style.display=on?'':'none'; };
+  document.querySelectorAll('#otabs button').forEach(b=>{const p=b.dataset.p||''; if(p==='p16'||p==='p11'||p.indexOf('jn:')===0) show(b,hq); else if(p==='p9') show(b,dir&&!(typeof ROLE2!=='undefined'&&ROLE2==='teacher'));});
+  document.querySelectorAll('[data-org="hq"]').forEach(e=>show(e,hq));
+  document.querySelectorAll('[data-org="dir"]').forEach(e=>show(e,dir));
+  window.ORG_ROLE=role||null;
+  const cur=sessionStorage.getItem('orp_tab')||'p1'; const hid=(!hq&&(cur==='p16'||cur==='p11'||cur.indexOf('jn:')===0))||(!dir&&cur==='p9');
+  if(hid&&typeof oTab==='function'&&typeof OP!=='undefined'&&OP&&OP.p1) oTab('p1');
+}
 async function rlLoad(force){
   if((RL.d&&!force)||RL.busy) return; RL.busy=true;
   let j; try{ j=await rpcJ('gz_rules_list',{}); }catch(e){ j={ok:false,reason:e.message}; } RL.busy=false;
   const tab=document.getElementById('rlTab'), box=document.getElementById('s15');
-  if(!j||!j.ok){ RL.d=null; if(tab) tab.style.display='none'; if(box) box.innerHTML='<div class="sc-empty" style="color:#A4472F">'+rlEsc((j&&j.reason)||'적재 실패')+'</div>'; return; }
-  RL.d=j; if(tab) tab.style.display='';
+  if(!j||!j.ok){ RL.d=null; if(tab) tab.style.display='none'; applyOrgRole(null); if(box) box.innerHTML='<div class="sc-empty" style="color:#A4472F">'+rlEsc((j&&j.reason)||'적재 실패')+'</div>'; return; }
+  RL.d=j; if(tab) tab.style.display=''; applyOrgRole(j.role);
   document.getElementById('s15c').textContent='원칙 '+(j.rows||[]).length+'건 · 적용 중 '+(j.rows||[]).filter(r=>r.active).length+' · '+(j.role==='본점'?'본점 — 등록 가능':'열람');
   rlRender();
 }
@@ -597,6 +623,7 @@ async function stRun(btn){const t=document.getElementById('stSrc').value,bl=docu
 
 function secOf(id){const e=document.getElementById(id);return e?e.closest('.sec'):null;}
 function oInit(){
+  applyOrgRole(null); /* [2026-10-02 seq 270 ②] DB 역할 확인 전에는 본점·원장 전용 칸을 숨김 */
   OP={p1:secOf('s1'),p2:secOf('s2'),p3:secOf('s3'),p4:document.getElementById('s8box'),
       p5:secOf('s4'),p6:secOf('s5'),p7:document.getElementById('s5b'),p8:secOf('s6'),
       p9:document.getElementById('s7box'),p10:document.getElementById('s9box'),p11:document.getElementById('s11box'),p12:document.getElementById('s12box'),p13:document.getElementById('s13box'),p14:document.getElementById('s14box'),p15:document.getElementById('s15box'),p16:document.getElementById('s16box')};
@@ -831,6 +858,226 @@ async function mkInternal(rid){const tr=(D.rit||[]).find(x=>String(x.id)===Strin
 async function runNotifies(){if(ROLE2==='teacher')return;try{const ov=await (await fetch(URL_+'rpc/gz2_actions_overdue_notify',{method:'POST',headers:H,body:'{}'})).json();if(ov&&ov.notified>0)console.log('기한 경과 알림 '+ov.notified);for(const f of ['gz2_newcomer_overdue_notify','gz2_latent_notify']){try{await fetch(URL_+'rpc/'+f,{method:'POST',headers:H,body:'{}'});}catch(_){}}}catch(_){}}
 
 (function(){var iv=setInterval(function(){var a=document.getElementById('app');if(a&&a.style.display!=='none'&&document.getElementById('s1')){clearInterval(iv);try{oInit();}catch(e){console.error(e);}}},200);setTimeout(function(){clearInterval(iv);},20000);})();
+</script>
+<!-- ===== v0.66 (2026-10-01, gz_task 249 정정) 휴대폰 보기 — 같은 관문(gmap2.html) ⑤ 오거나이저 탭 안에서 화면 폭 700px 미만이면 자동 전환. 별도 주소 없음. ===== -->
+<style>
+#gzm{display:none}
+body.gzm-on>*:not(#gzm){display:none!important}
+body.gzm-on{background:#F5F3EC;padding:0;margin:0}
+body.gzm-on #gzm{display:block}
+#gzm{--g:#1E4D3B;--gold:#B8892E;--bg:#F5F3EC;--line:#e4e0d4;--dim:#8a8577;--red:#A4472F;--ok:#2f7a55;font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#1f2a24;font-size:15px;line-height:1.45}
+#gzm *{box-sizing:border-box}
+#gzm .mtop{position:sticky;top:0;z-index:20;background:var(--g);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:8px}
+#gzm .mtop b{font-size:16px}#gzm .mtop b i{font-style:normal;color:#E8B93C}
+#gzm .mtop .d{margin-left:auto;font-size:12px;opacity:.85;text-align:right}
+#gzm .mtop button{background:rgba(255,255,255,.14);border:0;color:#fff;border-radius:14px;padding:5px 10px;font-size:12px}
+#gzm main{padding:10px 10px 80px}
+#gzm .pane{display:none}#gzm .pane.on{display:block}
+#gzm .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:10px}
+#gzm .card h2{font-size:14px;font-weight:800;margin:0 0 8px;display:flex;gap:6px;align-items:center}
+#gzm .card h2 .n{margin-left:auto;font-size:12px;font-weight:600;color:var(--dim)}
+#gzm .rit{display:flex;align-items:center;gap:12px;padding:13px;border-radius:12px;border:2px solid var(--gold);background:#fffaf0;margin-top:10px;width:100%;text-align:left;font:inherit;color:inherit}
+#gzm .rit .bx{width:28px;height:28px;border-radius:8px;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;flex:none}
+#gzm .rit.done{border-color:var(--ok);background:#eef6f0}#gzm .rit.done .bx{background:var(--ok);border-color:var(--ok)}
+#gzm .rit .t{font-weight:800}#gzm .rit .s{font-size:12px;color:var(--dim)}
+#gzm .wk{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px}
+#gzm .wk div{text-align:center;font-size:11.5px;padding:6px 0;border-radius:8px;background:#f3f1ea;color:var(--dim)}
+#gzm .wk div.td{outline:2px solid var(--gold)}#gzm .wk div.ok{background:var(--ok);color:#fff}#gzm .wk div.no{background:#f7ece8;color:var(--red)}
+#gzm .wk div b{display:block;font-size:13px}
+#gzm .row{display:flex;gap:10px;align-items:flex-start;padding:10px 2px;border-top:1px solid var(--line)}
+#gzm .row:first-child{border-top:0}
+#gzm .row .ck{width:22px;height:22px;flex:none;accent-color:var(--g)}
+#gzm .row .c{flex:1;min-width:0;word-break:keep-all;overflow-wrap:anywhere}
+#gzm .row.dn .c{color:var(--dim);text-decoration:line-through}
+#gzm .tg{display:inline-block;font-size:11px;padding:1px 7px;border-radius:9px;background:#efece2;color:#5c574a;margin-right:4px}
+#gzm .tg.u,#gzm .tg.s1{background:#f7e3dc;color:var(--red)}#gzm .tg.s2{background:#f6efd9;color:#8a6d1f}#gzm .tg.s3{background:#e5eee8;color:var(--g)}
+#gzm .ref{margin-top:6px;padding:6px 8px;background:#f7f5ee;border-left:3px solid var(--gold);font-size:13px}
+#gzm .fb{margin-top:6px;padding:6px 8px;background:#eef1ea;border-left:3px solid var(--g);font-size:13px}
+#gzm .meta{font-size:11.5px;color:var(--dim);margin-top:3px}
+#gzm textarea{width:100%;min-height:100px;border:1px solid var(--line);border-radius:12px;padding:11px;font:inherit;font-size:16px}
+#gzm .btn{border:0;background:var(--g);color:#fff;border-radius:12px;padding:12px;font-weight:800;font-size:15px;width:100%;margin-top:8px;font-family:inherit}
+#gzm .btn.o{background:#fff;color:var(--g);border:1.5px solid var(--g)}
+#gzm .btn.sm{width:auto;padding:6px 12px;font-size:13px;margin:0}
+#gzm .seg{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+#gzm .seg button{border:1px solid var(--line);background:#fff;border-radius:16px;padding:5px 12px;font-size:13px;font-family:inherit}
+#gzm .seg button.on{background:var(--g);color:#fff;border-color:var(--g)}
+#gzm .empty{color:var(--dim);font-size:13px;padding:6px 2px}#gzm .err{color:var(--red);font-size:13px}
+#gzm .more{display:block;width:100%;border:0;background:none;color:var(--g);font-weight:700;padding:8px;font-family:inherit}
+#gzm nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom)}
+#gzm nav button{border:0;background:none;padding:8px 0 7px;font-size:11.5px;color:var(--dim);display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit}
+#gzm nav button span{font-size:19px;line-height:1}#gzm nav button.on{color:var(--g);font-weight:800}
+#gzm .sheet{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.35);display:flex;align-items:flex-end}
+#gzm .sheet .in{background:#fff;width:100%;border-radius:18px 18px 0 0;padding:16px;max-height:75vh;overflow:auto}
+#gzm .sheet .opt{padding:12px 4px;border-top:1px solid var(--line)}#gzm .sheet .opt.rc{opacity:.45}
+#gzm .toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);background:#1f2a24;color:#fff;padding:9px 16px;border-radius:20px;font-size:13.5px;z-index:70;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+#gzm .toast.on{opacity:.95}
+#gzmBack{display:none;position:fixed;right:10px;bottom:14px;z-index:9999;background:#1E4D3B;color:#fff;border:0;border-radius:20px;padding:9px 14px;font-weight:800;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+</style>
+<div id="gzm">
+  <div class="mtop"><b>⑤ 오거나이저 <i>휴대폰</i></b><button id="gzm_rf">↻</button><div class="d" id="gzm_hd"></div></div>
+  <main>
+    <section class="pane on" id="gzm_p_today">
+      <div class="card"><div id="gzm_greet">불러오는 중…</div><div id="gzm_rit"></div><div class="wk" id="gzm_wk"></div></div>
+      <div class="card"><h2>이번 주 할 일 <span class="n" id="gzm_tdN"></span></h2>
+        <div class="seg" id="gzm_tdSeg"><button data-f="open" class="on">미완료</button><button data-f="urg">긴급</button><button data-f="all">전체</button></div>
+        <div id="gzm_td"><div class="empty">불러오는 중…</div></div></div>
+    </section>
+    <section class="pane" id="gzm_p_memo">
+      <div class="card"><h2>메모 던지기 <span class="n">⑫ 메모함으로</span></h2>
+        <textarea id="gzm_mIn" placeholder="떠오른 것을 그대로 적으세요. ⑫ 메모·보고에 「접수」로 들어갑니다."></textarea>
+        <button class="btn" id="gzm_mGo">메모함에 넣기</button></div>
+      <div class="card"><h2>⑫ 메모함 <span class="n" id="gzm_mN"></span></h2>
+        <div class="seg" id="gzm_mSeg"><button data-f="all" class="on">전체</button><button data-f="접수">접수</button><button data-f="정교화됨">정교화됨</button><button data-f="방전달">방전달</button><button data-f="완료">완료</button></div>
+        <div id="gzm_m"><div class="empty">불러오는 중…</div></div></div>
+    </section>
+    <section class="pane" id="gzm_p_goal">
+      <div class="card"><h2>③ 내 목표 <span class="n" id="gzm_gN"></span></h2><div id="gzm_g"><div class="empty">불러오는 중…</div></div></div>
+    </section>
+  </main>
+  <nav id="gzm_nav"><button data-p="today" class="on"><span>☀︎</span>오늘</button><button data-p="memo"><span>✎</span>메모</button><button data-p="goal"><span>◎</span>목표</button><button data-p="full"><span>▦</span>전체 화면</button></nav>
+  <div class="toast" id="gzm_toast"></div>
+</div>
+<button id="gzmBack">📱 휴대폰 보기</button>
+<script>
+(function(){
+const MQ=new URLSearchParams(window.__EMBED_QS||location.search);
+const WANT=MQ.get('m')==='1'||(MQ.get('m')!=='0'&&window.innerWidth<700);
+if(!WANT)return;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const MDAYS=['일','월','화','수','목','금','토'];
+const kst=()=>new Date(Date.now()+9*3600e3), d10=d=>d.toISOString().slice(0,10);
+const M={me:window.__GZ_ME||null,rit:[],runs:[],tl:[],todos:[],memos:[],goals:[],tdF:'open',mF:'all',tdAll:false,mAll:false};
+function toast(t){const e=$('gzm_toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1800);}
+function hdr(x){return Object.assign({apikey:KEY,Authorization:'Bearer '+(gzJwt()||KEY),'Content-Type':'application/json'},x||{});}
+async function api(p,o){o=o||{};const go=()=>fetch(URL_+p,{method:o.method||'GET',headers:hdr(o.h),body:o.body?JSON.stringify(o.body):undefined});
+  let r=await go();if(r.status===401&&await gzRetry401())r=await go();const t=await r.text();let j=null;try{j=t?JSON.parse(t):null;}catch(_){j=t;}
+  if(!r.ok)throw new Error((j&&(j.message||j.reason))||('HTTP '+r.status)+(r.status===401?' — 관문에서 다시 로그인':''));return j;}
+const rpc=(f,b)=>api('rpc/'+f,{method:'POST',body:b||{}});
+function week(){const n=kst();const w=(n.getUTCDay()+6)%7;const m=new Date(n);m.setUTCDate(n.getUTCDate()-w);return Array.from({length:7},(_,i)=>{const d=new Date(m);d.setUTCDate(m.getUTCDate()+i);return d10(d);});}
+function ritsOn(ds){const dn=MDAYS[new Date(ds+'T00:00:00Z').getUTCDay()];return M.rit.filter(r=>r.cycle==='매주'&&r.anchor_kind==='요일'&&String(r.anchor_value||'').split(/[,·\s]+/).includes(dn));}
+const isTeacher=()=>(M.me&&M.me.role==='교사')||ROLE2==='teacher';
+function tid(){return (M.me&&M.me.teacher_id)||TID;}
+
+function on(){document.body.classList.add('gzm-on');$('gzmBack').style.display='none';try{sessionStorage.setItem('gzm','1');}catch(_){}}
+function off(){document.body.classList.remove('gzm-on');$('gzmBack').style.display='block';try{sessionStorage.setItem('gzm','0');}catch(_){}window.scrollTo(0,0);}
+$('gzmBack').onclick=on;
+$('gzm_nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;const p=b.dataset.p;if(p==='full'){off();return;}
+  document.querySelectorAll('#gzm_nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('#gzm .pane').forEach(x=>x.classList.toggle('on',x.id==='gzm_p_'+p));window.scrollTo(0,0);};
+$('gzm_rf').onclick=()=>loadAll();
+
+async function loadAll(){const n=kst();$('gzm_hd').innerHTML=(n.getUTCMonth()+1)+'/'+n.getUTCDate()+' '+MDAYS[n.getUTCDay()]+(M.me?'<br>'+esc(M.me.name||'')+' · '+esc(M.me.role||''):'');
+  if(!gzJwt()){$('gzm_greet').innerHTML='<span class="err">로그인 토큰이 없습니다 — 관문(gmap2.html)에서 로그인한 뒤 ⑤ 오거나이저 탭을 여세요.</span>';return;}
+  const wk=week();
+  await Promise.all([
+    (async()=>{try{const [rit,runs,tl]=await Promise.all([api('rituals?select=*&is_active=eq.true&order=sort_no'),api('ritual_runs?owner_id=eq.'+tid()+'&run_date=gte.'+wk[0]+'&run_date=lte.'+wk[6]),api('v_orp_myrecord?select=teacher_id,nick&sec=eq.학생').catch(()=>[])]);M.rit=rit;M.runs=runs;M.tl=tl;rToday();}catch(e){$('gzm_rit').innerHTML='<div class="err">리추얼 적재 실패: '+esc(e.message)+'</div>';}})(),
+    (async()=>{try{const j=await rpc('gz_todo_list',{p:{}});if(!j||!j.ok)throw new Error((j&&j.reason)||'적재 실패');M.todos=j.rows||[];M.tdLabel=j.week_label||'';rTodo();}catch(e){$('gzm_td').innerHTML='<div class="err">'+esc(e.message)+'</div>';}})(),
+    loadMemo(),
+    (async()=>{try{M.goals=await api('v_orp_myrecord?teacher_id=eq.'+tid()+'&sec=eq.목표');rGoal();}catch(e){$('gzm_g').innerHTML='<div class="err">'+esc(e.message)+'</div>';}})()]);}
+
+function rToday(){const today=d10(kst()),wk=week(),trs=ritsOn(today);const nick=(M.me&&(M.me.nick||M.me.name))||'';const T=isTeacher();
+  $('gzm_greet').innerHTML=trs.length?(esc(nick)+(T?' 선생님':' 원장님')+', 오늘은 <b>「'+esc(trs.map(r=>(r.value_code||r.layer)+' · '+r.title).join('」·「'))+'」</b>의 날이에요.'):'오늘은 요일 리추얼이 없는 날입니다. 편안한 하루 되세요.';
+  $('gzm_rit').innerHTML=trs.map(r=>{const run=M.runs.find(x=>x.ritual_id===r.id&&x.run_date===today&&x.status==='완료');const g=(!T&&r.guide_director)?r.guide_director:(r.guide||r.how||'');
+    return '<button class="rit'+(run?' done':'')+'" data-id="'+r.id+'" data-done="'+(run?1:0)+'"><div class="bx">'+(run?'✓':'')+'</div><div><div class="t">'+esc(r.title)+'</div><div class="s">'+(run?('완료'+(run.target_name?' · '+esc(run.target_name):'')+' · 다시 누르면 취소'):(esc(g).slice(0,90)||'누르면 완료 기록'))+'</div></div></button>';}).join('');
+  $('gzm_rit').querySelectorAll('.rit').forEach(b=>b.onclick=()=>toggle(+b.dataset.id,b.dataset.done==='1'));
+  $('gzm_wk').innerHTML=wk.map(d=>{const rs=ritsOn(d);const ok=rs.length&&rs.every(r=>M.runs.some(x=>x.ritual_id===r.id&&x.run_date===d&&x.status==='완료'));
+    return '<div class="'+(d===today?'td ':'')+(rs.length?(ok?'ok':(d<today?'no':'')):'')+'"><b>'+MDAYS[new Date(d+'T00:00:00Z').getUTCDay()]+'</b>'+(rs.length?(ok?'✓':(d<today?'—':'·')):'')+'</div>';}).join('');}
+function pick(r){return new Promise(res=>{const list=isTeacher()?[]:M.tl.filter(t=>t.teacher_id!=tid()).map(t=>({id:t.teacher_id,name:t.nick,kind:'teacher'}));if(!list.length){res({});return;}
+  api('ritual_runs?select=target_id&owner_id=eq.'+tid()+'&ritual_id=eq.'+r.id+'&target_kind=eq.teacher&run_date=gte.'+d10(new Date(Date.now()-28*864e5))).catch(()=>[]).then(rr=>{const rc=new Set((rr||[]).map(x=>x.target_id));
+    const sh=document.createElement('div');sh.className='sheet';sh.innerHTML='<div class="in"><b>누구에게 하셨나요?</b><div class="meta">회색 = 최근 4주에 이미 한 사람</div>'+list.map(x=>'<div class="opt'+(rc.has(x.id)?' rc':'')+'" data-i="'+x.id+'">'+esc(x.name)+'</div>').join('')+'<button class="btn o" data-skip>대상 없이 기록</button><button class="btn o" data-x>취소</button></div>';
+    $('gzm').appendChild(sh);sh.onclick=e=>{const o=e.target.closest('.opt');if(o){sh.remove();res(list.find(y=>y.id==o.dataset.i));}else if(e.target.hasAttribute('data-skip')){sh.remove();res({});}else if(e.target.hasAttribute('data-x')||e.target===sh){sh.remove();res(null);}};});});}
+async function toggle(rid,done){const today=d10(kst()),r=M.rit.find(x=>x.id===rid),t0=tid();
+  try{if(done){if(!confirm('오늘 「'+r.title+'」 완료 기록을 취소할까요?'))return;await api('ritual_runs?ritual_id=eq.'+rid+'&run_date=eq.'+today+'&owner_id=eq.'+t0,{method:'DELETE'});toast('취소했습니다');}
+    else{const t=await pick(r);if(t===null)return;await api('ritual_runs?on_conflict=ritual_id,run_date,owner_id',{method:'POST',h:{Prefer:'resolution=merge-duplicates,return=representation'},body:{ritual_id:rid,run_date:today,owner_id:t0,status:'완료',target_kind:t.kind||null,target_id:t.id||null,target_name:t.name||null}});toast('✓ 기록했습니다');}
+    const wk=week();M.runs=await api('ritual_runs?owner_id=eq.'+t0+'&run_date=gte.'+wk[0]+'&run_date=lte.'+wk[6]);rToday();}catch(e){toast('기록 실패: '+e.message);}}
+function rTodo(){const f=M.tdF;const v=M.todos.filter(r=>f==='all'?true:f==='urg'?(r.is_urgent&&!r.is_done):!r.is_done).sort((a,b)=>(a.is_done-b.is_done)||(b.is_urgent-a.is_urgent));
+  $('gzm_tdN').textContent=(M.tdLabel?M.tdLabel+' · ':'')+'미완료 '+M.todos.filter(r=>!r.is_done).length+'/'+M.todos.length;
+  const show=M.tdAll?v:v.slice(0,12);
+  $('gzm_td').innerHTML=(show.length?show.map(r=>'<div class="row'+(r.is_done?' dn':'')+'"><input type="checkbox" class="ck" data-id="'+r.id+'" '+(r.is_done?'checked':'')+'><div class="c">'+(r.is_urgent&&!r.is_done?'<span class="tg u">긴급</span>':'')+(r.category?'<span class="tg">'+esc(r.category)+'</span>':'')+esc(r.content)+((r.day||r.student_name)?'<div class="meta">'+esc([r.day&&r.day+'요일',r.student_name].filter(Boolean).join(' · '))+'</div>':'')+'</div></div>').join(''):'<div class="empty">해당 항목이 없습니다.</div>')+(v.length>show.length?'<button class="more" id="gzm_tdMore">'+(v.length-show.length)+'건 더 보기</button>':'');
+  $('gzm_td').querySelectorAll('.ck').forEach(c=>c.onchange=async()=>{const id=+c.dataset.id,val=c.checked;try{await api('weekly_todos?id=eq.'+id,{method:'PATCH',h:{Prefer:'return=representation'},body:{is_done:val,done_at:val?new Date().toISOString():null}});const t=M.todos.find(x=>x.id===id);if(t)t.is_done=val;rTodo();toast(val?'✓ 완료':'되돌렸습니다');}catch(e){toast('저장 실패: '+e.message);}});
+  const mo=$('gzm_tdMore');if(mo)mo.onclick=()=>{M.tdAll=true;rTodo();};}
+$('gzm_tdSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;M.tdF=b.dataset.f;M.tdAll=false;$('gzm_tdSeg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));rTodo();};
+async function loadMemo(){try{const j=await rpc('gz_memo_list',{p:{limit:80}});if(!j||!j.ok)throw new Error((j&&j.reason)||'적재 실패');M.memos=j.rows||[];M.mQ=j.queue;rMemo();}catch(e){$('gzm_m').innerHTML='<div class="err">'+esc(e.message)+'</div>';}}
+function rMemo(){const f=M.mF;const v=M.memos.filter(m=>f==='all'||m.status===f||(f==='방전달'&&m.status==='작업중')||(f==='완료'&&m.status==='피드백확인'));const sc=s=>s==='접수'?'s1':(s==='정교화됨'?'s2':'s3');
+  $('gzm_mN').textContent=M.memos.length+'건'+(M.mQ!=null?' · 가공 대기 '+M.mQ:'');const show=M.mAll?v:v.slice(0,10);
+  $('gzm_m').innerHTML=(show.length?show.map(m=>'<div class="row"><div class="c"><span class="tg '+sc(m.status)+'">'+esc(m.status)+'</span><span class="tg">'+esc(m.source)+'</span>'+(m.student_name?'<span class="tg">'+esc(m.student_name)+'</span>':'')+'<div>'+esc(m.body)+'</div>'
+    +(m.refined?'<div class="ref"><b>정교화</b> '+(m.journey_zone?'<span class="tg">'+esc(m.journey_zone)+'</span>':'')+(m.target_room?'→ '+esc(m.target_room)+' ':'')+esc(m.refined)+'</div>':'')+(m.feedback?'<div class="fb"><b>피드백</b> '+esc(m.feedback)+'</div>':'')
+    +'<div class="meta">'+esc(m.author||'')+' · '+esc(String(m.created_at||'').slice(5,16).replace('T',' '))+'</div></div></div>').join(''):'<div class="empty">해당 메모가 없습니다.</div>')+(v.length>show.length?'<button class="more" id="gzm_mMore">'+(v.length-show.length)+'건 더 보기</button>':'');
+  const mo=$('gzm_mMore');if(mo)mo.onclick=()=>{M.mAll=true;rMemo();};}
+$('gzm_mSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;M.mF=b.dataset.f;M.mAll=false;$('gzm_mSeg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));rMemo();};
+try{const dr=localStorage.getItem('gzm_draft');if(dr)$('gzm_mIn').value=dr;}catch(_){}
+$('gzm_mIn').addEventListener('input',()=>{try{localStorage.setItem('gzm_draft',$('gzm_mIn').value);}catch(_){}});
+$('gzm_mGo').onclick=async()=>{const v=$('gzm_mIn').value.trim();if(!v){toast('내용을 적으세요');return;}$('gzm_mGo').disabled=true;
+  try{const j=await rpc('gz_memo_save',{p:{source:'오거나이저',body:v}});if(!j||!j.ok)throw new Error((j&&j.reason)||'거부');$('gzm_mIn').value='';try{localStorage.removeItem('gzm_draft');}catch(_){}toast('✓ ⑫ 메모함에 접수');await loadMemo();}catch(e){toast('저장 실패: '+e.message);}finally{$('gzm_mGo').disabled=false;}};
+function rGoal(){const LV={annual:'연간',month:'이 달',week:'주간'};const g=M.goals;$('gzm_gN').textContent=g.length+'건';
+  $('gzm_g').innerHTML=g.length?g.map(r=>{const m=r.meta||{};const done=m.status==='완료';return '<div class="row'+(done?' dn':'')+'"><div class="c"><span class="tg">'+esc(LV[m.level]||m.level||'')+'</span><span class="tg '+(done?'s3':(m.status==='진행'?'s2':''))+'">'+esc(m.status||'')+'</span><div>'+esc(r.label)+'</div><div class="meta">'+esc(r.detail||'')+'</div></div>'+(done||!m.goal_id?'':'<button class="btn o sm" data-g="'+m.goal_id+'">완료</button>')+'</div>';}).join(''):'<div class="empty">등록된 목표가 없습니다. 「전체 화면」 ③ 이 달 목표에서 추가합니다.</div>';
+  $('gzm_g').querySelectorAll('[data-g]').forEach(b=>b.onclick=async()=>{const ev=prompt('완료 증거 1줄 (기록·파일·노트 번호)');if(!ev)return;try{const j=await rpc('gz_goal_done',{p_goal_id:+b.dataset.g,p_evidence:ev,p_by:isTeacher()?'본인':'원장'});if(!j||!j.ok)throw new Error((j&&j.reason)||'거부');toast('✓ 완료 처리');M.goals=await api('v_orp_myrecord?teacher_id=eq.'+tid()+'&sec=eq.목표');rGoal();}catch(e){toast('거부: '+e.message);}});}
+
+let pref=null;try{pref=sessionStorage.getItem('gzm');}catch(_){}
+if(pref==='0')off();else on();
+loadAll();
+})();
+</script>
+<!-- ===== /v0.66 휴대폰 보기 ===== -->
+
+<script>
+/* ③ 10~11월 목표 — 순위 묶음 · 입력 · 4칸 초안 · 가치→경험여정→예상가치 (국존 승인 2026-10-03) */
+const PLAN_KEY='2026-10~11';let PL=null;const PL_OPEN={};
+const CREEDS6=['최고','공감','사랑','재미','열정','신뢰'];
+const FLD={why:['why_text','왜'],done:['done_criteria','끝 기준'],block:['blocker','막힘'],prereq:['prereq','먼저 끝나야 할 일']};
+function pe(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function pDday(d){if(!d)return '';const t=new Date(Date.now()+9*3600e3);t.setUTCHours(0,0,0,0);const x=new Date(d+'T00:00:00Z');const n=Math.round((x-t)/864e5);return n<0?'기한 '+(-n)+'일 지남':(n===0?'오늘':'D-'+n);}
+function pWon(v){if(v==null)return '—';return (v>=1e4?Math.round(v/1e4).toLocaleString()+'만':v.toLocaleString())+' 원';}
+function pAuth(){const h=(typeof todoAuth==='function')?todoAuth():null;if(!h){alert('로그인한 직원만 고칠 수 있습니다. G-MAP 2.0에서 로그인 후 다시 여세요.');}return h;}
+async function pSave(p){const h=pAuth();if(!h)return null;const r=await fetch(URL_+'rpc/gz_goal_save',{method:'POST',headers:h,body:JSON.stringify({p})});const j=await r.json();if(!j.ok){alert('저장 안 됨: '+(j.reason||j.message||JSON.stringify(j)));return null;}return j;}
+async function pDraft(id,force){const h=pAuth();if(!h)return;const el=document.getElementById('pdr_'+id);if(el)el.textContent='초안 작성 중…';try{const r=await fetch(URL_+'rpc/gz_goal_draft',{method:'POST',headers:h,body:JSON.stringify({p_id:id,p_force:!!force})});const j=await r.json();if(!j.ok)alert('초안 실패: '+(j.reason||j.message||''));}catch(e){alert('초안 실패: '+e.message);}await loadPlan(true);}
+function pEditing(){return !!document.querySelector('#s3 textarea[id^="pt_"]');}
+async function loadPlan(soft){const box=document.getElementById('s3');if(!box)return;try{const r=await fetch(URL_+'rpc/gz_goal_tree',{method:'POST',headers:H,body:JSON.stringify({p_plan:PLAN_KEY})});const np=await r.json();if(!np||!np.goals)throw new Error(JSON.stringify(np).slice(0,120));PL=np;if(soft&&pEditing())return;renderPlan();}catch(e){box.innerHTML='<div class="empty">목표 적재 실패: '+pe(e.message)+'</div>';}}
+function pFieldRow(g,k){const [col,lab]=FLD[k];const v=g[k];const dr=(g.draft||[]).includes(col);
+ return '<div class="pf"><span class="pl">'+lab+'</span><span class="pv" id="pv_'+g.id+'_'+k+'">'+(v?pe(v):'<i style="color:var(--dim)">비어 있음</i>')+(dr?' <span class="pdraft">초안</span>':'')+'</span><button class="pb" title="고치기" onclick="pEditField('+g.id+',\''+k+'\')">✎</button></div>';}
+function pEditField(id,k){const g=pFind(id);const el=document.getElementById('pv_'+id+'_'+k);if(!g||!el)return;el.innerHTML='<textarea id="pt_'+id+'_'+k+'" rows="2" style="width:100%;padding:4px;border:1px solid var(--line);border-radius:4px;font:inherit">'+pe(g[k]||'')+'</textarea><button class="btn" onclick="pSaveField('+id+',\''+k+'\')">저장</button> <button class="btn o" onclick="renderPlan()">취소</button>';}
+async function pSaveField(id,k){const v=document.getElementById('pt_'+id+'_'+k).value;const f={};f[FLD[k][0]]=v;if(await pSave({action:'edit',id,fields:f}))loadPlan();}
+function pFind(id){for(const g of PL.goals){if(g.id===id)return g;for(const c of g.kids)if(c.id===id)return c;}return null;}
+function pEvid(g){const z=g.zones||[];const ph=(PL.phases||[]).filter(p=>(g.phases||[]).includes(p.no));
+ return '<details class="pev"><summary>근거 펼치기</summary><div><b>가치 근거</b> 국존 6가치 색인 표준 §3-1 · '+ph.map(p=>p.no+'단계 「'+pe(p.name)+'」 지정 가치 = '+pe((p.creeds||[]).join('·'))).join(' / ')+'</div>'+
+ z.map(x=>'<div><b>'+pe(x.phase)+'단계 '+pe(x.lane)+' · '+pe(x.name)+'</b> — 목표 행동: '+pe(x.goal||'미확인')+(x.block?' · 막힘: '+pe(x.block):'')+(x.boost?' · 밀어주는 것: '+pe(x.boost):'')+'</div>').join('')+
+ (g.people!=null?'<div><b>산식</b> '+pe(g.people)+'명 × 1인 월평균 '+pe((PL.avg_fee||0).toLocaleString())+'원('+pe(PL.fee_month)+' 수납) × '+pe(g.months)+'개월 = '+pe((g.value||0).toLocaleString())+'원</div>':'')+'</details>';}
+function pKid(c,top){const done=c.status==='완료';return '<div class="pk'+(done?' pdone':'')+'"><input type="checkbox" '+(done?'checked disabled':'')+' onclick="pKidDone('+c.id+',this)" title="완료"><span class="pkt">'+pe(c.title)+
+ '</span><span class="pm">'+pe(c.owner||'')+'</span>'+(c.status!=='계획'&&!done?'<span class="pm">'+pe(c.status)+'</span>':'')+(c.block&&!(c.draft||[]).includes('blocker')?'<span class="pblk">막힘</span>':'')+'<span class="pdd'+(c.due&&pDday(c.due).includes('지남')||/^D-[0-7]$|오늘/.test(pDday(c.due))?' pw':'')+'">'+pe(c.due?c.due.slice(5).replace('-','/'):'')+' '+pDday(c.due)+'</span>'+
+ '<button class="pb" onclick="pToggle('+c.id+')" title="자세히">⋯</button></div>'+(PL_OPEN[c.id]?'<div class="pkx">'+pEditRow(c)+['done','block','why','prereq'].map(k=>pFieldRow(c,k)).join('')+'<div class="pbar"><button class="btn o" onclick="pSave({action:\'confirm\',id:'+c.id+'}).then(()=>loadPlan())">초안 확정</button> <button class="btn o" onclick="pDraft('+c.id+',true)">다시 초안</button> <span id="pdr_'+c.id+'" class="pm"></span></div></div>':'');}
+function pEditRow(g){return '<div class="pf"><span class="pl">기본</span><span class="pv"><input id="pe_t_'+g.id+'" value="'+pe(g.title)+'" style="flex:1;min-width:180px"> <input id="pe_d_'+g.id+'" type="date" value="'+pe(g.due||'')+'"> <input id="pe_o_'+g.id+'" value="'+pe(g.owner||'')+'" list="pOwners" style="width:80px"> <select id="pe_s_'+g.id+'">'+['계획','진행','보류','완료'].map(s=>'<option'+(s===g.status?' selected':'')+'>'+s+'</option>').join('')+'</select> <button class="btn" onclick="pSaveBasic('+g.id+')">저장</button></span></div>';}
+async function pSaveBasic(id){const f={title:document.getElementById('pe_t_'+id).value,due_date:document.getElementById('pe_d_'+id).value,owner:document.getElementById('pe_o_'+id).value,status:document.getElementById('pe_s_'+id).value};if(f.status==='완료'){const ev=prompt('완료 증거 1줄(기록·파일·노트)');if(!ev)return;delete f.status;await fetch(URL_+'rpc/gz_goal_done',{method:'POST',headers:H,body:JSON.stringify({p_goal_id:id,p_evidence:ev,p_by:(ROLE2!=='teacher')?'원장':'본인'})});}if(await pSave({action:'edit',id,fields:f}))loadPlan();}
+function pToggle(id){PL_OPEN[id]=!PL_OPEN[id];renderPlan();}
+async function pKidDone(id,cb){const ev=prompt('완료 증거 1줄(기록·파일·노트)');if(!ev){cb.checked=false;return;}const r=await fetch(URL_+'rpc/gz_goal_done',{method:'POST',headers:H,body:JSON.stringify({p_goal_id:id,p_evidence:ev,p_by:(ROLE2!=='teacher')?'원장':'본인'})});const j=await r.json();if(!j.ok)alert('거부: '+j.reason);loadPlan();}
+async function pAddKid(pid){const t=document.getElementById('pa_'+pid).value.trim();const d=document.getElementById('pad_'+pid).value;if(!t)return;const j=await pSave({action:'add',plan_key:PLAN_KEY,parent_id:pid,title:t,due_date:d||null});if(j){PL_OPEN[j.id]=true;await loadPlan();pDraft(j.id,false);}}
+async function pAddTop(){const t=prompt('상위 목표 제목');if(!t)return;const d=prompt('마감일(예: 2026-11-30)')||null;const j=await pSave({action:'add',plan_key:PLAN_KEY,title:t,due_date:d});if(j){PL_OPEN[j.id]=true;await loadPlan();pDraft(j.id,false);}}
+async function pVal(id){const pp=document.getElementById('pp_'+id).value,mm=document.getElementById('pmo_'+id).value;if(await pSave({action:'edit',id,fields:{est_people:pp,est_months:mm}}))loadPlan();}
+async function pMove(id,dir){if(await pSave({action:'move',id,dir}))loadPlan();}
+function renderPlan(){const box=document.getElementById('s3');if(!box||!PL)return;const isDir=(ROLE2!=='teacher');
+ document.getElementById('s3t').textContent='③ 10~11월 목표';
+ const cnt={};CREEDS6.forEach(c=>cnt[c]=0);PL.goals.forEach(g=>(g.creeds||[]).forEach(c=>{if(c in cnt)cnt[c]++;}));
+ const tot=PL.goals.reduce((a,g)=>a+(g.value||0),0);const kidsAll=PL.goals.reduce((a,g)=>a+g.kids.length,0),kidsDone=PL.goals.reduce((a,g)=>a+g.kids.filter(k=>k.status==='완료').length,0);
+ const owners=new Set(['김면수']);(D.tl||[]).forEach(t=>{if(t.teacher)owners.add(t.teacher);});
+ let h='<datalist id="pOwners">'+[...owners].map(o=>'<option value="'+pe(o)+'">').join('')+'</datalist>';
+ h+='<div class="phd"><div class="p6">'+CREEDS6.map(c=>'<span class="p6c'+(cnt[c]?'':' p6z')+'">'+c+' '+cnt[c]+'</span>').join('')+'</div><span class="pm">예상가치 합계 <b>'+pWon(tot)+'</b> <span class="pg">가정</span> · 1인 월평균 '+pe((PL.avg_fee||0).toLocaleString())+'원('+pe(PL.fee_month)+') · 하위 작업 완료 '+kidsDone+'/'+kidsAll+'</span>'+(isDir?'<button class="btn" onclick="pAddTop()">+ 상위 목표 추가</button>':'')+'</div>';
+ h+=PL.goals.map((g,i)=>{const kd=g.kids.filter(k=>k.status==='완료').length;const ph=(PL.phases||[]).filter(p=>(g.phases||[]).includes(p.no));const dr=(g.draft||[]).length;
+  return '<div class="pcard"><div class="ph"><span class="prk">'+(i+1)+'</span><span class="ptt">'+pe(g.title)+'</span><span class="pm">'+kd+'/'+g.kids.length+'</span><span class="pdd">'+pe(g.due?g.due.slice(5).replace('-','/'):'')+' '+pDday(g.due)+'</span>'+(isDir?'<button class="pb" onclick="pMove('+g.id+',-1)" title="순위 올리기">↑</button><button class="pb" onclick="pMove('+g.id+',1)" title="순위 내리기">↓</button>':'')+'<button class="pb" onclick="pToggle('+g.id+')" title="왜·끝 기준·막힘·고치기">✎</button></div>'+
+  '<div class="pch"><span class="pv1"><small>가치</small>'+pe((g.creeds||[]).join(' · ')||'—')+'</span><span class="par">→</span><span class="pv2"><small>경험여정</small>'+(ph.map(p=>p.no+'단계 '+pe(p.name)).join(' → ')||'—')+'</span><span class="par">→</span><span class="pv3"><small>예상가치 · '+pe(g.term||'—')+'</small>'+pWon(g.value)+' <span class="pg">가정</span>'+(isDir?' <input id="pp_'+g.id+'" type="number" value="'+pe(g.people)+'" style="width:44px" title="영향 인원">명×<input id="pmo_'+g.id+'" type="number" value="'+pe(g.months)+'" style="width:40px" title="개월">개월 <button class="pb" onclick="pVal('+g.id+')" title="다시 계산">↻</button>':'')+'</span></div>'+
+  (PL_OPEN[g.id]?'<div class="pkx">'+(isDir?pEditRow(g):'')+['why','done','block','prereq'].map(k=>pFieldRow(g,k)).join('')+'<div class="pbar">'+(dr?'<span class="pm">초안 칸 '+dr+'개</span> ':'')+'<button class="btn o" onclick="pSave({action:\'confirm\',id:'+g.id+'}).then(()=>loadPlan())">초안 확정</button> <button class="btn o" onclick="pDraft('+g.id+',true)">다시 초안</button> <span id="pdr_'+g.id+'" class="pm"></span></div></div>':'<div class="pwhy">'+pe(g.why||'')+((g.draft||[]).includes('why_text')?' <span class="pdraft">초안</span>':'')+'</div>')+
+  pEvid(g)+'<div class="pkids">'+g.kids.map(c=>pKid(c,g)).join('')+
+  '<div class="pk padd">+ <input id="pa_'+g.id+'" placeholder="하위 작업 추가 — 쓰고 Enter" onkeydown="if(event.key===\'Enter\')pAddKid('+g.id+')" style="flex:1"><input id="pad_'+g.id+'" type="date"><button class="btn o" onclick="pAddKid('+g.id+')">추가</button></div></div></div>';}).join('');
+ if((PL.other||[]).length)h+='<div class="pother"><b>기타 이달 목표</b>'+PL.other.map(o=>'<div class="pk"><span class="pkt">'+pe(o.title)+'</span><span class="pm">'+pe(o.status)+'</span>'+(o.status==='완료'?'':'<span class="tag" style="cursor:pointer" onclick="doneGoal('+o.id+')">완료 처리</span>')+'</div>').join('')+'</div>';
+ box.innerHTML=h;}
+(function(){const st=document.createElement('style');st.textContent=
+'.phd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px}.p6{display:flex;gap:4px}.p6c{font-size:11.5px;padding:2px 7px;border-radius:10px;background:#eef4ef;color:#2c5a3c}.p6z{background:#fde8e6;color:#b3261e;font-weight:700}'+
+'.pcard{border:1px solid var(--line,#ddd);border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#fff}.ph{display:flex;align-items:center;gap:8px}.prk{min-width:24px;height:24px;border-radius:50%;background:var(--deep,#1f4d36);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}.ptt{flex:1;font-weight:700;font-size:14px}'+
+'.pm{font-size:11.5px;color:var(--dim,#777)}.pdd{font-size:11.5px;padding:1px 7px;border-radius:4px;background:#f3f3f0;color:#555;white-space:nowrap}.pw{background:#fde8e6;color:#b3261e}.pb{border:1px solid var(--line,#ddd);background:#fff;border-radius:4px;padding:1px 7px;cursor:pointer;font-size:12px}'+
+'.pch{display:grid;grid-template-columns:minmax(0,.8fr) 14px minmax(0,1.3fr) 14px minmax(0,1.6fr);gap:4px;margin:8px 0 4px;font-size:12.5px}.pch small{display:block;font-size:10.5px;opacity:.8}.pv1,.pv2,.pv3{border-radius:6px;padding:6px 8px}.pv1{background:#efeafb;color:#4b3a8a}.pv2{background:#e6f4f5;color:#1e5c63}.pv3{background:#eaf5ea;color:#2c5a2c}.pv3 input{padding:1px 3px;border:1px solid #cbd8cb;border-radius:3px}.par{display:flex;align-items:center;justify-content:center;color:#aaa}'+
+'.pg,.pdraft{font-size:10.5px;padding:0 5px;border-radius:3px;background:#fff3cd;color:#8a6100}.pwhy{font-size:12.5px;color:#444;margin:2px 0 4px}.pev{font-size:12px;color:#555;margin:2px 0 6px}.pev summary{cursor:pointer;color:var(--dim,#777)}.pev div{margin:3px 0 0 4px;line-height:1.5}'+
+'.pkids{margin-left:30px}.pk{display:flex;align-items:center;gap:6px;padding:4px 0;border-top:1px solid #f0f0ec;font-size:12.5px}.pkt{flex:1}.pdone .pkt{text-decoration:line-through;color:#999}.pblk{font-size:10.5px;padding:0 5px;border-radius:3px;background:#fde8e6;color:#b3261e}.padd input{padding:3px;border:1px solid var(--line,#ddd);border-radius:4px}'+
+'.pkx{background:#f7faf8;border-radius:6px;padding:6px 8px;margin:4px 0}.pf{display:flex;gap:6px;align-items:flex-start;padding:3px 0;font-size:12.5px}.pl{min-width:92px;color:var(--dim,#777);font-size:11.5px;padding-top:2px}.pv{flex:1;display:flex;flex-wrap:wrap;gap:4px;align-items:center}.pv input,.pv select{padding:2px 4px;border:1px solid var(--line,#ddd);border-radius:4px;font:inherit}.pbar{margin-top:4px}.pother{margin-top:6px;font-size:12.5px}';
+document.head.appendChild(st);})();
+
 </script>
 </body>
 </html>
