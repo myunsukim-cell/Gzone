@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>국존 등원 체크</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--deep:#1E3A2F;--gold:#F2C14E;--ink:#1F2421;--paper:#F6F4EE;--line:#D9D4C6;--dim:#6B6F68;--red:#B42318}
+[hidden]{display:none!important}*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',system-ui,sans-serif}
+body{display:flex;flex-direction:column;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+header{background:var(--deep);color:#fff;padding:18px 28px;display:flex;align-items:baseline;gap:16px}
+header h1{margin:0;font-family:'Gowun Dodum',serif;font-weight:400;font-size:30px;letter-spacing:.02em}
+header .clock{margin-left:auto;font-size:26px;color:var(--gold);font-variant-numeric:tabular-nums}
+main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;padding:28px;max-width:1200px;width:100%;margin:0 auto}
+@media (max-width:820px){main{grid-template-columns:1fr}}
+.left h2{font-family:'Gowun Dodum',serif;font-weight:400;font-size:34px;margin:0 0 8px;line-height:1.3}
+.hint{color:var(--dim);font-size:18px;line-height:1.6;margin:0 0 22px}
+.dots{display:flex;gap:16px;margin:8px 0 26px}
+.dot{width:56px;height:68px;border-radius:12px;border:2px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700}
+.dot.on{border-color:var(--deep)}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:420px}
+.pad button{font:inherit;font-size:34px;font-weight:700;min-height:84px;border-radius:14px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;touch-action:manipulation}
+.pad button:active{background:#E4EFE8}
+.pad .fn{font-size:20px;font-weight:400;color:var(--dim)}
+.right{display:flex;flex-direction:column;gap:12px}
+.cand{font:inherit;text-align:left;width:100%;min-height:96px;padding:18px 22px;border-radius:14px;border:2px solid var(--line);background:#fff;cursor:pointer;display:flex;flex-direction:column;gap:4px}
+.cand b{font-size:30px}.cand span{font-size:18px;color:var(--dim)}
+.cand.done{opacity:.55}
+.msg{font-size:22px;line-height:1.6;color:var(--dim)}
+.ok{background:var(--deep);color:#fff;border-radius:18px;padding:36px 30px;font-family:'Gowun Dodum',serif;font-size:40px;line-height:1.4}
+.ok small{display:block;font-family:'Noto Sans KR',sans-serif;font-size:20px;color:#D6E2DA;margin-top:12px}
+.err{color:var(--red)}
+#login{max-width:420px;margin:60px auto;display:flex;flex-direction:column;gap:12px;padding:0 24px}
+#login input{font:inherit;font-size:20px;min-height:56px;padding:0 14px;border:1px solid var(--line);border-radius:10px}
+#login button{font:inherit;font-size:20px;min-height:56px;border:0;border-radius:10px;background:var(--deep);color:#fff;cursor:pointer}
+</style></head>
+<body>
+<header><h1>국존 등원 체크</h1><span class="clock" id="clock"></span></header>
+<div id="login" hidden>
+  <h2 style="font-family:'Gowun Dodum',serif;font-weight:400;font-size:28px;margin:0">출석 화면 로그인</h2>
+  <p class="hint" style="margin:0">원장·데스크 계정으로 한 번만 로그인하면 이 태블릿에 유지됩니다.</p>
+  <label for="lid" class="hint" style="margin:0">아이디</label><input id="lid" autocomplete="username">
+  <label for="lpw" class="hint" style="margin:0">비밀번호</label><input id="lpw" type="password" autocomplete="current-password">
+  <button id="lgo">로그인</button><div id="lmsg" class="msg err" role="alert"></div>
+</div>
+<main id="app" hidden>
+  <section class="left">
+    <h2>내 휴대폰 번호<br>뒷자리 4개를 눌러요</h2>
+    <p class="hint">내 번호가 학원에 없으면 엄마 휴대폰 뒷자리로 눌러요.</p>
+    <div class="dots" aria-live="polite" id="dots"></div>
+    <div class="pad" id="pad"></div>
+  </section>
+  <section class="right" id="right" aria-live="polite"><p class="msg">번호를 누르면 여기에 이름이 나와요.</p></section>
+</main>
+<script>
+const U='https://qcnsadcpsonuxnjyrlez.supabase.co',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
+let S=null,code='',busy=false,resetT=null;
+const $=id=>document.getElementById(id);
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function load(){try{S=JSON.parse(localStorage.getItem('gz_kiosk')||'null');}catch(_){S=null;}if(!S){try{const s=JSON.parse(sessionStorage.getItem('gz_session')||'null');if(s&&s.rt)S=s;}catch(_){}}}
+function save(){try{localStorage.setItem('gz_kiosk',JSON.stringify(S));}catch(_){}}
+async function refresh(){if(!S||!S.rt)return false;try{const r=await fetch(U+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:K,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:S.rt})});const j=await r.json();if(!r.ok||!j.access_token)return false;S={jwt:j.access_token,rt:j.refresh_token||S.rt,exp:Math.floor(Date.now()/1000)+(j.expires_in||3600)};save();return true;}catch(_){return false;}}
+async function token(){if(S&&S.exp>Date.now()/1000+120)return S.jwt;if(await refresh())return S.jwt;return null;}
+async function rpc(fn,body){const t=await token();if(!t){showLogin();throw new Error('로그인 필요');}const r=await fetch(U+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:K,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});return r.json();}
+function showLogin(){$('app').hidden=true;$('login').hidden=false;}
+function showApp(){$('login').hidden=true;$('app').hidden=false;drawDots();}
+$('lgo').onclick=async()=>{const id=$('lid').value.trim(),pw=$('lpw').value;if(!id||!pw){$('lmsg').textContent='아이디와 비밀번호를 넣어 주세요';return;}$('lmsg').textContent='확인 중…';try{const r=await fetch(U+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:K,'Content-Type':'application/json'},body:JSON.stringify({email:id.includes('@')?id:id+'@gmap.local',password:pw})});const j=await r.json();if(!r.ok||!j.access_token){$('lmsg').textContent='로그인 실패 — 아이디·비밀번호를 확인해 주세요';return;}S={jwt:j.access_token,rt:j.refresh_token,exp:Math.floor(Date.now()/1000)+(j.expires_in||3600)};save();const t=await rpc('gz2_kiosk_find',{p_code:'0000'});if(t&&t.ok===false&&/로그인/.test(t.reason||'')){$('lmsg').textContent='원장 승인된 직원 계정만 쓸 수 있어요';localStorage.removeItem('gz_kiosk');S=null;return;}showApp();}catch(e){$('lmsg').textContent='연결 실패: '+e.message;}};
+function drawDots(){$('dots').innerHTML=[0,1,2,3].map(i=>'<div class="dot'+(code[i]?' on':'')+'">'+(code[i]||'')+'</div>').join('');}
+function pad(){const keys=['1','2','3','4','5','6','7','8','9','지우기','0','처음'];$('pad').innerHTML=keys.map(k=>'<button type="button" class="'+(k.length>1?'fn':'')+'" data-k="'+k+'" aria-label="'+(k.length>1?k:'숫자 '+k)+'">'+k+'</button>').join('');$('pad').onclick=e=>{const b=e.target.closest('button');if(!b)return;press(b.dataset.k);};}
+function press(k){if(busy)return;clearTimeout(resetT);if(k==='처음'){code='';drawDots();idle();return;}if(k==='지우기'){code=code.slice(0,-1);drawDots();return;}if(code.length>=4)return;code+=k;drawDots();if(code.length===4)find();}
+function idle(){$('right').innerHTML='<p class="msg">번호를 누르면 여기에 이름이 나와요.</p>';}
+async function find(){busy=true;$('right').innerHTML='<p class="msg">찾는 중…</p>';try{const r=await rpc('gz2_kiosk_find',{p_code:code});if(!r.ok){$('right').innerHTML='<p class="msg err">'+esc(r.reason)+'</p>';}else if(!r.list.length){$('right').innerHTML='<p class="msg">이 번호로 찾은 학생이 없어요.<br>엄마 휴대폰 뒷자리로 다시 눌러 보세요.</p>';code='';drawDots();resetT=setTimeout(idle,8000);}else{$('right').innerHTML='<p class="msg">내 이름을 눌러요</p>'+r.list.map(x=>'<button type="button" class="cand'+(x.done?' done':'')+'" data-sid="'+x.sid+'"><b>'+esc(x.name)+'</b><span>'+esc(x.grade)+(x.slot?' · 오늘 '+esc(x.slot)+' 수업':'')+(x.by==='2엄마'?' · 엄마 번호':'')+(x.done?' · 이미 등원':'')+'</span></button>').join('');$('right').querySelectorAll('.cand').forEach(b=>b.onclick=()=>checkin(+b.dataset.sid));resetT=setTimeout(()=>{code='';drawDots();idle();},20000);}}catch(e){$('right').innerHTML='<p class="msg err">'+esc(e.message)+'</p>';}busy=false;}
+async function checkin(sid){if(busy)return;busy=true;clearTimeout(resetT);try{const r=await rpc('gz2_kiosk_checkin',{p_sid:sid});if(!r.ok){$('right').innerHTML='<p class="msg err">'+esc(r.reason)+'</p>';}else{$('right').innerHTML='<div class="ok">'+esc(r.name)+(r.already?'<br>이미 등원했어요':'<br>등원 완료!')+'<small>'+(r.already?'오늘 출석은 이미 되어 있어요.':'학부모님께 등원 알림이 준비됐어요. 자리로 가세요.')+'</small></div>';}}catch(e){$('right').innerHTML='<p class="msg err">'+esc(e.message)+'</p>';}code='';drawDots();busy=false;resetT=setTimeout(idle,4000);}
+function tick(){const d=new Date();$('clock').textContent=d.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});}
+setInterval(tick,10000);tick();pad();
+document.addEventListener('keydown',e=>{if(!$('app').hidden){if(/^[0-9]$/.test(e.key))press(e.key);else if(e.key==='Backspace')press('지우기');else if(e.key==='Escape')press('처음');}});
+(async()=>{load();if(S&&await token())showApp();else showLogin();})();
+setInterval(()=>{if(S)refresh();},40*60*1000);
+</script>
+</body></html>
