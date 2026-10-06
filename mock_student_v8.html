@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>국존 학생 첫 화면 v8 — 열 걸음 · 뜻과 설명</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--deep:#1E3A2F;--deep2:#2D5444;--gold:#F2C14E;--ink:#1F2421;--paper:#F6F4EE;--line:#E3DFD3;--dim:#6B6F68;--teal:#1D5C57;--red:#9A3412;--done:#2E7D4F;--todo:#D9D4C6}
+[hidden]{display:none!important}*{box-sizing:border-box}html,body{margin:0;background:#E4E0D5;color:var(--ink);font-family:'Noto Sans KR',system-ui,sans-serif}
+.demo{position:relative;z-index:5;background:#1F2421;color:#fff;padding:8px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px}.demo b{color:var(--gold);margin:0 4px 0 8px}
+.demo button{font:inherit;font-size:12px;min-height:34px;padding:0 10px;border-radius:17px;border:1px solid #555;background:transparent;color:#ddd;cursor:pointer}.demo button.on{background:var(--gold);color:var(--deep);border-color:var(--gold)}
+.wrap{display:flex;justify-content:center;padding:14px 12px 40px}
+.phone{width:400px;max-width:100%;background:var(--paper);border-radius:28px;border:8px solid #1F2421;min-height:860px;display:flex;flex-direction:column;overflow:hidden}
+.tab{width:1060px;max-width:100%;background:var(--paper);border-radius:18px;border:10px solid #1F2421;min-height:720px;display:grid;grid-template-columns:460px 1fr;overflow:hidden}
+header{padding:16px 20px 0;display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--dim)}header b{color:var(--ink);font-size:16px}
+.goal{margin:12px 20px 0;background:var(--deep);color:#fff;border-radius:16px;padding:12px 16px}
+.goal .k{font-size:11px;color:var(--gold);letter-spacing:.04em}.goal .t{font-family:'Gowun Batang',serif;font-size:19px;margin-top:2px}.goal .m{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:#D6E2DA}
+.goal .m i{display:inline-block;width:11px;height:11px;border-radius:50%;background:#2D5444;border:1px solid #6b8f7a}.goal .m i.on{background:var(--gold);border-color:var(--gold)}
+.wheel{position:relative;margin:6px auto 0;width:340px;height:340px}
+.wheel svg{width:100%;height:100%;display:block}
+.st{position:absolute;width:62px;margin-left:-31px;text-align:center;font-size:11px;line-height:1.25;color:var(--dim);cursor:pointer;user-select:none}
+.st b{display:block;width:30px;height:30px;line-height:30px;margin:0 auto 3px;border-radius:50%;background:#fff;border:2px solid var(--todo);color:var(--dim);font-size:12px;font-weight:700}
+.st.done b{background:var(--done);border-color:var(--done);color:#fff}.st.now b{background:var(--gold);border-color:var(--gold);color:var(--deep);box-shadow:0 0 0 6px rgba(242,193,78,.28)}.st.now{color:var(--ink);font-weight:700}
+.st.pick b{outline:3px solid var(--deep);outline-offset:2px}
+.center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:150px;text-align:center}
+.center .n{font-family:'Gowun Batang',serif;font-size:15px;color:var(--deep);line-height:1.35}.center .s{font-size:11px;color:var(--dim);margin-top:4px}
+.help{position:absolute;right:0;top:0;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:#fff;font:inherit;font-size:16px;cursor:pointer}
+.card{margin:12px 20px 0;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.card .k{font-size:12px;color:var(--red);font-weight:700}.card h2{font-family:'Gowun Batang',serif;font-size:21px;margin:6px 0 4px;line-height:1.35}.card .sub{font-size:13px;color:var(--dim);line-height:1.6}
+.go{display:block;width:100%;font:inherit;font-size:16px;min-height:50px;border:0;border-radius:12px;background:var(--deep);color:#fff;cursor:pointer;margin-top:12px}.go.soft{background:#fff;color:var(--deep);border:1px solid var(--deep)}
+.three{margin:12px 20px 0;background:#FFF8E1;border:1px solid var(--gold);border-radius:16px;padding:14px 16px;font-size:13.5px;line-height:1.7}
+.three b{font-family:'Gowun Batang',serif;font-size:16px;display:block;margin-bottom:4px}.three .r{display:flex;gap:8px}.three .r span:first-child{min-width:52px;color:var(--dim)}
+.tabs{margin:16px 20px 30px;display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.tabs div{text-align:center;padding:12px 0;font-size:13px;color:var(--dim);border-right:1px solid var(--line)}.tabs div:last-child{border:0}.tabs div.on{color:var(--deep);font-weight:700;background:#E4EFE8}
+/* 태블릿 */
+.side{background:var(--deep);color:#fff;padding:22px;display:flex;flex-direction:column;gap:12px}
+.side .wheel{width:400px;height:400px}.side .st{color:#D6E2DA}.side .st b{background:#2D5444;border-color:#4a7560;color:#D6E2DA}.side .st.done b{background:#8CC9A6;border-color:#8CC9A6;color:var(--deep)}.side .st.now{color:#fff}
+.side .center .n{color:#fff}.side .center .s{color:#D6E2DA}.side svg circle.ring{stroke:#4a7560}
+.side .goal{margin:0;background:#2D5444}
+.pane{padding:30px 36px;display:flex;flex-direction:column;gap:16px}.pane .card{margin:0}.pane .card h2{font-size:28px}.pane .three{margin:0}.pane .go{max-width:360px}
+.tour{position:absolute;inset:0;background:rgba(31,36,33,.55);display:flex;align-items:flex-end;justify-content:center;padding:24px;z-index:3;border-radius:20px}
+.tour .box{background:#fff;border-radius:16px;padding:16px 18px;max-width:360px;width:100%}
+.tour .box .k{font-size:12px;color:var(--dim)}.tour .box .q{font-family:'Gowun Batang',serif;font-size:17px;line-height:1.5;margin:6px 0 10px}.tour .box .b{display:flex;gap:8px}.tour .box button{font:inherit;font-size:14px;min-height:42px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer}.tour .box button.p{background:var(--deep);color:#fff;border-color:var(--deep)}
+.frame{position:relative}
+.act{display:flex;align-items:baseline;gap:10px;margin:12px 0 4px 0;padding:8px 10px;border-radius:10px;background:var(--abg)}.act .an{white-space:nowrap}
+.act .an{font-family:'Gowun Batang',serif;font-size:15px;font-weight:700;color:var(--ac)}.act .am{font-size:12px;color:#4A4F48;margin-top:2px;line-height:1.5}
+.act.cold{padding:4px 10px;background:transparent}.act.cold .an{font-size:12px}.act.cold .am{display:none}
+.pr .ex{display:block;font-size:12.5px;color:#4A4F48;line-height:1.45;margin-top:2px}.pr:not(.cold):not(.fold){grid-template-columns:34px 1fr}.pr:not(.cold):not(.fold) .ln{grid-column:2;text-align:left;max-width:none;margin-top:2px;font-size:12px}.pr.now .ln{color:var(--teal);font-weight:400}
+.pr .tag{display:inline-block;font-size:10.5px;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:middle;background:var(--abg);color:var(--ac)}
+.pr.cold{min-height:26px}.pr.cold .ex,.pr.cold .ln,.pr.cold .tag,.pr.cold .nm{display:none}.pr.cold .vb{font-size:12px;color:var(--dim)}.pr.cold b{width:16px;height:16px;line-height:14px;font-size:0;margin-left:8px}
+.pr.done .ex{display:none}
+.side .act .an{color:#fff}.side .act .am{color:#D6E2DA}.side .act{background:rgba(255,255,255,.08)}.side .pr .ex{color:#D6E2DA}.side .pr .tag{background:rgba(255,255,255,.12);color:#fff}
+
+.act{display:flex;align-items:center;gap:8px;margin:10px 0 2px 0;font-size:11px;letter-spacing:.06em}.act span{padding:2px 8px;border-radius:6px;font-weight:700}
+.pr .vb{font-family:'Gowun Batang',serif;font-size:15px;color:var(--ink);display:block;line-height:1.2}.pr .nm{display:block}
+.pr.now .vb{font-size:21px}.pr.done .vb{font-size:13px;color:var(--done)}.pr.fold .vb{font-size:11px}.pr.fold .nm{display:none}
+.pr .ln{align-self:center}
+.power{margin:6px 0 0 44px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim)}.power i{display:inline-block;width:18px;height:10px;border-radius:3px;background:var(--todo)}.power i.on{background:#F2C14E}
+.side .pr .vb{color:#fff}.side .pr.done .vb{color:#8CC9A6}.side .power{color:#D6E2DA}
+.tour .box .v{font-family:'Gowun Batang',serif;font-size:24px;color:var(--deep)}
+
+.path{position:relative;margin:10px 20px 0;padding:4px 0 4px 0}
+.path .help{top:-4px}
+.pr{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px;min-height:46px;cursor:pointer;position:relative}
+.pr:before{content:"";position:absolute;left:16px;top:0;bottom:0;width:3px;background:var(--todo)}.pr:not(.done):not(.now):before{background:color-mix(in srgb,var(--c) 30%,#fff)}
+.pr.done:before{background:var(--done)}.pr.now:before{background:linear-gradient(var(--done) 0 50%,var(--todo) 50% 100%)}
+.pr:first-child:before{top:50%}.pr:last-child:before{bottom:50%}
+.pr b{position:relative;z-index:1;width:30px;height:30px;line-height:28px;text-align:center;border-radius:50%;background:#fff;border:2px solid var(--todo);color:var(--dim);font-size:12px;margin-left:1px}
+.pr.done b{background:var(--done);border-color:var(--done);color:#fff}.pr.now b{background:var(--gold);border-color:var(--gold);color:var(--deep);box-shadow:0 0 0 5px rgba(242,193,78,.3)}.pr:not(.done):not(.now) b{border-color:color-mix(in srgb,var(--c) 45%,#fff);color:var(--c)}
+.pr .nm{font-size:13px;color:var(--dim)}.pr.now .nm{font-size:15px;color:var(--ink);font-weight:700}.pr .ln{font-size:11.5px;color:var(--dim);text-align:right;max-width:150px}.pr.now .ln{color:var(--teal)}
+.pr.pick .nm{text-decoration:underline;text-decoration-color:var(--deep);text-underline-offset:4px;color:var(--ink)}
+.pr.fold{min-height:22px}.pr.fold .nm{font-size:11px}.pr.fold .ln{display:none}.pr.fold b{width:14px;height:14px;line-height:12px;font-size:0;margin-left:9px}
+.side .pr:before{background:#4a7560}.side .pr.done:before{background:#8CC9A6}.side .pr.now:before{background:linear-gradient(#8CC9A6 0 50%,#4a7560 50% 100%)}
+.side .pr b{background:#2D5444;border-color:#4a7560;color:#D6E2DA}.side .pr.done b{background:#8CC9A6;border-color:#8CC9A6;color:var(--deep)}
+.side .pr .nm{color:#D6E2DA}.side .pr.now .nm{color:#fff}.side .pr .ln{color:#D6E2DA}.side .pr.now .ln{color:var(--gold)}
+
+</style></head><body>
+<div class="demo"><b>기기</b><button data-d="p" class="on">휴대폰</button><button data-d="t">태블릿·수업 중</button><b>지금 여기</b><span id="sits"></span><b>처음 로그인</b><button id="tourBtn">안내 다시 보기</button></div>
+<div class="wrap" id="wrap"></div>
+<script>
+const ST=[
+ {id:0,exp:'선생님과 원하는 점수·기한·이유 한 줄을 적어요',val:'공감',k:'W0',n:'목표',v:'세우다',act:0,why:'「국어는 감이 아니라 데이터」 — 목표는 점수·기한·이유 세 가지로 적어요. 기한은 우리 가족이 골라요.',app:'목표·마일스톤·D-day를 늘 맨 위에 둬요.',me:'선생님과 목표 한 줄, 이유 한 줄.',line:'85점 · 11/23 · 「시험이 두렵지 않게」',head:'내 목표 다시 보기',btn:'목표 고치기'},
+ {id:1,exp:'오늘 과제 하나를 열고 풀고 제출해요',val:'최고',k:'W1',n:'과제',v:'해내다',act:1,why:'「강의 다음이 공부」 — 강의를 들은 뒤 예습으로 내 것을 만들어요.',app:'오늘 과제 하나와 교안·영상을 열어 줘요.',me:'열고, 풀고, 제출. 제출이 곧 완료.',line:'이번 주 3개 중 2개',head:'오늘 과제 — 서술형 3문항',sub:'마감 내일 18:00 · 20분',btn:'열기',soft:'오늘은 못 해요'},
+ {id:2,exp:'자주 틀리는 유형 문제 1개를 풀어요',val:'열정',k:'W2',n:'오늘의 문제',v:'알아내다',act:1,why:'「우리 아이 약점의 이름」 — 틀린 문제는 버려지지 않고 유형 이름이 붙어요.',app:'내가 자주 틀리는 유형 1건을 매일 꺼내고, 같은 습관 새 5문항을 뽑아 줘요.',me:'하루 1건. 틀리면 왜·처방 읽기.',line:'극복 3 · 오답 7',head:'오늘의 문제 1건 — 핵심어 바꿈',sub:'5번 맞히면 극복 1개',btn:'풀기'},
+ {id:3,exp:'못 한 날은 「못 해요」를 눌러 두면 돼요',val:'신뢰',k:'W3',n:'못 한 날',v:'숨기지 않다',act:1,why:'「약속 대신 기록」 — 못 한 날도 기록이 되면 숨길 일이 없어요.',app:'과제관리 시간에 자동으로 편성해요.',me:'「오늘은 못 해요」 한 번 누르기.',line:'이번 달 1번 → 과제관리 시간에 끝냄',head:'못 한 과제 — 과제관리 시간에 같이',sub:'수요일 17:00 · 정아 선생님',btn:'알겠어요'},
+ {id:4,exp:'수업 가기 전, 오늘 해결할 하나를 골라 보내요',val:'재미',k:'W4',n:'수업 전',v:'정하다',act:1,why:'「시작은 시간표 하나」 — 앉자마자 시작해요.',app:'지난주 목표 셋을 보여 줘요.',me:'오늘 꼭 해결할 하나를 골라 보내기.',line:'월 「틀린 이유 쓰기」',head:'오늘 수업에서 꼭 해결할 목표는?',sub:'지난주 목표 중 하나',btn:'보내기'},
+ {id:5,exp:'1교시 확인 → 2교시 실전 → 3교시 다음 주 목표',val:'사랑',k:'W5',n:'수업 1·2·3교시',v:'확인하다',act:1,why:'「혼자 못 채우는 자리를 수업이 개별로 채워요」 — 혼자 읽어내는 힘을 매주 확인해요.',app:'1교시 나아진 것, 2교시 시험지, 3교시 채점·다음 주.',me:'확인 → 실전 → 다음 주 목표 3개.',line:'월 18:00 · 지난주 9/12',head:'1교시 — 지난주보다 나아진 것',sub:'서술형 근거 찾기 3분 20초 → 1분 50초',btn:'틀린 2문항 선생님과 보기'},
+ {id:6,exp:'우리 학교 범위를 작품 하나씩 끝내고 자료집을 풀어요',val:'최고',k:'W6',n:'내신 준비',v:'채우다',act:2,why:'「학교가 다르면 공부법이 달라요」 — 내신은 범위 본문을 완전히 내 것으로. 안 읽고도 풀 만큼.',app:'우리 학교 범위·기출 유형·자료집 회차를 대 줘요.',me:'남은 작품 하나, 자료집 한 회차.',line:'D-48 · 범위 6작품 중 4 · 자료집 2/5',head:'남은 범위 — 토지',sub:'오늘 자료집 3회 · 40분',btn:'시작'},
+ {id:7,exp:'시험 3일 전엔 약한 유형만 5문항',val:'열정',k:'W7',n:'직전',v:'다지다',act:2,why:'「같은 3등급, 다른 원인」 — 마지막엔 내 약한 유형만.',app:'약한 유형 5문항을 뽑아 줘요.',me:'풀고 끝. 새 범위 추가 없음.',line:'약한 유형 2개',head:'D-3 — 내가 약한 유형 5문항',sub:'핵심어 바꿈 · 범주 섞음',btn:'풀기'},
+ {id:8,exp:'점수보다 먼저 넘어선 것과 자랄 자리를 봐요',val:'신뢰',k:'W8',n:'복기',v:'돌아보다',act:2,why:'「해설로 끝나지 않습니다 — 스스로 고치는 여섯 단」 — 점수보다 먼저 넘어선 것과 더 자랄 자리를 돌아봐요.',app:'점수를 뒤로 두고 넘어선 것 1·틀린 3문항을 먼저 보여 줘요.',me:'틀린 3문항 다시 풀고 「다음엔」 한 줄.',line:'시험 뒤 열려요',head:'지난 시험보다 넘어선 것',sub:'서술형 근거 쓰기 0개 → 2개',btn:'틀린 3문항 다시 풀기',soft:'점수 보기'},
+ {id:9,exp:'자란 만큼 힘 눈금이 커지고, 다음 목표를 세워요',val:'공감',k:'W10',n:'성장',v:'더 강해지다',act:3,why:'「두 달의 실제 궤적」 — 시험은 결과 통보가 아니라 내가 더 자랄 자리를 확인한 계기. 기록으로 자란 만큼 보고 다음 목표를 세워요.',app:'자란 것 한 줄과 내 힘 눈금을 보여 주고 부모님께 한 장 보내요.',me:'다음 목표 한 줄 → 다시 세우다.',line:'복기 뒤 열려요',head:'이번 바퀴에서 자란 것',sub:'서술형 재발 0 · 근거 쓰기 0→2 · 내 힘 눈금 +1',btn:'다음 목표 세우기'}];
+const ACT=[{n:'세우다',m:'원하는 것을 말로 세우면 공부가 시작돼요',c:'#4B3F8F',bg:'#ECE8F8'},{n:'쌓다',m:'혼자 있는 엿새와 수업 하루가 같은 줄에 쌓여요',c:'#2E7D4F',bg:'#E4EFE8'},{n:'확인하다',m:'시험은 결과 통보가 아니라 내가 더 자랄 자리를 확인하는 날',c:'#1D5C57',bg:'#E2F1EF'},{n:'더 강해지다',m:'혼자 읽어내는 힘이 한 바퀴마다 강해져요',c:'#9A6B00',bg:'#FFF1C2'}];
+const SITS=[{n:'수업 없는 날',now:1,done:[0]},{n:'수업 전',now:4,done:[0,1,2]},{n:'수업 중',now:5,done:[0,1,2,3,4]},{n:'내신 준비',now:6,done:[0,1,2,3,4,5]},{n:'시험 복기',now:8,done:[0,1,2,3,4,5,6,7]},{n:'성장',now:9,done:[0,1,2,3,4,5,6,7,8]}];
+let st={d:'p',sit:0,pick:null,tour:-1};
+const $=id=>document.getElementById(id);
+function wheel(size){const s=SITS[st.sit];let h='';let lastAct=-1;const curAct=ST[s.now].act;const pickAct=st.pick!=null?ST[st.pick].act:null;
+ ST.forEach((x,i)=>{const done=s.done.includes(i),now=s.now===i,pick=st.pick===i;const a=ACT[x.act];const hot=(x.act===curAct)||(x.act===pickAct);
+  if(x.act!==lastAct){h+='<div class="act '+(hot?'':'cold')+'" style="--abg:'+a.bg+';--ac:'+a.c+'"><div class="an">'+a.n+'</div><div class="am">'+a.m+'</div></div>';lastAct=x.act;}
+  const cold=!hot&&!pick;const fold=done&&!pick&&hot&&!now&&i<s.now-1;
+  h+='<div class="pr '+(done?'done':'')+(now?' now':'')+(pick?' pick':'')+(cold?' cold':'')+(fold?' fold':'')+'" data-i="'+i+'" style="--c:'+a.c+';--abg:'+a.bg+';--ac:'+a.c+'"><b>'+(done?'✓':i===9?'10':i)+'</b><span><span class="vb">'+x.v+(now?' · 지금 여기':'')+'<span class="tag">'+x.val+'</span></span><span class="nm">'+x.n+'</span><span class="ex">'+x.exp+'</span></span><span class="ln">'+x.line+'</span></div>';
+  if(i===9&&hot){const n=s.now===9?1:0;h+='<div class="power">내 힘 '+[0,1,2,3,4].map(k=>'<i class="'+(k<n?'on':'')+'"></i>').join('')+' '+(n?'1바퀴':'첫 바퀴를 돌면 여기가 커져요')+'</div>';}
+ });return h;}
+function goal(){return '<div class="goal"><div class="k">내 목표 · 내가 정함</div><div class="t">2학기 기말 국어 85점 · 11/23</div><div class="m">마일스톤 <i class="on"></i><i class="on"></i><i></i><i></i> 다음: 서술형 이유 쓰기 2문항 연속 · D-48</div></div>'}
+function card(){const i=st.pick!=null?st.pick:SITS[st.sit].now;const x=ST[i];
+ let h='<div class="card"><div class="k">'+(st.pick!=null&&st.pick!==SITS[st.sit].now?x.v+' · 이 걸음에서 하는 것':'지금 할 일')+'</div><h2>'+x.head+'</h2>'+(x.sub?'<div class="sub">'+x.sub+'</div>':'')+'<button class="go">'+x.btn+'</button>'+(x.soft?'<button class="go soft">'+x.soft+'</button>':'')+'</div>';
+ h+='<div class="three"><b>'+x.v+' · '+x.n+' — 국존 공부법</b><div class="r"><span>왜</span><span>'+x.why+'</span></div><div class="r"><span>앱이</span><span>'+x.app+'</span></div><div class="r"><span>내가</span><span>'+x.me+'</span></div></div>';
+ return h;}
+function tabs(){return '<div class="tabs"><div>내 위치</div><div class="on">내 공부</div><div>수업</div><div>내 기록</div></div>'}
+function tour(){if(st.tour<0)return '';if(st.tour>=10)return '<div class="tour"><div class="box"><div class="k">국존 열 걸음</div><div class="q">세우고, 해내고, 알아내고, 숨기지 않고, 정하고, 확인하고, 채우고, 다지고, 돌아보고, 더 강해진다.<br>이 길이 국존의 공부법이에요. 지금 여기는 ● 입니다.</div><div class="b"><button class="p" data-t="end">오늘 할 일 보기</button></div></div></div>';
+ const x=ST[st.tour];return '<div class="tour"><div class="box"><div class="k">처음 로그인 안내 '+(st.tour+1)+'/10 · '+ACT[x.act].n+' · '+x.n+'</div><div class="v">'+x.v+'</div><div class="q">'+x.why+'</div><div class="b"><button class="p" data-t="next">다음</button><button data-t="end">건너뛰기</button></div></div></div>';}
+function phone(){return '<div class="phone frame"><header><b>이가온</b><span>'+SITS[st.sit].n+' · 🔥 12일</span></header>'+goal()+'<div class="path">'+wheel(0)+'<button class="help" id="help" aria-label="안내">?</button></div>'+card()+tabs()+tour()+'</div>';}
+function tablet(){const s=SITS[st.sit];return '<div class="tab frame"><aside class="side"><div><div style="font-size:20px;font-weight:700">이가온</div><div style="font-size:12px;color:#D6E2DA">송도고 고1 · 월 18:00 · 정아 선생님 · '+s.n+'</div></div>'+goal()+'<div class="path">'+wheel(0)+'</div></aside><section class="pane">'+card()+tabs()+'</section>'+tour()+'</div>';}
+function draw(){$('sits').innerHTML=SITS.map((s,i)=>'<button data-s="'+i+'" class="'+(i===st.sit?'on':'')+'">'+s.n+'</button>').join('');
+ $('wrap').innerHTML=st.d==='p'?phone():tablet();document.querySelectorAll('.demo [data-d]').forEach(b=>b.classList.toggle('on',b.dataset.d===st.d));
+ if(st.tour>=0&&st.tour<10){const el=document.querySelector('.pr[data-i="'+st.tour+'"]');if(el)el.classList.add('pick');}}
+document.querySelector('.demo').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.d){st.d=b.dataset.d;}if(b.dataset.s!=null){st.sit=+b.dataset.s;st.pick=null;}if(b.id==='tourBtn'){st.tour=0;st.pick=null;}draw();};
+$('wrap').addEventListener('click',e=>{const t=e.target.closest('[data-t]');if(t){if(t.dataset.t==='next')st.tour++;else st.tour=-1;draw();return;}if(e.target.id==='help'){st.tour=0;draw();return;}const s=e.target.closest('.pr');if(s){const i=+s.dataset.i;st.pick=(st.pick===i)?null:i;draw();}});
+draw();
+</script></body></html>
