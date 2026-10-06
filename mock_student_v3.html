@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>국존 학생 페이지 목업 v3 — 한 화면 한 가지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--deep:#1E3A2F;--gold:#F2C14E;--ink:#1F2421;--paper:#F6F4EE;--line:#E3DFD3;--dim:#6B6F68}
+[hidden]{display:none!important}*{box-sizing:border-box}html,body{margin:0;background:#E4E0D5;color:var(--ink);font-family:'Noto Sans KR',system-ui,sans-serif}
+.demo{position:sticky;top:0;z-index:5;background:#1F2421;color:#fff;padding:8px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px}.demo b{color:var(--gold)}
+.demo button{font:inherit;font-size:12px;min-height:34px;padding:0 10px;border-radius:17px;border:1px solid #555;background:transparent;color:#ddd;cursor:pointer}.demo button.on{background:var(--gold);color:var(--deep);border-color:var(--gold)}
+.phone{max-width:430px;margin:0 auto;background:var(--paper);min-height:calc(100vh - 50px);display:flex;flex-direction:column;box-shadow:0 0 0 1px #d4cfc2}
+header{padding:22px 22px 0;display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:var(--dim)}header b{color:var(--ink);font-size:16px}
+main{flex:1;padding:18px 22px 40px;display:flex;flex-direction:column;gap:22px}
+.big{font-size:28px;line-height:1.35;font-weight:700;margin:8px 0 0}
+.one{background:#fff;border-radius:20px;padding:22px 20px;border:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.one .k{font-size:13px;color:var(--dim)}
+.opt{display:flex;flex-direction:column;gap:8px}.opt button{font:inherit;font-size:17px;text-align:left;min-height:56px;padding:0 16px;border-radius:14px;border:1px solid #D9D4C6;background:#fff;cursor:pointer}.opt button.on{background:var(--deep);color:#fff;border-color:var(--deep)}
+.go{font:inherit;font-size:18px;min-height:58px;border:0;border-radius:16px;background:var(--deep);color:#fff;cursor:pointer}
+.go:disabled{background:#C9D5CC;color:#fff}
+.ck{display:flex;align-items:center;gap:14px;min-height:56px;font-size:17px;cursor:pointer}.ck input{width:26px;height:26px;accent-color:var(--deep)}.ck.done span{text-decoration:line-through;color:#8A8E87}
+.in{font:inherit;font-size:17px;min-height:54px;padding:0 14px;border:1px solid #D9D4C6;border-radius:14px}
+.dots{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--dim)}.dots i{display:inline-block;width:14px;height:14px;border-radius:50%;background:#D9D4C6}.dots i.on{background:var(--deep)}
+.more{border-top:1px solid var(--line);padding-top:8px}
+.more button{width:100%;font:inherit;font-size:16px;text-align:left;min-height:54px;padding:0 4px;border:0;background:transparent;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:var(--ink)}.more button small{color:var(--dim);font-size:13px}
+.more .sub{padding:0 4px 12px;font-size:14px;color:#4A4F48;line-height:1.7}
+.done{font-size:14px;color:#1D5C57}
+</style></head><body>
+<div class="demo"><b>목업 장면</b><button data-s="0" class="on">수업 전</button><button data-s="1">수업 끝</button><button data-s="2">집</button><button data-s="3">기말 2주 전</button></div>
+<div class="phone">
+<header><b>이가온</b><span id="when"></span></header>
+<main id="m"></main>
+</div>
+<script>
+const W=['서술형 3문항 매일','틀린 문항 이유 한 줄 쓰기','수특 2작품 미리 읽기'];
+let st={s:0,pick:null,sent:false,done:[true,false,false],open:null,next:['','',''],nsent:false};
+const $=id=>document.getElementById(id);
+function dots(){return '<div class="dots">이번 주 '+W.map((w,i)=>'<i class="'+(st.done[i]?'on':'')+'"></i>').join('')+' '+st.done.filter(Boolean).length+'/3</div>'}
+function more(){const L=[['과제·강의·오답','과제 2개 · 강의 이어 보기 · 오답 3문항'],['시험','기말 11/23 · 범위 6작품 · 자료집 2/5'],['성적·기록','내신 그래프 · 모의고사 · 선생님 평가'],['내 목표','국어 시험이 두렵지 않은 사람 → 기말 85점 → 이번 달 서술형 틀린 문항 절반'],['책장·신청·일정','내 책장 · 강의·자료 신청 · 이번 달 일정']];
+ return '<div class="more">'+L.map((x,i)=>'<button data-o="'+i+'"><span>'+x[0]+'</span><small>'+(st.open===i?'닫기':'›')+'</small></button>'+(st.open===i?'<div class="sub">'+x[1]+'</div>':'')).join('')+'</div>'}
+function scene(){
+ if(st.s===0){$('when').textContent='오늘 18:00 수업';return '<div class="one"><div class="k">수업 전에 하나만</div><p class="big">오늘 꼭 해결할 목표는?</p><div class="opt">'+W.map((w,i)=>'<button data-p="'+i+'" class="'+(st.pick===i?'on':'')+'">'+w+'</button>').join('')+'</div><button class="go" id="go" '+(st.pick==null?'disabled':'')+'>'+(st.sent?'보냈어요':'보내기')+'</button></div>';}
+ if(st.s===1){$('when').textContent='수업 끝';return '<div class="one"><div class="k">선생님과 정한 대로</div><p class="big">다음 주 목표 3개</p>'+[0,1,2].map(i=>'<input class="in" data-n="'+i+'" placeholder="'+(i+1)+'." value="'+st.next[i]+'">').join('')+'<button class="go" id="ng">'+(st.nsent?'보냈어요':'보내기')+'</button></div>';}
+ if(st.s===2){$('when').textContent='수업 없는 날';return '<div class="one"><div class="k">오늘은</div><p class="big">서술형 3문항<br><span style="font-size:16px;font-weight:400;color:var(--dim)">마감 내일 18:00</span></p><button class="go" id="h">과제 열기</button></div><div class="one">'+W.map((w,i)=>'<label class="ck '+(st.done[i]?'done':'')+'"><input type="checkbox" data-w="'+i+'" '+(st.done[i]?'checked':'')+'><span>'+w+'</span></label>').join('')+'</div>';}
+ $('when').textContent='기말 D-14';return '<div class="one"><div class="k">시험 2주 전</div><p class="big">자료집 3회<br><span style="font-size:16px;font-weight:400;color:var(--dim)">남은 범위 토지 · 한글 맞춤법</span></p><button class="go">시작</button></div>';}
+function draw(){$('m').innerHTML=scene()+dots()+more();document.querySelectorAll('.demo button').forEach(b=>b.classList.toggle('on',+b.dataset.s===st.s));}
+document.querySelector('.demo').onclick=e=>{const b=e.target.closest('button');if(b){st.s=+b.dataset.s;st.open=null;draw();}};
+$('m').addEventListener('click',e=>{const p=e.target.closest('[data-p]');if(p){st.pick=+p.dataset.p;st.sent=false;draw();return;}if(e.target.id==='go'){st.sent=true;draw();return;}if(e.target.id==='ng'){st.nsent=true;draw();return;}const o=e.target.closest('[data-o]');if(o){st.open=(st.open===+o.dataset.o)?null:+o.dataset.o;draw();}});
+$('m').addEventListener('change',e=>{if(e.target.dataset.w!=null){st.done[+e.target.dataset.w]=e.target.checked;draw();}});
+$('m').addEventListener('input',e=>{if(e.target.dataset.n!=null)st.next[+e.target.dataset.n]=e.target.value;});
+draw();
+</script></body></html>
