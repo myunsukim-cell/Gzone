@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>국존 학생 페이지 재편 목업 v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--deep:#1E3A2F;--deep2:#2D5444;--gold:#F2C14E;--ink:#1F2421;--paper:#F6F4EE;--card:#fff;--line:#E3DFD3;--dim:#6B6F68;--red:#9A3412;--teal:#1D5C57;--violet:#4B3F8F}
+[hidden]{display:none!important}*{box-sizing:border-box}
+html,body{margin:0;background:#E4E0D5;color:var(--ink);font-family:'Noto Sans KR',system-ui,sans-serif}
+.demo{position:sticky;top:0;z-index:5;background:#1F2421;color:#fff;padding:8px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px}
+.demo b{color:var(--gold);margin-right:4px}.demo button{font:inherit;font-size:12px;min-height:34px;padding:0 10px;border-radius:17px;border:1px solid #555;background:transparent;color:#ddd;cursor:pointer}.demo button.on{background:var(--gold);color:var(--deep);border-color:var(--gold)}
+.phone{max-width:430px;margin:0 auto;background:var(--paper);min-height:calc(100vh - 50px);display:flex;flex-direction:column;box-shadow:0 0 0 1px #d4cfc2}
+header{background:var(--deep);color:#fff;padding:14px 16px 16px;display:flex;align-items:flex-end;gap:10px}
+header .who{flex:1}header .t{font-size:12px;color:var(--gold)}header .n{font-size:20px;font-weight:700;margin-top:2px}header .s{font-size:12px;color:#D6E2DA;margin-top:2px}
+.mode{font-size:12px;padding:4px 10px;border-radius:999px;background:var(--deep2)}.mode.exam{background:var(--gold);color:var(--deep)}
+main{flex:1;padding:14px 14px 90px;display:flex;flex-direction:column;gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.now{border:2px solid var(--deep)}.now .k{font-size:12px;color:var(--red);font-weight:700}.now h2{margin:6px 0 8px;font-size:19px;line-height:1.4}
+.ln{font-size:14px;line-height:1.7;color:#4A4F48}
+.go{display:block;width:100%;font:inherit;font-size:15px;min-height:50px;border:0;border-radius:12px;background:var(--deep);color:#fff;cursor:pointer;margin-top:10px}
+.go.ghost{background:#fff;color:var(--deep);border:1px solid var(--deep)}
+.h{display:flex;align-items:baseline;gap:8px}.h b{flex:1;font-size:15px}.h span{font-size:12px;color:var(--teal)}
+.sub{font-size:12px;color:var(--dim);line-height:1.6}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.chip{font:inherit;font-size:13px;min-height:40px;padding:0 12px;border-radius:20px;border:1px solid #D9D4C6;background:#fff;cursor:pointer}.chip.on{background:var(--deep);color:#fff;border-color:var(--deep)}
+.ck{display:flex;align-items:center;gap:10px;min-height:46px;border-top:1px solid #EFECE3;font-size:15px;cursor:pointer}.ck input{width:22px;height:22px;accent-color:var(--deep)}.ck.done span{text-decoration:line-through;color:#8A8E87}
+.row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #EFECE3;font-size:14px}.row .x{flex:1}.row small{display:block;font-size:12px;color:var(--dim)}
+.tag{font-size:11px;padding:2px 8px;border-radius:6px;background:#EFECE3;color:#4A4F48;white-space:nowrap}.tag.r{background:#FBE3D6;color:var(--red)}.tag.g{background:#E4EFE8;color:var(--teal)}
+.in{width:100%;font:inherit;font-size:14px;min-height:46px;padding:0 12px;border:1px solid #D9D4C6;border-radius:10px;margin-top:8px}
+.bars{display:flex;align-items:flex-end;gap:10px;height:110px;margin-top:10px}.bars div{flex:1;background:#C9DCCF;border-radius:6px 6px 0 0;position:relative}.bars div span{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-size:11px;color:var(--dim)}.bars div b{position:absolute;top:-18px;left:0;right:0;text-align:center;font-size:11px}
+.steps{display:flex;gap:4px;margin-top:8px}.steps div{flex:1;text-align:center;font-size:11px;padding:6px 0;border-radius:6px;background:#EFECE3;color:var(--dim)}.steps div.on{background:var(--gold);color:var(--deep);font-weight:700}
+.want{border-left:4px solid var(--violet)}
+nav.tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid #D9D4C6;padding-bottom:env(safe-area-inset-bottom,0)}
+nav.tabs button{font:inherit;font-size:13px;min-height:60px;border:0;background:transparent;color:var(--dim);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+nav.tabs button i{font-style:normal;font-size:18px}nav.tabs button.on{color:var(--deep);font-weight:700;box-shadow:inset 0 3px 0 var(--deep)}
+.badge{font-size:10px;background:var(--red);color:#fff;border-radius:8px;padding:0 5px;margin-left:2px}
+</style></head><body>
+<div class="demo" role="group" aria-label="목업 장면 바꾸기"><b>목업 장면</b>
+<button data-s="0" class="on">월 17:30 수업 전</button><button data-s="1">월 19:50 수업 끝</button><button data-s="2">화 21:00 집</button><button data-s="3">11/9 기말 2주 전</button></div>
+<div class="phone">
+<header><div class="who"><div class="t" id="clock"></div><div class="n">이가온 <span style="font-size:12px;font-weight:400;color:#D6E2DA">(가상 학생)</span></div><div class="s">송도고 고1 · 월·수 18:00 수업 · 담당 정아 선생님</div></div><div class="mode" id="mode"></div></header>
+<main id="main"></main>
+</div>
+<nav class="tabs" aria-label="아래 칸">
+<button data-t="today" class="on"><i>●</i>오늘</button><button data-t="week"><i>▦</i>이번 주</button><button data-t="exam"><i>✎</i>시험<span class="badge" id="exB" hidden>D-14</span></button><button data-t="me"><i>☺</i>나</button>
+</nav>
+<script>
+const S=[
+ {clock:'월 17:30 · 오늘 18:00 수업',mode:'평소',k:'지금 할 일',h:'오늘 수업에서 꼭 해결할 목표 하나',kind:'pick'},
+ {clock:'월 19:50 · 수업 끝',mode:'평소',k:'지금 할 일',h:'다음 주 목표 3개 · 고칠 습관 1개',kind:'next'},
+ {clock:'화 21:00 · 수업 없는 날',mode:'평소',k:'오늘 할 것',h:'오늘 할 것 3개',kind:'home'},
+ {clock:'11/9 (월) · 기말 D-14',mode:'시험 준비',k:'시험 모드 · 자동 전환',h:'기말 D-14 · 오늘은 자료집 3회',kind:'exam'}];
+const W=['서술형 3문항 매일','틀린 문항 이유 한 줄 쓰기','수특 문학 2작품 미리 읽기'];
+let st={s:0,t:'today',done:[true,false,false],pick:null,sent:false,next:false,home:[false,false,false]};
+const $=id=>document.getElementById(id);
+function wk(){return st.done.filter(Boolean).length}
+function weekLine(){return '<div class="card"><div class="h"><b>이번 주 목표</b><span>'+wk()+' / 3 완료</span></div><div class="sub" style="margin-top:4px">'+W.join(' · ')+'</div><div class="sub">→ 이번 달: 서술형 틀린 문항 절반 → 원하는 것: 국어 시험이 두렵지 않은 사람</div></div>'}
+function today(){const c=S[st.s];let h='<div class="card now"><div class="k">'+c.k+'</div><h2>'+c.h+'</h2>';
+ if(c.kind==='pick'){h+='<div class="ln">이번 주 목표 중 하나를 누르세요</div><div class="chips">'+W.map((w,i)=>'<button class="chip'+(st.pick===i?' on':'')+'" data-p="'+i+'">'+w+'</button>').join('')+'</div><button class="go" id="send">'+(st.sent?'보냈어요 — 선생님 카드 맨 위에 떴어요':'이 목표로 보내기')+'</button><div class="sub" style="margin-top:8px">도착하면 입구 태블릿에 휴대폰 뒷자리 4개 → 내 이름 누르기</div>';}
+ if(c.kind==='next'){h+='<div class="sub">3교시에 선생님과 정한 것을 적어요</div><input class="in" value="서술형 3문항 매일" aria-label="목표 1"><input class="in" value="틀린 문항 이유 한 줄 쓰기" aria-label="목표 2"><input class="in" placeholder="3." aria-label="목표 3"><input class="in" placeholder="고칠 습관 1개 — 예: 문제 먼저 읽고 지문 보기" aria-label="고칠 습관"><button class="go" id="nx">'+(st.next?'보냈어요 — 다음 주 목표가 됐어요':'다음 주 목표 보내기')+'</button><div class="sub" style="margin-top:8px">오늘 수업 강의는 「이번 주 → 강의 보기」에 올라와요</div>';}
+ if(c.kind==='home'){const L=['과제 — 서술형 3문항 (마감 수 18:00)','강의 이어 보기 — 운수 좋은 날 12:30부터','오답 3문항 다시 풀기'];h+=L.map((l,i)=>'<label class="ck'+(st.home[i]?' done':'')+'"><input type="checkbox" data-h="'+i+'"'+(st.home[i]?' checked':'')+'><span>'+l+'</span></label>').join('')+'<div class="sub" style="margin-top:6px">다 하면 아래 「이번 주 목표」도 체크하세요 — 부모님 화면에 「다 했어요」로 보여요</div>';}
+ if(c.kind==='exam'){h+='<div class="ln">범위 6작품 중 남은 2작품 — 토지 · 한글 맞춤법</div><div class="ln">CLEAR 자료집 5회 중 2회 완료</div><div class="steps"><div>평소</div><div class="on">시험 준비</div><div>직전</div><div>복기</div></div><div class="sub" style="margin-top:6px">시험 일정을 보고 자동으로 바뀌어요 · 시험 끝나면 「복기」</div><button class="go">자료집 3회 시작</button>';}
+ h+='</div>'+weekLine();
+ if(c.kind==='pick')h+='<div class="card"><div class="h"><b>오늘 수업 순서</b><span>과제 결과에 따라 바뀜</span></div><div class="row"><span class="x">1교시 · 과제 확인 — 서술형</span></div><div class="row"><span class="x">2교시 · 운수 좋은 날 심화</span></div><div class="row"><span class="x">3교시 · 선생님과 다음 주 계획</span></div></div>';
+ return h}
+function week(){return '<div class="card"><div class="h"><b>이번 주 목표</b><span>'+wk()+' / 3</span></div>'+W.map((w,i)=>'<label class="ck'+(st.done[i]?' done':'')+'"><input type="checkbox" data-w="'+i+'"'+(st.done[i]?' checked':'')+'><span>'+w+'</span></label>').join('')+'<div class="sub" style="margin-top:6px">체크하면 선생님 카드·부모님 화면에 바로 보여요</div></div>'+
+ '<div class="card"><div class="h"><b>이번 주 과제</b><span>2개</span></div><div class="row"><span class="x">서술형 3문항<small>마감 수 18:00</small></span><span class="tag r">D-1</span></div><div class="row"><span class="x">수특 문학 「토지」 읽기<small>마감 토 10:00</small></span><span class="tag">D-4</span></div></div>'+
+ '<div class="card"><div class="h"><b>강의 보기</b><span>영상 + 교안</span></div><div class="row"><span class="x">운수 좋은 날 — 2강<small>12:30까지 봄 · 확인 문제는 영상 아래</small></span><span class="tag g">이어 보기</span></div></div>'+
+ '<div class="card"><div class="h"><b>내 강좌와 진도</b></div><div class="steps"><div class="on">STEP3</div><div class="on">STEP5</div><div>SPARK</div><div>CLEAR</div></div><div class="sub" style="margin-top:6px">단계마다 강의와 시험</div></div>'+
+ '<div class="card"><div class="h"><b>오답 노트</b><span>3문항</span></div><div class="sub">틀린 문제를 다시 풀어요</div></div>'+
+ '<div class="card"><div class="h"><b>지난주 선생님 평가</b></div><div class="ln">근거 찾기가 빨라졌어요. 다음 주는 「이유 쓰기」를 함께 잡아요.</div><div class="sub">주별 공부 기록 전체 보기 ›</div></div>'}
+function exam(){const d=st.s===3?'D-14':'D-48';return '<div class="card now"><div class="h"><b>2학기 기말 국어</b><span style="color:var(--red)">'+d+' · 11/23</span></div><div class="steps"><div'+(st.s<3?' class="on"':'')+'>평소</div><div'+(st.s===3?' class="on"':'')+'>시험 준비</div><div>직전</div><div>복기</div></div><div class="sub" style="margin-top:6px">단계는 시험 일정으로 자동 — 고를 필요 없어요</div></div>'+
+ '<div class="card"><div class="h"><b>시험 범위</b><span>6작품</span></div><div class="row"><span class="x">운수 좋은 날 · 현진건</span><span class="tag g">완료</span></div><div class="row"><span class="x">토지 · 박경리</span><span class="tag">남음</span></div><div class="row"><span class="x">한글 맞춤법</span><span class="tag">남음</span></div><div class="sub">외 3작품 ›</div></div>'+
+ '<div class="card"><div class="h"><b>CLEAR 자료집</b><span>5회 중 2회</span></div><div class="steps"><div class="on">1</div><div class="on">2</div><div>3</div><div>4</div><div>5</div></div></div>'+
+ '<div class="card"><div class="h"><b>성적</b><span>내신 · 모의</span></div><div class="bars"><div style="height:62%"><b>72</b><span>1학기 중간</span></div><div style="height:70%"><b>78</b><span>1학기 기말</span></div><div style="height:74%"><b>81</b><span>2학기 중간</span></div><div style="height:85%;background:repeating-linear-gradient(45deg,#E9E4D6,#E9E4D6 6px,#fff 6px,#fff 12px)"><b>85</b><span>목표</span></div></div><div style="height:20px"></div></div>'+
+ '<div class="card"><div class="row" style="border:0"><span class="x">모의고사 기록<small>분석지 보기 · 바로 응시</small></span>›</div><div class="row"><span class="x">학원 테스트<small>확인 · 심화 · 복습</small></span>›</div></div>'}
+function me(){return '<div class="card want"><div class="sub" style="color:var(--violet)">내가 원하는 것 · 입학 상담 때 적음</div><div style="font-size:17px;font-weight:700;margin-top:4px">국어 시험이 두렵지 않은 사람</div><div class="row"><span class="x">이번 학기<small>2학기 기말 국어 85점</small></span></div><div class="row"><span class="x">이번 달 · 월 면담<small>서술형에서 틀린 문항을 절반으로</small></span></div></div>'+
+ '<div class="card"><div class="row" style="border:0"><span class="x">진로와 목표<small>시험 목표와 이어져요</small></span>›</div><div class="row"><span class="x">이번 달 일정<small>수업 · 시험 · 내 일정</small></span>›</div><div class="row"><span class="x">내 책장<small>선생님이 고른 책 · 추천 책</small></span>›</div><div class="row"><span class="x">새 강좌<small>최근 7일 · 내 학년 먼저</small></span>›</div><div class="row"><span class="x">강의·자료 신청<small>본점이 만들어 드려요</small></span>›</div><div class="row"><span class="x">선생님 평가 전체</span>›</div></div>'}
+function draw(){const c=S[st.s];$('clock').textContent=c.clock;$('mode').textContent=c.mode;$('mode').className='mode'+(c.mode!=='평소'?' exam':'');$('exB').hidden=st.s!==3;
+ $('main').innerHTML=({today,week,exam,me})[st.t]();document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===st.t));
+ document.querySelectorAll('.demo button').forEach(b=>b.classList.toggle('on',+b.dataset.s===st.s));}
+document.querySelector('.demo').onclick=e=>{const b=e.target.closest('button');if(!b)return;st.s=+b.dataset.s;st.t='today';st.sent=false;st.next=false;draw();scrollTo(0,0);};
+document.querySelector('nav.tabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;st.t=b.dataset.t;draw();scrollTo(0,0);};
+$('main').addEventListener('click',e=>{const p=e.target.closest('[data-p]');if(p){st.pick=+p.dataset.p;st.sent=false;draw();return;}
+ if(e.target.id==='send'){if(st.pick==null){alert('목표를 먼저 하나 골라 주세요');return;}st.sent=true;draw();}
+ if(e.target.id==='nx'){st.next=true;draw();}});
+$('main').addEventListener('change',e=>{const w=e.target.dataset.w,h=e.target.dataset.h;if(w!=null){st.done[+w]=e.target.checked;draw();}if(h!=null){st.home[+h]=e.target.checked;draw();}});
+draw();
+</script></body></html>
