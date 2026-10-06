@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>국존 학생 화면 v4 — 상황별 의도 설계 (휴대폰·태블릿)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--deep:#1E3A2F;--gold:#F2C14E;--ink:#1F2421;--paper:#F6F4EE;--line:#E3DFD3;--dim:#6B6F68;--teal:#1D5C57;--red:#9A3412}
+[hidden]{display:none!important}*{box-sizing:border-box}html,body{margin:0;background:#E4E0D5;color:var(--ink);font-family:'Noto Sans KR',system-ui,sans-serif}
+.demo{position:sticky;top:0;z-index:5;background:#1F2421;color:#fff;padding:8px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px}.demo b{color:var(--gold);margin:0 4px 0 8px}
+.demo button{font:inherit;font-size:12px;min-height:34px;padding:0 10px;border-radius:17px;border:1px solid #555;background:transparent;color:#ddd;cursor:pointer}.demo button.on{background:var(--gold);color:var(--deep);border-color:var(--gold)}
+.intent{max-width:1100px;margin:14px auto 0;padding:0 12px;font-size:13px;color:#4A4F48;line-height:1.6}.intent b{color:var(--ink)}
+.wrap{display:flex;justify-content:center;padding:14px 12px 40px}
+.phone{width:400px;max-width:100%;background:var(--paper);border-radius:28px;border:8px solid #1F2421;min-height:780px;display:flex;flex-direction:column;overflow:hidden}
+.tab{width:1024px;max-width:100%;background:var(--paper);border-radius:18px;border:10px solid #1F2421;min-height:700px;display:grid;grid-template-columns:300px 1fr;overflow:hidden}
+header{padding:20px 22px 0;display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:var(--dim)}header b{color:var(--ink);font-size:16px}
+main{flex:1;padding:16px 22px 30px;display:flex;flex-direction:column;gap:18px}
+.one{background:#fff;border-radius:20px;padding:22px 20px;border:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.k{font-size:13px;color:var(--dim)}.big{font-size:27px;line-height:1.35;font-weight:700;margin:0}.big small{display:block;font-size:15px;font-weight:400;color:var(--dim);margin-top:6px}
+.opt{display:flex;flex-direction:column;gap:8px}.opt button{font:inherit;font-size:17px;text-align:left;min-height:56px;padding:0 16px;border-radius:14px;border:1px solid #D9D4C6;background:#fff;cursor:pointer}.opt button.on{background:var(--deep);color:#fff;border-color:var(--deep)}
+.go{font:inherit;font-size:18px;min-height:58px;border:0;border-radius:16px;background:var(--deep);color:#fff;cursor:pointer}.go.soft{background:#fff;color:var(--deep);border:1px solid var(--deep)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dots{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--dim)}.dots i{display:inline-block;width:14px;height:14px;border-radius:50%;background:#D9D4C6}.dots i.on{background:var(--deep)}
+.more{border-top:1px solid var(--line)}.more div{display:flex;justify-content:space-between;min-height:52px;align-items:center;font-size:16px}.more div small{color:var(--dim)}
+.win{background:#E4EFE8;border-radius:14px;padding:14px 16px;font-size:15px;line-height:1.6;color:var(--teal)}
+/* 태블릿 */
+.side{background:var(--deep);color:#fff;padding:26px 22px;display:flex;flex-direction:column;gap:18px}
+.side .n{font-size:22px;font-weight:700}.side .s{font-size:13px;color:#D6E2DA}
+.steps{display:flex;flex-direction:column;gap:6px;margin-top:6px}.steps div{padding:12px 14px;border-radius:12px;font-size:15px;background:#2D5444;color:#D6E2DA}.steps div.on{background:var(--gold);color:var(--deep);font-weight:700}.steps div.done{opacity:.55;text-decoration:line-through}
+.side .goal{margin-top:auto;font-size:13px;color:#D6E2DA;line-height:1.6}.side .goal b{display:block;color:#fff;font-size:15px}
+.pane{padding:34px 40px;display:flex;flex-direction:column;gap:22px}
+.pane .big{font-size:36px}.pane .one{padding:28px 30px}.pane .opt{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pane .opt button{min-height:72px;font-size:19px}
+.pane .go{min-height:66px;font-size:20px;max-width:420px}
+.q{display:grid;grid-template-columns:1fr 1fr;gap:12px}.q .one{gap:8px}.q .k{font-size:13px}.q p{margin:0;font-size:22px;font-weight:700}
+</style></head><body>
+<div class="demo"><b>기기</b><button data-d="p" class="on">휴대폰 · 집·이동</button><button data-d="t">태블릿 · 학원 수업 중</button>
+<b>상황</b><span id="sit"></span></div>
+<div class="intent" id="intent"></div>
+<div class="wrap" id="wrap"></div>
+<script>
+const SIT=[
+ {id:'hw',name:'집에서 과제',zone:'과제 관리(S8)',intent:'오늘 과제가 뭔지·어디서 하는지 바로 알고 싶다. 못 했을 때 숨기고 싶어진다',move:'과제 하나만 크게 → 「열기」 한 번. 못 했으면 「선생님과 같이 끝내기」로 숨길 필요를 없앤다',dev:'p'},
+ {id:'go',name:'학원 가는 길',zone:'수업 진입(S3)',intent:'오늘 뭐 하는지·뭘 챙기는지, 가서 바로 앉고 싶다',move:'오늘 목표 하나 고르기 + 도착하면 번호 4자리. 두 줄이면 끝',dev:'p'},
+ {id:'c1',name:'1교시 · 과제 피드백',zone:'훈련·과제(S4)',intent:'내 노력이 결과로 이어졌는지 보고 싶다(안 보이면 버티기가 된다)',move:'점수보다 먼저 「지난주보다 나아진 것 1개」를 보여 준다',dev:'t'},
+ {id:'c2',name:'2교시 · 심화',zone:'심화·점검(S5)',intent:'지금 풀 것에만 집중하고 싶다',move:'시험지 하나·타이머·제출. 다른 것은 화면에서 치운다',dev:'t'},
+ {id:'c3',name:'3교시 · 마무리',zone:'마무리·정착(S6)',intent:'오늘 채점 결과와 다음 주 할 일을 그 자리에서 정하고 싶다',move:'채점 결과 즉시 + 다음 주 목표 3개를 선생님과 같이 적어 보내기',dev:'t'},
+ {id:'ex',name:'시험 2주 전',zone:'심화·점검(S5)',intent:'범위 중 뭐가 남았는지, 오늘 뭘 하면 되는지',move:'남은 범위 작품 하나 + 자료집 다음 회차 하나',dev:'p'},
+ {id:'af',name:'시험 끝난 뒤',zone:'시험 결과·복기(S9)',intent:'결과가 나쁘면 보기 싫고 복기도 피하고 싶다',move:'점수를 먼저 보이지 않는다. 「넘어선 것 1개」 → 오답 3문항만 → 그다음 점수',dev:'p'},
+ {id:'m1',name:'첫 달',zone:'입학 준비(S2)',intent:'내가 늘고 있나, 여기 맞나',move:'첫 달 변화 한 줄을 선생님 말로 보여 준다',dev:'p'}];
+let st={d:'p',s:0,pick:null,sent:false,done:[true,false,false],hw:'open'};
+const $=id=>document.getElementById(id);const W=['서술형 3문항 매일','틀린 문항 이유 한 줄 쓰기','수특 2작품 미리 읽기'];
+function dots(){return '<div class="dots">이번 주 '+W.map((w,i)=>'<i class="'+(st.done[i]?'on':'')+'"></i>').join('')+' '+st.done.filter(Boolean).length+'/3</div>'}
+function more(){return '<div class="more">'+['과제·강의·오답','시험','성적·기록','내 목표','책장·신청·일정'].map(x=>'<div><span>'+x+'</span><small>›</small></div>').join('')+'</div>'}
+function P(s){
+ const h='<header><b>이가온</b><span>'+({hw:'수업 없는 날',go:'오늘 18:00 수업',ex:'기말 D-14',af:'중간 끝 · 결과 나옴',m1:'다닌 지 4주'})[s.id]+'</span></header><main>';
+ let b='';
+ if(s.id==='hw')b='<div class="one"><div class="k">오늘 과제</div><p class="big">서술형 3문항<small>마감 내일 18:00 · 20분</small></p>'+(st.hw==='open'?'<button class="go" id="hwo">열기</button><button class="go soft" id="hwx">오늘은 못 해요 → 선생님과 과제관리 시간에</button>':'<div class="win">알겠어요. 내일 과제관리 시간에 선생님과 같이 끝내요. 숨기지 않아도 돼요.</div>')+'</div>';
+ if(s.id==='go')b='<div class="one"><div class="k">수업 전에 하나만</div><p class="big">오늘 꼭 해결할 목표는?</p><div class="opt">'+W.map((w,i)=>'<button data-p="'+i+'" class="'+(st.pick===i?'on':'')+'">'+w+'</button>').join('')+'</div><button class="go" id="go" '+(st.pick==null?'disabled':'')+'>'+(st.sent?'보냈어요':'보내기')+'</button><div class="k">도착하면 입구 태블릿에 휴대폰 뒷자리 4개</div></div>';
+ if(s.id==='ex')b='<div class="one"><div class="k">기말 D-14 · 남은 범위 2작품</div><p class="big">토지 · 박경리<small>오늘 자료집 3회 (40분)</small></p><button class="go">시작</button></div>';
+ if(s.id==='af')b='<div class="one"><div class="k">중간고사 끝 · 점수는 아직 안 보여요</div><p class="big">지난 시험보다 넘어선 것<small>서술형 근거 쓰기 — 지난 시험 0개 → 이번 2개</small></p><button class="go">틀린 3문항만 다시 풀기</button><button class="go soft">점수 보기</button></div>';
+ if(s.id==='m1')b='<div class="one"><div class="k">첫 달 · 선생님 한 줄</div><p class="big">「지문을 끝까지 읽기 시작했어요」<small>4주 전엔 중간에 멈췄는데, 지금은 끝까지 읽고 답을 골라요</small></p><button class="go">이번 주 목표 보기</button></div>';
+ return h+b+dots()+more()+'</main>';}
+function T(s){
+ const steps=['1교시 과제 피드백','2교시 심화','3교시 마무리·다음 주'];const cur={c1:0,c2:1,c3:2}[s.id];
+ const side='<aside class="side"><div><div class="n">이가온</div><div class="s">송도고 고1 · 월 18:00 · 정아 선생님</div></div><div class="steps">'+steps.map((x,i)=>'<div class="'+(i<cur?'done':i===cur?'on':'')+'">'+x+'</div>').join('')+'</div><div class="goal">오늘 목표<b>틀린 문항 이유 한 줄 쓰기</b></div></aside>';
+ let p='';
+ if(s.id==='c1')p='<div class="one"><div class="k">1교시 · 지난주 과제 결과</div><p class="big">지난주보다 나아진 것<small>서술형 근거 찾기 — 3분 20초 → 1분 50초</small></p><div class="q"><div class="one"><div class="k">제출</div><p>3 / 3</p></div><div class="one"><div class="k">틀린 유형</div><p>이유 쓰기 2문항</p></div></div><button class="go">틀린 2문항 선생님과 보기</button></div>';
+ if(s.id==='c2')p='<div class="one"><div class="k">2교시 · 심화</div><p class="big">운수 좋은 날 실전 시험지<small>12문항 · 25분</small></p><div class="q"><div class="one"><div class="k">남은 시간</div><p>18:40</p></div><div class="one"><div class="k">푼 문항</div><p>5 / 12</p></div></div><button class="go">제출</button></div>';
+ if(s.id==='c3')p='<div class="one"><div class="k">3교시 · 오늘 채점 결과</div><p class="big">12문항 중 9개<small>틀린 3문항 — 모두 「이유 쓰기」 유형</small></p></div><div class="one"><div class="k">선생님과 정한 다음 주 목표</div><div class="opt"><button class="on">서술형 3문항 매일</button><button class="on">틀린 문항 이유 한 줄 쓰기</button><button>수특 2작품 미리 읽기</button><button>+ 직접 쓰기</button></div><button class="go">이대로 보내기</button></div>';
+ return side+'<section class="pane">'+p+'</section>';}
+function draw(){const s=SIT[st.s];$('sit').innerHTML=SIT.map((x,i)=>'<button data-s="'+i+'" class="'+(i===st.s?'on':'')+'">'+x.name+'</button>').join('');
+ $('intent').innerHTML='<b>'+s.name+'</b> · 경험여정 '+s.zone+'<br>학생의 의도 — '+s.intent+'<br>최적의 움직임 — '+s.move;
+ $('wrap').innerHTML=st.d==='p'?'<div class="phone">'+P(s)+'</div>':'<div class="tab">'+T(s)+'</div>';
+ document.querySelectorAll('.demo [data-d]').forEach(b=>b.classList.toggle('on',b.dataset.d===st.d));}
+document.querySelector('.demo').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.d){st.d=b.dataset.d;st.s=SIT.findIndex(x=>x.dev===st.d);}if(b.dataset.s!=null){st.s=+b.dataset.s;st.d=SIT[st.s].dev;}st.pick=null;st.sent=false;st.hw='open';draw();};
+$('wrap').addEventListener('click',e=>{const p=e.target.closest('[data-p]');if(p){st.pick=+p.dataset.p;st.sent=false;draw();return;}if(e.target.id==='go'){st.sent=true;draw();}if(e.target.id==='hwx'){st.hw='later';draw();}});
+draw();
+</script></body></html>
