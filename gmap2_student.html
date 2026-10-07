@@ -1219,13 +1219,12 @@ window.gzSubmitQuiz=function(){
     fb.innerHTML='<div style="border-left:3px solid '+(ok?'#2c6e49':'#a33')+';background:'+(ok?'#eef6f0':'#fdf7f6')+';border-radius:0 7px 7px 0;padding:6px 9px;font-size:12px;margin-top:5px"><b>'+(ok?'맞았어요':'정답 '+'①②③④⑤'[x.answer-1])+'</b>'+(x.explanation?(' — '+x.explanation):'')+'</div>';
     if(!ok&&my!==null)wrongs.push({question_id:x.id, question_no:x.q_no, student_answer:String(my), correct_answer:String(x.answer), acl_code:x.acl_code, kla_code:x.kla_code});
   });
-  /* 완료 기록 + 오답 적재 — gz_quiz_submit RPC (frog RLS 우회·원자 처리) */
-  fetch(BASE+'/rest/v1/rpc/gz_quiz_submit',{method:'POST',
-    headers:{apikey:AK,Authorization:'Bearer '+AK,'Content-Type':'application/json'},
-    body:JSON.stringify({p:{student_id:Number(sid()), plan_date:today, step_range:'lc:'+row.id, seq:900+row.id, correct_n:okN, total_n:qs.length, work_id:GZW(),
-      wrongs:wrongs.map(function(w){return {question_id:w.question_id, question_no:w.question_no,
-        student_answer:w.student_answer, correct_answer:w.correct_answer, acl_code:w.acl_code, kla_code:w.kla_code,
-        memo:'미니 퀴즈 · '+GZT()+' '+(idx+1)+'번째 단원'};})}})});
+  /* 완료 기록 + 오답 적재 — gz2_quiz_submit(sid·k 열쇠 · 서버 채점 · 계획 소유 검사, 2026-10-07 seq 332). 옛 gz_quiz_submit은 열쇠 없음으로 회수 */
+  (function(){var qs0=(location.search||'')+'&'+(window.__DESK_Q||''),SID0=Number((qs0.match(/sid=(\d+)/)||[])[1]||0),K0=(qs0.match(/k=([a-f0-9]{32})/)||[])[1]||'';
+   var ans=qs.map(function(x,i){var s=document.querySelector('input[name=gzq'+i+']:checked');return {question_id:x.id,pick:s?Number(s.value):null};});
+   fetch(BASE+'/rest/v1/rpc/gz2_quiz_submit',{method:'POST',headers:{apikey:AK,Authorization:'Bearer '+AK,'Content-Type':'application/json'},
+    body:JSON.stringify({p_sid:SID0,p_k:K0,p:{plan_id:GZP()||null,step_range:'lc:'+row.id,seq:900+row.id,work_id:GZW(),memo:'미니 퀴즈 · '+GZT()+' '+(idx+1)+'번째 단원',answers:ans}})})
+   .then(function(r){return r.json();}).then(function(r){if(!r||!r.ok){var m=document.createElement('div');m.className='mini';m.style.cssText='text-align:center;color:#a33;margin-top:4px';m.textContent='기록 저장 실패 — '+((r&&r.reason)||'다시 시도해 주세요');var bx=document.getElementById('gzQuizBox');if(bx)bx.appendChild(m);}}).catch(function(){});})();
   var btn=document.getElementById('gzQSubmit');
   btn.outerHTML='<div style="text-align:center;padding:10px;font-size:14px;font-weight:800;color:#2c6e49">✓ '+(idx+1)+'번째 단원 끝! ('+okN+'/'+qs.length+' 맞음'+(wrongs.length?' · 틀린 '+wrongs.length+'개는 오답노트로':'')+')</div>';
   gzLessonState.done=idx+1;
