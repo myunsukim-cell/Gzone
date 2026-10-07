@@ -1834,7 +1834,9 @@ setTimeout(()=>{try{const sid=+sessionStorage.getItem('gz_open_coach');if(sid){s
   const BP='font:inherit;font-size:12px;padding:4px 10px;border-radius:6px;border:0;background:#4B3F8F;color:#fff;cursor:pointer';
   function host(){return document.getElementById('cprog')||document.getElementById('chead');}
   function tv(g){const t=(g&&g.target)||{};return (t.value!=null&&t.value!=='')?(t.metric==='점수'?t.value+'점':t.metric==='등급'?t.value+'등급':t.value):(t.metric==='재발0'?'같은 실수 0':'');}
-  function head(g){
+  function bchip(){const b=ST.b&&ST.b.ok&&ST.b.basis;if(!b)return '';const c={'충분':'#2E7D4F','초안 가능':'#9A6B00','보류':'#A4472F'}[b.basis_level]||'#6b6b7b';return ' <span style="font-size:11px;border:1px solid '+c+';color:'+c+';border-radius:9px;padding:0 6px">근거 '+E(b.basis_level)+'</span>';}
+  function head(g){return head0(g)+bchip();}
+  function head0(g){
     if(!g||!g.ok)return '🎯 학생 목표 — 불러오지 못함';
     if(!g.has_goal)return '🎯 학생 목표 — <b>아직 없음</b> <span style="color:#6b6b7b">· 학생 화면 「내 목표」에 「아직 목표가 없어요」로 떠요'+(g.strength?' · 힘 눈금 '+g.strength:'')+'</span>';
     return '🎯 학생 목표 — <b>'+E(g.title)+(tv(g)?' · '+E(tv(g)):'')+' · '+md(g.due)+'</b> <span style="color:#6b6b7b">· 중간 목표 '+(g.ms_done||0)+'/'+(g.ms_total||0)+(g.dday!=null?' · D-'+g.dday:'')+(g.strength?' · 힘 눈금 '+g.strength:'')+'</span>';
@@ -1854,7 +1856,7 @@ setTimeout(()=>{try{const sid=+sessionStorage.getItem('gz_open_coach');if(sid){s
   }
   function body(g){
     if(!g||!g.ok)return '';
-    let h='';
+    let h=basis();
     if(g.has_goal){
       const ms=g.milestones||[];
       h+='<div style="margin-top:6px">'+(ms.length?ms.map((m,i)=>'<label style="display:flex;gap:6px;align-items:center;padding:3px 0;border-top:1px solid #f0ede4"><input type="checkbox" data-mark="'+i+'"'+(m.done?' checked':'')+'><span style="flex:1">'+E(m.title||m.name||('중간 목표 '+(i+1)))+(m.due?' <span style="color:#6b6b7b">· '+md(m.due)+'까지</span>':'')+(m.why?' <span style="color:#4B3F8F">· 학생 이유: '+E(m.why)+'</span>':'')+'</span>'+(m.done_at?'<span style="font-size:11px;color:#2E7D4F">'+md(m.done_at)+' 이룸</span>':'')+'</label>').join(''):'<div style="color:#6b6b7b">중간 목표가 없어요 — 「고치기」에서 넣어 주세요</div>')+'</div>'
@@ -1870,6 +1872,37 @@ setTimeout(()=>{try{const sid=+sessionStorage.getItem('gz_open_coach');if(sid){s
     if(ST.edit)h+=form(g);
     return h;
   }
+
+  /* [seq 338] 목표 근거 6줄 — v_goal_basis(gz2_goal_basis) 읽기, 빈 항목은 gz2_goal_basis_save로 정본 표에 쓴다(내신·모의 → exam_results, 공부 방식·조언 → diagnostic_insights 학습태도) */
+  const BF={k:null};
+  function basis(){
+    const R=ST.b; if(!R||!R.ok)return '<div style="margin-top:6px;color:#6b6b7b">목표 근거를 불러오지 못했어요</div>';
+    const b=R.basis||{}, n=b.naesin, m=b.mock, hb=b.habit||null, a=b.advice, sm=b.self_study, nx=b.next_exam, hw=b.hw;
+    const row=(lab,val,k)=>'<div style="display:flex;gap:6px;align-items:baseline;padding:3px 0;border-top:1px solid #f0ede4"><b style="width:86px;flex:none;font-size:12px">'+lab+'</b><span style="flex:1">'+(val||'<span style="color:#A4472F">비어 있음</span>')+'</span>'+(k?'<button data-bk="'+k+'" style="'+BT+';padding:1px 8px">'+(BF.k===k?'닫기':'입력')+'</button>':'')+'</div>';
+    const hv=hb?[hb.teacher?('선생님: '+E(hb.teacher.diagnosis)+' ('+md(hb.teacher.date)+')'):'',hb.wrong_habit?('오답 습관: '+E(hb.wrong_habit.name)+' '+hb.wrong_habit.wrong+'회'):'',hb.entrance?('입학진단: '+E(String(hb.entrance.desc||hb.entrance.type).slice(0,40))):'',hb.sdl_self?('자기진단 계획 '+hb.sdl_self.planning):''].filter(Boolean).join(' · '):'';
+    let h='<div style="margin-top:6px;background:#faf9f5;border:1px solid #e2ddd0;border-radius:7px;padding:6px 8px"><div style="font-size:12px;font-weight:700;color:#4B3F8F">목표 근거 <span style="font-weight:400;color:#6b6b7b">— 자동 초안이 이 줄들로 목표를 씁니다'+(b.missing&&b.missing.length?' · 빈 항목: '+b.missing.map(E).join(', '):'')+'</span></div>'
+      +row('지난 내신',n?(E(n.label)+' '+n.score+'점 · '+md(n.date)):'','naesin')
+      +row('모의',m?(E(m.label)+(m.score!=null?' '+m.score+'점':'')+(m.grade?' '+m.grade+'등급':'')+' · '+md(m.date)):'','mock')
+      +row('공부 방식',hv,'style')
+      +row('선생님 조언',a?('「'+E(a.text)+'」 '+md(a.date)):'','style')
+      +row('자기 학습 시간',sm?('주 평균 '+sm.avg_min+'분(최근 4주 '+sm.n+'회 · 학생 입력)'):'<span style="color:#6b6b7b">학생이 「수업 후」 7번에 적으면 채워져요</span>',null)
+      +row('다음 시험',nx?(E(nx.name)+' · '+md(nx.date)+' · D-'+nx.dd+' · 범위 '+nx.scope_n+'작품'):'',null)
+      +(hw?'<div style="font-size:11px;color:#6b6b7b;margin-top:2px">참고 — 최근 4주 과제 해옴 '+hw.pct+'% ('+hw.n+'회)</div>':'');
+    if(BF.k==='naesin')h+='<div style="margin-top:5px;display:flex;gap:5px;flex-wrap:wrap;align-items:center">시험 <select id="bfSe" style="'+IN+'"><option value="">직접 입력</option>'+(R.past_exams||[]).map(x=>'<option value="'+x.id+'">'+E(x.name)+' '+md(x.date)+'</option>').join('')+'</select> 종류 <select id="bfT" style="'+IN+'"><option value="1">1차(중간)</option><option value="2">2차(기말)</option></select> 날짜 <input id="bfD" type="date" style="'+IN+'"> 원점수 <input id="bfS" style="'+IN+';width:60px"> <button data-bsave="naesin" style="'+BP+'">저장</button></div>';
+    if(BF.k==='mock')h+='<div style="margin-top:5px;display:flex;gap:5px;flex-wrap:wrap;align-items:center">회차 <select id="bfT" style="'+IN+'">'+(R.mock_types||[]).map(x=>'<option value="'+x.id+'">'+E(x.name)+'</option>').join('')+'</select> 날짜 <input id="bfD" type="date" style="'+IN+'"> 원점수 <input id="bfS" style="'+IN+';width:60px"> 등급 <input id="bfG" style="'+IN+';width:40px" placeholder="1~9"> <button data-bsave="mock" style="'+BP+'">저장</button></div>';
+    if(BF.k==='style')h+='<div style="margin-top:5px;display:grid;gap:4px">유형 <select id="bfP" style="'+IN+'"><option value="">고르지 않음</option>'+(R.patterns||[]).map(x=>'<option value="'+x.code+'">'+E(x.name)+'</option>').join('')+'</select><input id="bfX" placeholder="공부 방식 특징 한 줄 (예: 계획 없이 시험 직전에 몰아서 함)" style="'+IN+'"><input id="bfA" placeholder="선생님 조언 한 줄 (예: 주 3회 30분 고정 시간)" style="'+IN+'"><div><button data-bsave="style" style="'+BP+'">저장</button></div></div>';
+    return h+'</div>';
+  }
+  async function bsave(box,t){
+    const k=t.dataset.bsave, v=id=>((document.getElementById(id)||{}).value||'').trim(), me=window.__GZ_ME||{};
+    const p={sid:ST.sid,kind:k,by:(me.name||me.nick||'직원')};
+    if(k==='naesin'){p.school_exam_id=v('bfSe')||null;p.exam_type_id=+v('bfT');p.date=v('bfD')||null;p.score=v('bfS');}
+    if(k==='mock'){p.exam_type_id=+v('bfT');p.date=v('bfD')||null;p.score=v('bfS')||null;p.grade=v('bfG')||null;}
+    if(k==='style'){p.pattern=v('bfP')||null;p.diagnosis=v('bfX');p.advice=v('bfA')||null;}
+    t.disabled=true;
+    try{const r=await rpc('gz2_goal_basis_save',{p:p});if(r&&r.ok){ST.b=r.readback||ST.b;BF.k=null;say(box,true,'근거를 저장했어요 — 근거 '+((ST.b&&ST.b.basis&&ST.b.basis.basis_level)||''));}else{t.disabled=false;say(box,false,(r&&r.reason)||'저장 실패');}}
+    catch(err){t.disabled=false;say(box,false,'저장 실패: '+err.message);}
+  }
   function draw(box){
     box.innerHTML='<div style="display:flex;gap:8px;align-items:center;cursor:pointer" data-g="tog"><span style="flex:1">'+head(ST.g)+'</span><span style="font-size:11px;color:#4B3F8F">'+(ST.open?'접기 ▴':'열기 ▾')+'</span></div>'
       +(ST.open?body(ST.g):'')
@@ -1877,12 +1910,15 @@ setTimeout(()=>{try{const sid=+sessionStorage.getItem('gz_open_coach');if(sid){s
   }
   async function load(box){
     try{ST.g=await rpc('gz2_goal_get',{p_sid:ST.sid});}catch(e){ST.g={ok:false};ST.msg='불러오기 실패: '+e.message;ST.ok=false;}
+    try{ST.b=await rpc('gz2_goal_basis',{p_sid:ST.sid});}catch(e){ST.b=null;}
     draw(box);
   }
   function say(box,ok,m){ST.ok=ok;ST.msg=m;draw(box);}
   async function act(box,e){
     const t=e.target, sid=ST.sid;
     if(t.closest('[data-g="tog"]')){ST.open=!ST.open;ST.msg='';draw(box);return;}
+    if(t.dataset.bk){BF.k=(BF.k===t.dataset.bk)?null:t.dataset.bk;ST.msg='';draw(box);return;}
+    if(t.dataset.bsave){bsave(box,t);return;}
     if(t.dataset.g==='edit'){ST.open=true;ST.edit=true;ST.msg='';draw(box);return;}
     if(t.dataset.g==='cancel'){ST.edit=false;ST.msg='';draw(box);return;}
     if(t.dataset.g==='save'){
@@ -1920,7 +1956,7 @@ setTimeout(()=>{try{const sid=+sessionStorage.getItem('gz_open_coach');if(sid){s
     let box=document.getElementById('goalBox');
     if(box&&box.dataset.sid===String(COACH_SID)&&box.previousElementSibling===h)return;
     if(box)box.remove();
-    ST.sid=COACH_SID; ST.open=false; ST.edit=false; ST.msg=''; ST.g=null;
+    ST.sid=COACH_SID; ST.open=false; ST.edit=false; ST.msg=''; ST.g=null; ST.b=null; BF.k=null;
     box=document.createElement('div'); box.id='goalBox'; box.dataset.sid=String(COACH_SID); box.style.cssText=C;
     ['input','change','focusin','keydown'].forEach(ev=>box.addEventListener(ev,e=>e.stopPropagation()));
     box.addEventListener('click',e=>{e.stopPropagation();act(box,e);});
