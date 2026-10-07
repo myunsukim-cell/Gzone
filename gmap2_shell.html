@@ -1835,7 +1835,7 @@ setTimeout(()=>{try{const sid=+sessionStorage.getItem('gz_open_coach');if(sid){s
   function host(){return document.getElementById('cprog')||document.getElementById('chead');}
   function tv(g){const t=(g&&g.target)||{};return (t.value!=null&&t.value!=='')?(t.metric==='점수'?t.value+'점':t.metric==='등급'?t.value+'등급':t.value):(t.metric==='재발0'?'같은 실수 0':'');}
   function bchip(){const b=ST.b&&ST.b.ok&&ST.b.basis;if(!b)return '';const c={'충분':'#2E7D4F','초안 가능':'#9A6B00','보류':'#A4472F'}[b.basis_level]||'#6b6b7b';return ' <span style="font-size:11px;border:1px solid '+c+';color:'+c+';border-radius:9px;padding:0 6px">근거 '+E(b.basis_level)+'</span>';}
-  function head(g){return head0(g)+bchip();}
+  function head(g){return head0(g)+(g&&g.has_goal&&/^자동 초안/.test(g.set_by||'')?' <b style="color:#9A6B00">· 자동 초안</b>':'')+bchip();}
   function head0(g){
     if(!g||!g.ok)return '🎯 학생 목표 — 불러오지 못함';
     if(!g.has_goal)return '🎯 학생 목표 — <b>아직 없음</b> <span style="color:#6b6b7b">· 학생 화면 「내 목표」에 「아직 목표가 없어요」로 떠요'+(g.strength?' · 힘 눈금 '+g.strength:'')+'</span>';
@@ -1861,6 +1861,7 @@ setTimeout(()=>{try{const sid=+sessionStorage.getItem('gz_open_coach');if(sid){s
       const ms=g.milestones||[];
       h+='<div style="margin-top:6px">'+(ms.length?ms.map((m,i)=>'<label style="display:flex;gap:6px;align-items:center;padding:3px 0;border-top:1px solid #f0ede4"><input type="checkbox" data-mark="'+i+'"'+(m.done?' checked':'')+'><span style="flex:1">'+E(m.title||m.name||('중간 목표 '+(i+1)))+(m.due?' <span style="color:#6b6b7b">· '+md(m.due)+'까지</span>':'')+(m.why?' <span style="color:#4B3F8F">· 학생 이유: '+E(m.why)+'</span>':'')+'</span>'+(m.done_at?'<span style="font-size:11px;color:#2E7D4F">'+md(m.done_at)+' 이룸</span>':'')+'</label>').join(''):'<div style="color:#6b6b7b">중간 목표가 없어요 — 「고치기」에서 넣어 주세요</div>')+'</div>'
         +'<div style="margin-top:4px;color:#6b6b7b">이유: '+(g.reason?'「'+E(g.reason)+'」':'아직 없음')+(g.pace&&g.pace.pace?' · 속도 '+E(g.pace.pace):'')+(g.set_by?' · 등록 '+E(g.set_by):'')+'</div>'
+        +(/^자동 초안/.test(g.set_by||'')?'<div style="margin-top:6px;background:#FFF1C2;border:1px solid #F2C14E;border-radius:6px;padding:5px 8px">자동 초안 — 확인 필요 <span style="color:#6b6b7b">(근거: '+E(((g.target||{}).basis||{}).level||'')+(((g.target||{}).from!=null)?' · 직전 '+(g.target||{}).from:'')+')</span> <button data-g="confirm" style="'+BP+'">이대로 확정</button> <span style="color:#6b6b7b;font-size:11px">고칠 것이 있으면 「고치기」 — 저장하면 확정</span></div>':'')
         +'<div style="margin-top:6px;display:flex;gap:5px;flex-wrap:wrap;align-items:center"><button data-g="edit" style="'+BT+'">고치기</button>'
         +'<span style="margin-left:6px;color:#6b6b7b">목표 닫기 →</span><input id="gfG" placeholder="자란 것 한 줄(선택)" style="'+IN+';width:170px">'
         +['이룸','못 이룸','기한 조정'].map(x=>'<button data-close="'+x+'" style="'+BT+'">'+x+'</button>').join('')+'</div>'
@@ -1921,6 +1922,11 @@ setTimeout(()=>{try{const sid=+sessionStorage.getItem('gz_open_coach');if(sid){s
     if(t.dataset.bsave){bsave(box,t);return;}
     if(t.dataset.g==='edit'){ST.open=true;ST.edit=true;ST.msg='';draw(box);return;}
     if(t.dataset.g==='cancel'){ST.edit=false;ST.msg='';draw(box);return;}
+    if(t.dataset.g==='confirm'){const g=ST.g||{}, me=window.__GZ_ME||{};t.disabled=true;
+      try{const r=await rpc('gz2_goal_set',{p:{sid:sid,title:g.title,target:g.target,due:g.due,pace:g.pace,reason:g.reason||null,milestones:g.milestones||[],by:(me.name||me.nick||'직원')}});
+        if(r&&r.ok){ST.g=r.readback||ST.g;say(box,true,'확정했어요 — 학생 화면에서 「초안」 표시가 빠지고 파일럿 명단에 들어가요');}else{t.disabled=false;say(box,false,(r&&r.reason)||'확정 실패');}}
+      catch(err){t.disabled=false;say(box,false,'확정 실패: '+err.message);}
+      return;}
     if(t.dataset.g==='save'){
       const v=id=>(document.getElementById(id)||{}).value||'';
       const title=v('gfT').trim(), metric=v('gfM'), val=v('gfV').trim(), due=v('gfD'), pace=v('gfP'), reason=v('gfR').trim();

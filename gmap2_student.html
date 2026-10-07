@@ -2283,10 +2283,10 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     for(var i=0;i<ms.length;i++)dots+='<i class="'+(ms[i].done?'on':'')+'"></i>';
     var nx=g.next?(g.next.title||g.next.name||g.next.what||''):'';
     var tv=(t.value!=null?t.value:(t.score!=null?t.score:''))+(t.metric==='점수'&&(t.value!=null||t.score!=null)?'점':(t.metric==='등급'?'등급':''));
-    box.innerHTML='<div class="goal"><div class="k">내 목표 · 내가 정함</div><div class="tt">'+esc(g.title||'')+(tv?' · '+esc(tv):'')+(g.due?' · '+md(g.due):'')+'</div>'
+    box.innerHTML='<div class="goal"><div class="k">'+(/^자동 초안/.test(g.set_by||'')?'내 목표 · 초안 — 다음 수업에서 선생님과 확인해요':'내 목표 · 내가 정함')+'</div><div class="tt">'+esc(g.title||'')+(tv?' · '+esc(tv):'')+(g.due?' · '+md(g.due):'')+'</div>'
       +'<div class="m">중간 목표 '+(g.ms_done||0)+'/'+(g.ms_total||0)+' '+dots+(nx?' · 다음 중간 목표: '+esc(nx):'')+(g.dday!=null?' · D-'+g.dday:'')+'</div></div>'
       +'<div class="bx" style="margin-top:8px"><div class="t">이유 한 줄</div><div id="v16why">'+(g.reason?'「'+esc(g.reason)+'」':'<span class="d">아직 적지 않았어요</span>')+'</div>'
-      +(g.pace&&g.pace.pace?'<div class="d">속도 — '+esc(g.pace.pace)+(g.set_by?' · '+esc(g.set_by)+'이(가) 등록':'')+'</div>':'')
+      +(g.pace&&g.pace.pace?'<div class="d">속도 — '+esc(g.pace.pace)+(g.set_by?(/^자동 초안/.test(g.set_by)?' · 선생님 확인 전 초안':' · '+esc(g.set_by)+' 선생님과 정함'):'')+'</div>':'')
       +'<div class="bs"><input class="inp" id="v16whyIn" maxlength="120" placeholder="왜 이 목표인지 한 줄 (예: 시험이 두렵지 않게)" value="'+esc(g.reason||'')+'"><button class="b p" id="v16whySave">이유 저장</button></div><div class="msg" id="v16whyMsg"></div>'
       +(ms.length?'<div style="margin-top:8px">'+ms.map(function(m,ix){return '<div class="row"><span class="x">'+(m.done?'✓ ':'')+esc(m.title||m.name||m.what||('중간 목표 '+(ix+1)))+'<small>'+(m.due?md(m.due)+'까지':'')+(m.why?' · 이유: '+esc(m.why):'')+'</small></span><span class="pill '+(m.done?'g':'')+'">'+(m.done?'이룸':'진행')+'</span></div>';}).join('')+'</div>':'')
       +'</div>';
