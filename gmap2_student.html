@@ -2076,6 +2076,9 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 #v16 .mex{background:#FFF8E1;border:1px solid var(--gold);border-radius:10px;padding:10px 12px;font-size:13.5px;line-height:1.65;margin-top:10px}
 #v16 .mgo{display:block;width:100%;font:inherit;font-size:16px;min-height:50px;border:0;border-radius:12px;background:var(--deep);color:#fff;cursor:pointer;margin-top:14px}
 #v16 .mnote{font-size:12.5px;color:var(--dm);margin-top:8px;line-height:1.6}
+
+/* [seq 346 짝] 수업 종류 띠 — 교사 카드와 같은 색 */
+#v16 .vty{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin:6px 0 2px;padding:8px 12px;border-radius:10px;font-size:15px;font-weight:800}#v16 .vty small{font-size:12px;font-weight:600;opacity:.9}#v16 .vty.reg{background:#1E4D3B;color:#fff}#v16 .vty.hw{background:#F7F0D8;color:#7A5C12;border:2px solid #8a6d1f}#v16 .vty.nx{opacity:.8}
 </style>
 <script id="v16js">
 (function(){
@@ -2131,7 +2134,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 
   /* ── 틀 ── */
   var root=document.createElement('div'); root.id='v16';
-  var h='<div class="vh" id="v16hd"><div class="vtop"><button class="vlogo" id="v16logo" title="국존 공부 지도 다시 보기">국존</button><span class="vname" id="v16name">…</span><span class="vinfo" id="v16info"></span></div>'
+  var h='<div class="vh" id="v16hd"><div class="vtop"><button class="vlogo" id="v16logo" title="국존 공부 지도 다시 보기">국존</button><span class="vname" id="v16name">…</span><span class="vinfo" id="v16info"></span></div><div class="vty" id="v16ty"></div>'
    +'<div class="vtabs" id="v16tabs">'+ACT.map(function(a){return '<button data-tab="'+a.id+'" style="--ac:'+a.c+';--abg:'+a.bg+'"><span class="n">'+a.n+'</span><span class="v">'+a.v+'</span></button>';}).join('')+'</div>'
    +'<div class="vchips" id="v16chips"></div></div>'
    +'<div class="vbody"><nav class="vrail" id="v16rail"></nav><main class="vmain" id="v16main">';
@@ -2250,7 +2253,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     var reg=sch.filter(function(x){return x.st==='정규';}); var all=reg.length?reg:sch;
     var d=kst(), dw=d.getUTCDay()===0?7:d.getUTCDay(), hm=('0'+d.getUTCHours()).slice(-2)+':'+('0'+d.getUTCMinutes()).slice(-2);
     var td=all.filter(function(x){return +x.dw===dw;})[0];
-    V.day=td?'class':'home'; V.cls=td?td.tm:'';
+    V.day=td?'class':'home'; V.cls=td?td.tm:'';/* [seq 346 짝 · 2026-10-08 국존] 확인보완 시간 / 과제관리 시간 구분 — 교사 카드 띠와 같은 말·색 */V.ty=td?td.st:''; if(!td&&sch.length){var DWN=['','월','화','수','목','금','토','일'],nx=null;for(var k=1;k<=7&&!nx;k++){var w=((dw-1+k)%7)+1;nx=sch.filter(function(x){return +x.dw===w;})[0];}if(nx){V.nx={d:DWN[+nx.dw],tm:nx.tm,st:nx.st};}}if(V.ty==='학습관리'){V.line5='과제관리 시간 · 출석 · 숙제 확인 · 1교시';}ST.forEach(function(x){if(x.i===5&&x.day==='class'){x.n0=x.n0||x.n;x.n=(V.ty==='학습관리')?'과제 확인 1교시':x.n0;}});
     V.pend=asg.filter(function(a){return PEND[a.st];}); V.skipped=asg.filter(function(a){return a.st==='skipped';});
     var pre=ctx.pre&&String(ctx.pre.created_at||'').slice(0,10)===today, post=ctx.post&&String(ctx.post.created_at||'').slice(0,10)===today;
     /* 지금 걸음: 수업일 → 수업 전/수업 · 시험 국면 → 6·7·8 · 그 밖 → 오늘 과제 */
@@ -2260,7 +2263,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     if(ph==='내신 직전'||ph==='시험 복기')V.done[6]=1; if(ph==='시험 복기')V.done[7]=1;
     V.line={0:goal.has_goal?((goal.title||'')+(goal.due?' · '+md(goal.due):'')):'선생님과 정해요',
       1:V.pend.length?('남은 과제 '+V.pend.length+'개'):'남은 과제 없음',3:V.skipped.length?('알린 날 '+V.skipped.length+'번'):'',
-      4:V.cls?('오늘 '+V.cls):'',5:V.cls?('오늘 '+V.cls):'',6:V.exam?((V.exam.name||'시험')+' D-'+V.exam.dd):'시험 일정 미등록',9:goal.strength?('힘 눈금 '+goal.strength):''};
+      4:V.cls?('오늘 '+V.cls):'',5:V.cls?(V.line5?V.line5:('오늘 '+V.cls)):'',6:V.exam?((V.exam.name||'시험')+' D-'+V.exam.dd):'시험 일정 미등록',9:goal.strength?('힘 눈금 '+goal.strength):''};
     var st=(ctx.student||{}); $('v16name').textContent=st.name||'';
     paintInfo();
     if(!V.user){V.tab=ST[V.now].a;V.sel=V.now;}
@@ -2268,10 +2271,11 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     drawGoal(); drawHw(); drawSkip(); drawPhase(); drawExam(); drawGrow(); drawBeyond();
     setTimeout(function(){ if(window.__FIRST_ACTIVE&&!V.user){V.now=0;V.tab='set';V.sel=0;render();} },2500);   /* 첫 수업 과정 중이면 내 목표부터 */
   });
-  function paintInfo(){
+  function tyName(t){return t==='학습관리'?'과제관리 시간':(t==='확인보완'||t==='정규'?'확인보완 시간':(t?t+' 시간':''));}function tyBand(){var b=$('v16ty');if(!b)return;var t,c,a,m;if(V.day==='class'){t=V.ty;a='오늘 '+V.cls+' · '+tyName(t);}else if(V.nx){t=V.nx.st;a='다음 수업 '+V.nx.d+' '+V.nx.tm+' · '+tyName(t);}else{b.style.display='none';return;}c=t==='학습관리'?'hw':'reg';m=t==='학습관리'?'과제를 확인하고 못 한 것을 채우는 시간 · 수업 1교시':'선생님과 본수업 · 수업 1·2·3교시';b.style.display='';b.className='vty '+c+(V.day==='class'?'':' nx');b.innerHTML='<b>'+esc(a)+'</b><small>'+m+'</small>';}
+  function paintInfo(){tyBand();
     var sk=($('gzStreak')||{}).textContent||'';
     var ex=V.exam?(String(V.exam.name||'시험').replace(/^\d{4}\s*/,'')+' D-'+V.exam.dd):'';
-    $('v16info').innerHTML=(V.day==='class'?'오늘 수업 '+esc(V.cls):'수업 없는 날')+(sk&&sk!=='–'&&sk!=='0'?' · 🔥 '+esc(sk)+'일':'')+(ex?'<br>'+esc(ex):'');
+    $('v16info').innerHTML=(V.day==='class'?'오늘 '+esc(tyName(V.ty)||'수업')+' '+esc(V.cls):'수업 없는 날')+(sk&&sk!=='–'&&sk!=='0'?' · 🔥 '+esc(sk)+'일':'')+(ex?'<br>'+esc(ex):'');
   }
   setTimeout(paintInfo,3500); setTimeout(paintInfo,8000);
   if(!V.tab){V.tab='build';V.sel=1;} render();
