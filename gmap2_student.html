@@ -2176,12 +2176,17 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     var hd=$('v16hd'); if(hd)root.style.setProperty('--hh',hd.offsetHeight+'px');
     var on=root.querySelector('.vchips .sch.sel'); if(on&&on.scrollIntoView)try{on.scrollIntoView({block:'nearest',inline:'center'});}catch(e){}
   }
-  function goTab(tab){V.tab=tab;var L=stepsOf(tab);var pick=L.filter(function(x){return x.i===V.now;})[0]||L[0];V.sel=pick?pick.i:null;render();window.scrollTo(0,0);}
+  function goTab(tab){V.tab=tab;var L=stepsOf(tab);var pick=L.filter(function(x){return x.i===V.now;})[0]||L[0];V.sel=pick?pick.i:null;render();if(V.sel!=null)visit(V.sel);window.scrollTo(0,0);}
   function go(i){var x=ST[i];if(!x)return;if(x.day&&x.day!==V.day){/* 그날 걸음이 아니면 같은 탭 첫 걸음 */}V.tab=x.a;V.sel=i;render();window.scrollTo(0,0);}
   window.v16go=go;
+  /* [seq 335] 학생 열람 기록 — 파일럿 지표(주 활성일·복귀 간격). 관문 안(iframe)·수업 카드 미리보기(v=staff)는 기록하지 않는다 */
+  var STAFFV=(window.top!==window)||/[?&]v=staff\b/.test(location.search||''), VSEEN={};
+  function visit(step){ if(STAFFV)return; if(step!=null){ if(VSEEN[step])return; VSEEN[step]=1; }
+    rpc('gz2_student_visit',tok({p:step==null?{ua:(navigator.userAgent||'').slice(0,120)}:{step:step}})); }
+  window.v16visit=visit; visit(null);
   root.addEventListener('click',function(e){
     var t=e.target.closest('[data-tab]'); if(t&&root.contains(t)&&t.closest('#v16tabs')){V.user=true;goTab(t.dataset.tab);return;}
-    var s=e.target.closest('.sch,.stp'); if(s){V.user=true;V.sel=+s.dataset.i;render();window.scrollTo(0,0);return;}
+    var s=e.target.closest('.sch,.stp'); if(s){V.user=true;V.sel=+s.dataset.i;render();visit(V.sel);window.scrollTo(0,0);return;}
     var hq=e.target.closest('[data-help]'); if(hq){var th=$('v16three'+hq.dataset.help); if(th)th.hidden=!th.hidden; return;}
     if(e.target.id==='v16logo'){openMap(false);return;}
     if(e.target.id==='v16scb'){var w=$('v16scw'); if(w){w.hidden=!w.hidden; e.target.textContent=w.hidden?'점수 보기 (성적 그래프 · 학원 테스트 · 모의고사)':'점수 접기';} return;}

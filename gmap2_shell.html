@@ -218,7 +218,7 @@ async function openStudentPage(sid){
     if(!LINKK){LINKK={};const r=await rpc('gz2_link_table',{});(r||[]).forEach(function(x){if(x&&x.sid)LINKK[x.sid]=x.stu_k;});}
     const k=LINKK[s];
     if(!k){alert('이 학생의 링크 열쇠가 없습니다 — 「🔗 링크 발급」에서 확인하세요');return;}
-    window.open('https://myunsukim-cell.github.io/Gzone/gmap2_student.html?sid='+s+'&k='+k,'_blank');
+    window.open('https://myunsukim-cell.github.io/Gzone/gmap2_student.html?sid='+s+'&k='+k+'&v=staff','_blank'); /* [seq 335] 직원 미리보기 — 열람 기록 제외 */
   }catch(e){alert('학생 페이지 열기 실패: '+e.message);}
 }
 /* [v0.73 #9] 수강신청(1.0 sugang.html)을 교사 모드로 연다 — 하나의 엔진 네 얼굴 중 「교사 배정」.
