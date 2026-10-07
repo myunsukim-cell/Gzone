@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>M02-v8 교사 코칭 카드 — 목업 · DB 회선</title>
+<style>
+:root{--gr:#1E4D3B;--deep:#1E3A2F;--gold:#F2C14E;--ink:#1F2421;--ln:#E3DFD3;--dm:#6B6F68;--dn:#2E7D4F;--td:#D9D4C6;--red:#9A3412;--pp:#F6F4EE;--ac:#1E4D3B;--abg:#E8F1EC}
+*{box-sizing:border-box}html,body{margin:0;background:#EEECE6;color:var(--ink);font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;font-size:13px;line-height:1.6}
+[hidden]{display:none!important}
+.top{background:var(--gr);color:#fff;padding:14px 20px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}.top b{font-size:16px}.top small{color:#cfe0d7;font-size:11.5px}
+.wrap{max-width:1360px;margin:0 auto;padding:12px}
+.box{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.box h3{margin:0 0 10px;font-size:14.5px;color:var(--gr)}
+.note{background:#fff7ea;border:1px solid #eedcae;color:#6f4d0c}
+.note p{margin:6px 0}.note .pk{border-left:3px solid #c0392f;background:#fdf1ef;padding:6px 10px;border-radius:0 8px 8px 0;color:#5a2a22}.note .an{border-left:3px solid var(--gr);background:#eef5f0;padding:6px 10px;border-radius:0 8px 8px 0;color:#24443a}
+code{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;background:#f2f0ea;border-radius:4px;padding:0 4px;overflow-wrap:anywhere;word-break:break-all}
+/* 목업 */
+.mk{display:grid;grid-template-columns:minmax(0,auto) minmax(300px,1fr);gap:14px;align-items:start}
+@media(max-width:1100px){.mk{grid-template-columns:1fr}}
+.ctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px;font-size:12px;color:var(--dm)}
+.ctl span.l{margin-left:6px}
+.ctl button{font:inherit;font-size:12px;min-height:30px;padding:0 11px;border-radius:15px;border:1px solid #cfc9b8;background:#fff;cursor:pointer}.ctl button.on{background:var(--gr);color:#fff;border-color:var(--gr)}
+.dev{background:var(--pp);border:8px solid #1F2421;border-radius:26px;overflow:hidden;display:flex;flex-direction:column}
+.dev.p{width:390px;height:800px}.dev.s{width:560px;height:820px;border-radius:14px}.dev.f{width:900px;height:760px;border-radius:12px}
+@media(max-width:960px){.dev.f{width:100%}}@media(max-width:600px){.dev.s{width:100%}}@media(max-width:430px){.dev.p{width:100%}}
+.hd{background:#fff;border-bottom:1px solid var(--ln)}
+.r1{display:flex;align-items:center;gap:8px;padding:9px 12px 4px}
+.r1 .nm{font-weight:700;font-size:15px}.r1 .sub{font-size:11.5px;color:var(--dm)}
+.r1 .acts{margin-left:auto;display:flex;gap:5px}
+.r1 .acts button{font:inherit;font-size:11.5px;border:1px solid var(--ln);background:#fff;border-radius:8px;padding:2px 8px;cursor:pointer;white-space:nowrap}
+.line1{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:2px 12px 8px;font-size:11.5px}
+.line1 .pl{border-radius:6px;padding:1px 7px;background:#EFECE3;color:#4A4F48;cursor:pointer}
+.line1 .pl.ph{background:#9A3412;color:#fff}.line1 .pl.gl{background:var(--deep);color:#fff}.line1 .pl.rq{background:#FBE3D6;color:var(--red);font-weight:700}.line1 .pl.rq.ok{background:#E4EFE8;color:#1D5C57}
+.line1 .sv{margin-left:auto;color:var(--dn);font-size:11px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ln)}
+.tabs button{font:inherit;border:0;background:transparent;cursor:pointer;padding:6px 2px 5px;border-bottom:3px solid transparent;color:var(--dm);display:flex;flex-direction:column;align-items:center;line-height:1.25}
+.tabs .n{font-family:serif;font-size:14px;color:var(--ink)}.tabs .v{font-size:10.5px}
+.tabs button.on{border-bottom-color:var(--ac);background:var(--abg)}.tabs button.on .n{color:var(--ac);font-weight:700}
+.tabs .dot{font-size:9.5px;color:#fff;background:var(--red);border-radius:8px;padding:0 5px;margin-left:3px}
+.order{display:flex;gap:4px;overflow-x:auto;padding:6px 10px;border-top:1px solid var(--ln);background:#fff;scrollbar-width:none}
+.order button{flex:none;font:inherit;font-size:12px;min-height:30px;padding:0 10px 0 8px;border-radius:15px;border:1px solid var(--ln);background:#fff;color:var(--dm);cursor:pointer;display:flex;gap:5px;align-items:center}
+.order i{width:9px;height:9px;border-radius:50%;background:var(--td);display:inline-block}
+.order .done i{background:var(--dn)}.order .now{border-color:var(--ac);color:var(--ink);font-weight:700;background:var(--abg)}.order .now i{background:var(--gold);box-shadow:0 0 0 3px rgba(242,193,78,.35)}
+.order .arw{color:var(--td);align-self:center;flex:none}
+.bd{flex:1;min-height:0;display:grid;grid-template-columns:1fr}
+.dev.f .bd{grid-template-columns:200px 1fr}
+@media(max-width:960px){.dev.f .bd{grid-template-columns:1fr}.dev.f .rail{display:none!important}}
+.rail{display:none;background:#fff;border-right:1px solid var(--ln);padding:8px 6px;overflow:auto}.dev.f .rail{display:block}
+.rail .rt{font-family:serif;color:var(--ac);font-weight:700;margin:2px 6px 8px;font-size:13px}
+.rail button{display:flex;gap:7px;align-items:flex-start;width:100%;text-align:left;font:inherit;border:0;background:transparent;border-radius:8px;padding:6px 5px;cursor:pointer}
+.rail button i{margin-top:6px;width:8px;height:8px;border-radius:50%;background:var(--td);flex:none}.rail button.req i{background:var(--red)}.rail b{display:block;font-weight:500;font-size:12.5px}.rail em{font-style:normal;color:var(--dm);font-size:11px}
+.mn{overflow:auto;padding:10px 12px 30px}
+.tabm{font-size:11.5px;color:var(--ac);background:var(--abg);border-radius:8px;padding:5px 9px;margin-bottom:8px}.tabm b{font-family:serif;margin-right:5px}
+.bx{background:#fff;border:1px solid var(--ln);border-radius:11px;padding:9px 11px;margin-bottom:8px;position:relative;cursor:pointer;font-size:12.5px;line-height:1.55}
+.bx:hover{outline:2px solid rgba(30,77,59,.25)}.bx.hl{outline:2px solid var(--gold);background:#FFFCF0}
+.bx.req{border-left:4px solid var(--red)}
+.bx .hh{display:flex;gap:6px;align-items:center}.bx .t{font-weight:700;font-size:13.5px;flex:1}
+.bx .val{font-size:10.5px;padding:0 6px;border-radius:5px;background:#F3EEDD;color:#7A5300}
+.bx .q{width:22px;height:22px;border-radius:50%;border:1px solid var(--ln);background:#fff;font-size:12px;cursor:pointer;flex:none}
+.bx .rqt{font-size:10.5px;font-weight:700;color:var(--red)}
+.bx .d{color:var(--dm);font-size:11.5px}
+.bx .stu{font-size:10.5px;color:#4B3F8F;background:#ECE8F8;border-radius:5px;padding:0 6px;display:inline-block;margin-top:4px}
+.three{margin-top:6px;border-top:1px dashed var(--ln);padding-top:5px;font-size:11.5px;display:grid;grid-template-columns:96px 1fr;gap:2px 6px}
+.three span:nth-child(odd){color:var(--dm)}
+.seg{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}.seg span{font-size:11.5px;padding:3px 10px;border-radius:14px;border:1px solid var(--ln);background:#fff}.seg span.on{background:var(--deep);color:#fff;border-color:var(--deep)}
+.ta{border:1px solid var(--ln);border-radius:8px;min-height:44px;margin-top:6px;padding:6px 8px;color:#9a9a92;font-size:12px;background:#FDFCF9}
+.goalc{background:var(--deep);color:#fff;border-color:var(--deep)}.goalc .d{color:#cfe0d7}.goalc .t{font-family:serif;font-size:15px}.goalc .val{background:#3B5A4C;color:#F2C14E}
+.pill{font-size:10.5px;padding:1px 7px;border-radius:5px;background:#EFECE3;color:#4A4F48}.pill.r{background:#FBE3D6;color:var(--red)}.pill.g{background:#E4EFE8;color:#1D5C57}.pill.y{background:#FFF1C2;color:#7A5300}
+.btn{display:inline-block;font-size:11.5px;border-radius:7px;padding:3px 9px;margin:5px 4px 0 0;border:1px solid var(--ln);background:#fff}.btn.p{background:var(--deep);color:#fff;border-color:var(--deep)}
+.etc{border:1px dashed #cfc9b8;border-radius:11px;padding:8px 10px;background:#FBFAF6;font-size:12px;color:var(--dm)}
+.etc summary{cursor:pointer;font-weight:700;color:var(--ink)}
+.sbar{background:#fff;border-top:1px solid var(--ln);padding:6px 12px;font-size:11.5px;display:flex;gap:8px;align-items:center}
+.sbar .ok{color:var(--dn)}.sbar .rq{color:var(--red);font-weight:700}
+/* 회선 패널 */
+.pn{position:sticky;top:10px}
+.pn .cap{font-size:12px;color:var(--dm);margin-bottom:6px}
+.pr{border:1px solid var(--ln);border-radius:10px;padding:8px 10px;margin-bottom:6px;background:#fff}
+.pr.hl{border-color:var(--gold);background:#FFFCF0;box-shadow:0 0 0 2px rgba(242,193,78,.35)}
+.pr .k{display:flex;gap:6px;align-items:baseline}.pr .no{font-weight:700;color:var(--gr);font-family:ui-monospace,monospace;font-size:11.5px}.pr .el{font-weight:700;flex:1}
+.pr .ln{display:grid;grid-template-columns:60px 1fr;gap:4px;font-size:11.5px;margin-top:2px}.pr .ln span:first-child{color:var(--dm)}
+.st{font-size:10.5px;font-weight:700;border-radius:5px;padding:0 6px;white-space:nowrap}
+.st.ok{background:#E4EFE8;color:#1D5C57}.st.mv{background:#E3EEF8;color:#1F4E79}.st.nw{background:#FFF1C2;color:#7A5300}.st.etc{background:#EFECE3;color:#4A4F48}
+table{width:100%;border-collapse:collapse;font-size:11.5px;table-layout:fixed}
+th{background:var(--gr);color:#fff;text-align:left;padding:6px 7px;font-size:11px;font-weight:700}
+td{border-bottom:1px solid var(--ln);padding:6px 7px;vertical-align:top;word-break:keep-all;overflow-wrap:anywhere}
+tr.g td{background:#f6f4ee;font-weight:700;color:var(--gr)}
+td.n{color:#c0392f;font-weight:700;font-family:ui-monospace,monospace}
+.tw{overflow-x:auto}.tw table{min-width:1080px}
+ol.li{margin:0;padding-left:20px}ol.li li{margin:4px 0}
+</style></head><body>
+<div class="top"><b>M02-v8 · 교사 코칭 카드 — 탭 4(학생 탭의 반대편) · 칸마다 의미 4줄 · 칸별 DB 회선</b><small>spec_M02_full v6·슬라이드 v4 위에 쌓인 v7 재조판 교체안 · 계획 seq 344 · 라이브 수업 카드 md5 abe62168 · 진단 2026-10-08</small></div>
+<div class="wrap">
+
+<div class="box note">
+<p><b>이 문서가 바꾸는 것 한 줄.</b> 학생 페이지 v16의 탭 4개(내 목표·세우기 / 내 공부·쌓기 / 내 시험·확인하기 / 내 기록·더 강해지기)의 <b>반대편</b>으로 교사 카드를 <b>목표·함께 세우기 / 수업·채워 주기 / 시험·짚어 주기 / 기록·자란 만큼 남기기</b> 4탭으로 다시 짠다. 교사가 쓰는 칸 하나는 학생 화면 걸음 하나로 이어진다. 학생 화면·학부모 리포트로 나가지 않는 칸은 「그 밖에」로 내린다.</p>
+<p class="pk"><b>왜 고치나(진단 seq 344).</b> 현행 카드는 한 번에 그려지지 않는다 — v6 본문 → 1차 재조판(번호를 ④~⑧로 다시 매김·칸 이동) → 2차 재조판(접기 8곳·①~⑤ 띠) → 따로 끼워 넣는 칸 8곳. 그래서 길잡이가 세 벌(1·2·3교시 단추 / ①~⑤ 띠 / 칸 번호 ①·④~⑧), 시기·시험까지 며칠이 3번, 지난 숙제·진도가 2번씩 보이고, 꼭 쓸 칸(1교시 기록)은 11번째 칸 안에 묻혀 있다. 틀 안 단추 107·입력 27, 카드가 부르는 함수 37종.</p>
+<p class="an"><b>저장 사실(소스 실측).</b> 1·2·3교시 칸은 각각 따로 저장되지 않는다 — <code>gz_save_coach_card_v6</code>가 기본 저장 <code>gz_save_coach_card</code>를 부르고, 그 함수가 과제 이행·1교시·2교시·3교시를 <code>coaching_logs.lesson_note</code> 한 칸에 [과제 이행]·[1교시…]·[2교시]·[3교시] 줄로 이어 쓴다. 관찰·성장 한 줄·진도 두 줄은 v6가 따로 쓴다.</p><p class="an"><b>바꾸지 않는 것.</b> 요소 id와 저장 함수(<code>gz_save_coach_card_v6</code>·<code>gz_att_set</code>·<code>gz_save_period_wrong</code>·<code>gz2_goal_set</code> 등)와 저장 표는 그대로 둔다. 자리만 옮기고(학생 페이지 v16과 같은 방식), 재조판 2단과 끼워 넣기 8곳을 없애 <b>처음부터 이 순서로 한 번에 그린다</b>. 목업 안의 이름·숫자는 <b>예시(가상 학생 이가온)</b>다. 칸을 누르면 오른쪽에 그 칸의 DB 회선이 뜬다.</p>
+</div>
+
+<div class="box"><h3>① 목업 — 기기 · 시기 · 수업 종류를 바꿔 보세요</h3>
+<div class="mk"><div>
+<div class="ctl">기기 <button data-dev="s" class="on">슬라이드(시간표 옆)</button><button data-dev="f">전체 화면</button><button data-dev="p">휴대폰</button>
+<span class="l">시기</span> <button data-ph="평시">평시</button><button data-ph="직전기" class="on">직전기</button><button data-ph="결과 분석">결과 분석</button>
+<span class="l">수업</span> <button data-ty="본수업" class="on">본수업</button><button data-ty="과제관리">과제관리</button></div>
+<div id="dev" class="dev s">
+ <div class="hd">
+  <div class="r1"><span class="nm">이가온</span><span class="sub">박문여고 고1 · 국어 비상(박영민) · 40주차</span>
+   <span class="acts"><button>학생 화면 ↗</button><button>그 밖에 ▾</button><button>✕ 시간표</button></span></div>
+  <div class="line1" id="line1"></div>
+  <div class="tabs" id="tabs"></div>
+ </div>
+ <div class="order" id="order"></div>
+ <div class="bd"><div class="rail" id="rail"></div><div class="mn" id="mn"></div></div>
+ <div class="sbar" id="sbar"></div>
+</div>
+</div>
+<div class="pn"><div class="cap">칸을 누르면 그 칸의 DB 회선 · 학생 화면 대응</div><div id="panel"></div></div>
+</div></div>
+
+<div class="box"><h3>② 칸 명세 — 탭 4 · 칸 16 (현행 자리 → 새 자리 · DB 회선)</h3>
+<div class="tw"><table id="spec"><colgroup><col style="width:42px"><col style="width:150px"><col style="width:130px"><col style="width:170px"><col style="width:200px"><col style="width:120px"><col style="width:150px"><col style="width:72px"></colgroup>
+<tr><th>번호</th><th>칸</th><th>현행 자리(id)</th><th>원천 표·뷰</th><th>함수 (읽기 / 쓰기)</th><th>저장 칸</th><th>학생 화면 대응</th><th>상태</th></tr></table></div>
+<p style="font-size:11.5px;color:var(--dm)">상태: <span class="st ok">그대로</span> 자리·회선 유지 · <span class="st mv">자리 이동</span> 같은 회선, 새 자리 · <span class="st nw">새 연결</span> 이미 있는 함수를 카드에 처음 잇는 칸(새 함수·새 표 없음) · <span class="st etc">그 밖에</span> 머리 메뉴로 내림</p>
+</div>
+
+<div class="box"><h3>③ 화면 규칙</h3>
+<ol class="li">
+<li><b>맨 위 한 줄(늘 보임)</b> — 시기 · 시험까지 며칠 · 목표 한 줄 · 꼭 쓸 칸 0/2 · 저장 상태. 시기·며칠은 여기에만 둔다(현행 3곳 → 1곳). 누르면 그 칸으로 간다.</li>
+<li><b>길잡이는 탭 4개 하나</b>. 「수업 · 채워 주기」 안에서만 수업 순서(출석 → 숙제 → 1교시 → 2교시 → 3교시)를 둔다. 현행 1·2·3교시 단추 · ①~⑤ 띠 · 칸 번호는 모두 없앤다.</li>
+<li><b>여는 탭은 시기가 정한다</b> — 평시 = 수업, 직전기 = 시험(약한 유형 5문제가 먼저), 결과 분석 = 시험(시험 다시 보기), 과제관리 시간 = 수업(출석·숙제·과제 기록만, 2·3교시는 숨김). 교사가 다른 탭을 누르면 그 카드를 닫을 때까지 유지.</li>
+<li><b>꼭 쓸 칸 2개</b>(숙제 해 왔나 · 1교시)는 수업 탭에서 순서상 첫 두 칸이고 빨간 왼줄로 표시한다. 둘이 차기 전에는 초안(브라우저)만, 찬 뒤부터 칸을 벗어나면 자동 저장(현행 규칙 그대로).</li>
+<li><b>「?」 = 의미 4줄</b> — 가치 · 왜 · 화면이 해 주는 것 · 선생님이 할 일. 학생 페이지의 「왜·앱이·내가」와 짝이다.</li>
+<li><b>그 밖에</b>(머리 메뉴) — 내 교재 · 메모함 · 강좌 배정(수강신청) · 이 영역 공부법 · 첫 수업 4단. 학생 화면·리포트로 나가지 않는 칸이다. 신입 첫 주(첫 수업 4단 대상)일 때만 「첫 수업」이 목표 탭 맨 위에 뜬다.</li>
+<li><b>한 번에 그린다</b> — <code>cardTidy</code>·<code>cardTidy7</code> 재조판과 끼워 넣기 8곳을 없애고 처음부터 이 순서로 그린다. 데이터가 늦게 와도 칸 자리는 그대로이고 내용만 채워진다.</li>
+<li><b>문구</b> — 칸 이름·안내에는 코드명·함수명·영문 약어를 쓰지 않는다. 그런 이름은 이 사양서의 회선 열에만 둔다.</li>
+</ol></div>
+
+<div class="box"><h3>④ 현행 15칸 → v8 자리</h3>
+<div class="tw"><table id="map"><colgroup><col style="width:42px"><col style="width:300px"><col style="width:260px"><col></colgroup>
+<tr><th>현행</th><th>현행 칸(국존 캡처 2026-10-08 위→아래)</th><th>v8 자리</th><th>처리</th></tr></table></div></div>
+
+<div class="box"><h3>⑤ 시공 순서 · 검증 기준</h3>
+<ol class="li">
+<li>국존 승인 → 계획 행 신설(시공). 배포는 <code>gz_deploy_acquire</code> → Storage(옛 판 백업) → md5 되읽기 → GitHub → <code>gz_deploy_release</code>.</li>
+<li>시공 1: 틀(머리 한 줄 · 탭 4 · 수업 순서 · 그 밖에)과 칸 자리 이동 — 저장 함수·id 불변. 재조판 2단·끼워 넣기 8곳 제거.</li>
+<li>시공 2: 새 연결 3칸(약한 유형 5문제 보기 · 시험 다시 보기 · 학부모께 드릴 한 줄의 리포트 미리보기) — 이미 있는 함수만 잇는다.</li>
+<li>검증: 슬라이드 560 · 전체 화면 · 휴대폰 390에서 칸 16 자리 · 탭 4 열림 · 시기별 여는 탭 · 꼭 쓸 칸 2개 저장 흐름(롤백 시험) · 콘솔 오류 0 · 4xx/5xx 0 · 학생 이름 undefined 0. 마지막 검증은 관문 gmap2.html 로그인 화면(노트 8822 §11)으로 한다.</li>
+</ol></div>
+</div>
+
+<script>
+const TABS=[
+ {k:'goal',n:'목표',v:'함께 세우기',m:'학생이 원하는 점수·기한·이유를 같이 정해요'},
+ {k:'class',n:'수업',v:'채워 주기',m:'혼자 공부한 엿새를 확인하고, 모자란 자리를 수업으로 채워요'},
+ {k:'exam',n:'시험',v:'짚어 주기',m:'틀린 자리에 이름을 붙여, 더 자랄 곳을 보여 줘요'},
+ {k:'rec',n:'기록',v:'자란 만큼 남기기',m:'오늘 본 모습을 남겨 다음 주와 학부모 리포트로 이어요'}];
+/* 칸 16 — no·tab·t(칸)·val(가치)·why·app(화면이 해 주는 것)·me(선생님이 할 일)·stu(학생 화면)·cur(현행 id)·src·rd·wr·col·st·body */
+const C=[
+ {no:'G1',tab:'goal',t:'목표 같이 정하기',val:'공감',why:'「국어는 감이 아니라 데이터」 — 목표는 학생의 말로, 점수·기한·이유 세 가지',app:'근거 6줄(내신·모의·공부 방식·선생님 조언·스스로 공부 시간·다음 시험)로 만든 초안 · 양식 판독 목표가 있으면 그것',me:'초안을 읽어 주고 고치거나 「확정」',stu:'내 목표 › 목표와 중간 목표',cur:'goalBox (seq 333·338 끼움)',src:'progress_plan(목표 행) · v_goal_basis',rd:'gz2_goal_get · gz2_goal_basis',wr:'gz2_goal_set · gz2_goal_basis_save · gz2_milestone_mark · gz2_goal_close',col:'progress_plan.goal_target·milestones·note',st:'mv',
+  body:'<div class="hh"><span class="t">2026 2학기 기말 · 78점 · 12/14</span></div><div class="d">중간 목표 0/3 · 시험까지 67일 · <span class="pill y">자동 초안</span> 근거 4줄 채움</div><span class="btn p">확정</span><span class="btn">고치기</span><span class="btn">근거 보기</span>',goalc:1},
+ {no:'G2',tab:'goal',t:'시험까지 남은 길',val:'최고',why:'「학교가 다르면 공부법이 달라요」 — 범위 본문을 완전히 내 것으로',app:'다음 시험·범위·남은 작품·보강 필요(오답률 순)·교재 진도와 학교 진도 두 줄',me:'범위가 비었으면 등록 · 진도 한 줄 고치기',stu:'내 시험 › 시험 범위 · 진도 · 자료',cur:'cprog(접힘) + ④ 이름—날짜 칸의 진도 입력(tbprog·schprog) + cycband',src:'school_exams · exam_scope_items · coaching_logs(textbook_progress·school_progress)',rd:'gz2_card_progress · gz_exam_progress · gz_prep_exam_toc · gz_student_textbook · gz_card_weak_areas',wr:'gz_exam_scope_save · (진도 두 줄은 gz_save_coach_card_v6)',col:'exam_scope_items · coaching_logs.textbook_progress·school_progress',st:'mv',
+  body:'<div class="d">2학기 중간 10/12 · 범위 <b>0/1 작품</b> · 보강 필요 3</div><div class="d">지난주까지 — 교재 중세국어 완료 · 학교 1(2) 사회적 대화로서의 글읽기</div><span class="btn">범위 등록</span><span class="btn">진도 고치기</span>'},
+ {no:'C1',tab:'class',ord:'출석',t:'출석',val:'신뢰',why:'「약속 대신 기록」 — 온 날·못 온 날이 다 기록돼요',app:'오늘 시간표 칸 · 수업 종류(본수업/과제관리) · 이 시간 종료',me:'출석 한 번(결석이면 대체 수업 잡기)',stu:'내 공부 › 못 한 날',cur:'cattbox(1차 재조판이 ①로 끼움) + tyLine(끼움)',src:'attendance · 시간표 슬롯',rd:'gz_att_day · gz_tt_data',wr:'gz_att_set · gz2_absence_makeup · gz2_slot_end',col:'attendance.status',st:'mv',
+  body:'<div class="seg"><span class="on">출석</span><span>결석</span><span>일정 조정</span></div><div class="d">오늘 = 본수업 18:00 · <u>이 시간 종료</u></div>'},
+ {no:'C2',tab:'class',ord:'숙제',req:1,t:'숙제 해 왔나',val:'신뢰',why:'「못 한 날도 기록이 되면 숨길 일이 없어요」',app:'지난 숙제 항목 목록 · 4주 이행 · 학생이 「못 해요」로 보낸 이유',me:'항목마다 해옴·부분·안 해옴 (전체 상태는 자동)',stu:'내 공부 › 오늘 과제 · 못 한 날',cur:'⑤ 오늘의 첫 질문 (hwitems 끼움 + p1 칩)',src:'assignments · coaching_logs(hw_status·hw_reason) · 학생 「못 해요」 기록',rd:'gz2_card_hw_items · gz_coach_prefill',wr:'gz_save_coach_card_v6 (hw_status·hw_reason)',col:'coaching_logs.hw_status·hw_reason',st:'mv',
+  body:'<div class="d">지난 숙제(10/01) 3건 · 4주 이행 해옴 2 · 부분 1 · 안 해옴 0</div><div class="d" style="margin-top:4px">전 시험범위 1회독 완료</div><div class="seg"><span>해옴</span><span class="on">부분만</span><span>안 해옴</span></div><div class="d" style="margin-top:4px">음운 오답 정리</div><div class="seg"><span class="on">해옴</span><span>부분만</span><span>안 해옴</span></div>'},
+ {no:'C3',tab:'class',ord:'숙제',t:'오늘 학생이 낸 질문',val:'재미',why:'「시작은 시간표 하나」 — 앉자마자 시작해요',app:'학생이 수업 전에 낸 5문항(지난 과제·양·난이도·어려운 개념·자신감)과 오늘 목표',me:'읽고 1교시 순서 정하기 · 없으면 대신 입력',stu:'내 공부 › 수업 전 · 오늘 목표',cur:'cpre(접힘)',src:'학생 수업 전 답(gz2_pre_meta_save 저장 표)',rd:'gz2_card_context',wr:'gz2_pre_meta_save(대신 입력)',col:'수업 전 답 표(현행 그대로)',st:'mv',
+  body:'<div class="d">어려운 개념: 「반어」 · 자신감 2/5 · 오늘 목표: 서술형 1개 끝까지</div>'},
+ {no:'C4',tab:'class',ord:'1교시',req:1,t:'1교시 — 숙제 확인 수업',val:'사랑',why:'「혼자 못 채우는 자리를 수업이 개별로 채워요」',app:'숙제 결과로 바뀐 수업 순서 · 시험지 고르기 · 타이머',me:'1교시에 한 것 한 줄',stu:'내 공부 › 수업 1·2·3교시',cur:'⑥ 교시 기록 안 lesson(필수)·p1acts(접힘)',src:'coaching_logs · review_tests',rd:'gz2_review_tests_search',wr:'gz_save_coach_card_v6 (p1_eval·period_acts.p1)',col:'coaching_logs.lesson_note([1교시] 줄)·period_acts',st:'mv',
+  body:'<div class="ta">1교시에 무엇을 확인·수업했나 (꼭 쓸 칸)</div><span class="btn">시험지 고르기</span><span class="btn">타이머</span>'},
+ {no:'C5',tab:'class',ord:'2교시',t:'2교시 — 내용 · 자료',val:'사랑',why:'「학년·시기가 그룹을 정해요」 — 교사가 고르지 않아도 맞는 문항이 와요',app:'시기·학년 정책으로 고른 문항 처방 · 자료 검색',me:'내용·자료 한 줄',stu:'내 공부 › 수업 1·2·3교시',cur:'2교시 접힘(p2sel·recoBlock 끼움)',src:'klea_z · questions · lecture_contents',rd:'gz_reco_open_policy · gz2_p2_items · gz2_p2_search · gz2_p2_suggest · gz_prep_texts',wr:'gz_save_coach_card_v6 (p2·period_acts.p2)',col:'coaching_logs.lesson_note([2교시] 줄)·period_acts',st:'mv',
+  body:'<div class="d">문항 처방 3세트(직전기 · 고1) · 자료 검색</div><div class="ta">2교시 내용 · 자료</div>'},
+ {no:'C6',tab:'class',ord:'3교시',t:'3교시 — 정리 · 점검',val:'사랑',why:'「오늘 배운 것을 학생 말로 다시 말하게」',app:'수업 후 3문항(학생 답) · 성장 한 줄',me:'정리 한 줄 · 수업 후 답 확인',stu:'내 공부 › 수업 후 · 다음 주 목표',cur:'3교시 접힘(p3sel·v6p3)',src:'coaching_logs · 학생 수업 후 답',rd:'gz2_card_context',wr:'gz_save_coach_card_v6 (p3 → 기본 저장 gz_save_coach_card · growth_line·next_step) · gz2_post_meta_save',col:'coaching_logs.lesson_note([3교시] 줄)·next_step(v6 보조)',st:'mv',
+  body:'<div class="ta">3교시 정리 · 점검</div>'},
+ {no:'E1',tab:'exam',t:'시험 직전 약한 유형 5문제',val:'열정',why:'「같은 3등급, 다른 원인」 — 마지막엔 내 약한 유형만',app:'오답 습관으로 뽑힌 5문제와 학생의 풀이 결과',me:'결과를 보고 1교시에 한 문제 다시 짚기',stu:'내 시험 › 직전 약점 5문항',cur:'없음(학생 화면에만 있음)',src:'frog_entries · klea_h · review 응답',rd:'gz2_review_test 결과(교사용 보기)',wr:'—(학생이 풂)',col:'—',st:'nw',
+  body:'<div class="d">약한 유형: <b>정반대로 바꿔 말하기</b> · 5문제 중 3 맞힘(어제)</div>'},
+ {no:'E2',tab:'exam',t:'틀린 문제 짚기',val:'열정',why:'「우리 아이 약점의 이름」 — 틀린 문제에 함정 이름이 붙어요',app:'시험지·문항 번호 · 오답 습관 자동 표시',me:'틀린 문항에 함정 이름 붙이기',stu:'내 공부 › 오늘의 문제 · 오답노트',cur:'판정 회로 칸(접힘, wq)',src:'frog_entries · klea_h · questions',rd:'gz_coach_prefill',wr:'gz_save_period_wrong · gz_set_frog_codes',col:'frog_entries.acl_code·student_answer',st:'mv',
+  body:'<div class="d">시험지 고르기 → 틀린 번호 입력 → 함정 이름</div><div class="seg"><span>정반대로 바꿔 말하기</span><span>조건 빼먹기</span><span>…</span></div>'},
+ {no:'E3',tab:'exam',t:'시험 다시 보기',val:'신뢰',why:'「해설로 끝나지 않습니다 — 스스로 고치는 여섯 단」',app:'양식(성적·목표) 판독 결과 — 과목 점수·오답·「확인 필요」 칸',me:'「다음엔」 한 줄 같이 쓰기 · 확인 필요 칸 고치기',stu:'내 시험 › 시험 복기',cur:'없음(양식 판독 seq 342)',src:'self_evaluations(GF1) · exam_results',rd:'v_form_gf1_status',wr:'gz_form_gf1_save · gz_form_gf1_apply(직원)',col:'self_evaluations · exam_results',st:'nw',
+  body:'<div class="d">2학기 중간 국어 78 (목표 85, −7) · 오답 2 · 확인 필요 0</div>'},
+ {no:'R1',tab:'rec',t:'오늘 본 모습 · 칭찬 한마디',val:'공감',why:'「노력과 방법을 짚는 말이 다음 도전을 만들어요」',app:'참여·이해·자신감 등 지표 6개(지난주 대비)',me:'칭찬 한 줄 — 머리가 아니라 방법을',stu:'내 기록 › 자란 것 · 힘 눈금',cur:'⑥ 안 지표 6개(접힘)·praise',src:'coaching_logs(ob1~ob5·observe_json·praise_note)',rd:'gz_coach_prefill',wr:'gz_save_coach_card_v6 (observe·whisper·praise_note)',col:'coaching_logs.observe_json·praise_note',st:'mv',
+  body:'<div class="seg"><span>참여 ●●●○</span><span>이해 ●●○○</span><span>자신감 ●●○○</span></div><div class="ta">칭찬 한마디 — 예: 서술형을 끝까지 쓴 게 점수로 나왔네</div>'},
+ {no:'R2',tab:'rec',t:'다음 주 숙제',val:'최고',why:'「강의 다음이 공부」 — 다음 주 엿새를 오늘 정해요',app:'다음 주 범위·배정 강좌 제안',me:'숙제 한 줄 · 기한',stu:'내 공부 › 오늘 과제(다음 주)',cur:'⑧ 과제·다음 전략(hw·hwdue·nexts)',src:'coaching_logs',rd:'gz2_card_progress',wr:'gz_save_coach_card_v6 (homework_text·hw_due·next_strategy)',col:'coaching_logs.homework_text·homework_due',st:'ok',
+  body:'<div class="ta">다음 주 숙제 · 기한</div>'},
+ {no:'R3',tab:'rec',t:'학부모께 드릴 한 줄',val:'신뢰',why:'「두 달의 실제 궤적」 — 오늘 기록이 그대로 리포트가 돼요',app:'오늘 기록으로 만든 초안(4가지 중 하나) · 리포트 미리보기',me:'고치거나 그대로',stu:'학부모 주간 리포트',cur:'코칭 카테고리·태그(접힘, chipcat·chiptext·memo_tags)',src:'coaching_logs(coach_chips·memo_tags)',rd:'gz2_coach_draft · gz2_parent_reports',wr:'gz_save_coach_card_v6 (coach_chips·memo_tags)',col:'coaching_logs.coach_chips',st:'mv',
+  body:'<div class="d">초안: 「지난 숙제를 항목별로 확인했고, 반어 표현을 다시 짚었습니다.」</div><span class="btn">그대로</span><span class="btn">고치기</span>'},
+ {no:'R4',tab:'rec',t:'메모(교사끼리)',val:'신뢰',why:'「다음 선생님이 이어 받을 수 있게」',app:'오늘 기록이 있으면 불러옴',me:'필요할 때만',stu:'—(교사만)',cur:'메모 접힘(memo)',src:'coaching_logs.teacher_memo',rd:'gz_coach_prefill',wr:'gz_save_coach_card_v6 (memo)',col:'coaching_logs.teacher_memo',st:'ok',
+  body:'<div class="ta">메모(학생·학부모에게 안 보임)</div>'},
+ {no:'X',tab:'etc',t:'그 밖에(머리 메뉴)',val:'—',why:'학생 화면·리포트로 나가지 않는 칸',app:'내 교재 · 메모함 · 강좌 배정 · 이 영역 공부법 · 첫 수업 4단',me:'필요할 때 연다',stu:'—',cur:'bookMini·memoFb·sgBtn·이 영역 공부법(details)·firstBlk — 모두 끼움',src:'book_orders · staff_memos · 수강신청',rd:'gz_book_flow · gz_memo_list · gz_student_plan_card · gz_first_lesson',wr:'(각 화면 그대로)',col:'—',st:'etc'}
+];
+const ORDER=['출석','숙제','1교시','2교시','3교시'];
+let S={dev:'s',ph:'직전기',ty:'본수업',tab:null,sel:null,open:{}};
+const $=s=>document.querySelector(s);
+function autoTab(){return S.ph==='평시'?'class':'exam';}
+function vis(c){if(S.ty==='과제관리'&&(c.no==='C5'||c.no==='C6'))return false;return true;}
+function render(){
+ const tab=S.tab||(S.ty==='과제관리'?'class':autoTab());
+ $('#dev').className='dev '+S.dev;
+ const req=C.filter(c=>c.req).length;
+ $('#line1').innerHTML='<span class="pl ph" data-go="G2">'+S.ph+'</span><span class="pl" data-go="G2">'+(S.ph==='결과 분석'?'중간 끝 · 기말까지 67일':'중간까지 4일')+'</span><span class="pl gl" data-go="G1">목표 기말 78점 · 자동 초안</span><span class="pl rq" data-go="C2">꼭 쓸 칸 0/'+req+'</span><span class="sv">저장 전 — 꼭 쓸 칸이 차면 자동 저장</span>';
+ $('#tabs').innerHTML=TABS.map(t=>'<button data-tab="'+t.k+'" class="'+(t.k===tab?'on':'')+'"><span class="n">'+t.n+(t.k==='class'?'<span class="dot">2</span>':'')+'</span><span class="v">'+t.v+'</span></button>').join('');
+ const items=C.filter(c=>c.tab===tab&&vis(c));
+ if(tab==='class'){const ords=ORDER.filter(o=>S.ty==='본수업'||['출석','숙제','1교시'].includes(o));$('#order').hidden=false;$('#order').innerHTML=ords.map((o,i)=>(i?'<span class="arw">›</span>':'')+'<button data-ord="'+o+'" class="'+(o==='출석'?'done':o==='숙제'?'now':'')+'"><i></i>'+o+'</button>').join('');}else $('#order').hidden=true;
+ const tm=TABS.find(t=>t.k===tab);
+ $('#rail').innerHTML='<div class="rt">'+tm.n+' · '+tm.v+'</div>'+items.map(c=>'<button data-sel="'+c.no+'" class="'+(c.req?'req':'')+'"><i></i><span><b>'+c.t+'</b><em>'+(c.req?'꼭 쓸 칸 · ':'')+c.val+'</em></span></button>').join('');
+ $('#mn').innerHTML='<div class="tabm"><b>'+tm.n+' · '+tm.v+'</b>'+tm.m+(S.tab?'':' <span class="pill">시기('+S.ph+')·수업('+S.ty+')로 연 탭</span>')+'</div>'+items.map(c=>'<div class="bx '+(c.req?'req ':'')+(c.goalc?'goalc ':'')+(S.sel===c.no?'hl':'')+'" data-sel="'+c.no+'" id="b'+c.no+'"><div class="hh"><span class="t">'+c.t+'</span>'+(c.req?'<span class="rqt">꼭 쓸 칸</span>':'')+'<span class="val">'+c.val+'</span><button class="q" data-q="'+c.no+'">?</button></div>'+(c.body||'')+(S.open[c.no]?'<div class="three"><span>가치</span><span>'+c.val+'</span><span>왜</span><span>'+c.why+'</span><span>화면이 해 주는 것</span><span>'+c.app+'</span><span>선생님이 할 일</span><span>'+c.me+'</span></div>':'')+(c.stu&&c.stu!=='—'?'<div class="stu">학생 화면 · '+c.stu+'</div>':'')+'</div>').join('')+
+  '<details class="etc"><summary>그 밖에 — 내 교재 · 메모함 · 강좌 배정 · 이 영역 공부법</summary><div>학생 화면·리포트로 나가지 않는 칸은 여기에 모읍니다(머리의 「그 밖에 ▾」와 같은 목록).</div></details>';
+ $('#sbar').innerHTML='<span class="rq">꼭 쓸 칸 0/'+req+' — 숙제 해 왔나 · 1교시</span><span style="margin-left:auto" class="ok">칸을 벗어나면 자동 저장</span>';
+ panel(S.sel||items[0].no);
+}
+function panel(no){const c=C.find(x=>x.no===no);if(!c)return;const stn={ok:'그대로',mv:'자리 이동',nw:'새 연결',etc:'그 밖에'}[c.st];
+ $('#panel').innerHTML='<div class="pr hl"><div class="k"><span class="no">'+c.no+'</span><span class="el">'+c.t+'</span><span class="st '+c.st+'">'+stn+'</span></div>'+
+ [['가치',c.val],['왜',c.why],['화면이',c.app],['선생님',c.me],['학생 화면',c.stu],['현행 자리',c.cur],['원천',c.src],['읽기',c.rd],['쓰기',c.wr],['저장 칸',c.col]].map(r=>'<div class="ln"><span>'+r[0]+'</span><span>'+r[1]+'</span></div>').join('')+'</div>';}
+document.addEventListener('click',e=>{const t=e.target;
+ const q=t.closest('[data-q]');if(q){e.stopPropagation();const k=q.dataset.q;S.open[k]=!S.open[k];S.sel=k;render();return;}
+ const b=t.closest('[data-dev]');if(b){S.dev=b.dataset.dev;b.parentNode.querySelectorAll('[data-dev]').forEach(x=>x.classList.toggle('on',x===b));render();return;}
+ const p=t.closest('[data-ph]');if(p){S.ph=p.dataset.ph;S.tab=null;p.parentNode.querySelectorAll('[data-ph]').forEach(x=>x.classList.toggle('on',x===p));render();return;}
+ const y=t.closest('[data-ty]');if(y){S.ty=y.dataset.ty;S.tab=null;y.parentNode.querySelectorAll('[data-ty]').forEach(x=>x.classList.toggle('on',x===y));render();return;}
+ const tb=t.closest('[data-tab]');if(tb){S.tab=tb.dataset.tab;S.sel=null;render();return;}
+ const g=t.closest('[data-go]');if(g){const c=C.find(x=>x.no===g.dataset.go);S.tab=c.tab;S.sel=c.no;render();const el=document.getElementById('b'+c.no);if(el)el.scrollIntoView({block:'center'});return;}
+ const o=t.closest('[data-ord]');if(o){const c=C.find(x=>x.ord===o.dataset.ord);if(c){S.sel=c.no;render();const el=document.getElementById('b'+c.no);if(el)el.scrollIntoView({block:'center'});}return;}
+ const s=t.closest('[data-sel]');if(s){S.sel=s.dataset.sel;render();const el=document.getElementById('b'+S.sel);if(el&&s.closest('#rail'))el.scrollIntoView({block:'center'});}
+});
+/* 명세 표 */
+const tn={goal:'목표 · 함께 세우기',class:'수업 · 채워 주기',exam:'시험 · 짚어 주기',rec:'기록 · 자란 만큼 남기기',etc:'머리 메뉴'};
+let last='';const sp=$('#spec');C.forEach(c=>{if(c.tab!==last){sp.insertAdjacentHTML('beforeend','<tr class="g"><td colspan="8">'+tn[c.tab]+'</td></tr>');last=c.tab;}
+ sp.insertAdjacentHTML('beforeend','<tr><td class="n">'+c.no+'</td><td><b>'+c.t+'</b>'+(c.req?' <span class="pill r">꼭 쓸 칸</span>':'')+'<br><span style="color:var(--dm)">'+c.val+' · '+c.why+'</span></td><td>'+c.cur+'</td><td>'+c.src+'</td><td>읽기 '+c.rd+'<br>쓰기 '+c.wr+'</td><td>'+c.col+'</td><td>'+c.stu+'</td><td><span class="st '+c.st+'">'+{ok:'그대로',mv:'자리 이동',nw:'새 연결',etc:'그 밖에'}[c.st]+'</span></td></tr>');});
+/* 현행 → v8 */
+const M=[['0','경로 · 1·2·3교시 단추 · 학생 페이지 · 전체 화면 · 시간표로','머리 1줄(학생 화면 ↗ · 그 밖에 ▾ · ✕ 시간표)','1·2·3교시 단추 없앰 — 수업 순서로 대체'],
+['1','①~⑤ 단계 띠 + 필수 n개 남음','맨 위 한 줄 「꼭 쓸 칸 0/2」 + 수업 순서','띠 없앰(2차 재조판 제거)'],
+['2','학생 머리 · 시기 단추 5개 · 다음 시험 · 4주 통계','머리 1줄 + 맨 위 한 줄(시기·며칠)','시기 단추 5개 → 한 칸, 4주 통계 → C2'],
+['3','오늘 = 본수업/과제관리 · 이 시간 종료','C1 출석','끼움 → C1 안 한 줄'],
+['4','① 출결·오늘 수업','C1 출석','자리 이동'],
+['5','강좌 배정하기 — 수강신청 열기','그 밖에','머리 메뉴로'],
+['6','진도·시험범위 현황(접힘)','G2 시험까지 남은 길','펼쳐서 목표 탭으로'],
+['7','학생 목표 한 줄','G1 목표 같이 정하기 + 맨 위 한 줄','목표 탭 첫 칸'],
+['8','사전 메타인지(접힘)','C3 오늘 학생이 낸 질문','수업 탭, 숙제 다음'],
+['9','④ 이름—날짜(시기 띠 · 지난주 진도 · 진도 입력 · 이 영역 공부법)','G2(진도) · 맨 위 한 줄(시기) · 그 밖에(공부법)','칸 해체 — 제목 노릇 못 하던 칸'],
+['10','⑤ 오늘의 첫 질문 — 지난 과제','C2 숙제 해 왔나(꼭 쓸 칸)','수업 순서 2번째'],
+['11','⑥ 교시 기록(타이머·지표 6·1교시·칭찬·2교시·3교시)','C4·C5·C6 + R1(지표·칭찬)','1교시를 첫 칸으로, 지표·칭찬은 기록 탭'],
+['12','판정 회로 — 오답(접힘)','E2 틀린 문제 짚기','시험 탭'],
+['13','코칭 카테고리·태그(접힘)','R3 학부모께 드릴 한 줄','기록 탭'],
+['14','⑧ 과제·다음 전략 + 메모(접힘)','R2 다음 주 숙제 · R4 메모','기록 탭'],
+['15','저장바(자동 저장 안내 · 시간표로)','맨 아래 한 줄(꼭 쓸 칸 · 자동 저장)','그대로']];
+const mp=$('#map');M.forEach(r=>mp.insertAdjacentHTML('beforeend','<tr><td class="n">'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td></tr>'));
+render();
+</script>
+</body></html>
