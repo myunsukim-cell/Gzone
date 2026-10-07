@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>M03-v16 학생 페이지 — 목업 · DB 회선</title>
+<style>
+:root{--gr:#1E4D3B;--deep:#1E3A2F;--gold:#F2C14E;--ink:#1F2421;--ln:#E3DFD3;--dm:#6B6F68;--dn:#2E7D4F;--td:#D9D4C6;--red:#9A3412;--pp:#F6F4EE}
+*{box-sizing:border-box}html,body{margin:0;background:#EEECE6;color:var(--ink);font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;font-size:13px;line-height:1.6}
+[hidden]{display:none!important}
+.top{background:var(--gr);color:#fff;padding:14px 20px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}.top b{font-size:16px}.top small{color:#cfe0d7;font-size:11.5px}
+.wrap{max-width:1280px;margin:0 auto;padding:12px}
+.box{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.box h3{margin:0 0 10px;font-size:14.5px;color:var(--gr)}
+.note{background:#fff7ea;border:1px solid #eedcae;color:#6f4d0c}
+.note p{margin:6px 0}.note .pk{border-left:3px solid #c0392f;background:#fdf1ef;padding:6px 10px;border-radius:0 8px 8px 0;color:#5a2a22}.note .an{border-left:3px solid var(--gr);background:#eef5f0;padding:6px 10px;border-radius:0 8px 8px 0;color:#24443a}
+code{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;background:#f2f0ea;border-radius:4px;padding:0 4px}
+/* 목업 */
+.mk{display:grid;grid-template-columns:minmax(0,auto) minmax(320px,1fr);gap:14px;align-items:start}
+@media(max-width:1000px){.mk{grid-template-columns:1fr}}
+.ctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px;font-size:12px;color:var(--dm)}
+.ctl button{font:inherit;font-size:12px;min-height:30px;padding:0 11px;border-radius:15px;border:1px solid #cfc9b8;background:#fff;cursor:pointer}.ctl button.on{background:var(--gr);color:#fff;border-color:var(--gr)}
+.dev{background:var(--pp);border:8px solid #1F2421;border-radius:26px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.dev.p{width:390px;height:780px}.dev.t{width:760px;height:620px;border-radius:16px}
+@media(max-width:820px){.dev.t{width:100%}}@media(max-width:430px){.dev.p{width:100%}}
+.hd{background:#fff;border-bottom:1px solid var(--ln)}
+.hd .r1{display:flex;align-items:center;gap:8px;padding:9px 12px 6px}
+.logo{font-family:serif;font-weight:700;font-size:12px;color:#fff;background:var(--deep);border:0;border-radius:7px;min-width:40px;height:28px;cursor:pointer}
+.hd .nm{font-weight:700}.hd .inf{margin-left:auto;font-size:11px;color:var(--dm);text-align:right;line-height:1.3}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ln)}
+.tabs button{font:inherit;border:0;background:transparent;cursor:pointer;padding:6px 2px 5px;border-bottom:3px solid transparent;color:var(--dm);display:flex;flex-direction:column;align-items:center;line-height:1.25}
+.tabs .n{font-family:serif;font-size:14px;color:var(--ink)}.tabs .v{font-size:10.5px}
+.tabs button.on{border-bottom-color:var(--ac);background:var(--abg)}.tabs button.on .n{color:var(--ac);font-weight:700}
+.chips{display:flex;gap:5px;overflow-x:auto;padding:6px 10px;border-top:1px solid var(--ln);scrollbar-width:none}
+.chips button{flex:none;font:inherit;font-size:12px;min-height:32px;padding:0 10px 0 8px;border-radius:16px;border:1px solid var(--ln);background:#fff;color:var(--dm);cursor:pointer;white-space:nowrap;display:flex;gap:5px;align-items:center}
+.chips i,.rail i{width:9px;height:9px;border-radius:50%;background:var(--td);display:inline-block;flex:none}
+.done i{background:var(--dn)!important}.now i{background:var(--gold)!important;box-shadow:0 0 0 3px rgba(242,193,78,.35)}
+.chips .sel{border-color:var(--ac);background:var(--abg);color:var(--ink);font-weight:700}
+.bd{flex:1;min-height:0;display:grid;grid-template-columns:1fr}
+.dev.t .bd{grid-template-columns:190px 1fr}.dev.t .chips{display:none}
+.rail{display:none;background:#fff;border-right:1px solid var(--ln);padding:8px 6px;overflow:auto}.dev.t .rail{display:block}
+.rail .rt{font-family:serif;color:var(--ac);font-weight:700;margin:2px 6px 8px;font-size:13px}
+.rail button{display:flex;gap:7px;align-items:flex-start;width:100%;text-align:left;font:inherit;border:0;background:transparent;border-radius:8px;padding:7px 5px;cursor:pointer}
+.rail button i{margin-top:5px}.rail button.sel{background:var(--abg)}.rail b{display:block;font-weight:500;font-size:13px}.rail em{font-style:normal;font-family:serif;color:var(--ac);font-size:11.5px}
+.mn{overflow:auto;padding:10px 12px 30px}
+.act{font-size:11.5px;color:var(--ac);background:var(--abg);border-radius:8px;padding:5px 9px;margin-bottom:8px}.act b{font-family:serif;margin-right:5px}
+.h2{display:flex;gap:6px;align-items:center;margin:0 0 8px;flex-wrap:wrap}.h2 h2{font-family:serif;font-size:18px;margin:0;flex:1}.h2 .tg{font-size:11px;padding:1px 7px;border-radius:5px;background:var(--abg);color:var(--ac)}
+.bx{background:#fff;border:1px solid var(--ln);border-radius:11px;padding:9px 11px;margin-bottom:7px;position:relative;cursor:pointer;font-size:12.5px;line-height:1.55}
+.bx:hover{outline:2px solid rgba(30,77,59,.25)}.bx.hl{outline:2px solid var(--gold);background:#FFFCF0}
+.bx .t{font-weight:700;font-size:13px}.bx .d{color:var(--dm);font-size:11.5px}
+.bx .db{position:absolute;right:7px;top:7px;font-size:10px;font-weight:700;color:#fff;background:var(--gr);border-radius:9px;padding:0 6px;line-height:17px}
+.bx .db.nw{background:#B8892E}.bx .db.bad{background:var(--red)}
+.goal{background:var(--deep);color:#fff;border-color:var(--deep)}.goal .d{color:#cfe0d7}.goal .t{font-family:serif;font-size:16px}
+.pill{font-size:10.5px;padding:1px 7px;border-radius:5px;background:#EFECE3;color:#4A4F48}.pill.r{background:#FBE3D6;color:var(--red)}.pill.g{background:#E4EFE8;color:#1D5C57}
+.btn{display:inline-block;font-size:11.5px;border-radius:7px;padding:3px 9px;margin:5px 4px 0 0;border:1px solid var(--ln);background:#fff}.btn.p{background:var(--deep);color:#fff;border-color:var(--deep)}
+.sc{display:flex;gap:3px}.sc span{flex:1;text-align:center;font-size:11px;padding:4px 0;border-radius:6px;background:#EFECE3;color:var(--dm)}.sc span.on{background:var(--gold);color:var(--deep);font-weight:700}
+/* 회선 패널 */
+.pn{position:sticky;top:10px}
+.pn .cap{font-size:12px;color:var(--dm);margin-bottom:6px}
+.pr{border:1px solid var(--ln);border-radius:10px;padding:8px 10px;margin-bottom:6px;background:#fff}
+.pr.hl{border-color:var(--gold);background:#FFFCF0;box-shadow:0 0 0 2px rgba(242,193,78,.35)}
+.pr .k{display:flex;gap:6px;align-items:baseline}.pr .no{font-weight:700;color:var(--gr);font-family:ui-monospace,monospace;font-size:11.5px}.pr .el{font-weight:700;flex:1}
+.pr .ln{display:grid;grid-template-columns:42px 1fr;gap:4px;font-size:11.5px;margin-top:2px}.pr .ln span:first-child{color:var(--dm)}
+.st{font-size:10.5px;font-weight:700;border-radius:5px;padding:0 6px;white-space:nowrap}
+.st.ok{background:#E4EFE8;color:#1D5C57}.st.nw{background:#FFF1C2;color:#7A5300}.st.bad{background:#FBE3D6;color:var(--red)}.st.wt{background:#ECE8F8;color:#4B3F8F}
+/* 표 */
+table{width:100%;border-collapse:collapse;font-size:11.5px;table-layout:fixed}
+th{background:var(--gr);color:#fff;text-align:left;padding:6px 7px;font-size:11px;font-weight:700}
+td{border-bottom:1px solid var(--ln);padding:6px 7px;vertical-align:top;word-break:keep-all;overflow-wrap:anywhere}
+tr.g td{background:#f6f4ee;font-weight:700;color:var(--gr)}
+td.n{color:#c0392f;font-weight:700;font-family:ui-monospace,monospace}
+.tw{overflow-x:auto}.tw table{min-width:980px}
+.leg{display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--dm);margin:4px 0 10px}
+ol.li{margin:0;padding-left:20px}ol.li li{margin:4px 0}
+</style></head><body>
+<div class="top"><b>M03-v16 · 학생 페이지 골격 v16 — 위 탭 4 · 걸음 10 · 시기 자동 · 걸음별 DB 회선</b><small>M03-tab 골격 개정 v1(정본) 교체 · 노트 10018·10020 · 계획 seq 327·328 · 라이브 md5 e4af4d2b · 설계 목업 d73dabbf</small></div>
+<div class="wrap">
+
+<div class="box note">
+<p><b>이 문서가 바꾼 것 한 줄.</b> 학생 질문 4개 = 탭 4개를 <b>내 목표(세우기) · 내 공부(쌓기) · 내 시험(확인하기) · 내 기록(더 강해지기)</b>로 바꾸고, 탭 안을 <b>걸음 10개</b>로 나눴다. 종전 「수업」 탭은 내 공부 안의 걸음(수업 전 · 수업 1·2·3교시)이 되고, 「내 위치」는 내 시험이 된다. 시기는 시간표 · <code>v_student_phase</code>로 자동이며 학생이 고르는 단추는 없다.</p>
+<p class="pk"><b>이 장의 성격.</b> 학생 페이지 본체는 국존이 개발·운영하는 실물 모듈 <code>apps/gmap2_student.html</code>이다. 이 사양서는 그 모듈이 <b>어느 칸에 무엇을 놓고, 각 칸이 DB의 어디를 어떤 함수로 읽고 쓰는지</b>를 고정한다. 아래 목업에서 칸을 누르면 오른쪽에 그 칸의 DB 회선이 뜬다.</p>
+<p class="an"><b>실측 앵커(2026-10-07).</b> 라이브 배포 md5 <code>e4af4d2b</code>(Storage·GitHub 일치, 배포 잠금 928) · 자체 검증 48/48(휴대폰 390 · 태블릿 1180, 실데이터) · 함수 권한 <code>pg_proc</code>·<code>has_function_privilege('anon')</code> 실측 · 걸음별 회선 = 라이브 소스의 호출문 그대로. 목업 안의 숫자·이름은 <b>예시(가상 학생 이가온)</b>다.</p>
+</div>
+
+<div class="box"><h3>① 목업 — 휴대폰 390 · 태블릿(왼쪽 세로 줄). 칸을 누르면 오른쪽에 DB 회선</h3>
+<div class="ctl">사양 조작(실제 화면에는 없음) <button data-d="p" class="on">휴대폰</button><button data-d="t">태블릿</button> · 오늘 <button data-day="home" class="on">수업 없는 날</button><button data-day="class">수업일</button> · 시기 <span id="phs"></span></div>
+<div class="mk"><div id="dev"></div>
+<div class="pn"><div class="cap" id="pcap"></div><div id="plist"></div></div></div>
+<div class="leg"><span><span class="st ok">가동</span> 라이브 가동</span><span><span class="st nw">신규 10/07</span> v16 시공에서 추가</span><span><span class="st wt">대기</span> 그릇은 있으나 데이터·화면 대기</span><span><span class="st bad">결함</span> ③에 조치 기재</span><span>칸 오른쪽 위 번호 = ② 명세 행 번호</span></div>
+</div>
+
+<div class="box"><h3>② 명세 7열 — 걸음 · 화면 요소 · 원천(표·뷰) · 함수·문 · 읽기/쓰기 · 열쇠·권한 · 상태</h3>
+<div class="tw"><table><colgroup><col style="width:44px"><col style="width:13%"><col style="width:16%"><col style="width:24%"><col style="width:20%"><col style="width:8%"><col style="width:11%"><col style="width:9%"></colgroup>
+<thead><tr><th>번호</th><th>걸음</th><th>화면 요소</th><th>원천(표·뷰)</th><th>함수·문</th><th>읽기/쓰기</th><th>열쇠·권한</th><th>상태</th></tr></thead><tbody id="spec"></tbody></table></div>
+</div>
+
+<div class="box"><h3>③ 모듈 임베드 경계 — 웹헤즈가 지킬 칸의 규약(M03-tab v1 ③ 개정)</h3>
+<table><colgroup><col style="width:44px"><col style="width:120px"><col><col style="width:28%"></colgroup>
+<thead><tr><th>번호</th><th>항목</th><th>규약</th><th>비고</th></tr></thead><tbody>
+<tr><td class="n">1</td><td>인도물</td><td>국존 모듈 = <code>apps/gmap2_student.html</code>(HTML+JS 단일 파일). 웹헤즈는 이 파일을 수정하지 않는다</td><td>배포·개정 주체 = 국존(MAP) · 배포 잠금 <code>gz_deploy_acquire/release</code></td></tr>
+<tr><td class="n">2</td><td>칸 요건</td><td>전폭 컨테이너 1개. 머리(로고·이름·오늘)·위 탭 4·걸음 줄은 모듈이 소유한다. 웹헤즈 셸이 같은 탭을 다시 그리지 않는다</td><td>휴대폰 &lt;900px 가로 걸음 칩 · 900px 이상 왼쪽 세로 줄</td></tr>
+<tr><td class="n">3</td><td>임베드 방식</td><td>Storage가 HTML을 text/plain으로 서빙 → iframe src 직결 불가. <code>fetch → iframe.srcdoc</code> 또는 프록시 서빙(Content-Type 교정)</td><td>v16은 앵커 이동을 쓰지 않으므로 srcdoc 보정 불필요</td></tr>
+<tr><td class="n">4</td><td>학생 식별</td><td><code>?sid=&lt;번호&gt;&amp;k=&lt;32자 열쇠&gt;</code>. 열쇠 = <code>md5('stu|'||id||'|'||created_at)</code>, 재원(active)·미퇴원만 통과(<code>gz2_entry_check</code>)</td><td>열쇠 없거나 틀리면 본문 대신 안내문</td></tr>
+<tr><td class="n">5</td><td>DB 회선</td><td>공개키(publishable)로 Supabase 직결. 조회는 <code>gz2_student_read</code>(등록된 조회 형태만·본인 sid 강제 치환·읽기 전용), 쓰기는 ② 표의 열쇠 함수만</td><td>서비스 키·<code>gzone_exec</code>는 화면에 넣지 않는다</td></tr>
+<tr><td class="n">6</td><td>첫 로그인 지도</td><td>「국존 공부 지도」는 기기 브라우저 저장소 <code>gz16map:&lt;sid&gt;</code>로 처음 한 번만 자동, 이후 로고로 연다</td><td>DB에 쓰지 않는다 · 저장소가 막힌 기기는 매번 뜬다</td></tr>
+<tr><td class="n">7</td><td>경계 불가침</td><td>웹헤즈는 모듈 내부 DOM·문구·데이터를 만지지 않는다. 요청은 국존 사양 개정으로만</td><td>표준 충돌 시 본 방 재결</td></tr>
+</tbody></table></div>
+
+<div class="box note"><h3 style="color:#6f4d0c">④ 이력 · 미확인 · 남은 것</h3>
+<ol class="li">
+<li><b>결함 — 미니 퀴즈 제출 <code>gz_quiz_submit(p)</code></b>: 링크 열쇠 검사가 없고(공개키로 아무 학생 번호에 쓰기 가능), 화면이 <code>plan_id</code>를 넘기지 않아 <code>study_plan_day</code>가 계획 1번에 쌓인다. 권고 = 열쇠 통로 <code>gz2_quiz_submit(p_sid,p_k,p)</code> 신설 → 화면 교체 → 옛 함수 공개 실행권 회수(약점 5문항과 같은 방식, 노트 10029).</li>
+<li><b>대기 — 목표 행 0건</b>: 목표 블록 그릇(<code>progress_plan</code> 목표 행·함수 5종)은 가동이나, 직원이 목표를 넣는 화면(<code>gz2_goal_set</code> 호출처)이 아직 없다. 지금 학생 화면은 「아직 목표가 없어요」로 뜬다.</li>
+<li><b>고정 글자</b>: 내 기록 「아직 안 한 영역(문학 ✓ · 문법 ✓ · 독서·화작 아직)」 칩이 실데이터가 아니다. 같은 성격의 「과제 3주 연속」·「고전소설 2편」은 10/07 시공에서 제거했다.</li>
+<li><b>약점 5문항 지문</b>: <code>klea_h</code>에 지문 본문이 없어 「윗글」을 요구하는 문두는 선지만으로 푼다(화면에 문구로 밝힘).</li>
+<li><b>조회 횟수</b>: 한 번 열 때 <code>gz2_student_read</code> 약 55회(실측). 묶음 조회 함수로 줄이는 것은 개발사 발주 전 정리 항목.</li>
+<li><b>교체 이력</b>: M03-tab 골격 개정 v1(4범주: 내 위치·내 공부·수업·내 기록) → 본 장으로 교체. M03-study·M03-rec·M03-pos의 카드 내용은 본 장의 걸음 1·2·6·9 안에 그대로 이어진다(카드 아이디 불변).</li>
+</ol></div>
+</div>
+
+<script>
+const ACT=[{id:'set',v:'세우기',n:'내 목표',m:'원하는 것을 말로 세우면 공부가 시작돼요',c:'#4B3F8F',bg:'#ECE8F8'},
+ {id:'build',v:'쌓기',n:'내 공부',m:'혼자 있는 엿새와 수업 하루가 같은 줄에 쌓여요',c:'#2E7D4F',bg:'#E4EFE8'},
+ {id:'check',v:'확인하기',n:'내 시험',m:'시험은 결과 통보가 아니라 더 자랄 자리를 확인하는 날',c:'#1D5C57',bg:'#E2F1EF'},
+ {id:'grow',v:'더 강해지기',n:'내 기록',m:'혼자 읽어내는 힘이 한 바퀴마다 강해져요',c:'#9A6B00',bg:'#FFF1C2'}];
+const ST=[{i:0,a:'set',v:'세우기',n:'목표와 중간 목표'},{i:1,a:'build',v:'해내기',n:'오늘 과제'},{i:2,a:'build',v:'알아내기',n:'오늘의 문제 · 오답노트',day:'home'},{i:3,a:'build',v:'숨기지 않기',n:'못 한 날',day:'home'},
+ {i:4,a:'build',v:'정하기',n:'수업 전 · 오늘 목표',day:'class'},{i:5,a:'build',v:'확인하기',n:'수업 1·2·3교시',day:'class'},{i:6,a:'check',v:'채우기',n:'시험 범위 · 진도 · 자료'},
+ {i:7,a:'check',v:'다지기',n:'직전 약점 5문항'},{i:8,a:'check',v:'돌아보기',n:'시험 복기'},{i:9,a:'grow',v:'더 강해지기',n:'자란 것 · 다음 목표'}];
+const SN=['0 목표','1 오늘 과제','2 오늘의 문제','3 못 한 날','4 수업 전','5 수업','6 시험 범위','7 직전 5문항','8 복기','9 자란 것'];
+/* 회선 원장 — [번호, 걸음(-1=공통), 화면 요소, 원천, 함수·문, 읽기/쓰기, 열쇠, 상태(ok|nw|wt|bad), 비고] */
+const R=[
+['G1',-1,'진입 게이트','students — 열쇠 md5(stu|id|created_at), 재원·미퇴원','gz2_entry_check(p_sid,p_k)','읽기','공개키 실행 · 열쇠','ok'],
+['G2',-1,'조회 통로(전 카드 공통)','등록 조회 형태 gz2_student_sql(해시)','gz2_student_read(p_sid,p_k,p_sql)','읽기 전용','열쇠 · 본인 sid 강제 치환 · 금지어 차단','ok'],
+['G3',-1,'머리 — 이름 · 다음 시험 D-day · 오늘 수업 전/후 답 여부','students · school_exams · self_evaluations · coaching_logs · attendance','gz2_card_context(p_sid,p_k)','읽기','열쇠','ok'],
+['G4',-1,'머리 — 수업일 / 수업 없는 날 → 내 공부 걸음 3개 결정','schedule(is_active, 정규 우선)','gz2_student_read 등록문','읽기','열쇠','ok'],
+['G5',-1,'시기 자동(평소·내신 준비·직전·복기) → 지금 걸음','v_student_phase','gz2_student_read 등록문','읽기','열쇠','ok'],
+['G6',-1,'머리 — 🔥 연속 공부일','study_plan_day(세션·완료)','gz2_student_read 등록문','읽기','열쇠','ok'],
+['G7',-1,'지금 공부 작품·강좌 판정','progress_plan · lectures · lecture_contents · study_plan','gz_student_focus(sid) — gz2_student_read 경유','읽기','열쇠','ok'],
+['G8',-1,'국존 공부 지도(첫 로그인·로고)','기기 브라우저 저장소 gz16map:&lt;sid&gt; — DB 아님','—','—','—','nw'],
+['0-1',0,'목표 블록 — 목표·점수·기한·중간 목표 n/m·다음 중간 목표·D-day','progress_plan curriculum=목표 (label·due_date·goal_target·pace_choice·milestones·goal_note)','gz2_goal_get(p_sid,p_k)','읽기','열쇠','wt','목표 행 0건 — ④-2'],
+['0-2',0,'이유 한 줄 저장','progress_plan.goal_note · milestones[].why','gz2_goal_student_write(p_sid,p_k,{reason | ms_idx,why})','쓰기(학생은 이유만)','열쇠','nw'],
+['0-3',0,'목표 등록 · 중간 목표 달성 · 목표 닫기(힘 눈금 +1)','progress_plan','gz2_goal_set · gz2_milestone_mark · gz2_goal_close (p jsonb)','쓰기','직원만 — 공개키 실행 불가','wt','직원 화면 호출처 없음'],
+['0-4',0,'지난 수업 후 적은 다음 주 목표','self_evaluations (S:POST) challenge.goals','gz2_goal_get → week_goals','읽기','열쇠','ok'],
+['0-5',0,'첫 수업 과정 10단계(신입만)','newcomer_checkpoints · enroll_steps · lectures','gz2_first_lesson_student · gz2_student_write(ack·hw_report·ot_review)','읽기·쓰기','열쇠','ok'],
+['0-6',0,'내 진로와 목표','students.career_track · career_note','gz2_student_read','읽기','열쇠','ok'],
+['1-1',1,'오늘 과제 머리 카드(열기 · 오늘은 못 해요)','assignments (pending·in_progress, 기한순)','gz2_student_read 등록문','읽기','열쇠','nw'],
+['1-2',1,'이번 주 과제 표','assignments','gz2_student_read','읽기','열쇠','ok'],
+['1-3',1,'이어서 공부하기 — 교안 · 영상 · 공부법','lecture_contents · video_links · video_assets · method_canon · study_plan_day','gz2_student_read','읽기','열쇠','ok'],
+['1-4',1,'미니 퀴즈 제출(제출 = 완료 · 오답은 오답노트로)','questions(읽기) → study_plan_day · frog_entries(쓰기)','gz_quiz_submit(p)','쓰기','⚠ 열쇠 없음 · plan_id 미전달','bad','④-1'],
+['1-5',1,'영상 평가 · 공부법 체크','study_plan_day (kind 평가 · 점검)','gz2_plan_day_add(p_sid,p_k,p_row)','쓰기','열쇠 · 계획 소유 검사','ok'],
+['1-6',1,'지금 할 단원 · 약점 칩 · 공부법 점검','progress_plan · lectures · lecture_categories · v_wrong_note · method_canon','gz2_student_read · gz_student_plan_card','읽기','열쇠','ok'],
+['1-7',1,'강의 보기 · 내 강좌와 진도','lecture_contents(1-3 재사용) · class_members · class_groups','gz2_student_read','읽기','열쇠','ok','진도 격자 기록 테이블 0행'],
+['1-8',1,'새 강좌 · 강의·자료 신청','lectures.published_at · gz_flows · notifications','gz_stu_req_list · gz_stu_req_submit','읽기·쓰기','열쇠','ok'],
+['1-9',1,'내 책장(상태 · 쪽 기록 · 느낀 점)','book_catalog · student_book_log · student_book_entry','gz2_book_shelf · gz2_book_save','읽기·쓰기','열쇠','ok'],
+['2-1',2,'오늘의 문제 1건 + 다시 풀기','v_wrong_note(not is_overcome) / study_plan_day(kind 퀴즈 frog:id)','gz2_student_read / gz2_plan_day_add','읽기·쓰기','열쇠','ok'],
+['2-2',2,'같은 습관 새 5문항 — 뽑기','frog_entries × klea_h(acl·kla) · acl_dictionary · 이미 틀린 문항 제외','gz2_review_test(p_sid,p_k,p_n) → gz_review_test','읽기(정답 미전송)','열쇠','nw'],
+['2-3',2,'5문항 채점 · 처방','klea_h.answer·clinic → 오답이면 frog_entries(source klea_h · 복습 테스트)','gz2_review_answer(p_sid,p_k,{klea_h_id,pick}) → gz_review_frog','쓰기(서버 채점 · 같은 날 중복 방지)','열쇠 · 옛 두 함수 공개 실행권 회수','nw'],
+['2-4',2,'오답 노트 — 누적 · 극복 · 유형 · 목록','v_wrong_note','gz2_student_read','읽기','열쇠','ok'],
+['3-1',3,'오늘은 못 해요 — 이유 3 고르고 보내기','assignments.status=skipped + teacher_note · weekly_todos(과제관리 · 긴급)','gz2_hw_skip(p_sid,p_k,{reason})','쓰기(중복 차단)','열쇠','nw'],
+['3-2',3,'알린 기록','assignments (status skipped)','gz2_student_read 등록문','읽기','열쇠','nw'],
+['4-1',4,'지난 한 주 상자(과제 · 목표 · 공부 · 오답 · 다음 시험)','coaching_logs · self_evaluations · study_plan_day · v_wrong_note · school_exams · exam_scope_items','gz2_week_review(p_sid,p_k)','읽기','열쇠','ok'],
+['4-2',4,'수업 전 5문항 + 오늘 목표 하나 → 선생님 카드','self_evaluations (S:PRE)','gz2_pre_meta_save(p{student_id,k,…})','쓰기','열쇠(p.k)','ok'],
+['5-1',5,'국존 오리엔테이션 7면','lecture_contents(work 9747 오리엔테이션) / newcomer_checkpoints OT1~7','gz2_student_read / gz2_student_write(ot_page)','읽기·쓰기','열쇠','ok'],
+['5-2',5,'내가 하는 것 — 지금 할 일 · 수업 · 보충','assignments · coaching_logs.lesson_note · schedule · schedule_exceptions(보충)','gz2_student_read','읽기','열쇠','ok'],
+['5-3',5,'오늘 수업 순서(교시 · 다음 과제)','coaching_logs period_1~3 · homework_text · homework_due','gz2_student_read','읽기','열쇠','ok'],
+['5-4',5,'수업 후 15문항 · 다음 주 목표 3 · 고칠 습관','self_evaluations (S:POST)','gz2_post_meta_save(p{student_id,k,…})','쓰기','열쇠(p.k)','ok'],
+['6-1',6,'시기 표시 4칸(자동 · 고르지 않음)','v_student_phase','gz2_student_read 등록문','읽기','열쇠','nw'],
+['6-2',6,'다음 학교 시험 D-day','school_exams(학교·학년)','gz2_card_context → exam','읽기','열쇠','ok'],
+['6-3',6,'우리 학교 기출 × 내 약점','klea_h(school_code·acl_code) × frog_entries · acl_dictionary','gz2_school_weak(p_sid,p_k)','읽기','열쇠','nw'],
+['6-4',6,'시험까지 남은 공부 — 남은 날 · 범위 · 3단계 · 없는 자료','school_exams · exam_scope_items · student_tests · exam_results · mock_items · student_reports · v_student_phase','gz_student_plan_card(sid) — gz2_student_read 경유','읽기','열쇠','ok'],
+['6-5',6,'시험일까지 진도 · 이번 달 일정','progress_plan · lectures · study_plan_day · schedule · school_exams · student_events','gz2_student_read','읽기','열쇠','ok'],
+['7-1',7,'직전 약점 5문항(새 범위 늘리지 않음)','= 2-2 · 2-3','gz2_review_test · gz2_review_answer','읽기·쓰기','열쇠','nw'],
+['8-1',8,'지난 시험보다 넘어선 것 1(점수보다 먼저)','exam_results(최근 두 시험) × frog_entries','gz2_improved(p_sid,p_k) → beyond','읽기','열쇠','nw'],
+['8-2',8,'복기 — 아직 넘지 못한 오답 3 · 처방','v_wrong_note','gz2_student_read 등록문','읽기','열쇠','nw'],
+['8-3',8,'점수 보기(단추 뒤) — 성적 그래프 · 학원 테스트 · 모의고사','student_tests (LT·RT·MK·SE·KED…)','gz2_student_read','읽기','열쇠','ok'],
+['9-1',9,'나아진 것 1(최근 한 주 vs 그 전 주)','coaching_logs.hw_status · frog_entries(overcome_at · log_date)','gz2_improved → improved · hold','읽기','열쇠','nw'],
+['9-2',9,'힘 눈금(닫은 목표 수) → 다음 목표 세우기','progress_plan 목표 status=closed 수','gz2_goal_get → strength','읽기','열쇠','nw'],
+['9-3',9,'이번 달 요약 · 약점 지도 · 점수와 출석 · 최근 주','study_plan_day · attendance_logs · coaching_logs · v_wrong_note · v_student_entrance_summary · exam_results · student_reports','gz2_student_read','읽기','열쇠','ok','영역 칩 고정 글자 — ④-3'],
+['9-4',9,'최근 수업 기록','coaching_logs(period_acts · praise_note · homework)','gz2_student_acts(p_sid,p_k)','읽기','열쇠(본문 검사)','ok'],
+['9-5',9,'주별 공부 기록 · 선생님 평가 전체','coaching_logs','gz2_student_read','읽기','열쇠','ok']];
+const STL={ok:'가동',nw:'신규 10/07',wt:'대기',bad:'결함'};
+/* 목업 칸 — [걸음, 회선 번호들, html] (예시 값 · 가상 학생) */
+const M={
+0:[['0-1','<div class="d">내 목표 · 내가 정함</div><div class="t">2학기 기말 국어 · 85점 · 11/23</div><div class="d">중간 목표 1/3 ● ○ ○ · 다음: 오답 극복 3개 · D-47</div>','goal'],
+ ['0-2,0-3','<div class="t">이유 한 줄</div>「시험이 두렵지 않게」<div><span class="btn p">이유 저장</span></div><div class="d">목표 · 중간 목표 달성 · 닫기는 선생님이 기록</div>'],
+ ['0-4','<div class="t">지난 수업 후 적은 다음 주 목표</div><div class="d">서술형 3문항 매일 · 틀린 이유 한 줄</div>'],
+ ['0-5','<div class="t">첫 수업 과정 <span class="pill">신입만</span></div><div class="d">10단계 중 4단계 · 오리엔테이션 · 계획표 확인 · 1차 실습 · 소감</div>'],
+ ['0-6','<div class="t">내 진로와 목표</div><div class="d">학교 · 학년 · 진로(내가 쓰는 칸)</div>']],
+1:[['1-1','<div class="t">오늘 과제 — 서술형 3문항 <span class="pill r">기한 10/08</span></div><div class="d">영상 · 교안 · 확인 퀴즈 한 화면 · 퀴즈 제출 = 완료</div><span class="btn p">열기 — 이어서 공부하기</span><span class="btn">오늘은 못 해요</span>'],
+ ['1-2','<div class="t">이번 주 과제 내기</div><div class="d">서술형 3문항 D-1 · 수특 「토지」 읽기 D-4 · 2강 + 퀴즈 완료</div>'],
+ ['1-3,1-4,1-5','<div class="t">이어서 공부하기 · 13 / 23 단원</div><div class="d">이 단원의 공부법 → 영상(어땠어요?) → 교안 → 미니 퀴즈 2문항 → 제출하고 마치기</div>'],
+ ['1-6','<div class="t">지금 할 단원 · 공부법 점검</div><div class="d">약점 칩 · 「잃은 7문항 회복」 · 체크하면 바로 저장</div>'],
+ ['1-7','<div class="t">강의 보기 · 내 강좌와 진도</div><div class="d">단원 번호 칸 / 진행 막대 · 수강 중인 반</div>'],
+ ['1-8','<div class="t">🆕 새 강좌 · 📮 강의·자료 신청</div><div class="d">내 학년 먼저 · 본점이 만들어 드려요</div>'],
+ ['1-9','<div class="t">📚 내 책장</div><div class="d">선생님 지정 · 추천 · 내가 담은 책 · 쪽 기록 · 느낀 점</div>']],
+2:[['2-1','<div class="t">오늘의 문제 — 핵심어 바꿈</div><div class="d">내 답 ② · 정답 ④ · 왜 틀렸나 · 처방</div><span class="btn p">이 문제 다시 풀기</span>'],
+ ['2-2,2-3','<div class="t">같은 습관 새 5문항</div><div class="d">내 오답 습관 — 범주 혼동 2 · 주어 바꿈 2 · 이미 틀린 문항은 빼고 뽑아요</div><span class="btn p">5문항 뽑기</span><div class="d">고르면 서버가 채점 → 틀리면 오답노트</div>'],
+ ['2-4','<div class="t">오답 노트 <span class="pill">7 · 극복 3</span></div><div class="d">누적 · 극복 · 유형 · 최근 6건</div>']],
+3:[['3-1','<div class="t">오늘은 못 해요</div><div class="d">대상 — 서술형 3문항(기한 10/08)</div><span class="btn">시간이 없었어요</span><span class="btn">어려웠어요</span><span class="btn">다른 이유</span><br><span class="btn p">선생님께 알리기</span>'],
+ ['3-2','<div class="t">이번에 알린 기록</div><div class="d">10/01 서술형 · 어려웠어요 → 과제관리 시간에</div>']],
+4:[['4-1','<div class="t">지난 한 주 (목표를 정하기 전에 보세요)</div><div class="d">지난 수업 과제 · 내가 세운 목표 · 이번 주 공부 · 오답 · 다음 시험</div>'],
+ ['4-2','<div class="t">① 수업 전: 5문항 · 오늘 목표</div><div class="d">과제 얼마나 · 양/난이도 · 어려웠던 것 · 오늘 목표(지난 주 목표에서 고르기) · 자신감</div><span class="btn p">보내기</span>']],
+5:[['5-1','<div class="t">국존 오리엔테이션</div><div class="d">7면 중 7면 · 다시 보기</div>'],
+ ['5-2,5-3','<div class="t">내가 하는 것 / 오늘 수업 순서</div><div class="d">지금 할 일 · 18:00 수업 · 보충 / 1교시 과제 피드백 · 2교시 심화 · 3교시 마무리 · 다음 과제</div>'],
+ ['5-4','<div class="t">③ 수업 후: 15문항</div><div class="d">인상 깊은 것 · 어려웠던 것 · 다음 주 목표 3 · 고칠 습관</div><span class="btn p">보내기</span>']],
+6:[['6-1','<div class="sc"><span>평소</span><span class="on">내신 준비</span><span>직전</span><span>복기</span></div><div class="d">단계는 시험 일정으로 자동 — 고를 필요 없어요</div>'],
+ ['6-2,6-3','<div class="t">2학기 기말 <span class="pill r">D-47 · 11/23</span></div><div class="d">우리 학교 기출 484문항 중 「비슷한 개념 혼동」 138문항(29%) — 내가 2번 틀린 유형</div>'],
+ ['6-4','<div class="t">시험까지 남은 공부</div><div class="d">남은 날 · 범위 n건 · 1 학습진도 / 2 문제연습 / 3 실전·오답 보강 · 없는 자료</div>'],
+ ['6-5','<div class="t">시험일까지 진도 · 이번 달 일정</div><div class="d">작품별 진도 막대 · 정규 수업 · 학교 시험 · 내 일정</div>']],
+7:[['7-1','<div class="t">시험 직전 — 내가 약한 유형 5문항</div><div class="d">새 범위를 늘리지 않고 오답 습관으로만</div><span class="btn p">5문항 뽑기</span>']],
+8:[['8-1','<div class="t">지난 시험보다 넘어선 것</div><div class="d">시험에서 틀린 문항 6개 → 3개 · 점수는 아래 단추</div>'],
+ ['8-2','<div class="t">복기 — 왜 틀렸나 · 다음엔</div><div class="d">아직 넘지 못한 오답 3 · 처방 · 오답노트에서 다시 풀기</div>'],
+ ['8-3','<span class="btn">점수 보기 (성적 그래프 · 학원 테스트 · 모의고사)</span>']],
+9:[['9-1,9-2','<div class="t">이번 바퀴에서 자란 것</div><div class="d">나아진 것 — 과제 해옴 50% → 100% · 넘어선 것 · 내 힘 ■□□□□ 1바퀴</div><span class="btn p">다음 목표 세우기 → 내 목표</span>'],
+ ['9-3','<div class="t">10월 요약 · 내 공부 습관 · 점수와 출석</div><div class="d">공부한 단원 · 푼 문제 · 출석 · 극복 · 약점 지도 · 배지</div>'],
+ ['9-4','<div class="t">최근 수업 기록</div><div class="d">교시별 활동 · 👍 잘한 점 · 다음 과제</div>'],
+ ['9-5','<div class="t">주별 공부 기록 · 선생님 평가 전체</div><div class="d">한 줄 = 한 주 · 빨간펜</div>']]};
+const PH=['평소','내신 준비','직전','복기'];
+let S={d:'p',day:'home',ph:1,tab:null,sel:null,hl:null};
+function nowStep(){if(S.day==='class')return 4;return [1,6,7,8][S.ph];}
+function steps(tab){return ST.filter(x=>x.a===tab&&(!x.day||x.day===S.day));}
+function act(id){return ACT.find(a=>a.id===id);}
+function draw(){
+ const now=nowStep(); if(S.tab==null){S.tab=ST[now].a;S.sel=now;}
+ const a=act(S.tab), L=steps(S.tab), x=ST[S.sel]||L[0];
+ document.getElementById('phs').innerHTML=PH.map((p,i)=>'<button data-ph="'+i+'" class="'+(i===S.ph?'on':'')+'">'+p+'</button>').join('');
+ document.querySelectorAll('.ctl [data-d]').forEach(b=>b.classList.toggle('on',b.dataset.d===S.d));
+ document.querySelectorAll('.ctl [data-day]').forEach(b=>b.classList.toggle('on',b.dataset.day===S.day));
+ const cl=s=>(s.i<now&&s.a===ST[now].a?' done':'')+(s.i===now?' now':'')+(s.i===S.sel?' sel':'');
+ let h='<div class="dev '+S.d+'" style="--ac:'+a.c+';--abg:'+a.bg+'"><div class="hd"><div class="r1"><button class="logo" data-r="G8">국존</button><span class="nm">이가온</span><span class="inf" data-r="G3,G4,G6">'+(S.day==='class'?'오늘 수업 18:00':'수업 없는 날')+' · 🔥 12일<br>기말 D-47</span></div>'
+  +'<div class="tabs">'+ACT.map(t=>'<button data-tab="'+t.id+'" class="'+(t.id===S.tab?'on':'')+'" style="--ac:'+t.c+';--abg:'+t.bg+'"><span class="n">'+t.n+'</span><span class="v">'+t.v+'</span></button>').join('')+'</div>'
+  +'<div class="chips">'+L.map(s=>'<button data-i="'+s.i+'" class="'+cl(s)+'"><i></i>'+s.n+'</button>').join('')+'</div></div>'
+  +'<div class="bd"><div class="rail"><div class="rt">'+a.n+' · '+a.v+'</div>'+L.map(s=>'<button data-i="'+s.i+'" class="'+cl(s)+'"><i></i><span><b>'+s.n+'</b><em>'+s.v+'</em></span></button>').join('')+'</div>'
+  +'<div class="mn"><div class="act"><b>'+a.n+' · '+a.v+'</b>'+a.m+'</div><div class="h2"><h2>'+x.n+'</h2><span class="tg">'+x.v+'</span></div>'
+  +(M[x.i]||[]).map(c=>{const ids=c[0].split(','), rr=ids.map(id=>R.find(r=>r[0]===id)), bad=rr.some(r=>r&&r[7]==='bad'), nw=rr.some(r=>r&&r[7]==='nw');
+     return '<div class="bx '+(c[2]||'')+(S.hl===c[0]?' hl':'')+'" data-r="'+c[0]+'"><span class="db'+(bad?' bad':nw?' nw':'')+'">'+ids.join(' · ')+'</span>'+c[1]+'</div>';}).join('')
+  +'</div></div></div>';
+ document.getElementById('dev').innerHTML=h; panel(x.i);}
+function panel(i){
+ const rows=R.filter(r=>r[1]===i), hl=(S.hl||'').split(',');
+ document.getElementById('pcap').innerHTML='<b>걸음 '+SN[i]+'</b>의 DB 회선 '+rows.length+'줄 · 칸을 누르면 해당 줄이 켜져요 · 공통 회선(G1~G8)은 ② 표 맨 위';
+ document.getElementById('plist').innerHTML=rows.map(r=>'<div class="pr'+(hl.includes(r[0])?' hl':'')+'"><div class="k"><span class="no">'+r[0]+'</span><span class="el">'+r[2]+'</span><span class="st '+r[7]+'">'+STL[r[7]]+'</span></div>'
+   +'<div class="ln"><span>원천</span><span>'+r[3]+'</span></div><div class="ln"><span>함수</span><span><code>'+r[4]+'</code></span></div><div class="ln"><span>방향</span><span>'+r[5]+' · '+r[6]+(r[8]?' · <b>'+r[8]+'</b>':'')+'</span></div></div>').join('');}
+document.querySelector('.ctl').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.d)S.d=b.dataset.d; if(b.dataset.day){S.day=b.dataset.day;S.tab=null;} if(b.dataset.ph!=null){S.ph=+b.dataset.ph;S.tab=null;} S.hl=null; draw();});
+document.getElementById('dev').addEventListener('click',e=>{
+ const t=e.target.closest('[data-tab]'); if(t){S.tab=t.dataset.tab;const L=steps(S.tab);S.sel=(L.find(s=>s.i===nowStep())||L[0]).i;S.hl=null;draw();return;}
+ const s=e.target.closest('[data-i]'); if(s){S.sel=+s.dataset.i;S.hl=null;draw();return;}
+ const r=e.target.closest('[data-r]'); if(r){const id=r.dataset.r; if(id.startsWith('G')){document.getElementById('spec').querySelector('tr[data-id="'+id.split(',')[0]+'"]').scrollIntoView({behavior:'smooth',block:'center'});return;} S.hl=id;draw();
+   const f=document.querySelector('.pr.hl'); if(f&&window.innerWidth<1000)f.scrollIntoView({behavior:'smooth',block:'nearest'});}});
+let g=null,tb='';
+R.forEach(r=>{const gn=r[1]<0?'공통 — 진입 · 조회 통로 · 머리 · 시기':ST[r[1]].a&&act(ST[r[1]].a).n+' · '+SN[r[1]];
+ if(gn!==g){g=gn;tb+='<tr class="g"><td colspan="8">'+gn+'</td></tr>';}
+ tb+='<tr data-id="'+r[0]+'"><td class="n">'+r[0]+'</td><td>'+(r[1]<0?'공통':SN[r[1]])+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td><code>'+r[4]+'</code></td><td>'+r[5]+'</td><td>'+r[6]+'</td><td><span class="st '+r[7]+'">'+STL[r[7]]+'</span>'+(r[8]?'<br><span style="color:#6B6F68">'+r[8]+'</span>':'')+'</td></tr>';});
+document.getElementById('spec').innerHTML=tb;
+draw();
+</script></body></html>
