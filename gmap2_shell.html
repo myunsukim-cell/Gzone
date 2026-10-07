@@ -1368,7 +1368,7 @@ function cardTidy(){try{const sb=document.getElementById('slidebody');if(!sb||!d
 }catch(e){console.warn('cardTidy',e);}}
 function goStep(k){const id={'1':'p1acts','2':'p2sel','3':'p3sel'}[k];const t=document.getElementById(id);if(!t){return;}const sl=document.getElementById('slide');const y=t.getBoundingClientRect().top-sl.getBoundingClientRect().top+sl.scrollTop-8;sl.scrollTo({top:Math.max(0,y),behavior:'smooth'});setStep(k);} /* [v0.70 BI-1047] 필수 2필드(1교시 내용·과제 상태) 즉시 검증 — 입력 이탈·클릭 순간 표시, 저장 전에 무엇이 남았는지 보이게 */
 var REQ_TOUCH={lesson:false,p1:false};
-function reqCheck(){const L=document.getElementById('lesson'),P=document.getElementById('p1'),M=document.getElementById('reqmsg');if(!L||!M)return;const okL=!!L.value.trim(),okP=!!P1;const miss=[];if(!okL)miss.push('1교시 내용');if(!okP)miss.push('과제 상태');L.style.borderColor=(!okL&&REQ_TOUCH.lesson)?'#b42318':'';if(P)P.style.outline=(!okP&&REQ_TOUCH.p1)?'2px solid #b42318':'';M.style.color=miss.length?'#b42318':'#1E4D3B';M.textContent=miss.length?('필수 '+miss.length+'개 남음: '+miss.join(' · ')):'필수 2개 완료 — 저장할 수 있습니다';v7sync();}
+function reqCheck(){const L=document.getElementById('lesson'),P=document.getElementById('p1'),M=document.getElementById('reqmsg');if(!L||!M)return;const okL=!!L.value.trim(),okP=!!P1;const miss=[];if(!okL)miss.push('1교시 내용');if(!okP)miss.push('과제 상태');L.style.borderColor=(!okL&&REQ_TOUCH.lesson)?'#b42318':'';if(P)P.style.outline=(!okP&&REQ_TOUCH.p1)?'2px solid #b42318':'';M.style.color=miss.length?'#b42318':'#1E4D3B';M.textContent=miss.length?('꼭 쓸 칸 '+miss.length+'개 남음: '+miss.join(' · ')):'꼭 쓸 칸 2개 완료 — 칸을 벗어나면 저장돼요';v7sync();}
 document.addEventListener('focusout',e=>{if(e.target&&e.target.id==='lesson'){REQ_TOUCH.lesson=true;reqCheck();}});
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='lesson'){if(e.target.value.trim())REQ_TOUCH.lesson=true;reqCheck();}});
 /* [v0.70 카드 v7 — 국존 승인 6340번] 렌더 후 재조판: 상단 고정(경로·저장 배지·5단계·필수), ② 지난 과제 항목별 판정, 고급 블록은 details 접힘. 요소 id·저장 함수 무변경 */
@@ -1975,5 +1975,171 @@ setTimeout(()=>{try{const sid=+sessionStorage.getItem('gz_open_coach');if(sid){s
   const _rb=window.renderCoachBody; if(typeof _rb==='function'){window.renderCoachBody=function(){const r=_rb.apply(this,arguments);setTimeout(mount,250);return r;};}
 })();
 </script>
+<style id="v8css">
+/* [seq 346 · 2026-10-08] 코칭 카드 v8 — spec_M02v8(gmap_deliverable 127). 탭 4 · 칸 16 · 의미 4줄 */
+#v8frame{--v8g:#1E4D3B;--v8ln:#E3DFD3;--v8dm:#6B6F68;--v8bg:#E8F1EC}
+#v8frame .v8line{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:2px 0 8px;font-size:11.5px}
+#v8frame .v8line span{border-radius:6px;padding:1px 8px;background:#EFECE3;color:#4A4F48;cursor:pointer}
+#v8frame .v8line .ph{background:#9A3412;color:#fff}#v8frame .v8line .gl{background:#1E3A2F;color:#fff}
+#v8frame .v8line .rq{background:#FBE3D6;color:#9A3412;font-weight:700}#v8frame .v8line .rq.ok{background:#E4EFE8;color:#1D5C57}
+#v8frame .v8tabs{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--v8ln);border-radius:10px;overflow:hidden;background:#fff;position:sticky;top:-12px;z-index:6}
+#v8frame .v8tabs button{border:0!important;border-radius:0!important;box-shadow:none!important;background:#fff;min-height:42px!important;padding:4px 2px!important;display:flex;flex-direction:column;align-items:center;line-height:1.2;border-bottom:3px solid transparent!important;color:var(--v8dm)!important}
+#v8frame .v8tabs button{min-width:0;overflow:hidden}#v8frame .v8tabs button small{white-space:normal;word-break:keep-all;text-align:center}
+#v8frame .v8tabs button b{font-size:13.5px!important;color:#1F2421;font-family:serif}#v8frame .v8tabs button small{font-size:10.5px}
+#v8frame .v8tabs button.on{background:var(--v8bg)!important;border-bottom-color:var(--v8g)!important}#v8frame .v8tabs button.on b{color:var(--v8g)}
+#v8frame .v8tabs .dot{font-size:9.5px;color:#fff;background:#9A3412;border-radius:8px;padding:0 5px;margin-left:3px;font-family:sans-serif}
+#v8frame .v8order{display:flex;gap:4px;flex-wrap:wrap;margin:8px 0 4px}
+#v8frame .v8order button{min-height:28px!important;padding:2px 10px!important;border-radius:14px!important;font-size:12px!important;display:flex;gap:5px;align-items:center}
+#v8frame .v8order i{width:9px;height:9px;border-radius:50%;background:#D9D4C6;display:inline-block}
+#v8frame .v8order .done i{background:#2E7D4F}#v8frame .v8order .now{border-color:var(--v8g)!important;background:var(--v8bg)!important;font-weight:700}#v8frame .v8order .now i{background:#F2C14E}
+#v8frame .v8tm{font-size:11.5px;color:var(--v8g);background:var(--v8bg);border-radius:8px;padding:5px 9px;margin:8px 0}
+#v8frame .v8tm b{font-family:serif;margin-right:5px;font-size:12px!important}
+#v8frame .v8bx{background:#fff;border:1px solid #dfe4ea;border-radius:11px;padding:10px 12px;margin:0 0 10px}
+#v8frame .v8bx.req{border-left:4px solid #9A3412}
+#v8frame .v8hh{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+#v8frame .v8hh .t{font-weight:800;font-size:14px;flex:1}
+#v8frame .v8hh .val{font-size:10.5px;padding:0 6px;border-radius:5px;background:#F3EEDD;color:#7A5300}
+#v8frame .v8hh .rqt{font-size:10.5px;font-weight:700;color:#9A3412}
+#v8frame .v8hh .q{width:24px!important;height:24px!important;min-height:24px!important;padding:0!important;border-radius:50%!important;font-size:12px!important}
+#v8frame .v8three{display:grid;grid-template-columns:100px 1fr;gap:2px 6px;font-size:11.5px;border:1px dashed var(--v8ln);border-radius:8px;padding:6px 8px;margin-bottom:6px;background:#FBFAF6}
+#v8frame .v8three span:nth-child(odd){color:var(--v8dm)}
+#v8frame .v8stu{font-size:10.5px;color:#4B3F8F;background:#ECE8F8;border-radius:5px;padding:0 6px;display:inline-block;margin-top:6px}
+#v8frame .v8bx #cattbox,#v8frame .v8bx #cprog,#v8frame .v8bx #cpre,#v8frame .v8bx #p1acts,#v8frame .v8bx #p2sel,#v8frame .v8bx #p3sel,#v8frame .v8bx #goalBox{border:0!important;padding:0!important;margin:0 0 6px!important;background:transparent!important;box-shadow:none!important}
+#v8frame .v8bx .zone{border:0!important;padding:0!important;margin:0!important}
+#v8frame details.v8more{margin-top:6px;border:1px solid #eee3c9;border-radius:8px;padding:5px 9px;background:#fffef8}
+#v8frame details.v8more>summary{cursor:pointer;font-size:12px;font-weight:700;color:#5f5b52}
+#v8frame .v8etc{border:1px dashed #cfc9b8;border-radius:11px;padding:8px 10px;background:#FBFAF6;margin-top:6px}
+#v8frame .v8etc>summary{cursor:pointer;font-weight:700}
+#slidebody .v8hide{display:none!important}
+#v8frame .v8lab{display:block;font-size:12px;font-weight:700;margin:6px 0 3px}
+#slide #pstep{display:none!important}
+#v8frame.v8hw [data-v8box="C5"],#v8frame.v8hw [data-v8box="C6"],#v8frame.v8hw .v8order [data-ord="2교시"],#v8frame.v8hw .v8order [data-ord="3교시"]{display:none!important}
+body.full #v8frame{max-width:980px;margin:0 auto}
+</style>
+<script id="v8card">
+/* [seq 346 · 2026-10-08] 코칭 카드 v8 — 학생 페이지 v16 탭 4의 반대편.
+   요소 id·저장 함수(gz_save_coach_card_v6·gz_att_set·gz_save_period_wrong·gz2_goal_set …)는 그대로 두고 자리만 옮긴다.
+   종전 cardTidy(번호 재부여)·cardTidy7(접기·①~⑤ 띠)을 끄고, 끼워 넣던 칸(목표·첫 수업·오늘 수업 종류)은 정해진 칸으로 보낸다. */
+(function(){
+ const TABS=[{k:'goal',n:'목표',v:'함께 세우기',m:'학생이 원하는 점수·기한·이유를 같이 정해요'},
+  {k:'class',n:'수업',v:'채워 주기',m:'혼자 공부한 엿새를 확인하고, 모자란 자리를 수업으로 채워요'},
+  {k:'exam',n:'시험',v:'짚어 주기',m:'틀린 자리에 이름을 붙여, 더 자랄 곳을 보여 줘요'},
+  {k:'rec',n:'기록',v:'자란 만큼 남기기',m:'오늘 본 모습을 남겨 다음 주와 학부모 리포트로 이어요'}];
+ const BOX=[
+  {no:'G1',tab:'goal',t:'목표 같이 정하기',val:'공감',why:'「국어는 감이 아니라 데이터」 — 목표는 학생의 말로, 점수·기한·이유 세 가지',app:'근거 6줄로 만든 초안 · 양식 판독 목표가 있으면 그것',me:'초안을 읽어 주고 고치거나 「확정」',stu:'내 목표 › 목표와 중간 목표'},
+  {no:'G2',tab:'goal',t:'시험까지 남은 길',val:'최고',why:'「학교가 다르면 공부법이 달라요」 — 범위 본문을 완전히 내 것으로',app:'다음 시험·범위·남은 작품·보강 필요·교재 진도와 학교 진도',me:'범위가 비었으면 등록 · 진도 한 줄 고치기',stu:'내 시험 › 시험 범위 · 진도 · 자료'},
+  {no:'C1',tab:'class',ord:'출석',t:'출석',val:'신뢰',why:'「약속 대신 기록」 — 온 날·못 온 날이 다 기록돼요',app:'오늘 시간표 칸 · 수업 종류',me:'출석 한 번(결석이면 대체 수업 잡기)',stu:'내 공부 › 못 한 날'},
+  {no:'C2',tab:'class',ord:'숙제',req:1,t:'숙제 해 왔나',val:'신뢰',why:'「못 한 날도 기록이 되면 숨길 일이 없어요」',app:'지난 숙제 항목 · 4주 이행 · 학생이 「못 해요」로 보낸 이유',me:'항목마다 해옴·부분·안 해옴',stu:'내 공부 › 오늘 과제 · 못 한 날'},
+  {no:'C3',tab:'class',ord:'숙제',t:'오늘 학생이 낸 질문',val:'재미',why:'「시작은 시간표 하나」 — 앉자마자 시작해요',app:'학생이 수업 전에 낸 5문항과 오늘 목표',me:'읽고 1교시 순서 정하기 · 없으면 대신 입력',stu:'내 공부 › 수업 전 · 오늘 목표'},
+  {no:'C4',tab:'class',ord:'1교시',req:1,t:'1교시 — 숙제 확인 수업',val:'사랑',why:'「혼자 못 채우는 자리를 수업이 개별로 채워요」',app:'숙제 결과로 바뀐 수업 순서 · 시험지 고르기 · 타이머',me:'1교시에 한 것 한 줄',stu:'내 공부 › 수업 1·2·3교시'},
+  {no:'C5',tab:'class',ord:'2교시',t:'2교시 — 내용 · 자료',val:'사랑',why:'「학년·시기가 문항을 골라 와요」',app:'시기·학년에 맞춘 문항 처방 · 자료 검색',me:'내용·자료 한 줄',stu:'내 공부 › 수업 1·2·3교시'},
+  {no:'C6',tab:'class',ord:'3교시',t:'3교시 — 정리 · 점검',val:'사랑',why:'「오늘 배운 것을 학생 말로 다시 말하게」',app:'수업 후 학생 답',me:'정리 한 줄',stu:'내 공부 › 수업 후 · 다음 주 목표'},
+  {no:'E1',tab:'exam',t:'시험 직전 약한 유형',val:'열정',why:'「같은 3등급, 다른 원인」 — 마지막엔 내 약한 유형만',app:'오답 기록에서 많이 틀린 유형 · 학생 화면의 같은 습관 5문제',me:'1교시에 한 문제 다시 짚기',stu:'내 시험 › 직전 약점 5문항'},
+  {no:'E2',tab:'exam',t:'틀린 문제 짚기',val:'열정',why:'「우리 아이 약점의 이름」 — 틀린 문제에 함정 이름이 붙어요',app:'시험지·문항 번호 · 오답 습관 자동 표시',me:'틀린 문항에 함정 이름 붙이고 「오답 기록 저장」',stu:'내 공부 › 오늘의 문제 · 오답노트'},
+  {no:'E3',tab:'exam',t:'시험 다시 보기',val:'신뢰',why:'「해설로 끝나지 않습니다 — 스스로 고치는 여섯 단」',app:'성적·목표 양식 판독 결과 — 과목 점수·오답·확인할 칸',me:'「다음엔」 한 줄 같이 쓰기',stu:'내 시험 › 시험 복기'},
+  {no:'R1',tab:'rec',t:'오늘 본 모습 · 칭찬 한마디',val:'공감',why:'「노력과 방법을 짚는 말이 다음 도전을 만들어요」',app:'참여·이해·자신감 등 6가지',me:'칭찬 한 줄 — 머리가 아니라 방법을',stu:'내 기록 › 자란 것 · 힘 눈금'},
+  {no:'R2',tab:'rec',t:'다음 주 숙제',val:'최고',why:'「강의 다음이 공부」 — 다음 주 엿새를 오늘 정해요',app:'다음 주 범위·배정 강좌',me:'숙제 한 줄 · 기한',stu:'내 공부 › 오늘 과제(다음 주)'},
+  {no:'R3',tab:'rec',t:'학부모께 드릴 한 줄',val:'신뢰',why:'「두 달의 실제 궤적」 — 오늘 기록이 그대로 리포트가 돼요',app:'오늘 기록으로 만든 초안(4가지 중 하나)',me:'고치거나 그대로',stu:'학부모 주간 리포트'},
+  {no:'R4',tab:'rec',t:'메모(교사끼리)',val:'신뢰',why:'「다음 선생님이 이어 받을 수 있게」',app:'오늘 기록이 있으면 불러옴',me:'필요할 때만',stu:''}];
+ const ORD=['출석','숙제','1교시','2교시','3교시'];
+ let V8={tab:null,user:false,open:{}};
+ const $=id=>document.getElementById(id);
+ const mv=(el,to)=>{if(el&&to&&el!==to&&!el.contains(to))to.appendChild(el);return el;};
+ const par=(el,sel)=>el?el.closest(sel):null;
+ /* 종전 재조판 끄기 */
+ window.cardTidy=function(){}; window.cardTidy7=function(){};
+ function slot(no){return document.querySelector('#v8frame [data-v8slot="'+no+'"]');}
+ function park(){const sb=$('slidebody');const f=$('v8frame');if(!sb||!f)return;['cattbox','cprog','cpre','goalBox','firstBlk','tyLine','chead'].forEach(id=>{const e=$(id);if(e&&f.contains(e))sb.insertBefore(e,f);});f.remove();}
+ function phaseTab(){const ex=(window.CARD_CTX&&CARD_CTX.exam)||null;const ph=ex?ex.phase:'평시';return (ph==='직전기'||ph==='결과 분석'||ph==='시험 중')?'exam':'class';}
+ function build(){
+  const sb=$('slidebody'), cb=$('cbody'); if(!sb||!cb||!cb.querySelector('.ccard'))return;
+  park();
+  const hw=(window.COACH_TY==='학습관리');
+  const f=document.createElement('div'); f.id='v8frame'; if(hw)f.classList.add('v8hw');
+  f.innerHTML='<div class="v8line" id="v8line"></div><div class="v8tabs" id="v8tabs">'+TABS.map(t=>'<button type="button" data-v8tab="'+t.k+'"><b>'+t.n+(t.k==='class'?'<span class="dot" id="v8dot">2</span>':'')+'</b><small>'+t.v+'</small></button>').join('')+'</div>'
+   +'<div class="v8order" id="v8order">'+ORD.map(o=>'<button type="button" data-ord="'+o+'"><i></i>'+o+'</button>').join('')+'</div>'
+   +TABS.map(t=>'<div class="v8pane" data-v8pane="'+t.k+'"><div class="v8tm"><b>'+t.n+' · '+t.v+'</b>'+t.m+'</div>'
+     +BOX.filter(b=>b.tab===t.k).map(b=>'<div class="v8bx'+(b.req?' req':'')+'" data-v8box="'+b.no+'" id="v8b'+b.no+'"><div class="v8hh"><span class="t">'+b.t+'</span>'+(b.req?'<span class="rqt">꼭 쓸 칸</span>':'')+'<span class="val">'+b.val+'</span><button type="button" class="q" data-v8q="'+b.no+'">?</button></div><div class="v8three v8hide" id="v8q'+b.no+'"><span>가치</span><span>'+b.val+'</span><span>왜</span><span>'+b.why+'</span><span>화면이 해 주는 것</span><span>'+b.app+'</span><span>선생님이 할 일</span><span>'+b.me+'</span></div><div data-v8slot="'+b.no+'"></div>'+(b.stu?'<span class="v8stu">학생 화면 · '+b.stu+'</span>':'')+'</div>').join('')
+     +'</div>').join('')
+   +'<details class="v8etc" id="v8etc"><summary>그 밖에 — 내 교재 · 메모함 답 · 강좌 배정 · 이 영역 공부법</summary><div data-v8slot="X"></div></details>';
+  sb.insertBefore(f,cb);
+  const head=$('chead'); if(head)sb.insertBefore(head,f);
+  /* 칸에 담기 — id 불변, 자리만 */
+  mv($('cattbox'),slot('C1')); mv($('tyLine'),slot('C1'));
+  const g2=slot('G2'); mv($('cprog'),g2); ['cycband','cprogline'].forEach(id=>mv($(id),g2)); const tb=$('tbprog'); if(tb)mv(par(tb,'div[style*="grid"]'),g2); mv($('cexamprog'),g2);
+  mv($('cpre'),slot('C3'));
+  /* 숙제 */
+  const c2=slot('C2'); mv($('prevband'),c2); if(!$('hwitems')){const h=document.createElement('div');h.id='hwitems';h.innerHTML='<div class="mini">지난 숙제 불러오는 중…</div>';c2.appendChild(h);if(typeof loadHwItems==='function')loadHwItems(COACH_SID);}else mv($('hwitems'),c2);
+  ['p1','hwchips','hwreason','hwrate'].forEach(id=>mv($(id),c2));
+  /* 1교시 */
+  const c4=slot('C4'); const les=$('lesson'); if(les){const l=document.createElement('label');l.className='v8lab';l.textContent='1교시에 무엇을 확인·수업했나';c4.appendChild(l);mv(les,c4);}
+  const d1=document.createElement('details');d1.className='v8more';d1.innerHTML='<summary>타이머 · 페이지 · 시험지 고르기</summary>';c4.appendChild(d1);mv($('p1acts'),d1);const acts=$('acts');if(acts)mv(acts.parentElement,d1);
+  /* 2교시 · 3교시 */
+  const c5=slot('C5'); const p2c=$('p2c'); if(p2c)mv(par(p2c,'.row'),c5); const d2=document.createElement('details');d2.className='v8more';d2.innerHTML='<summary>문항 처방 · 자료 검색</summary>';c5.appendChild(d2);mv($('p2sel'),d2);
+  const c6=slot('C6'); const v6=$('v6p3'); const p3=$('p3sel'); if(p3){mv(p3,c6);} mv($('cpost'),c6);
+  /* 기록 */
+  const r1=slot('R1'); const pr=$('praise'); if(pr){const l=document.createElement('label');l.className='v8lab';l.textContent='칭찬 한마디 — 머리가 아니라 방법을';r1.appendChild(l);mv(pr,r1);const old=par(pr,'div');}
+  const gr=$('growth'); if(gr){const l=document.createElement('label');l.className='v8lab';l.textContent='자란 것 한 줄 — 학부모에게 보여요';r1.appendChild(l);mv(gr,r1);}
+  const wh=document.querySelector('#v8frame ~ #cbody table.wh, #cbody table.wh'); const d3=document.createElement('details');d3.className='v8more';d3.innerHTML='<summary>오늘 본 모습 6가지 · 관찰 · 다음 단계</summary>';r1.appendChild(d3); if(wh)mv(wh.parentElement,d3); if(v6)mv(v6,d3);
+  const r2=slot('R2'); ['hw','hwdue','nexts'].forEach(id=>{const e=$(id);if(e)mv(par(e,'.row')||e,r2);});
+  const cc=$('chipcat'); if(cc){const z=par(cc,'.zone');mv(z||cc,slot('R3'));const h3=z&&z.querySelector(':scope>h3');if(h3){const bt=h3.querySelector('button');if(bt){bt.textContent='오늘 기록으로 초안 만들기';z.insertBefore(bt,h3.nextSibling);}h3.classList.add('v8hide');}}
+  const nx=$('nexts'); if(nx)nx.placeholder='다음 수업 전략 한 줄';
+  mv($('memo'),slot('R4')); mv($('memoFb'),slot('R4'));
+  /* 시험 */
+  const wq=$('wq'); if(wq){const z=par(wq,'.zone');if(z){const h3=z.querySelector(':scope>h3');if(h3)h3.classList.add('v8hide');mv(z,slot('E2'));}}
+  const sw=[...document.querySelectorAll('#cbody .savebar button')].find(b=>/오답 기록 저장/.test(b.textContent)); if(sw)mv(sw,slot('E2'));
+  e1(); e3();
+  /* 그 밖에 */
+  const X=slot('X'); mv($('bookMini'),X); mv($('cmethod'),X); const sg=document.createElement('div');sg.innerHTML='<button type="button" class="btn" onclick="openSugang()">＋ 강좌 배정하기 — 수강신청 열기 ↗</button>';X.appendChild(sg);
+  /* 목표 */
+  mv($('goalBox'),slot('G1'));
+  const fb=$('firstBlk'); if(fb){const p=document.querySelector('#v8frame [data-v8pane="goal"]');p.insertBefore(fb,p.children[1]);}
+  /* 빈 껍데기 숨김: 원래 ①~⑤ 칸 */
+  document.querySelectorAll('#cbody .ccard>.zone').forEach(z=>{if(!z.querySelector('input,textarea,select,button,table'))z.classList.add('v8hide');});
+  const sv=document.querySelector('#cbody .savebar'); if(sv&&!sv.querySelector('.v8auto')){const t=document.createElement('span');t.className='mini v8auto';t.style.cssText='margin-left:auto;color:#1E4D3B';t.textContent='칸을 벗어나면 자동 저장 · 학생 화면·주간 리포트에 반영';sv.appendChild(t);}
+  devClean(f);
+  /* 머리 정리: 시기 띠·며칠·4주 줄은 맨 위 한 줄과 숙제 칸으로 */
+  hideHead();
+  V8.user=false; V8.tab=hw?'class':phaseTab(); show(V8.tab); line(); ordSync();
+ }
+ /* 화면 문구에서 사양 코드 괄호 걷기 — 「(M02-e · self_evaluations)」「(정본 FROG 18·ACL 7)」 등. 글자만 바꾸고 요소는 그대로 */
+ const DEVRX=/\s*[\(（][^()（）]*?(M0\d|FROG|ACL|KLA|KAR|self_evaluations|정본|C\d+ |C\d+·|F\d{2,}|스펙|prosrc|v\d\.\d)[^()（）]*[\)）]/g;
+ function devClean(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null);const L=[];let n;while((n=w.nextNode()))L.push(n);L.forEach(x=>{const s=x.nodeValue;if(s&&DEVRX.test(s)){DEVRX.lastIndex=0;x.nodeValue=s.replace(DEVRX,'');}DEVRX.lastIndex=0;});
+  root.querySelectorAll('.mini,small,span').forEach(e=>{if(e.children.length===0&&/^\s*[\(（]?\s*(M0\d[-a-z]*|정본[^가-힣]*)\s*[\)）]?\s*$/.test(e.textContent))e.classList.add('v8hide');});}
+ function hideHead(){const h=$('chead');if(!h)return;const box=h.firstElementChild;if(!box)return;[...box.children].forEach((c,i)=>{if(i>0)c.classList.add('v8hide');});}
+ function show(k){V8.tab=k;document.querySelectorAll('#v8frame [data-v8pane]').forEach(p=>p.classList.toggle('v8hide',p.dataset.v8pane!==k));document.querySelectorAll('#v8tabs [data-v8tab]').forEach(b=>b.classList.toggle('on',b.dataset.v8tab===k));const o=$('v8order');if(o)o.classList.toggle('v8hide',k!=='class');}
+ function reqState(){const okP=!!(typeof P1!=='undefined'&&P1);const okL=!!(($('lesson')||{value:''}).value||'').trim();return {okP,okL,n:(okP?1:0)+(okL?1:0)};}
+ function line(){const L=$('v8line');if(!L)return;const ex=(window.CARD_CTX&&CARD_CTX.exam)||null;const r=reqState();
+  const gb=$('goalBox');const gt=gb?(gb.textContent||'').replace(/\s+/g,' ').trim():'';const gm=gt.match(/학생 목표\s*[—-]\s*([^·]+·[^·]+·[^·]+)/);
+  const H=(ex?'<span class="ph" data-v8go="G2">'+ex.phase+'</span><span data-v8go="G2">'+ex.name+' '+(ex.dd>=0?'D-'+ex.dd:'+'+(-ex.dd))+'</span>':'<span data-v8go="G2">평시 · 다음 시험 없음</span>')
+   +'<span class="gl" data-v8go="G1">'+(gm?'목표 '+gm[1].trim():'목표 ▸')+'</span><span class="rq'+(r.n===2?' ok':'')+'" data-v8go="'+(r.okP?'C4':'C2')+'">꼭 쓸 칸 '+r.n+'/2</span>';
+  if(L.dataset.h!==H){L.dataset.h=H;L.innerHTML=H;}
+  const d=$('v8dot');if(d){const v=String(2-r.n);if(d.textContent!==v)d.textContent=v;d.style.display=r.n===2?'none':'';}}
+ function ordSync(){const r=reqState();const att=!!(document.querySelector('#cattbox .on, #cattbox button.sel'))||!!(typeof ATT!=='undefined'&&ATT[COACH_SID]);
+  const done={'출석':att,'숙제':r.okP,'1교시':r.okL,'2교시':!!(($('p2c')||{value:''}).value||'').trim(),'3교시':!!(($('p3c')||{value:''}).value||'').trim()};
+  const now=ORD.find(o=>!done[o]);document.querySelectorAll('#v8order [data-ord]').forEach(b=>{const o=b.dataset.ord;b.classList.toggle('done',!!done[o]);b.classList.toggle('now',o===now);});}
+ async function e1(){const s=slot('E1');if(!s)return;s.innerHTML='<div class="mini">오답 기록 불러오는 중…</div>';try{const r=await rpc('gz_card_weak_areas',{p_sid:COACH_SID,p_recent:0});const rk=(r&&r.rank)||[];
+  s.innerHTML=rk.length?('<div class="mini">많이 틀린 유형 — '+rk.slice(0,3).map(x=>'<b>'+esc(x.label||x.area||x.name||x.code||'')+'</b> '+(x.wrong!=null?x.wrong+'문항':(x.n!=null?x.n+'문항':''))).join(' · ')+'</div><div class="mini">학생 화면 「직전 약점 5문항」이 이 유형으로 문제를 뽑아요</div>'):'<div class="mini">아직 오답 기록이 없어요 — 「틀린 문제 짚기」에서 함정 이름을 붙이면 여기에 쌓여요</div>';}catch(e){s.innerHTML='<div class="mini">오답 기록을 불러오지 못했어요</div>';}}
+ async function e3(){const s=slot('E3');if(!s)return;s.innerHTML='<div class="mini">양식 결과 불러오는 중…</div>';try{const r=await rpc('gz2_form_gf1_card',{p_sid:COACH_SID});
+  if(!r||!r.has){s.innerHTML='<div class="mini">성적·목표 양식이 아직 안 들어왔어요 — 사진을 올리면 판독해 여기에 보여요</div>';return;}
+  const sc=(r.scores||[]).map(x=>esc(x.subject)+' '+(x.score==null?'—':x.score)+(x.prev_goal!=null?' (목표 '+x.prev_goal+')':'')).join(' · ');
+  s.innerHTML='<div class="mini">'+(sc||'점수 없음')+'</div><div class="mini">오답 '+r.wrong_n+'문항'+(r.frog_pending?(' · 기출 연결 대기 '+r.frog_pending):'')+' · '+(r.check_n?('<b style="color:#9A3412">확인할 칸 '+r.check_n+'</b>'):'확인할 칸 없음')+' · 상태 '+esc(r.status||'')+'</div>'+(r.lesson?'<div class="mini">학생이 쓴 「배운 것」: '+esc(r.lesson)+'</div>':'');}catch(e){s.innerHTML='<div class="mini">양식 결과를 불러오지 못했어요</div>';}}
+ /* 늦게 끼워지는 칸(목표·첫 수업·오늘 수업 종류)과 머리를 제자리로 */
+ const MO=new MutationObserver(()=>{const f=$('v8frame');if(!f)return;const g=$('goalBox');if(g&&g.parentElement!==slot('G1'))mv(g,slot('G1'));const t=$('tyLine');if(t&&t.parentElement!==slot('C1'))mv(t,slot('C1'));const fb=$('firstBlk');if(fb&&fb.parentElement!==f.querySelector('[data-v8pane="goal"]')){const p=f.querySelector('[data-v8pane="goal"]');p.insertBefore(fb,p.children[1]);}hideHead();line();clearTimeout(V8.dc);V8.dc=setTimeout(()=>devClean(f),200);});
+ function watch(){const sb=$('slidebody');if(sb&&!sb.dataset.v8mo){sb.dataset.v8mo='1';MO.observe(sb,{childList:true,subtree:true});}}
+ document.addEventListener('click',e=>{const t=e.target;if(!t.closest||!t.closest('#v8frame'))return;
+  const q=t.closest('[data-v8q]');if(q){$('v8q'+q.dataset.v8q).classList.toggle('v8hide');return;}
+  const tb=t.closest('[data-v8tab]');if(tb){V8.user=true;show(tb.dataset.v8tab);return;}
+  const go=t.closest('[data-v8go]');if(go){const b=$('v8b'+go.dataset.v8go);if(b){show(b.closest('[data-v8pane]').dataset.v8pane);b.scrollIntoView({behavior:'smooth',block:'start'});}return;}
+  const od=t.closest('[data-ord]');if(od&&od.closest('#v8order')){const b=document.querySelector('#v8frame [data-v8box][data-ord-key="'+od.dataset.ord+'"]')||$('v8b'+(BOX.find(x=>x.ord===od.dataset.ord)||{}).no);if(b)b.scrollIntoView({behavior:'smooth',block:'start'});return;}
+  setTimeout(()=>{line();ordSync();},50);});
+ document.addEventListener('input',e=>{if(e.target.closest&&e.target.closest('#v8frame')){line();ordSync();}});
+ /* 시기 정보가 늦게 오면(머리 적재 후) 사용자가 탭을 누르지 않은 한 시기 탭으로 */
+ const _lc=window.loadCardCtx; if(typeof _lc==='function'){window.loadCardCtx=async function(){const r=await _lc.apply(this,arguments);try{if($('v8frame')&&!V8.user&&window.COACH_TY!=='학습관리')show(phaseTab());hideHead();line();}catch(_){}return r;};}
+ const _rb=window.renderCoachBody; if(typeof _rb==='function'){window.renderCoachBody=function(){const r=_rb.apply(this,arguments);try{build();watch();}catch(e){console.warn('v8 build',e);}return r;};}
+ window.v8build=build;
+})();
+</script>
+
 </body>
 </html>
