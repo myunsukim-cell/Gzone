@@ -1820,5 +1820,118 @@ setTimeout(()=>{try{const sid=+sessionStorage.getItem('gz_open_coach');if(sid){s
 })();
 
 </script>
+<script>
+/* [seq 333 · 2026-10-07] 수업 카드 「학생 목표」 칸 — 학생 화면 「내 목표」(v16)의 그릇을 직원이 채운다.
+   읽기 gz2_goal_get(p_sid) · 등록/고치기 gz2_goal_set(p) · 중간 목표 달성 gz2_milestone_mark(p) · 닫기 gz2_goal_close(p) — 전부 직원 로그인 세션(공개키 실행 불가).
+   이 칸의 입력은 카드 초안·「저장 안 됨」 표시와 섞이지 않게 이벤트를 칸 안에서 멈춘다. */
+(function(){
+  const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const md=s=>{s=String(s||'');return s?(+s.slice(5,7))+'/'+(+s.slice(8,10)):'';};
+  const ST={open:false,edit:false,g:null,sid:null,msg:'',ok:true};
+  const C='background:#fff;border:1.5px solid #4B3F8F;border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:12.5px';
+  const IN='font:inherit;font-size:12.5px;padding:4px 6px;border:1px solid #c8c3b3;border-radius:6px';
+  const BT='font:inherit;font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid #c8c3b3;background:#fff;cursor:pointer';
+  const BP='font:inherit;font-size:12px;padding:4px 10px;border-radius:6px;border:0;background:#4B3F8F;color:#fff;cursor:pointer';
+  function host(){return document.getElementById('cprog')||document.getElementById('chead');}
+  function tv(g){const t=(g&&g.target)||{};return (t.value!=null&&t.value!=='')?(t.metric==='점수'?t.value+'점':t.metric==='등급'?t.value+'등급':t.value):(t.metric==='재발0'?'같은 실수 0':'');}
+  function head(g){
+    if(!g||!g.ok)return '🎯 학생 목표 — 불러오지 못함';
+    if(!g.has_goal)return '🎯 학생 목표 — <b>아직 없음</b> <span style="color:#6b6b7b">· 학생 화면 「내 목표」에 「아직 목표가 없어요」로 떠요'+(g.strength?' · 힘 눈금 '+g.strength:'')+'</span>';
+    return '🎯 학생 목표 — <b>'+E(g.title)+(tv(g)?' · '+E(tv(g)):'')+' · '+md(g.due)+'</b> <span style="color:#6b6b7b">· 중간 목표 '+(g.ms_done||0)+'/'+(g.ms_total||0)+(g.dday!=null?' · D-'+g.dday:'')+(g.strength?' · 힘 눈금 '+g.strength:'')+'</span>';
+  }
+  function form(g){
+    const has=g&&g.has_goal, t=(has&&g.target)||{}, ms=(has&&g.milestones)||[], pc=((has&&g.pace)||{}).pace||'표준';
+    let rows='';for(let i=0;i<5;i++){const m=ms[i]||{};rows+='<div style="display:flex;gap:4px;margin-top:3px"><input data-ms="t" data-i="'+i+'" placeholder="중간 목표 '+(i+1)+(i===0?' (예: 서술형 이유 쓰기 2문항 연속)':'')+'" value="'+E(m.title||m.name||'')+'" style="'+IN+';flex:1"><input data-ms="d" data-i="'+i+'" type="date" value="'+E(m.due||'')+'" style="'+IN+'">'+(m.done?'<span style="font-size:11px;color:#2E7D4F;align-self:center">✓이룸</span>':'')+'</div>';}
+    return '<div style="margin-top:8px;border-top:1px dashed #d8d4c8;padding-top:8px;display:grid;gap:5px">'
+      +'<label>목표 제목 <input id="gfT" value="'+E(has?g.title:'')+'" placeholder="예: 2학기 기말 국어" style="'+IN+';width:100%"></label>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">지표 <select id="gfM" style="'+IN+'">'+['점수','등급','재발0'].map(x=>'<option'+(t.metric===x?' selected':'')+'>'+x+'</option>').join('')+'</select>'
+      +' 값 <input id="gfV" value="'+E(t.value!=null?t.value:'')+'" placeholder="85" style="'+IN+';width:70px">'
+      +' 기한 <input id="gfD" type="date" value="'+E(has?g.due:'')+'" style="'+IN+'">'
+      +' 속도 <select id="gfP" style="'+IN+'">'+['표준','집중','몰입'].map(x=>'<option'+(pc===x?' selected':'')+'>'+x+'</option>').join('')+'</select></div>'
+      +'<label>이유 한 줄 <span style="color:#6b6b7b;font-size:11px">(학생이 자기 화면에서 고칠 수 있어요)</span> <input id="gfR" value="'+E(has?(g.reason||''):'')+'" placeholder="예: 시험이 두렵지 않게" maxlength="120" style="'+IN+';width:100%"></label>'
+      +'<div>중간 목표 <span style="color:#6b6b7b;font-size:11px">(최대 5 · 빈 줄은 저장 안 함 · 이룬 표시는 그대로 유지)</span>'+rows+'</div>'
+      +'<div><button data-g="save" style="'+BP+'">'+(has?'고친 내용 저장':'목표 등록')+'</button> <button data-g="cancel" style="'+BT+'">취소</button></div></div>';
+  }
+  function body(g){
+    if(!g||!g.ok)return '';
+    let h='';
+    if(g.has_goal){
+      const ms=g.milestones||[];
+      h+='<div style="margin-top:6px">'+(ms.length?ms.map((m,i)=>'<label style="display:flex;gap:6px;align-items:center;padding:3px 0;border-top:1px solid #f0ede4"><input type="checkbox" data-mark="'+i+'"'+(m.done?' checked':'')+'><span style="flex:1">'+E(m.title||m.name||('중간 목표 '+(i+1)))+(m.due?' <span style="color:#6b6b7b">· '+md(m.due)+'까지</span>':'')+(m.why?' <span style="color:#4B3F8F">· 학생 이유: '+E(m.why)+'</span>':'')+'</span>'+(m.done_at?'<span style="font-size:11px;color:#2E7D4F">'+md(m.done_at)+' 이룸</span>':'')+'</label>').join(''):'<div style="color:#6b6b7b">중간 목표가 없어요 — 「고치기」에서 넣어 주세요</div>')+'</div>'
+        +'<div style="margin-top:4px;color:#6b6b7b">이유: '+(g.reason?'「'+E(g.reason)+'」':'아직 없음')+(g.pace&&g.pace.pace?' · 속도 '+E(g.pace.pace):'')+(g.set_by?' · 등록 '+E(g.set_by):'')+'</div>'
+        +'<div style="margin-top:6px;display:flex;gap:5px;flex-wrap:wrap;align-items:center"><button data-g="edit" style="'+BT+'">고치기</button>'
+        +'<span style="margin-left:6px;color:#6b6b7b">목표 닫기 →</span><input id="gfG" placeholder="자란 것 한 줄(선택)" style="'+IN+';width:170px">'
+        +['이룸','못 이룸','기한 조정'].map(x=>'<button data-close="'+x+'" style="'+BT+'">'+x+'</button>').join('')+'</div>'
+        +'<div style="font-size:11px;color:#6b6b7b;margin-top:3px">닫으면 학생 「내 기록」 힘 눈금이 1칸 오르고, 새 목표를 등록할 수 있어요</div>';
+    }else{
+      h+='<div style="margin-top:6px"><button data-g="edit" style="'+BP+'">목표 등록</button> <span style="color:#6b6b7b">점수 · 기한 · 이유 세 가지 + 중간 목표</span></div>'
+        +((g.week_goals||[]).length?'<div style="margin-top:4px;color:#6b6b7b">참고 — 학생이 지난 수업 후 적은 다음 주 목표: '+g.week_goals.filter(Boolean).map(E).join(' · ')+'</div>':'');
+    }
+    if(ST.edit)h+=form(g);
+    return h;
+  }
+  function draw(box){
+    box.innerHTML='<div style="display:flex;gap:8px;align-items:center;cursor:pointer" data-g="tog"><span style="flex:1">'+head(ST.g)+'</span><span style="font-size:11px;color:#4B3F8F">'+(ST.open?'접기 ▴':'열기 ▾')+'</span></div>'
+      +(ST.open?body(ST.g):'')
+      +(ST.msg?'<div style="margin-top:5px;font-size:12px;color:'+(ST.ok?'#2E7D4F':'#A4472F')+'">'+E(ST.msg)+'</div>':'');
+  }
+  async function load(box){
+    try{ST.g=await rpc('gz2_goal_get',{p_sid:ST.sid});}catch(e){ST.g={ok:false};ST.msg='불러오기 실패: '+e.message;ST.ok=false;}
+    draw(box);
+  }
+  function say(box,ok,m){ST.ok=ok;ST.msg=m;draw(box);}
+  async function act(box,e){
+    const t=e.target, sid=ST.sid;
+    if(t.closest('[data-g="tog"]')){ST.open=!ST.open;ST.msg='';draw(box);return;}
+    if(t.dataset.g==='edit'){ST.open=true;ST.edit=true;ST.msg='';draw(box);return;}
+    if(t.dataset.g==='cancel'){ST.edit=false;ST.msg='';draw(box);return;}
+    if(t.dataset.g==='save'){
+      const v=id=>(document.getElementById(id)||{}).value||'';
+      const title=v('gfT').trim(), metric=v('gfM'), val=v('gfV').trim(), due=v('gfD'), pace=v('gfP'), reason=v('gfR').trim();
+      if(!title||!due){say(box,false,'목표 제목과 기한은 꼭 넣어 주세요');return;}
+      if(metric!=='재발0'&&!val){say(box,false,metric+' 값을 넣어 주세요');return;}
+      const old=(ST.g&&ST.g.has_goal&&ST.g.milestones)||[], ms=[];
+      for(let i=0;i<5;i++){const mt=(box.querySelector('[data-ms="t"][data-i="'+i+'"]')||{}).value||'', mdue=(box.querySelector('[data-ms="d"][data-i="'+i+'"]')||{}).value||'';
+        if(!mt.trim())continue; const o=old[i]||{}; ms.push(Object.assign({},o,{title:mt.trim(),due:mdue||null,done:!!o.done}));}
+      const me=window.__GZ_ME||{}, target={metric:metric};
+      if(val)target.value=isNaN(+val)?val:+val;
+      t.disabled=true;
+      try{const r=await rpc('gz2_goal_set',{p:{sid:sid,title:title,target:target,due:due,pace:{pace:pace},reason:reason||null,milestones:ms,by:(me.name||me.nick||'직원')}});
+        if(r&&r.ok){ST.g=r.readback||ST.g;ST.edit=false;say(box,true,'저장했어요 — 학생 화면 「내 목표」에 바로 떠요');}else{t.disabled=false;say(box,false,(r&&r.reason)||'저장 실패');}}
+      catch(err){t.disabled=false;say(box,false,'저장 실패: '+err.message);}
+      return;}
+    if(t.dataset.mark!=null){
+      const i=+t.dataset.mark, done=t.checked; t.disabled=true;
+      try{const r=await rpc('gz2_milestone_mark',{p:{sid:sid,ms_idx:i,done:done}});
+        if(r&&r.ok){ST.g=r.readback||ST.g;say(box,true,done?'중간 목표를 이뤘다고 표시했어요 — 학생 화면에 불이 켜져요':'표시를 되돌렸어요');}else say(box,false,(r&&r.reason)||'표시 실패');}
+      catch(err){say(box,false,'표시 실패: '+err.message);}
+      return;}
+    if(t.dataset.close){
+      const res=t.dataset.close, grown=((document.getElementById('gfG')||{}).value||'').trim();
+      if(!confirm('목표를 「'+res+'」(으)로 닫을까요? 닫으면 되돌릴 수 없고, 새 목표를 등록하게 돼요.'))return;
+      t.disabled=true;
+      try{const r=await rpc('gz2_goal_close',{p:{sid:sid,result:res,grown:grown||null}});
+        if(r&&r.ok){ST.edit=false;await load(box);say(box,true,'목표를 닫았어요 · 힘 눈금 '+(r.strength||0)+' — 다음 목표를 등록해 주세요');}else{t.disabled=false;say(box,false,(r&&r.reason)||'닫기 실패');}}
+      catch(err){t.disabled=false;say(box,false,'닫기 실패: '+err.message);}
+      return;}
+  }
+  function mount(){
+    const h=host(); if(!h||!COACH_SID)return;
+    let box=document.getElementById('goalBox');
+    if(box&&box.dataset.sid===String(COACH_SID)&&box.previousElementSibling===h)return;
+    if(box)box.remove();
+    ST.sid=COACH_SID; ST.open=false; ST.edit=false; ST.msg=''; ST.g=null;
+    box=document.createElement('div'); box.id='goalBox'; box.dataset.sid=String(COACH_SID); box.style.cssText=C;
+    ['input','change','focusin','keydown'].forEach(ev=>box.addEventListener(ev,e=>e.stopPropagation()));
+    box.addEventListener('click',e=>{e.stopPropagation();act(box,e);});
+    h.insertAdjacentElement('afterend',box);
+    box.innerHTML='<span style="color:#6b6b7b">🎯 학생 목표 불러오는 중…</span>';
+    load(box);
+  }
+  window.gzGoalMount=mount;
+  const _oc=window.openCoach; if(typeof _oc==='function'){window.openCoach=function(){const r=_oc.apply(this,arguments);setTimeout(mount,250);return r;};}
+  const _rb=window.renderCoachBody; if(typeof _rb==='function'){window.renderCoachBody=function(){const r=_rb.apply(this,arguments);setTimeout(mount,250);return r;};}
+})();
+</script>
 </body>
 </html>
