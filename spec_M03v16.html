@@ -133,6 +133,7 @@ const R=[
 ['G6',-1,'머리 — 🔥 연속 공부일','study_plan_day(세션·완료)','gz2_student_read 등록문','읽기','열쇠','ok'],
 ['G7',-1,'지금 공부 작품·강좌 판정','progress_plan · lectures · lecture_contents · study_plan','gz_student_focus(sid) — gz2_student_read 경유','읽기','열쇠','ok'],
 ['G8',-1,'국존 공부 지도(첫 로그인·로고)','기기 브라우저 저장소 gz16map:&lt;sid&gt; — DB 아님','—','—','—','nw'],
+['G9',-1,'열람·걸음 기록(파일럿 지표 — 주 활성일·복귀 간격)','student_view_log(open 5분 중복 제외 · step 하루 1회) → v_student_active_day · v_pilot_week · v_pilot_compare','gz2_student_visit(p_sid,p_k,{ua | step})','쓰기','열쇠 · 관문 iframe·수업 카드 미리보기(v=staff) 기록 제외','nw','seq 335'],
 ['0-1',0,'목표 블록 — 목표·점수·기한·중간 목표 n/m·다음 중간 목표·D-day','progress_plan curriculum=목표 (label·due_date·goal_target·pace_choice·milestones·goal_note)','gz2_goal_get(p_sid,p_k)','읽기','열쇠','nw','직원이 수업 카드 「학생 목표」 칸에서 등록하면 뜸(10/07 목표 행 0건)'],
 ['0-2',0,'이유 한 줄 저장','progress_plan.goal_note · milestones[].why','gz2_goal_student_write(p_sid,p_k,{reason | ms_idx,why})','쓰기(학생은 이유만)','열쇠','nw'],
 ['0-3',0,'목표 등록 · 중간 목표 달성 · 목표 닫기(힘 눈금 +1)','progress_plan','gz2_goal_set · gz2_milestone_mark · gz2_goal_close (p jsonb)','쓰기','직원만 — 공개키 실행 불가','nw','수업 카드 「학생 목표」 칸(gmap2_shell · seq 333)'],
