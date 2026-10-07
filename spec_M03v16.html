@@ -107,7 +107,7 @@ ol.li{margin:0;padding-left:20px}ol.li li{margin:4px 0}
 <ol class="li">
 <li><b>조치 완료(10/07 seq 332) — 미니 퀴즈 제출</b>: 옛 <code>gz_quiz_submit(p)</code>는 열쇠 검사 없음 · 계획 번호 미전달 시 1번 · 정답·유형을 화면 값 그대로 저장했다. 열쇠 통로 <code>gz2_quiz_submit(p_sid,p_k,p)</code>로 교체 — 정답·유형은 <code>questions</code> 원본으로 서버 채점, 계획은 내 계획만, 날짜는 서버 날짜. 옛 함수 공개 실행권 회수. 옛 함수로 쌓인 기록은 0건(실측)이라 정리할 자료 없음.</li>
 <li><b>조치 완료(10/07 seq 333) — 목표 등록 화면</b>: 수업 카드(gmap2_shell) 출결·진도 칸 아래에 「🎯 학생 목표」 칸을 붙였다. 등록·고치기(제목·지표·값·기한·속도·이유·중간 목표 5) <code>gz2_goal_set</code> · 중간 목표 체크 <code>gz2_milestone_mark</code> · 닫기(이룸/못 이룸/기한 조정 + 자란 것 한 줄) <code>gz2_goal_close</code>. 직원 로그인 세션만 실행. 목표 행은 아직 0건이라 선생님이 등록해야 학생 화면 「내 목표」가 채워진다.</li>
-<li><b>고정 글자</b>: 내 기록 「아직 안 한 영역(문학 ✓ · 문법 ✓ · 독서·화작 아직)」 칩이 실데이터가 아니다. 같은 성격의 「과제 3주 연속」·「고전소설 2편」은 10/07 시공에서 제거했다.</li>
+<li><b>조치 완료(10/07 seq 339) — 고정 글자</b>: 내 기록 「아직 안 한 영역」 칩(문학 ✓ · 문법 ✓ · 독서·화작 아직)을 실기록 <code>gz2_student_areas</code>(완료한 단원·오답 문항 → 작품 영역, 매체는 문법에 합침)로 교체. 기록이 없는 학생은 칸을 띄우지 않는다(재원 284명 중 기록 있음 5명). 앞서 「과제 3주 연속」·「고전소설 2편」도 제거.</li>
 <li><b>약점 5문항 지문</b>: <code>klea_h</code>에 지문 본문이 없어 「윗글」을 요구하는 문두는 선지만으로 푼다(화면에 문구로 밝힘).</li>
 <li><b>조회 횟수</b>: 한 번 열 때 <code>gz2_student_read</code> 약 55회(실측). 묶음 조회 함수로 줄이는 것은 개발사 발주 전 정리 항목.</li>
 <li><b>교체 이력</b>: M03-tab 골격 개정 v1(4범주: 내 위치·내 공부·수업·내 기록) → 본 장으로 교체. M03-study·M03-rec·M03-pos의 카드 내용은 본 장의 걸음 1·2·6·9 안에 그대로 이어진다(카드 아이디 불변).</li>
@@ -172,7 +172,7 @@ const R=[
 ['8-3',8,'점수 보기(단추 뒤) — 성적 그래프 · 학원 테스트 · 모의고사','student_tests (LT·RT·MK·SE·KED…)','gz2_student_read','읽기','열쇠','ok'],
 ['9-1',9,'나아진 것 1(최근 한 주 vs 그 전 주)','coaching_logs.hw_status · frog_entries(overcome_at · log_date)','gz2_improved → improved · hold','읽기','열쇠','nw'],
 ['9-2',9,'힘 눈금(닫은 목표 수) → 다음 목표 세우기','progress_plan 목표 status=closed 수','gz2_goal_get → strength','읽기','열쇠','nw'],
-['9-3',9,'이번 달 요약 · 약점 지도 · 점수와 출석 · 최근 주','study_plan_day · attendance_logs · coaching_logs · v_wrong_note · v_student_entrance_summary · exam_results · student_reports','gz2_student_read','읽기','열쇠','ok','영역 칩 고정 글자 — ④-3'],
+['9-3',9,'이번 달 요약 · 약점 지도 · 점수와 출석 · 최근 주 · 영역별 기록','study_plan_day · attendance_logs · coaching_logs · v_wrong_note · v_student_entrance_summary · exam_results · student_reports / 영역: study_plan_day·frog_entries → works.domain','gz2_student_read · gz2_student_areas(p_sid,p_k)','읽기','열쇠','ok','영역 칩 고정 글자 제거(10/07 seq 339) — 기록 없으면 칸 미표시'],
 ['9-4',9,'최근 수업 기록','coaching_logs(period_acts · praise_note · homework)','gz2_student_acts(p_sid,p_k)','읽기','열쇠(본문 검사)','ok'],
 ['9-5',9,'주별 공부 기록 · 선생님 평가 전체','coaching_logs','gz2_student_read','읽기','열쇠','ok']];
 const STL={ok:'가동',nw:'신규 10/07',wt:'대기',bad:'결함'};

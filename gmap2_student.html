@@ -961,11 +961,7 @@ function gzBuildRec(){
         +'<span style="color:#7a5a3a;font-size:10.5px">5번 맞히면 배지</span>'
         +'<span style="margin-left:auto;font-size:12px;letter-spacing:2px">'+('●'.repeat(Number(wmap[0].ov)||0))+('○'.repeat(5-(Number(wmap[0].ov)||0)))+' <b style="font-size:10.5px">'+wmap[0].ov+'/5</b></span></div>'):'')
       +(clinic?('<div style="font-size:11.5px;background:#fffef8;border:1px solid #eee3c9;border-radius:7px;padding:6px 9px;margin-top:5px">💊 나에게 필요한 공부법 — '+clinic.slice(0,64)+'</div>'):'')
-      +'<div style="font-size:11.5px;font-weight:800;margin:8px 0 3px">아직 안 한 영역</div>'
-      +'<span style="display:inline-block;font-size:10.5px;border-radius:11px;padding:3px 10px;margin-right:3px;font-weight:800;background:#eef6f0;border:1.5px solid #2c6e49;color:#2c6e49">문학 ✓</span>'
-      +'<span style="display:inline-block;font-size:10.5px;border-radius:11px;padding:3px 10px;margin-right:3px;font-weight:800;background:#eef6f0;border:1.5px solid #2c6e49;color:#2c6e49">문법 ✓</span>'
-      +'<span style="display:inline-block;font-size:10.5px;border-radius:11px;padding:3px 10px;margin-right:3px;font-weight:800;background:#fff;border:1.5px dashed #b9b19a;color:#98a49e">독서 — 아직</span>'
-      +'<span style="display:inline-block;font-size:10.5px;border-radius:11px;padding:3px 10px;font-weight:800;background:#fff;border:1.5px dashed #b9b19a;color:#98a49e">화법·작문 — 아직</span>'
+      +'<div id="gzAreaChips"></div>'  /* [seq 339] 고정 글자(문학✓·문법✓·독서·화작 아직) 제거 → gz2_student_areas 실기록 */
       +'<div style="display:flex;gap:10px;align-items:center;margin-top:9px"><span style="font-size:11.5px;font-weight:800">공부법 지킴(이번 주)</span>'
       +'<div style="flex:1;height:10px;background:#f2efe6;border-radius:6px;position:relative"><div style="position:absolute;left:0;top:0;bottom:0;width:'+Math.min(wkchk*20,100)+'%;background:#2c6e49;border-radius:6px"></div></div><b style="font-size:12px">'+wkchk+'회</b></div>'
       +'<div style="display:flex;gap:5px;align-items:center;margin-top:8px;flex-wrap:wrap"><span style="font-size:10.5px;color:#98a49e;font-weight:800;margin-right:2px">배지</span>'
@@ -1001,6 +997,16 @@ function gzBuildRec(){
       +(bk||'<div class="mini">기록이 쌓이면 여기에</div>')
       +'<div class="mini" style="margin-top:4px">한 줄 = 수업 + 자습 + 받은 것 · 한 주를 누르면 교시 기록과 선생님 평가가 펼쳐져요</div></div>';
     document.getElementById('gzRecBody').innerHTML=H;
+    (function(){var t=gzSK(); if(!t.sid)return;
+      fetch(BASE+'/rest/v1/rpc/gz2_student_areas',{method:'POST',headers:{apikey:AK,Authorization:'Bearer '+AK,'Content-Type':'application/json'},body:JSON.stringify({p_sid:t.sid,p_k:t.k})})
+      .then(function(r){return r.json();}).then(function(j){var el=document.getElementById('gzAreaChips'); if(!el)return;
+        if(!j||!j.ok||!j.any){el.innerHTML='';return;}
+        el.innerHTML='<div style="font-size:11.5px;font-weight:800;margin:8px 0 3px">영역별 기록 <span style="font-weight:400;color:#98a49e">공부한 단원·틀린 문항 기준</span></div>'
+          +(j.areas||[]).map(function(a){var on=a.studied>0, w=a.wrong>0;
+            var txt=a.label+(on?' ✓ 공부 '+a.studied:'')+(w?' · 오답 '+a.wrong+(a.overcome?'(극복 '+a.overcome+')':''):'')+(!on&&!w?' — 아직 기록 없음':'');
+            var st=on?'background:#eef6f0;border:1.5px solid #2c6e49;color:#2c6e49':(w?'background:#fdf7f6;border:1.5px solid #e6c3bd;color:#a33':'background:#fff;border:1.5px dashed #b9b19a;color:#98a49e');
+            return '<span style="display:inline-block;font-size:10.5px;border-radius:11px;padding:3px 10px;margin:0 3px 3px 0;font-weight:800;'+st+'">'+txt+'</span>';}).join('');
+      }).catch(function(){});})();
 
     q("select to_char(log_date,'MM/DD') d, teacher_memo from coaching_logs where student_id="+sid()+" and coalesce(teacher_memo,'')<>'' order by log_date desc limit 1").then(function(mm){
       if(!mm||!mm[0])return; var host=document.getElementById('gzRecBody'); if(!host)return;
