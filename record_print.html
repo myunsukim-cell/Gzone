@@ -24,7 +24,7 @@ td.c{font-size:11.5px;color:#2b3a33}td.c i{font-style:normal;display:inline-bloc
 <script>
 const U='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,get Authorization(){return 'Bearer '+(gzJwt()||K);},'Content-Type':'application/json'};
 function gzJwt(){var w=window;for(var i=0;i<6;i++){try{if(w.__GZ_JWT)return w.__GZ_JWT;var s=JSON.parse(w.sessionStorage.getItem('gz_session')||'null');if(s&&s.jwt)return s.jwt;}catch(_){}if(!w.parent||w.parent===w)break;w=w.parent;}return null;}
-/* [seq 365 · 2026-10-08 국존] 학생 기록(하루·한 주·한 달·1년) 반 단위 일괄 인쇄 — 발급 gz2_p6_issue_staff · 명단 gz2_p6_roster · 양식 lib/p6set-0.6.js */
+/* [seq 365 · 2026-10-08 국존] 학생 기록(하루·한 주·한 달·1년) 반 단위 일괄 인쇄 — 발급 gz2_p6_issue_staff · 명단 gz2_p6_roster · 양식 lib/p6set-0.7.js */
 const $=id=>document.getElementById(id), DWN=['','월','화','수','목','금','토','일'];
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 async function rpc(fn,b){const r=await fetch(U+fn,{method:'POST',headers:H,body:JSON.stringify(b||{})});return r.json();}
@@ -49,7 +49,7 @@ function draw(){const L=shown();$('fPer').textContent=per();$('fN7w').style.disp
   $('tb').innerHTML=L.length?L.map(x=>'<tr><td><input type="checkbox" data-id="'+x.id+'" '+(OFF[x.id]?'':'checked')+'></td><td><b>'+esc(x.name)+'</b></td><td>'+esc(x.school||'')+' '+esc(x.grade||'')+'</td><td>'+esc(x.teacher||'')+'</td><td class="c">'+(clsTxt(x)||'<span class="sub">수업 없음</span>')+'</td></tr>').join(''):'<tr><td colspan="5" class="sub">조건에 맞는 학생이 없어요</td></tr>';
   const n=L.filter(x=>!OFF[x.id]).length, pages=n*(F==='P6D'&&$('fN7').checked?7:1);
   $('go').disabled=!n;$('go').textContent='🖨 '+n+'명 인쇄 ('+pages+'장)';$('all').checked=L.every(x=>!OFF[x.id]);}
-function loadLib(){if(window.P6&&window.qrcode)return Promise.resolve();return Promise.all(['lib/qrcode-generator-1.4.4.js','lib/p6set-0.6.js'].map(u=>new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=()=>no(u);document.head.appendChild(s);})));}
+function loadLib(){if(window.P6&&window.qrcode)return Promise.resolve();return Promise.all(['lib/qrcode-generator-1.4.4.js','lib/p6set-0.7.js'].map(u=>new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=()=>no(u);document.head.appendChild(s);})));}
 function msg(t,e){$('msg').className=e?'e':'';$('msg').textContent=t;}
 async function go(){const L=shown().filter(x=>!OFF[x.id]);if(!L.length)return;$('go').disabled=true;
   try{await loadLib();}catch(e){msg('양식 도구를 불러오지 못했어요 — 새로고침',1);$('go').disabled=false;return;}
