@@ -2358,9 +2358,10 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
       V.line[PS[f]]=cur&&cur.photos?((cur.tally&&cur.tally.summary)||('사진 '+cur.photos+'장 ✓')):'아직 안 올림'; if(cur&&cur.photos)V.done[PS[f]]=1;
       var nx=f==='P6W'?'다음 주':f==='P6D'?'내일':f==='P6M'?'다음 달':'';
       box.innerHTML='<div class="bx ppx"><div class="t">'+PN[f]+' 기록 <span class="d">A4 한 장 · 목표와 시험 일정이 미리 찍혀요</span></div>'
-        +'<div class="bs"><button class="b p" data-pprint="'+f+'">🖨 '+PN[f]+' 양식 인쇄</button>'+(nx?'<button class="b" data-pprint="'+f+'" data-pnext="1">'+nx+' 것 인쇄</button>':'')+'</div>'
+        +'<div class="bs"><button class="b p" data-pprint="'+f+'">🖨 '+PN[f]+' 인쇄</button><button class="b" data-ppdf="'+f+'">📥 '+PN[f]+' PDF · 태블릿</button></div>'
+        +(nx?'<div class="bs"><button class="b" data-pprint="'+f+'" data-pnext="1">🖨 '+nx+' 것 인쇄</button><button class="b" data-ppdf="'+f+'" data-pnext="1">📥 '+nx+' 것 PDF</button></div>':'')
         +'<div class="pcamw">'+(PPREV[f].length>1?'<select class="inp psel" id="ppW_'+f+'">'+PPREV[f].map(function(x,i){return '<option value="'+i+'">'+x+' 기록</option>';}).join('')+'</select>':'')
-        +'<label class="b pcam">📷 사진 올리기<input type="file" accept="image/*" multiple hidden data-pup="'+f+'"></label></div>'
+        +'<label class="b pcam">📷 사진 · PDF 올리기<input type="file" accept="image/*,application/pdf,.pdf" multiple hidden data-pup="'+f+'"></label></div>'
         +'<div class="msg'+(PP.msg[f]&&PP.msg[f][1]?' e':'')+'" id="ppM_'+f+'">'+esc(PP.msg[f]?PP.msg[f][0]:'')+'</div>'
         +(rows.length?'<div class="plist">'+rows.slice(0,6).map(function(r){var tl=r.tally||null;
             return '<div class="row"><span class="x">'+esc(per(r))+'<small>'+(r.photos?('사진 '+r.photos+'장 · '+(tl&&tl.summary?'<b>'+esc(tl.summary)+'</b>':(tl&&tl.error?'집계 못 함 — '+esc(tl.error):'집계 기다리는 중'))):'인쇄만 함 · 사진 아직')+'</small></span></div>';}).join('')+'</div>':'<div class="d" style="margin-top:6px">아직 인쇄하거나 올린 기록이 없어요</div>')
@@ -2382,6 +2383,30 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
       ppMsg(f,'새 창에서 「인쇄」를 누르세요 · '+d.token); drawPaper();
     }).catch(function(){ppMsg(f,'양식 도구를 불러오지 못했어요 — 새로고침 후 다시',1); if(w)w.close();});
   }
+  /* [seq 365 · 2026-10-08 국존] 태블릿용 PDF 받기 — 양식을 A4 PDF 파일로 내려받아 태블릿 필기 앱에 쓰고, 그 PDF를 그대로 올리면 판독 */
+  function loadJs(list){return Promise.all(list.map(function(u){if(document.querySelector('script[data-lib="'+u+'"]'))return Promise.resolve();return new Promise(function(ok,no){var sc=document.createElement('script');sc.src=u;sc.setAttribute('data-lib',u);sc.onload=ok;sc.onerror=function(){sc.remove();no(u);};document.head.appendChild(sc);});}));}
+  function pdfP(f,next){ ppMsg(f,'PDF 만드는 중…');
+    Promise.all([loadLib().then(function(){return loadJs(['lib/html2canvas-1.4.1.min.js','lib/jspdf-2.5.1.umd.min.js']);}),rpc('gz2_p6_issue',tok({p:{form:f,day:offDay(f,false,next)}}))]).then(function(R){var d=R[1];
+      if(!d||!d.ok)throw (d&&d.reason)||'양식을 만들지 못했어요';
+      d.printed=md(kday(0)); var html=window.P6.html(f,d), qq=window.qrcode(0,'M'); qq.addData(d.token); qq.make();
+      html=html.replace('<div id="qr"></div>','<div id="qr">'+qq.createSvgTag({cellSize:3,margin:1,scalable:true})+'</div>').replace('<div class="bar">','<div class="bar" style="display:none">');
+      var fr=document.createElement('iframe'); fr.style.cssText='position:fixed;left:-3000px;top:0;width:820px;height:1200px;border:0'; document.body.appendChild(fr);
+      fr.contentDocument.open(); fr.contentDocument.write(html); fr.contentDocument.close();
+      return new Promise(function(ok){setTimeout(ok,500);}).then(function(){var pg=fr.contentDocument.querySelector('.pg');
+        return window.html2canvas(pg,{scale:2.6,backgroundColor:'#ffffff',useCORS:true,logging:false});}).then(function(cv){
+        var pdf=new window.jspdf.jsPDF({orientation:'p',unit:'mm',format:'a4',compress:true}); pdf.addImage(cv.toDataURL('image/jpeg',0.9),'JPEG',0,0,210,297);
+        pdf.setProperties({title:'국존 '+PN[f]+' 기록 '+d.token}); var nm='국존_'+({P6D:'하루',P6W:'한주',P6M:'한달',P6Y:'1년'})[f]+'기록_'+String(d.start).replace(/-/g,'')+'_'+(d.name||'')+'.pdf';
+        pdf.save(nm); fr.remove(); ppMsg(f,'PDF 받음 ✓ '+nm+' — 태블릿 필기 앱에서 쓰고, 다 쓰면 그 PDF를 「📷 사진 · PDF 올리기」로'); drawPaper();});
+    }).catch(function(e){ppMsg(f,typeof e==='string'?e:'PDF를 만들지 못했어요 — 「인쇄」에서 PDF로 저장을 쓰세요',1);});
+  }
+  /* PDF 올리기 — 쪽마다 그림으로 바꿔 사진과 같은 판독 */
+  function pdfCanvases(file){return loadJs(['lib/pdf-3.11.174.min.js']).then(function(){var L=window.pdfjsLib; L.GlobalWorkerOptions.workerSrc='lib/pdf.worker-3.11.174.min.js';
+      return file.arrayBuffer().then(function(buf){return L.getDocument({data:buf}).promise;}).then(function(doc){var out=[],seq=Promise.resolve();
+        for(var n=1;n<=Math.min(doc.numPages,8);n++)(function(n){seq=seq.then(function(){return doc.getPage(n);}).then(function(pg){var v0=pg.getViewport({scale:1}),sc=1700/Math.min(v0.width,v0.height)*Math.min(1,1),v=pg.getViewport({scale:Math.min(4,1650/v0.width)});
+          var c=document.createElement('canvas');c.width=Math.round(v.width);c.height=Math.round(v.height);var cx=c.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,c.width,c.height);
+          return pg.render({canvasContext:cx,viewport:v}).promise.then(function(){out.push(c);});});})(n);
+        return seq.then(function(){return out;});});});}
+  function toCanvases(file){ if(/pdf$/i.test(file.type||'')||/\.pdf$/i.test(file.name||''))return pdfCanvases(file); return toCanvas(file).then(function(c){return [c];}); }
   function toCanvas(file){return new Promise(function(ok,no){var im=new Image(),u=URL.createObjectURL(file);im.onload=function(){var M=2200,sc=Math.min(1,M/Math.max(im.width,im.height)),c=document.createElement('canvas');
       c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c);};
     im.onerror=function(){no('사진을 읽지 못했어요');}; im.src=u;});}
@@ -2392,8 +2417,9 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   /* [seq 365 ③] 사진 한 장씩: QR로 어느 종이인지 → 귀퉁이로 펴서 ☐ 판독 → 올리기 + 집계 저장 */
   function uploadP(f,files){ if(PP.busy)return; PP.busy=1; var sel=$('ppW_'+f), back=sel&&sel.value==='1', done=0, last=null, notes=[];
     ppMsg(f,'사진 읽는 중… (0/'+files.length+')');
-    var seq=loadRead().catch(function(){return null;});
-    files.forEach(function(file,i){ seq=seq.then(function(){return toCanvas(file);}).then(function(c){
+    var CS=[], seq=loadRead().catch(function(){return null;});
+    files.forEach(function(file){ seq=seq.then(function(){return toCanvases(file);}).then(function(cs){CS=CS.concat(cs);}); });
+    seq=seq.then(function(){ var s2=Promise.resolve(); CS.forEach(function(c,i){ s2=s2.then(function(){
         var R=null; try{R=window.P6R?window.P6R.read(c):null;}catch(e){R=null;}
         var tk=R&&R.token&&/^GZ(P6[DWMY])-S(\d+)-(\d{8})-/.exec(R.token), form=f, day=offDay(f,back);
         if(tk){ if(+tk[2]!==+S)throw '다른 학생의 기록이에요 (QR '+R.token+')'; form=tk[1]; day=tk[3].slice(0,4)+'-'+tk[3].slice(4,6)+'-'+tk[3].slice(6,8); }
@@ -2406,14 +2432,14 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
             return rpc('gz2_p6_upload_url',tok({p:{token:is.token,n:i+1,ext:'jpg',md5:h}})).then(function(u){ if(u&&u.dup){notes.push('같은 사진은 건너뜀');return null;} if(!u||!u.ok)throw (u&&u.reason)||'올리기 주소 실패';
               return fetch(u.url,{method:'PUT',headers:{'Content-Type':'image/jpeg'},body:b}).then(function(x){ if(!x.ok)throw '사진 저장 실패 '+x.status;
                 return rpc('gz2_p6_attach',tok({p:{token:is.token,photos:[{path:u.path,md5:h,tally:tl}],by:STAFFV?'교사':'학생'}}));});});});}).then(function(a){
-            if(a&&a.ok&&a.added){done++; last=tl;} ppMsg(f,'사진 읽는 중… ('+(i+1)+'/'+files.length+')');});
-        });}); });
+            if(a&&a.ok&&a.added){done++; last=tl;} ppMsg(f,'읽는 중… ('+(i+1)+'/'+CS.length+')');});
+        });}); }); return s2; });
     seq.then(function(){ PP.busy=0;
-        var m=done?('사진 '+done+'장 올렸어요 ✓'+(last?(last.error?' · 집계 못 함: '+last.error:' · '+last.summary):'')):'새로 올린 사진이 없어요';
+        var m=done?(done+'장 올렸어요 ✓'+(last?(last.error?' · 집계 못 함: '+last.error:' · '+last.summary):'')):'새로 올린 사진이 없어요';
         ppMsg(f,m+(notes.length?' ('+notes.filter(function(x,i,a){return a.indexOf(x)===i;}).join(' · ')+')':''),!!(last&&last.error)); drawPaper(); })
       .catch(function(e){ PP.busy=0; ppMsg(f,String(e||'올리지 못했어요'),1); drawPaper(); });
   }
-  root.addEventListener('click',function(e){var b=e.target.closest('[data-pprint]'); if(b){printP(b.dataset.pprint,!!b.dataset.pnext);}});
+  root.addEventListener('click',function(e){var b=e.target.closest('[data-pprint]'); if(b){printP(b.dataset.pprint,!!b.dataset.pnext);return;} var p=e.target.closest('[data-ppdf]'); if(p){pdfP(p.dataset.ppdf,!!p.dataset.pnext);}});
   root.addEventListener('change',function(e){var i=e.target.closest('[data-pup]'); if(i&&i.files&&i.files.length){uploadP(i.dataset.pup,[].slice.call(i.files,0,8)); i.value='';}});
 
   /* ── 0 목표 블록 ── */
