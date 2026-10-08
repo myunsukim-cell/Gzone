@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><script>/* [2026-10-02] 학생 링크 토큰 공통 — 학습 기록은 gz2_plan_day_add(토큰·계획 소유·날짜 검사) 경유 */
+<head><script>/* [seq 348 · 2026-10-08] D-day 공통 — 지난 시험 「D--2」 방지 */window.gzDD=function(n,k){if(n==null||n===''||isNaN(+n))return 'D-–';n=+n;if(n>0)return 'D-'+n;if(n===0)return 'D-day';return k==='goal'?('기한 '+(-n)+'일 지남'):('끝난 지 '+(-n)+'일');};</script><script>/* [2026-10-02] 학생 링크 토큰 공통 — 학습 기록은 gz2_plan_day_add(토큰·계획 소유·날짜 검사) 경유 */
 window.gzSK=function(){var s=(location.search||'')+(window.__DESK_Q||'');return {sid:+((s.match(/[?&]sid=(\d+)/)||[])[1]||0),k:((s.match(/[?&]k=([a-f0-9]{32})/)||[])[1]||'')};};
 window.gzPlanAdd=function(row){var t=gzSK(),PK0='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';return fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_plan_day_add',{method:'POST',headers:{apikey:PK0,Authorization:'Bearer '+PK0,'Content-Type':'application/json'},body:JSON.stringify({p_sid:t.sid,p_k:t.k,p_row:row})}).then(function(r){return r.json();}).then(function(j){return new Response(JSON.stringify(j),{status:(j&&j.ok)?201:400});});};
 </script><!-- 2.0 학생 페이지 · 보안 교체 gz_read→gz2_student_read 2026-09-05 #5911 결재① --><script>
@@ -323,7 +323,7 @@ fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_week_review',{me
  var gs=gl.length?gl.map(function(x,i){return (i+1)+'. '+e(x);}).join('<br>')+(G.plan?'<br><span style="color:#8a8577">계획: '+e(G.plan)+'</span>':''):'지난 「수업 후」에 적은 목표가 없어요';
  var st=S.planned?('계획 '+S.planned+'개 중 <b>'+S.done+'개 완료</b> · 공부한 날 '+S.days+'일'):'이번 주 공부 계획이 아직 없어요';
  var wr=(W.new7?'새 오답 <b>'+W.new7+'개</b>':'새 오답 없음')+' · 아직 못 넘은 오답 '+(W.open||0)+'개'+((W.top||[]).length?'<br>자주 틀린 유형: '+W.top.map(function(t){return e(t.t)+' '+t.n;}).join(' · '):'');
- var ex=X?('<b>'+e(X.name)+' D-'+X.dd+'</b> ('+md(X.date)+')'+((X.scope||[]).length?'<br>범위: '+X.scope.map(e).join(' · '):'<br>범위가 아직 등록되지 않았어요')):'잡힌 시험이 없어요';
+ var ex=X?('<b>'+e(X.name)+' '+gzDD(X.dd)+'</b> ('+md(X.date)+')'+((X.scope||[]).length?'<br>범위: '+X.scope.map(e).join(' · '):'<br>범위가 아직 등록되지 않았어요')):'잡힌 시험이 없어요';
  box.innerHTML='<details open style="background:#fff;border:1px solid #e3d6b8;border-radius:8px;padding:6px 10px"><summary style="cursor:pointer;font-weight:800;color:#1E4D3B">지난 한 주 (목표를 정하기 전에 보세요)</summary>'
   +row('지난 수업 과제',hw)+row('내가 세운 목표',gs)+row('이번 주 공부',st)+row('오답',wr)+row('다음 시험',ex)+'</details>';
  if(gl.length){var b=document.getElementById('wrPick');b.style.display='inline-block';b.onclick=function(){var l=document.getElementById('wrPickList');
@@ -699,7 +699,7 @@ function gzBuildPos(){
         +'<span style="margin-left:auto;font-size:11px;color:#98a49e">'+(p.from||'').slice(5).replace('-','/')+' ~ '+(p.to||'').slice(5).replace('-','/')+' · '+wk+'주</span></div>'
         +'<div style="font-size:12px;color:#50605a;margin-top:3px">'+(p.title||'')+'</div></div>'; }
       var L='';
-      L+=gzCard('남은 날','<b style="font-family:\'Noto Serif KR\',serif;font-size:27px;font-weight:900">D-'+(ex.d_day||'–')+'</b> <span style="font-size:12px;color:#50605a">'+((ex.exam_start||'').slice(5).replace('-','/'))+' 시작 · <b>'+(pl.weeks_left||'–')+'주</b> 남았어요</span>');
+      L+=gzCard('남은 날','<b style="font-family:\'Noto Serif KR\',serif;font-size:27px;font-weight:900">'+gzDD(ex.d_day)+'</b> <span style="font-size:12px;color:#50605a">'+((ex.exam_start||'').slice(5).replace('-','/'))+' 시작 · <b>'+(pl.weeks_left||'–')+'주</b> 남았어요</span>');
       L+=gzCard('시험 범위', ex.scope_n>0?('<b>'+ex.scope_n+'건 등록</b>'):'<span style="color:#8a8264">아직 <b>안 나왔어요</b><br><span style="font-size:11px">학교가 범위를 알려 주면 여기에 떠요</span></span>');
       /* 이동 3 원본 철거(2026-08-27 · S5 사양 「내 위치 9코너를 4코너로 줄였다 — 기록성 3코너(지나온 기록·내 점수 이력·보낸 것)는 내 기록으로 이동·흡수」).
          수신처 실재 확인 후 제거: 지나온 기록→내 기록 학습 통장(coaching_logs 주차) · 내 점수→점수와 출석(exam_results·입학진단) · 선생님이 보낸 것→통장 행 리포트열(student_reports 주차). */
@@ -775,7 +775,7 @@ function gzBuildStudy(){
           +'</div></div>';
       });
       H+='<div style="'+C+'"><div style="'+CAP+'">시험일까지 진도</div>'
-        +'<div class="mini">'+(ex.phase||'')+' · '+(ex.exam_block||'')+' · 시험 '+((ex.exam_date||'').slice(5).replace('-','/'))+' (D-'+(ex.d_day||'–')+')</div>'
+        +'<div class="mini">'+(ex.phase||'')+' · '+(ex.exam_block||'')+' · 시험 '+((ex.exam_date||'').slice(5).replace('-','/'))+' ('+gzDD(ex.d_day)+')</div>'
         +rows+'<div class="mini">■ 한 것 · │ 지금 여기 — 세부 계획선은 면 정의 확정 후 붙어요</div>'
         +'<button onclick="if(window.gzOpenLesson)gzOpenLesson();" style="width:100%;background:#12211a;color:#fff;border:0;border-radius:9px;padding:12px;font-size:14.5px;font-weight:800;margin-top:8px;cursor:pointer">이어서 공부하기 →</button>'
         +'<div class="mini" style="text-align:center;margin-top:4px">아래 학습 페이지의 이어서 하던 면으로 내려가요</div></div>';
@@ -1064,7 +1064,7 @@ function gzBuildBanner(){
       d.innerHTML='<b>📝 시험이 끝났어요</b><span style="color:#b9d3c6">틀린 것이 남는 것 — 복기는 내 기록에서</span>'
         +'<button onclick="document.getElementById(\'gzRec\').scrollIntoView({behavior:\'smooth\'})" style="margin-left:auto;background:#e8b93c;color:#12211a;border:0;border-radius:8px;padding:7px 13px;font-weight:800;cursor:pointer">내 기록으로 →</button>';
     }else{
-      d.innerHTML='<b>🔔 '+(ex.exam_title||'학교 시험')+'</b><b style="color:#e8b93c">D-'+ex.dd+'</b><span style="color:#b9d3c6">'+ex.d+(ex.sc?' · 범위 '+ex.sc:' · 범위 등록 전')+'</span>'
+      d.innerHTML='<b>🔔 '+(ex.exam_title||'학교 시험')+'</b><b style="color:#e8b93c">'+gzDD(ex.dd)+'</b><span style="color:#b9d3c6">'+ex.d+(ex.sc?' · 범위 '+ex.sc:' · 범위 등록 전')+'</span>'
         +'<button onclick="document.getElementById(\'gzStudy\').scrollIntoView({behavior:\'smooth\'})" style="margin-left:auto;background:#e8b93c;color:#12211a;border:0;border-radius:8px;padding:7px 13px;font-weight:800;cursor:pointer">시험 준비로 →</button>';
     }
     host.insertAdjacentElement('afterend',d);
@@ -1303,7 +1303,7 @@ gzLoadFill();
     /* 시험범위 */
     q("SELECT exam_name AS nm, to_char(exam_date,'MM/DD') AS dt, (exam_date-CURRENT_DATE)::int AS dd FROM school_exams WHERE school='"+String(s.sch).replace(/'/g,"''")+"' AND grade='"+String(s.gr).replace(/'/g,"''")+"' AND exam_date>=CURRENT_DATE ORDER BY exam_date LIMIT 1")
     .then(function(e){
-      if(e[0]) set('gzExamCap', s.sch+' '+s.gr+' · '+e[0].nm+' '+e[0].dt+' · D-'+e[0].dd);
+      if(e[0]) set('gzExamCap', s.sch+' '+s.gr+' · '+e[0].nm+' '+e[0].dt+' · '+gzDD(e[0].dd));
       else set('gzExamCap', s.sch+' '+s.gr+' · 예정된 시험 일정 없음(시험기록 등록 시 표시)');
     });
   });
@@ -1733,7 +1733,7 @@ gzLoadFill();
    +" ORDER BY se.exam_date LIMIT 1")
   .then(function(r){
     var b=document.getElementById('pbExam'); if(!b) return;
-    if(r.length && r[0].dd!=null){ b.textContent='내신 준비 D-'+r[0].dd; }
+    if(r.length && r[0].dd!=null){ b.textContent='내신 준비 '+gzDD(r[0].dd); }
     else { b.textContent='내신 준비'; b.title='다음 시험일이 아직 등록되지 않았습니다'; }
   });
 
@@ -2263,7 +2263,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     if(ph==='내신 직전'||ph==='시험 복기')V.done[6]=1; if(ph==='시험 복기')V.done[7]=1;
     V.line={0:goal.has_goal?((goal.title||'')+(goal.due?' · '+md(goal.due):'')):'선생님과 정해요',
       1:V.pend.length?('남은 과제 '+V.pend.length+'개'):'남은 과제 없음',3:V.skipped.length?('알린 날 '+V.skipped.length+'번'):'',
-      4:V.cls?('오늘 '+V.cls):'',5:V.cls?(V.line5?V.line5:('오늘 '+V.cls)):'',6:V.exam?((V.exam.name||'시험')+' D-'+V.exam.dd):'시험 일정 미등록',9:goal.strength?('힘 눈금 '+goal.strength):''};
+      4:V.cls?('오늘 '+V.cls):'',5:V.cls?(V.line5?V.line5:('오늘 '+V.cls)):'',6:V.exam?((V.exam.name||'시험')+' '+gzDD(V.exam.dd)):'시험 일정 미등록',9:goal.strength?('힘 눈금 '+goal.strength):''};
     var st=(ctx.student||{}); $('v16name').textContent=st.name||'';
     paintInfo();
     if(!V.user){V.tab=ST[V.now].a;V.sel=V.now;}
@@ -2274,7 +2274,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   function tyName(t){return t==='학습관리'?'과제관리 시간':(t==='확인보완'||t==='정규'?'확인보완 시간':(t?t+' 시간':''));}function tyBand(){var b=$('v16ty');if(!b)return;var t,c,a,m;if(V.day==='class'){t=V.ty;a='오늘 '+V.cls+' · '+tyName(t);}else if(V.nx){t=V.nx.st;a='다음 수업 '+V.nx.d+' '+V.nx.tm+' · '+tyName(t);}else{b.style.display='none';return;}c=t==='학습관리'?'hw':'reg';m=t==='학습관리'?'과제를 확인하고 못 한 것을 채우는 시간 · 수업 1교시':'선생님과 본수업 · 수업 1·2·3교시';b.style.display='';b.className='vty '+c+(V.day==='class'?'':' nx');b.innerHTML='<b>'+esc(a)+'</b><small>'+m+'</small>';}
   function paintInfo(){tyBand();
     var sk=($('gzStreak')||{}).textContent||'';
-    var ex=V.exam?(String(V.exam.name||'시험').replace(/^\d{4}\s*/,'')+' D-'+V.exam.dd):'';
+    var ex=V.exam?(String(V.exam.name||'시험').replace(/^\d{4}\s*/,'')+' '+gzDD(V.exam.dd)):'';
     $('v16info').innerHTML=(V.day==='class'?'오늘 '+esc(tyName(V.ty)||'수업')+' '+esc(V.cls):'수업 없는 날')+(sk&&sk!=='–'&&sk!=='0'?' · 🔥 '+esc(sk)+'일':'')+(ex?'<br>'+esc(ex):'');
   }
   setTimeout(paintInfo,3500); setTimeout(paintInfo,8000);
@@ -2294,7 +2294,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     var nx=g.next?(g.next.title||g.next.name||g.next.what||''):'';
     var tv=(t.value!=null?t.value:(t.score!=null?t.score:''))+(t.metric==='점수'&&(t.value!=null||t.score!=null)?'점':(t.metric==='등급'?'등급':''));
     box.innerHTML='<div class="goal"><div class="k">'+(/^자동 초안/.test(g.set_by||'')?'내 목표 · 초안 — 다음 수업에서 선생님과 확인해요':'내 목표 · 내가 정함')+'</div><div class="tt">'+esc(g.title||'')+(tv?' · '+esc(tv):'')+(g.due?' · '+md(g.due):'')+'</div>'
-      +'<div class="m">중간 목표 '+(g.ms_done||0)+'/'+(g.ms_total||0)+' '+dots+(nx?' · 다음 중간 목표: '+esc(nx):'')+(g.dday!=null?' · D-'+g.dday:'')+'</div></div>'
+      +'<div class="m">중간 목표 '+(g.ms_done||0)+'/'+(g.ms_total||0)+' '+dots+(nx?' · 다음 중간 목표: '+esc(nx):'')+(g.dday!=null?' · '+gzDD(g.dday,'goal'):'')+'</div></div>'
       +'<div class="bx" style="margin-top:8px"><div class="t">이유 한 줄</div><div id="v16why">'+(g.reason?'「'+esc(g.reason)+'」':'<span class="d">아직 적지 않았어요</span>')+'</div>'
       +(g.pace&&g.pace.pace?'<div class="d">속도 — '+esc(g.pace.pace)+(g.set_by?(/^자동 초안/.test(g.set_by)?' · 선생님 확인 전 초안':' · '+esc(g.set_by)+' 선생님과 정함'):'')+'</div>':'')
       +'<div class="bs"><input class="inp" id="v16whyIn" maxlength="120" placeholder="왜 이 목표인지 한 줄 (예: 시험이 두렵지 않게)" value="'+esc(g.reason||'')+'"><button class="b p" id="v16whySave">이유 저장</button></div><div class="msg" id="v16whyMsg"></div>'
@@ -2383,7 +2383,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   }
   function drawExam(){
     var e=V.exam, box=$('v16exam');
-    var h='<div class="bx">'+(e?'<div class="t">'+esc(e.name||'학교 시험')+' <span class="pill r">D-'+esc(e.dd)+' · '+md(e.date)+'</span></div>':'<div class="t">다음 학교 시험</div><div class="d">시험 일정이 등록되면 D-day와 범위가 여기에 떠요</div>')+'<div id="v16weak" class="d" style="margin-top:6px">우리 학교 기출 불러오는 중…</div></div>';
+    var h='<div class="bx">'+(e?'<div class="t">'+esc(e.name||'학교 시험')+' <span class="pill r">'+esc(gzDD(e.dd))+' · '+md(e.date)+'</span></div>':'<div class="t">다음 학교 시험</div><div class="d">시험 일정이 등록되면 D-day와 범위가 여기에 떠요</div>')+'<div id="v16weak" class="d" style="margin-top:6px">우리 학교 기출 불러오는 중…</div></div>';
     box.innerHTML=h;
     rpc('gz2_school_weak',tok()).then(function(r){var w=$('v16weak');if(!w)return;
       if(!r||!r.ok){w.textContent='우리 학교 기출을 불러오지 못했어요';return;}
