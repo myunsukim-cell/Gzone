@@ -26,16 +26,16 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','
  if((d.weak||[]).length)html+='<div class="card"><h2>지금 넘고 있는 과제</h2>'+(d.weak||[]).slice(0,3).map(w=>'<div class="row">'+w.rank+'. '+esc(w.label)+' <span class="d">오답 '+w.n+'</span></div>').join('')+'</div>';
  html+='<div class="card" id="inq"><h2>선생님께 문의</h2><div class="row" style="color:#8a8577">시간 변경·결석·상담 요청 등 — 보내면 담당 선생님 알림함에 바로 들어가고, 답변이 오면 여기에 표시됩니다</div><textarea id="inqT" rows="3" style="width:100%;padding:8px;border:1px solid #d8d4c8;border-radius:8px;font-family:inherit;font-size:14px;margin-top:6px" placeholder="예: 다음 주 화요일 수업을 목요일로 바꿀 수 있을까요?"></textarea><div style="margin-top:6px;display:flex;gap:8px;align-items:center"><button class="btn" id="inqB" style="padding:6px 14px">보내기</button><span id="inqR" class="m"></span></div>'+((d.inquiries||[]).length?'<div style="margin-top:8px">'+(d.inquiries||[]).map(q=>'<div class="row"><span class="d">'+String(q.at||'').slice(5,10)+'</span> '+esc(q.body)+(q.reply?'<div style="margin:3px 0 0 10px;color:#1E4D3B"><b>답변</b> '+esc(q.reply)+' <span class="d">'+String(q.replied_at||'').slice(5,10)+'</span></div>':'<span class="tag">'+esc(q.status==='대기'?'확인 대기':q.status)+'</span>')+'</div>').join('')+'</div>':'')+'</div>';
 app.innerHTML=html;
-/* [seq 330 · 2026-10-08] 이번 주 아이 플래너 요약 + 응원 한 줄(한 주 한 줄, 고쳐 쓰면 바뀜) */
+/* [seq 330 · 2026-10-08] 이번 주 아이 기록 요약 + 응원 한 줄(한 주 한 줄, 고쳐 쓰면 바뀜) */
 (async function(){try{var p=await (await fetch(U+'gz2_planner_get',{method:'POST',headers:H,body:JSON.stringify({p_sid:sid,p_k:k})})).json();if(!p||!p.ok)return;
  var W=p.week||[],Hb=p.habits||[],td=p.day,pass=0,tot=0;Hb.forEach(function(hb){W.forEach(function(w){if(w.day<=td){tot++;if(hb.checks&&hb.checks[w.day])pass++;}});});
  var u=p.up||{},nd=W.filter(function(w){return w.see;}).length;
- var c=document.createElement('div');c.className='card';c.innerHTML='<h2>이번 주 아이 플래너 <span class="tag">아이가 손으로 쓴 계획표</span></h2>'
+ var c=document.createElement('div');c.className='card';c.innerHTML='<h2>이번 주 아이 기록 <span class="tag">아이가 손으로 쓴 기록</span></h2>'
   +'<div class="row">목표 '+esc(u.goal||'선생님과 정하는 중')+(u.milestone?' → 중간 목표 '+esc(u.milestone):'')+'</div>'
   +(function(){/* [seq 365 ③] 종이 플래너 사진 집계 */var P=p.paper||{},w=P.week,m=P.month,DWN=['','월','화','수','목','금','토','일'];
-     var r='<div class="row">이번 주 계획표 '+(w&&w.photos?(w.summary?'<b>'+esc(w.summary)+'</b>':'사진 '+w.photos+'장 · 집계 못 함(다시 찍기)')+' <span class="d">'+String(w.uploaded_at||'').slice(5,10).replace('-','/')+' 올림</span>':'<span class="d">아직 사진이 없어요 — 일요일 밤에 한 장 찍어 올려요</span>')+'</div>';
+     var r='<div class="row">이번 주 기록 '+(w&&w.photos?(w.summary?'<b>'+esc(w.summary)+'</b>':'사진 '+w.photos+'장 · 집계 못 함(다시 찍기)')+' <span class="d">'+String(w.uploaded_at||'').slice(5,10).replace('-','/')+' 올림</span>':'<span class="d">아직 사진이 없어요 — 일요일 밤에 한 장 찍어 올려요</span>')+'</div>';
      if(w&&w.days)r+='<div class="row">'+w.days.map(function(x){return '<span style="display:inline-block;min-width:44px;text-align:center"><span class="d">'+DWN[x.dw]+'</span><br>'+(x.written?x.todo+'/'+x.written:'—')+'</span>';}).join('')+'</div>';
-     if(m&&m.photos)r+='<div class="row">이번 달 계획표 '+(m.summary?esc(m.summary):'집계 못 함')+'</div>';
+     if(m&&m.photos)r+='<div class="row">이번 달 기록 '+(m.summary?esc(m.summary):'집계 못 함')+'</div>';
      return r;})()
   +'<div class="row" style="margin-top:6px"><b>응원 한 줄</b> <span class="tag">아이 화면 「이번 주」에 떠요</span></div>'
   +'<div style="display:flex;gap:6px"><input id="chT" maxlength="120" style="flex:1;padding:7px;border:1px solid #ccc;border-radius:6px" placeholder="예: 이번 주도 매일 한 줄 쓴 것 멋져!" value="'+esc((p.cheer||{}).text||'')+'"><button id="chB" style="padding:7px 12px;border:0;border-radius:6px;background:#1E4D3B;color:#fff">보내기</button></div><div id="chR" style="font-size:12px;color:#1E4D3B;margin-top:4px">'+(p.cheer?'보냄 ✓':'')+'</div>';

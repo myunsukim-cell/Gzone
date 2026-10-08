@@ -2098,10 +2098,10 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   var S=SK.sid;
 
   /* [seq 365 · 2026-10-08 국존] 탭 = 종이 플래너 4장(오늘 P6D · 이번 주 P6W · 이번 달 P6M · 올해 P6Y). 종이에 쓰고 사진 올리면 여기서 모인다 */
-  var ACT=[{id:'day',v:'하루 계획표',n:'오늘',m:'오늘 계획표 한 장 — 할 일 ☐ · 시간표 · 돌아보기',c:'#2E7D4F',bg:'#E4EFE8'},
-   {id:'week',v:'한 주 계획표',n:'이번 주',m:'한 주 계획표 — 요일 할 일 ☐ · 습관 ☐ · 일요일 밤 사진 한 장',c:'#1D5C57',bg:'#E2F1EF'},
-   {id:'month',v:'한 달 계획표',n:'이번 달',m:'달력 계획표 — 시험 · 수업 · 중간 목표가 미리 찍혀요',c:'#4B3F8F',bg:'#ECE8F8'},
-   {id:'year',v:'1년 계획표',n:'올해',m:'1년 계획표 — 목표 · 시험 지도 · 자란 것',c:'#9A6B00',bg:'#FFF1C2'}];
+  var ACT=[{id:'day',v:'하루 기록',n:'오늘',m:'오늘 기록 한 장 — 할 일 ☐ · 시간표 · 돌아보기',c:'#2E7D4F',bg:'#E4EFE8'},
+   {id:'week',v:'한 주 기록',n:'이번 주',m:'한 주 기록 — 요일 할 일 ☐ · 습관 ☐ · 일요일 밤 사진 한 장',c:'#1D5C57',bg:'#E2F1EF'},
+   {id:'month',v:'한 달 기록',n:'이번 달',m:'달력 기록 — 시험 · 수업 · 중간 목표가 미리 찍혀요',c:'#4B3F8F',bg:'#ECE8F8'},
+   {id:'year',v:'1년 기록',n:'올해',m:'1년 기록 — 목표 · 시험 지도 · 자란 것',c:'#9A6B00',bg:'#FFF1C2'}];
   function actOf(id){for(var i=0;i<ACT.length;i++)if(ACT[i].id===id)return ACT[i];return ACT[0];}
   var ST=[
    {i:0,o:1,a:'year',v:'세우기',n:'목표와 중간 목표',val:'공감',why:'「국어는 감이 아니라 데이터」 — 목표는 점수·기한·이유 세 가지로. 기한은 우리 가족이 골라요.',app:'목표·중간 목표·D-day를 늘 맨 위에 둬요. 중간 목표를 이루면 불이 켜져요.',me:'선생님과 목표 한 줄, 이유 한 줄.'},
@@ -2114,12 +2114,12 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
    {i:7,o:2,a:'month',v:'다지기',n:'직전 약점 5문항',val:'열정',why:'「같은 3등급, 다른 원인」 — 마지막엔 내 약한 유형만.',app:'오답 습관으로 5문항 자동 추출.',me:'풀고 끝.'},
    {i:8,o:2,a:'year',v:'돌아보기',n:'시험 복기',val:'신뢰',why:'「해설로 끝나지 않습니다 — 스스로 고치는 여섯 단」',app:'넘어선 것 1·틀린 문항 먼저, 점수는 버튼.',me:'틀린 문항 다시 보고 「다음엔」 한 줄.'},
    {i:9,o:3,a:'year',v:'더 강해지기',n:'자란 것 · 다음 목표',val:'공감',why:'「두 달의 실제 궤적」 — 기록으로 자란 만큼 보고 다음 목표를 세워요.',app:'이번 달 나·약점 지도·주별 공부 기록·힘 눈금 → 다음 목표.',me:'다음 목표 한 줄 → 다시 세우기.'},
-   {i:10,o:0,a:'day',v:'계획표',n:'오늘 계획표',val:'신뢰',why:'「손으로 쓴 계획이 남아요」 — 온라인 칸은 잘 안 써서, 종이에 쓰고 사진으로 모아요.',app:'오늘 양식 인쇄(목표·일정이 미리 찍힘) · 사진 올리기 · 올린 기록.',me:'인쇄 → 쓰고 ☐ 체크 → 저녁에 사진.'},
-   {i:11,o:0,a:'week',v:'계획표',n:'이번 주 계획표',val:'신뢰',why:'「한 주가 한 장」 — 요일마다 할 일 3줄, 습관 3개.',app:'주간 양식 인쇄 · 사진 올리기 · ☐ 집계(할 일 완료율 · 습관 달성률).',me:'월요일에 인쇄 → 일요일 밤 사진 한 장.'},
+   {i:10,o:0,a:'day',v:'기록',n:'오늘 기록',val:'신뢰',why:'「손으로 쓴 계획이 남아요」 — 온라인 칸은 잘 안 써서, 종이에 쓰고 사진으로 모아요.',app:'오늘 양식 인쇄(목표·일정이 미리 찍힘) · 사진 올리기 · 올린 기록.',me:'인쇄 → 쓰고 ☐ 체크 → 저녁에 사진.'},
+   {i:11,o:0,a:'week',v:'기록',n:'이번 주 기록',val:'신뢰',why:'「한 주가 한 장」 — 요일마다 할 일 3줄, 습관 3개.',app:'주간 양식 인쇄 · 사진 올리기 · ☐ 집계(할 일 완료율 · 습관 달성률).',me:'월요일에 인쇄 → 일요일 밤 사진 한 장.'},
    {i:12,o:1,a:'week',v:'평가',n:'이번 주 선생님 평가',val:'사랑',why:'「수업은 혼자 못 채우는 자리를 채워요」',app:'주별 수업 기록과 선생님 평가.',me:'읽고 다음 주 첫 할 일에 반영.'},
-   {i:13,o:0,a:'month',v:'계획표',n:'이번 달 계획표',val:'최고',why:'「시험은 달력 위에서 준비해요」 — 내신 · 모의고사 · 수능 · 휴일이 미리 찍혀요.',app:'월간 달력 인쇄 · 사진 올리기 · 날마다 ☐ 집계.',me:'달 첫날 인쇄 → 했으면 ☐ → 달 끝에 사진.'},
+   {i:13,o:0,a:'month',v:'기록',n:'이번 달 기록',val:'최고',why:'「시험은 달력 위에서 준비해요」 — 내신 · 모의고사 · 수능 · 휴일이 미리 찍혀요.',app:'월간 달력 인쇄 · 사진 올리기 · 날마다 ☐ 집계.',me:'달 첫날 인쇄 → 했으면 ☐ → 달 끝에 사진.'},
    {i:14,o:3,a:'month',v:'자료',n:'강의 · 강좌 · 책장',val:'열정',why:'「강의 다음이 공부」',app:'강의 보기 · 내 강좌와 진도 · 새 강좌 · 신청 · 책장.',me:'이번 달 들을 강좌 고르기.'},
-   {i:15,o:0,a:'year',v:'계획표',n:'올해 계획표',val:'공감',why:'「1년 시험 지도」 — 3월~2월 시험과 방학이 한 장에.',app:'연간 양식 인쇄 · 달마다 목표 ☐.',me:'학기 초 인쇄 → 달마다 목표 한 줄.'}];
+   {i:15,o:0,a:'year',v:'기록',n:'올해 기록',val:'공감',why:'「1년 시험 지도」 — 3월~2월 시험과 방학이 한 장에.',app:'연간 양식 인쇄 · 달마다 목표 ☐.',me:'학기 초 인쇄 → 달마다 목표 한 줄.'}];
 
   /* 자리 배치표 — [걸음, 찾는 법]. 같은 걸음 안에서는 이 순서대로 놓인다. 기존 카드는 아이디로 찾아 그대로 옮긴다 */
   function card(sel){var e=document.querySelector(sel);return e?(e.closest('.card')||e.closest('.newlec')||e):null;}
@@ -2171,7 +2171,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   mk('v16hw','<div class="bx"><span class="d">오늘 과제 불러오는 중…</span></div>');
   mk('v16rev'); mk('v16skip'); mk('v16phase'); mk('v16exam'); mk('v16near');
   mk('v16up'); mk('v16yday'); mk('v16see'); mk('v16habit'); mk('v16week'); ['v16up','v16yday','v16see','v16habit','v16week'].forEach(function(id){$(id).hidden=true;});
-  ['P6D','P6W','P6M','P6Y'].forEach(function(f){mk('v16p_'+f,'<div class="bx"><span class="d">계획표 불러오는 중…</span></div>');}); mk('v16beyond'); mk('v16scoreBtn','<button class="b" id="v16scb">점수 보기 (성적 그래프 · 학원 테스트 · 모의고사)</button>'); mk('v16grow');
+  ['P6D','P6W','P6M','P6Y'].forEach(function(f){mk('v16p_'+f,'<div class="bx"><span class="d">기록 불러오는 중…</span></div>');}); mk('v16beyond'); mk('v16scoreBtn','<button class="b" id="v16scb">점수 보기 (성적 그래프 · 학원 테스트 · 모의고사)</button>'); mk('v16grow');
 
   function relocate(){
     PLAN.forEach(function(p,j){
@@ -2198,7 +2198,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     var hd=$('v16hd'); if(hd)root.style.setProperty('--hh',hd.offsetHeight+'px');
     var on=root.querySelector('.vchips .sch.sel'); if(on&&on.scrollIntoView)try{on.scrollIntoView({block:'nearest',inline:'center'});}catch(e){}
   }
-  function goTab(tab){V.tab=tab;var L=stepsOf(tab);var pick=V.user?L[0]:(L.filter(function(x){return x.i===V.now;})[0]||L[0]);/* [seq 365] 탭을 누르면 그 기간 계획표부터 */V.sel=pick?pick.i:null;render();if(V.sel!=null)visit(V.sel);window.scrollTo(0,0);}
+  function goTab(tab){V.tab=tab;var L=stepsOf(tab);var pick=V.user?L[0]:(L.filter(function(x){return x.i===V.now;})[0]||L[0]);/* [seq 365] 탭을 누르면 그 기간 기록부터 */V.sel=pick?pick.i:null;render();if(V.sel!=null)visit(V.sel);window.scrollTo(0,0);}
   function go(i){var x=ST[i];if(!x)return;if(x.day&&x.day!==V.day){/* 그날 걸음이 아니면 같은 탭 첫 걸음 */}V.tab=x.a;V.sel=i;render();window.scrollTo(0,0);}
   window.v16go=go;
   /* [seq 335] 학생 열람 기록 — 파일럿 지표(주 활성일·복귀 간격). 관문 안(iframe)·수업 카드 미리보기(v=staff)는 기록하지 않는다 */
@@ -2218,10 +2218,10 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 
   /* ── 국존 공부 지도(첫 로그인 · 로고) ── */
   var COLS=['처음 한 번','수업 없는 날(엿새)','수업일(하루)','시험 앞뒤'];
-  var MAP={day:[null,['오늘 계획표 · 오늘 과제','할 일 ☐ → 저녁에 사진',10],['수업 전 오늘 목표 → 1·2·3교시','수업 후 다음 주 목표',4],null],
-   week:[['이번 주 계획표 인쇄','월요일에 미리 인쇄',11],['요일 할 일 ☐ · 습관 ☐','일요일 밤 사진 한 장',11],['선생님 평가','이번 주 수업 기록',12],null],
-   month:[['이번 달 달력 계획표','시험 · 수업 · 중간 목표',13],['강의 · 강좌 · 책장','이번 달 들을 것',14],null,['시험 범위 → 직전 약점 5문항','범위가 나오면 자동',6]],
-   year:[['올해 목표 세우기','선생님과 점수 · 기한 · 이유',0],['올해 계획표','달마다 목표 한 줄',15],null,['시험 복기 → 다음 목표','자란 만큼 다시 세우기',8]]};
+  var MAP={day:[null,['오늘 기록 · 오늘 과제','할 일 ☐ → 저녁에 사진',10],['수업 전 오늘 목표 → 1·2·3교시','수업 후 다음 주 목표',4],null],
+   week:[['이번 주 기록 인쇄','월요일에 미리 인쇄',11],['요일 할 일 ☐ · 습관 ☐','일요일 밤 사진 한 장',11],['선생님 평가','이번 주 수업 기록',12],null],
+   month:[['이번 달 달력 기록','시험 · 수업 · 중간 목표',13],['강의 · 강좌 · 책장','이번 달 들을 것',14],null,['시험 범위 → 직전 약점 5문항','범위가 나오면 자동',6]],
+   year:[['올해 목표 세우기','선생님과 점수 · 기한 · 이유',0],['올해 기록','달마다 목표 한 줄',15],null,['시험 복기 → 다음 목표','자란 만큼 다시 세우기',8]]};
   var MS={first:true,sel:null};
   var MKEY='gz17map:'+S;
   function mapHtml(){
@@ -2237,7 +2237,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
       :'<div class="mnote">칸을 누르면 왜 하는지 · 앱이 뭘 해 주는지 · 내가 뭘 하는지가 나와요.</div>';
     return '<div class="in"><div style="display:flex;align-items:center;gap:8px"><span class="vlogo" style="display:inline-flex;align-items:center;justify-content:center">국존</span><span style="font-size:12.5px;color:var(--dm)">국존 공부 지도 · 사용 설명</span></div>'
       +'<h1>국존에서 공부하는 법이 곧 이 사이트를 쓰는 법이에요</h1>'
-      +'<div class="sub">위 4칸(오늘 · 이번 주 · 이번 달 · 올해)은 <b>계획표 4장(하루 · 한 주 · 한 달 · 1년)</b>과 같아요. 칸마다 양식을 인쇄해 손으로 쓰고 ☐에 체크한 뒤 <b>사진 한 장</b>을 올리면 여기에 모여요. 시험 · 모의고사 · 수능 · 휴일은 양식에 미리 찍혀요.</div>'
+      +'<div class="sub">위 4칸(오늘 · 이번 주 · 이번 달 · 올해)은 <b>기록 4장(하루 · 한 주 · 한 달 · 1년)</b>과 같아요. 칸마다 양식을 인쇄해 손으로 쓰고 ☐에 체크한 뒤 <b>사진 한 장</b>을 올리면 여기에 모여요. 시험 · 모의고사 · 수능 · 휴일은 양식에 미리 찍혀요.</div>'
       +g+ex+'<button class="mgo" data-mapclose="1">'+(MS.first?'시작하기':'닫기')+'</button><div class="mnote">다시 보려면 왼쪽 위 「국존」 로고를 누르세요.</div></div>';
   }
   function openMap(first){MS.first=!!first;MS.sel=null;var m=$('v16map');m.innerHTML=mapHtml();m.hidden=false;document.body.style.overflow='hidden';}
@@ -2349,7 +2349,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   function kday(n){var d=kst();d.setUTCDate(d.getUTCDate()+(n||0));return d.toISOString().slice(0,10);}
   function offDay(f,back,next){var t=kday(0);if(next)return f==='P6W'?kday(7):f==='P6M'?(function(){var d=new Date(t.slice(0,8)+'01T00:00:00Z');d.setUTCMonth(d.getUTCMonth()+1);return d.toISOString().slice(0,10);})():kday(1);
     if(!back)return t; return f==='P6D'?kday(-1):f==='P6W'?kday(-7):(function(){var d=new Date(t.slice(0,8)+'01T00:00:00Z');d.setUTCDate(0);return d.toISOString().slice(0,10);})();}
-  function loadLib(){ if(PP.lib)return PP.lib; PP.lib=Promise.all(['lib/qrcode-generator-1.4.4.js','lib/p6set-0.3.js'].map(function(u){return new Promise(function(ok,no){var sc=document.createElement('script');sc.src=u;sc.onload=ok;sc.onerror=function(){PP.lib=null;no(u);};document.head.appendChild(sc);});})); return PP.lib;}
+  function loadLib(){ if(PP.lib)return PP.lib; PP.lib=Promise.all(['lib/qrcode-generator-1.4.4.js','lib/p6set-0.4.js'].map(function(u){return new Promise(function(ok,no){var sc=document.createElement('script');sc.src=u;sc.onload=ok;sc.onerror=function(){PP.lib=null;no(u);};document.head.appendChild(sc);});})); return PP.lib;}
   function per(r){return r.form==='P6D'?md(r.start):r.form==='P6Y'?String(r.start).slice(0,4)+'학년도':r.form==='P6M'?(+String(r.start).slice(5,7))+'월':md(r.start)+'~'+md(r.end);}
   function drawPaper(){ Promise.all([rpc('gz2_p6_list',tok({p:{}})),PP.cheer===undefined?rpc('gz2_planner_get',tok({})):Promise.resolve(null)]).then(function(R){var r=R[0];PP.rows=(r&&r.ok&&r.rows)||[]; if(R[1]&&R[1].ok)PP.cheer=R[1].cheer||null; paintPaper();}); }
   function paintPaper(){ var t=kday(0);
@@ -2357,13 +2357,13 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
       var rows=PP.rows.filter(function(r){return r.form===f;}), cur=rows.filter(function(r){return r.start<=t&&r.end>=t;})[0];
       V.line[PS[f]]=cur&&cur.photos?((cur.tally&&cur.tally.summary)||('사진 '+cur.photos+'장 ✓')):'아직 안 올림'; if(cur&&cur.photos)V.done[PS[f]]=1;
       var nx=f==='P6W'?'다음 주':f==='P6D'?'내일':f==='P6M'?'다음 달':'';
-      box.innerHTML='<div class="bx ppx"><div class="t">'+PN[f]+' 계획표 <span class="d">A4 한 장 · 목표와 시험 일정이 미리 찍혀요</span></div>'
+      box.innerHTML='<div class="bx ppx"><div class="t">'+PN[f]+' 기록 <span class="d">A4 한 장 · 목표와 시험 일정이 미리 찍혀요</span></div>'
         +'<div class="bs"><button class="b p" data-pprint="'+f+'">🖨 '+PN[f]+' 양식 인쇄</button>'+(nx?'<button class="b" data-pprint="'+f+'" data-pnext="1">'+nx+' 것 인쇄</button>':'')+'</div>'
-        +'<div class="pcamw">'+(PPREV[f].length>1?'<select class="inp psel" id="ppW_'+f+'">'+PPREV[f].map(function(x,i){return '<option value="'+i+'">'+x+' 계획표</option>';}).join('')+'</select>':'')
+        +'<div class="pcamw">'+(PPREV[f].length>1?'<select class="inp psel" id="ppW_'+f+'">'+PPREV[f].map(function(x,i){return '<option value="'+i+'">'+x+' 기록</option>';}).join('')+'</select>':'')
         +'<label class="b pcam">📷 사진 올리기<input type="file" accept="image/*" multiple hidden data-pup="'+f+'"></label></div>'
         +'<div class="msg'+(PP.msg[f]&&PP.msg[f][1]?' e':'')+'" id="ppM_'+f+'">'+esc(PP.msg[f]?PP.msg[f][0]:'')+'</div>'
         +(rows.length?'<div class="plist">'+rows.slice(0,6).map(function(r){var tl=r.tally||null;
-            return '<div class="row"><span class="x">'+esc(per(r))+'<small>'+(r.photos?('사진 '+r.photos+'장 · '+(tl&&tl.summary?'<b>'+esc(tl.summary)+'</b>':(tl&&tl.error?'집계 못 함 — '+esc(tl.error):'집계 기다리는 중'))):'인쇄만 함 · 사진 아직')+'</small></span></div>';}).join('')+'</div>':'<div class="d" style="margin-top:6px">아직 인쇄하거나 올린 계획표가 없어요</div>')
+            return '<div class="row"><span class="x">'+esc(per(r))+'<small>'+(r.photos?('사진 '+r.photos+'장 · '+(tl&&tl.summary?'<b>'+esc(tl.summary)+'</b>':(tl&&tl.error?'집계 못 함 — '+esc(tl.error):'집계 기다리는 중'))):'인쇄만 함 · 사진 아직')+'</small></span></div>';}).join('')+'</div>':'<div class="d" style="margin-top:6px">아직 인쇄하거나 올린 기록이 없어요</div>')
         +(f==='P6W'&&cur&&cur.tally&&cur.tally.days?'<div class="pdays">'+cur.tally.days.map(function(x){return '<span><small>'+['','월','화','수','목','금','토','일'][x.dw]+'</small>'+(x.written?x.todo+'/'+x.written:'—')+'</span>';}).join('')+'</div>':'')
         +(f==='P6W'&&PP.cheer?'<div class="pch">💌 부모님 응원 — '+esc(PP.cheer.text)+'</div>':'')
         +'</div>';
@@ -2396,12 +2396,12 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     files.forEach(function(file,i){ seq=seq.then(function(){return toCanvas(file);}).then(function(c){
         var R=null; try{R=window.P6R?window.P6R.read(c):null;}catch(e){R=null;}
         var tk=R&&R.token&&/^GZ(P6[DWMY])-S(\d+)-(\d{8})-/.exec(R.token), form=f, day=offDay(f,back);
-        if(tk){ if(+tk[2]!==+S)throw '다른 학생의 계획표예요 (QR '+R.token+')'; form=tk[1]; day=tk[3].slice(0,4)+'-'+tk[3].slice(4,6)+'-'+tk[3].slice(6,8); }
-        return rpc('gz2_p6_issue',tok({p:{form:form,day:day}})).then(function(is){ if(!is||!is.ok)throw (is&&is.reason)||'계획표를 찾지 못했어요';
+        if(tk){ if(+tk[2]!==+S)throw '다른 학생의 기록이에요 (QR '+R.token+')'; form=tk[1]; day=tk[3].slice(0,4)+'-'+tk[3].slice(4,6)+'-'+tk[3].slice(6,8); }
+        return rpc('gz2_p6_issue',tok({p:{form:form,day:day}})).then(function(is){ if(!is||!is.ok)throw (is&&is.reason)||'기록을 찾지 못했어요';
           var tl=null;
           if(R&&R.ok){var L=layoutOf(form,is); if(L){try{tl=window.P6R.tally(R,L);}catch(e){tl={error:'판독 중 오류'};}}}
           else tl={error:(R&&R.why)||'판독 도구를 불러오지 못했어요'};
-          if(tl){tl.qr=!!tk; if(form!==f)notes.push(PN[form]+' 계획표로 들어갔어요(QR)');}
+          if(tl){tl.qr=!!tk; if(form!==f)notes.push(PN[form]+' 기록으로 들어갔어요(QR)');}
           return cvBlob(c).then(function(b){return hsh(b).then(function(h){
             return rpc('gz2_p6_upload_url',tok({p:{token:is.token,n:i+1,ext:'jpg',md5:h}})).then(function(u){ if(u&&u.dup){notes.push('같은 사진은 건너뜀');return null;} if(!u||!u.ok)throw (u&&u.reason)||'올리기 주소 실패';
               return fetch(u.url,{method:'PUT',headers:{'Content-Type':'image/jpeg'},body:b}).then(function(x){ if(!x.ok)throw '사진 저장 실패 '+x.status;
