@@ -1,0 +1,79 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>학생 기록 인쇄</title>
+<style>:root{--deep:#1E4D3B;--line:#d8d4c8;--dim:#8a8577}*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#f7f6f2;color:#1f2a24;font-size:13px;padding:12px 14px}
+h1{font-size:17px;color:var(--deep)}.sub{font-size:12px;color:var(--dim);margin:2px 0 10px;line-height:1.5}
+.box{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:10px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0}.row>b{min-width:64px;color:var(--deep);font-size:12.5px}
+.seg button,.dw button{font:inherit;padding:6px 12px;border:1.5px solid var(--deep);background:#fff;color:var(--deep);border-radius:6px;cursor:pointer;font-weight:700}
+.seg button.on,.dw button.on{background:var(--deep);color:#fff}.dw button{padding:4px 9px;font-weight:600}
+input,select{font:inherit;padding:5px 7px;border:1px solid var(--line);border-radius:5px}
+.go{font:inherit;font-size:15px;font-weight:800;background:var(--deep);color:#fff;border:0;border-radius:8px;padding:10px 18px;cursor:pointer}.go:disabled{opacity:.5}
+table{width:100%;border-collapse:collapse;background:#fff}th,td{border-bottom:1px solid #eee;padding:5px 8px;text-align:left;font-size:12.5px}th{background:#efede6;font-size:11.5px;position:sticky;top:0}
+td.c{font-size:11.5px;color:#2b3a33}td.c i{font-style:normal;display:inline-block;background:#E6F0EA;color:var(--deep);border-radius:4px;padding:0 5px;margin:1px 3px 1px 0}td.c i.hw{background:#F7F0D8;color:#7A5C12}
+#msg{font-size:12.5px;color:var(--deep);margin-left:8px}#msg.e{color:#9A3412}
+</style></head><body>
+<h1>🖨 학생 기록 인쇄</h1>
+<div class="sub">하루 · 한 주 · 한 달 · 1년 기록을 학생마다 한 장씩 뽑습니다. 목표 · 시험 일정 · 수업 시간이 미리 찍히고, QR이 있어서 학생이 사진을 올리면 자기 기록에 붙습니다. 같은 학생 · 같은 기간은 몇 번 뽑아도 같은 QR입니다.</div>
+<div class="box">
+ <div class="row"><b>무엇을</b><span class="seg" id="fForm"><button data-f="P6D">하루 기록</button><button data-f="P6W" class="on">한 주 기록</button><button data-f="P6M">한 달 기록</button><button data-f="P6Y">1년 기록</button></span></div>
+ <div class="row"><b>언제</b><input type="date" id="fDay"><span id="fPer" class="sub" style="margin:0"></span><label id="fN7w" style="display:none"><input type="checkbox" id="fN7"> 이날부터 7일 치(학생당 7장)</label></div>
+ <div class="row"><b>누구</b><span class="dw" id="fDw"><button data-d="0" class="on">전체</button><button data-d="1">월</button><button data-d="2">화</button><button data-d="3">수</button><button data-d="4">목</button><button data-d="5">금</button><button data-d="6">토</button><button data-d="7">일</button></span><span class="sub" style="margin:0">← 그 요일에 수업 있는 학생</span></div>
+ <div class="row"><b></b>담당 <select id="fT"><option value="">전체</option></select> 학교급 <select id="fG"><option value="">전체</option><option>초</option><option>중</option><option>고</option></select> 이름 <input id="fQ" placeholder="이름·학교" style="width:120px"></div>
+ <div class="row" style="margin-top:8px"><button class="go" id="go" disabled>🖨 인쇄</button><span id="msg"></span></div>
+</div>
+<table><thead><tr><th style="width:30px"><input type="checkbox" id="all" checked></th><th>학생</th><th>학교 · 학년</th><th>담당</th><th>수업 시간</th></tr></thead><tbody id="tb"><tr><td colspan="5">불러오는 중…</td></tr></tbody></table>
+<script>
+const U='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,get Authorization(){return 'Bearer '+(gzJwt()||K);},'Content-Type':'application/json'};
+function gzJwt(){var w=window;for(var i=0;i<6;i++){try{if(w.__GZ_JWT)return w.__GZ_JWT;var s=JSON.parse(w.sessionStorage.getItem('gz_session')||'null');if(s&&s.jwt)return s.jwt;}catch(_){}if(!w.parent||w.parent===w)break;w=w.parent;}return null;}
+/* [seq 365 · 2026-10-08 국존] 학생 기록(하루·한 주·한 달·1년) 반 단위 일괄 인쇄 — 발급 gz2_p6_issue_staff · 명단 gz2_p6_roster · 양식 lib/p6set-0.5.js */
+const $=id=>document.getElementById(id), DWN=['','월','화','수','목','금','토','일'];
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+async function rpc(fn,b){const r=await fetch(U+fn,{method:'POST',headers:H,body:JSON.stringify(b||{})});return r.json();}
+let ALL=[],F='P6W',DW=0,OFF={};
+function kst(n){const d=new Date(Date.now()+9*36e5);d.setUTCDate(d.getUTCDate()+(n||0));return d.toISOString().slice(0,10);}
+function nextMon(){const d=new Date(kst(0)+'T00:00:00Z'),w=(d.getUTCDay()+6)%7;d.setUTCDate(d.getUTCDate()+7-w);return d.toISOString().slice(0,10);}
+function defDay(f){if(f==='P6W')return nextMon();if(f==='P6D')return kst(1);if(f==='P6M'){const t=kst(0);if(+t.slice(8)>=25){const d=new Date(t.slice(0,8)+'01T00:00:00Z');d.setUTCMonth(d.getUTCMonth()+1);return d.toISOString().slice(0,10);}return t.slice(0,8)+'01';}return kst(0);}
+function addD(s,n){const d=new Date(s+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
+function md(s){return (+s.slice(5,7))+'/'+(+s.slice(8,10));}
+function per(){const d=$('fDay').value;if(!d)return '';const w=(new Date(d+'T00:00:00Z').getUTCDay()+6)%7;
+  if(F==='P6W'){const m=addD(d,-w);return md(m)+'(월) ~ '+md(addD(m,6))+'(일)';}
+  if(F==='P6D')return md(d)+'('+DWN[w+1]+')'+($('fN7').checked?' ~ '+md(addD(d,6)):'');
+  if(F==='P6M')return (+d.slice(5,7))+'월';
+  const y=+d.slice(0,4)-(+d.slice(5,7)<3?1:0);return y+'.3 ~ '+(y+1)+'.2';}
+function ty(t){return t==='학습관리'?'과제관리':(t==='정규'?'확인보완':t);}
+function clsTxt(x){return (x.cls||[]).map(c=>'<i class="'+(c.ty==='학습관리'?'hw':'')+'">'+DWN[c.dw]+' '+c.s+'~'+c.e+' '+esc(ty(c.ty))+'</i>').join('');}
+function lvl(g){return /^초/.test(g||'')?'초':/^중/.test(g||'')?'중':/^고/.test(g||'')?'고':'';}
+function shown(){const t=$('fT').value,g=$('fG').value,q=$('fQ').value.trim();
+  const dw=DW;
+  return ALL.filter(x=>(!dw||(x.cls||[]).some(c=>c.dw===dw))&&(!t||x.teacher===t)&&(!g||lvl(x.grade)===g)&&(!q||(x.name+x.school).includes(q)));}
+function draw(){const L=shown();$('fPer').textContent=per();$('fN7w').style.display=F==='P6D'?'':'none';
+  $('tb').innerHTML=L.length?L.map(x=>'<tr><td><input type="checkbox" data-id="'+x.id+'" '+(OFF[x.id]?'':'checked')+'></td><td><b>'+esc(x.name)+'</b></td><td>'+esc(x.school||'')+' '+esc(x.grade||'')+'</td><td>'+esc(x.teacher||'')+'</td><td class="c">'+(clsTxt(x)||'<span class="sub">수업 없음</span>')+'</td></tr>').join(''):'<tr><td colspan="5" class="sub">조건에 맞는 학생이 없어요</td></tr>';
+  const n=L.filter(x=>!OFF[x.id]).length, pages=n*(F==='P6D'&&$('fN7').checked?7:1);
+  $('go').disabled=!n;$('go').textContent='🖨 '+n+'명 인쇄 ('+pages+'장)';$('all').checked=L.every(x=>!OFF[x.id]);}
+function loadLib(){if(window.P6&&window.qrcode)return Promise.resolve();return Promise.all(['lib/qrcode-generator-1.4.4.js','lib/p6set-0.5.js'].map(u=>new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=()=>no(u);document.head.appendChild(s);})));}
+function msg(t,e){$('msg').className=e?'e':'';$('msg').textContent=t;}
+async function go(){const L=shown().filter(x=>!OFF[x.id]);if(!L.length)return;$('go').disabled=true;
+  try{await loadLib();}catch(e){msg('양식 도구를 불러오지 못했어요 — 새로고침',1);$('go').disabled=false;return;}
+  const days=F==='P6D'&&$('fN7').checked?[0,1,2,3,4,5,6].map(i=>addD($('fDay').value,i)):[$('fDay').value];
+  const jobs=[];days.forEach(d=>{for(let i=0;i<L.length;i+=40)jobs.push({d,ids:L.slice(i,i+40).map(x=>x.id)});});
+  const pages=[];let css=null,done=0,bad=[];
+  for(const j of jobs){msg('만드는 중… '+done+'/'+(L.length*days.length));
+    const r=await rpc('gz2_p6_issue_staff',{p:{sids:j.ids,form:F,day:j.d}});
+    if(!r||!r.ok){msg((r&&(r.reason||r.message))||'발급 실패',1);$('go').disabled=false;return;}
+    for(const d of r.rows){done++;if(!d||!d.ok){bad.push(d&&d.reason);continue;}d.printed=md(kst(0));
+      let h=P6.html(F,d);const q=qrcode(0,'M');q.addData(d.token);q.make();h=h.replace('<div id="qr"></div>','<div id="qr">'+q.createSvgTag({cellSize:3,margin:1,scalable:true})+'</div>');
+      if(!css)css=h.slice(h.indexOf('<style>'),h.indexOf('</style>')+8);pages.push(h.slice(h.indexOf('<div class="pg">'),h.indexOf('<script>window.P6_LAYOUT')));}}
+  if(F==='P6D'&&days.length>1){/* 학생별로 7장 묶기: 발급 순서는 날짜별 → 학생별로 다시 정렬 */const n=L.length,o=[];for(let s=0;s<n;s++)for(let k=0;k<days.length;k++)if(pages[k*n+s])o.push(pages[k*n+s]);pages.splice(0,pages.length,...o);}
+  const html='<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>학생 기록 인쇄</title>'+css+'<style>@media screen{body{background:#888}}</style></head><body>'+pages.join('')+'</body></html>';
+  let fr=$('pf');if(fr)fr.remove();fr=document.createElement('iframe');fr.id='pf';fr.style.cssText='position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0';document.body.appendChild(fr);
+  fr.contentDocument.open();fr.contentDocument.write(html);fr.contentDocument.close();window.__P6_PRINT_PAGES=pages.length;
+  setTimeout(()=>{try{fr.contentWindow.focus();fr.contentWindow.print();}catch(e){const w=window.open('','_blank');if(w){w.document.write(html);w.document.close();}}},600);
+  msg(pages.length+'장 준비 ✓ 인쇄 창에서 「인쇄」 또는 「PDF로 저장」'+(bad.length?' · 못 만든 '+bad.length+'명':''),!!bad.length);$('go').disabled=false;}
+$('fForm').onclick=e=>{const b=e.target.closest('[data-f]');if(!b)return;F=b.dataset.f;[...$('fForm').children].forEach(x=>x.classList.toggle('on',x===b));$('fDay').value=defDay(F);draw();};
+$('fDw').onclick=e=>{const b=e.target.closest('[data-d]');if(!b)return;DW=+b.dataset.d;[...$('fDw').children].forEach(x=>x.classList.toggle('on',x===b));draw();};
+['fDay','fT','fG','fN7'].forEach(id=>$(id).onchange=draw);$('fQ').oninput=draw;
+$('tb').onchange=e=>{const c=e.target.closest('[data-id]');if(c){if(c.checked)delete OFF[c.dataset.id];else OFF[c.dataset.id]=1;draw();}};
+$('all').onchange=e=>{shown().forEach(x=>{if(e.target.checked)delete OFF[x.id];else OFF[x.id]=1;});draw();};
+$('go').onclick=go;
+(async()=>{$('fDay').value=defDay(F);const r=await rpc('gz2_p6_roster',{p:{}});if(!r||!r.ok){$('tb').innerHTML='<tr><td colspan="5">'+esc((r&&(r.reason||r.message))||'명단을 불러오지 못했어요 — 관문에서 다시 로그인')+'</td></tr>';return;}
+  ALL=r.rows||[];const ts=[...new Set(ALL.map(x=>x.teacher).filter(Boolean))].sort();$('fT').innerHTML='<option value="">전체</option>'+ts.map(t=>'<option>'+esc(t)+'</option>').join('');draw();})();
+</script></body></html>

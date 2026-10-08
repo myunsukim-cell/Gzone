@@ -2349,7 +2349,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   function kday(n){var d=kst();d.setUTCDate(d.getUTCDate()+(n||0));return d.toISOString().slice(0,10);}
   function offDay(f,back,next){var t=kday(0);if(next)return f==='P6W'?kday(7):f==='P6M'?(function(){var d=new Date(t.slice(0,8)+'01T00:00:00Z');d.setUTCMonth(d.getUTCMonth()+1);return d.toISOString().slice(0,10);})():kday(1);
     if(!back)return t; return f==='P6D'?kday(-1):f==='P6W'?kday(-7):(function(){var d=new Date(t.slice(0,8)+'01T00:00:00Z');d.setUTCDate(0);return d.toISOString().slice(0,10);})();}
-  function loadLib(){ if(PP.lib)return PP.lib; PP.lib=Promise.all(['lib/qrcode-generator-1.4.4.js','lib/p6set-0.4.js'].map(function(u){return new Promise(function(ok,no){var sc=document.createElement('script');sc.src=u;sc.onload=ok;sc.onerror=function(){PP.lib=null;no(u);};document.head.appendChild(sc);});})); return PP.lib;}
+  function loadLib(){ if(PP.lib)return PP.lib; PP.lib=Promise.all(['lib/qrcode-generator-1.4.4.js','lib/p6set-0.5.js'].map(function(u){return new Promise(function(ok,no){var sc=document.createElement('script');sc.src=u;sc.onload=ok;sc.onerror=function(){PP.lib=null;no(u);};document.head.appendChild(sc);});})); return PP.lib;}
   function per(r){return r.form==='P6D'?md(r.start):r.form==='P6Y'?String(r.start).slice(0,4)+'학년도':r.form==='P6M'?(+String(r.start).slice(5,7))+'월':md(r.start)+'~'+md(r.end);}
   function drawPaper(){ Promise.all([rpc('gz2_p6_list',tok({p:{}})),PP.cheer===undefined?rpc('gz2_planner_get',tok({})):Promise.resolve(null)]).then(function(R){var r=R[0];PP.rows=(r&&r.ok&&r.rows)||[]; if(R[1]&&R[1].ok)PP.cheer=R[1].cheer||null; paintPaper();}); }
   function paintPaper(){ var t=kday(0);
