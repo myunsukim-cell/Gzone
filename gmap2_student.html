@@ -2082,7 +2082,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 
 /* [seq 330] 학생 플래너 */
 #v16 .pup{display:flex;align-items:stretch;gap:4px;overflow-x:auto;padding:2px 0 8px}#v16 .pup i{align-self:center;font-style:normal;color:#9aa;font-weight:800}#v16 .pu-s{flex:1 1 0;min-width:84px;background:#fff;border:1.5px solid #1E4D3B;border-radius:9px;padding:6px 8px}#v16 .pu-s small{display:block;font-size:10.5px;color:#1E4D3B;font-weight:800}#v16 .pu-s b{display:block;font-size:12.5px;line-height:1.35}#v16 .pu-s.e{border-style:dashed;border-color:#b9c3bd}#v16 .pu-s.e b{color:#8a8f8a;font-weight:500}#v16 .pyd{border-color:#F2C14E;background:#FFF9E8}#v16 .pyd-v{font-weight:800;font-size:14px}#v16 .phb{border-collapse:collapse;width:100%;margin-top:4px}#v16 .phb th{font-size:11px;color:#777;font-weight:600}#v16 .phb th.on{color:#1E4D3B;font-weight:900}#v16 .phb td{text-align:center;padding:2px}#v16 .phb td.hn{text-align:left;font-size:12.5px;max-width:120px}#v16 .phb small{color:#1E4D3B;font-size:10px}#v16 .hc{width:28px;height:28px;border-radius:7px;border:1.5px solid #c9d2cc;background:#fff;font-weight:900;color:#fff}#v16 .hc.on{background:#1E4D3B;border-color:#1E4D3B}#v16 .hc:disabled{opacity:.35}#v16 .hx{border:0;background:none;color:#b55;font-size:15px}@media(max-width:600px){#v16 .pup{display:grid;grid-template-columns:1fr 1fr;overflow:visible}#v16 .pup i{display:none}#v16 .pu-s{min-width:0}}#v16 .pch{margin-top:8px;padding:7px 10px;border-radius:8px;background:#FBEFF3;color:#7a2c48;font-size:13px}
-#v16 .ppx .bs{flex-wrap:wrap;gap:6px}#v16 .pcamw{display:flex;gap:6px;margin-top:8px;align-items:stretch}#v16 .psel{width:auto;flex:0 0 auto}#v16 .pcam{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;font-size:16px;font-weight:800;background:#1E4D3B;color:#fff;border-radius:10px;cursor:pointer}#v16 .plist{margin-top:8px}
+#v16 .ppx .bs{flex-wrap:wrap;gap:6px}#v16 .pcamw{display:flex;gap:6px;margin-top:8px;align-items:stretch}#v16 .psel{width:auto;flex:0 0 auto}#v16 .pcam{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;font-size:16px;font-weight:800;background:#1E4D3B;color:#fff;border-radius:10px;cursor:pointer}#v16 .plist{margin-top:8px}#v16 .pdays{display:flex;gap:4px;margin-top:8px}#v16 .pdays span{flex:1;text-align:center;background:#F3F6F4;border-radius:6px;padding:3px 0;font-size:12.5px;font-weight:700}#v16 .pdays small{display:block;font-size:10.5px;color:#777;font-weight:500}
 </style>
 <script id="v16js">
 (function(){
@@ -2351,11 +2351,11 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     if(!back)return t; return f==='P6D'?kday(-1):f==='P6W'?kday(-7):(function(){var d=new Date(t.slice(0,8)+'01T00:00:00Z');d.setUTCDate(0);return d.toISOString().slice(0,10);})();}
   function loadLib(){ if(PP.lib)return PP.lib; PP.lib=Promise.all(['lib/qrcode-generator-1.4.4.js','lib/p6set-0.2.js'].map(function(u){return new Promise(function(ok,no){var sc=document.createElement('script');sc.src=u;sc.onload=ok;sc.onerror=function(){PP.lib=null;no(u);};document.head.appendChild(sc);});})); return PP.lib;}
   function per(r){return r.form==='P6D'?md(r.start):r.form==='P6Y'?String(r.start).slice(0,4)+'학년도':r.form==='P6M'?(+String(r.start).slice(5,7))+'월':md(r.start)+'~'+md(r.end);}
-  function drawPaper(){ rpc('gz2_p6_list',tok({p:{}})).then(function(r){PP.rows=(r&&r.ok&&r.rows)||[]; paintPaper();}); }
+  function drawPaper(){ Promise.all([rpc('gz2_p6_list',tok({p:{}})),PP.cheer===undefined?rpc('gz2_planner_get',tok({})):Promise.resolve(null)]).then(function(R){var r=R[0];PP.rows=(r&&r.ok&&r.rows)||[]; if(R[1]&&R[1].ok)PP.cheer=R[1].cheer||null; paintPaper();}); }
   function paintPaper(){ var t=kday(0);
     ['P6D','P6W','P6M','P6Y'].forEach(function(f){ var box=$('v16p_'+f); if(!box)return;
       var rows=PP.rows.filter(function(r){return r.form===f;}), cur=rows.filter(function(r){return r.start<=t&&r.end>=t;})[0];
-      V.line[PS[f]]=cur&&cur.photos?('사진 '+cur.photos+'장 ✓'):'아직 안 올림'; if(cur&&cur.photos)V.done[PS[f]]=1;
+      V.line[PS[f]]=cur&&cur.photos?((cur.tally&&cur.tally.summary)||('사진 '+cur.photos+'장 ✓')):'아직 안 올림'; if(cur&&cur.photos)V.done[PS[f]]=1;
       var nx=f==='P6W'?'다음 주':f==='P6D'?'내일':f==='P6M'?'다음 달':'';
       box.innerHTML='<div class="bx ppx"><div class="t">'+PN[f]+' 종이 <span class="d">A4 한 장 · 목표와 시험 일정이 미리 찍혀요</span></div>'
         +'<div class="bs"><button class="b p" data-pprint="'+f+'">🖨 '+PN[f]+' 양식 인쇄</button>'+(nx?'<button class="b" data-pprint="'+f+'" data-pnext="1">'+nx+' 것 인쇄</button>':'')+'</div>'
@@ -2363,7 +2363,9 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
         +'<label class="b pcam">📷 사진 올리기<input type="file" accept="image/*" multiple hidden data-pup="'+f+'"></label></div>'
         +'<div class="msg'+(PP.msg[f]&&PP.msg[f][1]?' e':'')+'" id="ppM_'+f+'">'+esc(PP.msg[f]?PP.msg[f][0]:'')+'</div>'
         +(rows.length?'<div class="plist">'+rows.slice(0,6).map(function(r){var tl=r.tally||null;
-            return '<div class="row"><span class="x">'+esc(per(r))+'<small>'+(r.photos?('사진 '+r.photos+'장 · '+(tl&&tl.summary?esc(tl.summary):'집계 기다리는 중')):'인쇄만 함 · 사진 아직')+'</small></span></div>';}).join('')+'</div>':'<div class="d" style="margin-top:6px">아직 인쇄하거나 올린 종이가 없어요</div>')
+            return '<div class="row"><span class="x">'+esc(per(r))+'<small>'+(r.photos?('사진 '+r.photos+'장 · '+(tl&&tl.summary?'<b>'+esc(tl.summary)+'</b>':(tl&&tl.error?'집계 못 함 — '+esc(tl.error):'집계 기다리는 중'))):'인쇄만 함 · 사진 아직')+'</small></span></div>';}).join('')+'</div>':'<div class="d" style="margin-top:6px">아직 인쇄하거나 올린 종이가 없어요</div>')
+        +(f==='P6W'&&cur&&cur.tally&&cur.tally.days?'<div class="pdays">'+cur.tally.days.map(function(x){return '<span><small>'+['','월','화','수','목','금','토','일'][x.dw]+'</small>'+(x.written?x.todo+'/'+x.written:'—')+'</span>';}).join('')+'</div>':'')
+        +(f==='P6W'&&PP.cheer?'<div class="pch">💌 부모님 응원 — '+esc(PP.cheer.text)+'</div>':'')
         +'</div>';
     }); render();
   }
@@ -2380,20 +2382,36 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
       ppMsg(f,'새 창에서 「인쇄」를 누르세요 · '+d.token); drawPaper();
     }).catch(function(){ppMsg(f,'양식 도구를 불러오지 못했어요 — 새로고침 후 다시',1); if(w)w.close();});
   }
-  function shrink(file){return new Promise(function(ok,no){var im=new Image(),u=URL.createObjectURL(file);im.onload=function(){var M=2200,sc=Math.min(1,M/Math.max(im.width,im.height)),c=document.createElement('canvas');
-      c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(function(b){b?ok(b):no('변환 실패');},'image/jpeg',0.86);};
+  function toCanvas(file){return new Promise(function(ok,no){var im=new Image(),u=URL.createObjectURL(file);im.onload=function(){var M=2200,sc=Math.min(1,M/Math.max(im.width,im.height)),c=document.createElement('canvas');
+      c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c);};
     im.onerror=function(){no('사진을 읽지 못했어요');}; im.src=u;});}
+  function cvBlob(c){return new Promise(function(ok,no){c.toBlob(function(b){b?ok(b):no('변환 실패');},'image/jpeg',0.86);});}
   function hsh(b){return b.arrayBuffer().then(function(a){return crypto.subtle.digest('SHA-256',a);}).then(function(h){return Array.prototype.map.call(new Uint8Array(h),function(x){return ('0'+x.toString(16)).slice(-2);}).join('').slice(0,32);});}
-  function uploadP(f,files){ if(PP.busy)return; PP.busy=1; var sel=$('ppW_'+f), back=sel&&sel.value==='1', photos=[], tokn='';
-    ppMsg(f,'올리는 중… (사진 '+files.length+'장)');
-    rpc('gz2_p6_issue',tok({p:{form:f,day:offDay(f,back)}})).then(function(is){ if(!is||!is.ok)throw (is&&is.reason)||'종이를 찾지 못했어요'; tokn=is.token;
-      var seq=Promise.resolve();
-      files.forEach(function(file,i){ seq=seq.then(function(){return shrink(file);}).then(function(b){return hsh(b).then(function(h){
-          return rpc('gz2_p6_upload_url',tok({p:{token:tokn,n:i+1,ext:'jpg',md5:h}})).then(function(u){ if(u&&u.dup)return; if(!u||!u.ok)throw (u&&u.reason)||'올리기 주소 실패';
-            return fetch(u.url,{method:'PUT',headers:{'Content-Type':'image/jpeg'},body:b}).then(function(x){ if(!x.ok)throw '사진 저장 실패 '+x.status; photos.push({path:u.path,md5:h}); ppMsg(f,'올리는 중… '+photos.length+'/'+files.length);});});});}); });
-      return seq; }).then(function(){ return rpc('gz2_p6_attach',tok({p:{token:tokn,photos:photos,by:STAFFV?'교사':'학생'}})); })
-    .then(function(a){ PP.busy=0; if(!a||!a.ok)throw (a&&a.reason)||'기록 실패'; ppMsg(f,a.added?('사진 '+a.added+'장 올렸어요 ✓ (이 종이에 모두 '+a.total+'장)'):('이미 올린 사진이에요 (이 종이에 모두 '+a.total+'장)')); drawPaper(); })
-    .catch(function(e){ PP.busy=0; ppMsg(f,String(e||'올리지 못했어요'),1); });
+  function loadRead(){ if(PP.rlib)return PP.rlib; PP.rlib=loadLib().then(function(){return Promise.all(['lib/jsqr-1.4.0.js','lib/p6read-0.1.js'].map(function(u){return new Promise(function(ok,no){var sc=document.createElement('script');sc.src=u;sc.onload=ok;sc.onerror=function(){PP.rlib=null;no(u);};document.head.appendChild(sc);});}));}); return PP.rlib;}
+  function layoutOf(f,d){var h=window.P6.html(f,d),a=h.lastIndexOf('window.P6_LAYOUT='),b=h.indexOf(';<\/script>',a);try{return JSON.parse(h.slice(a+17,b));}catch(e){return null;}}
+  /* [seq 365 ③] 사진 한 장씩: QR로 어느 종이인지 → 귀퉁이로 펴서 ☐ 판독 → 올리기 + 집계 저장 */
+  function uploadP(f,files){ if(PP.busy)return; PP.busy=1; var sel=$('ppW_'+f), back=sel&&sel.value==='1', done=0, last=null, notes=[];
+    ppMsg(f,'사진 읽는 중… (0/'+files.length+')');
+    var seq=loadRead().catch(function(){return null;});
+    files.forEach(function(file,i){ seq=seq.then(function(){return toCanvas(file);}).then(function(c){
+        var R=null; try{R=window.P6R?window.P6R.read(c):null;}catch(e){R=null;}
+        var tk=R&&R.token&&/^GZ(P6[DWMY])-S(\d+)-(\d{8})-/.exec(R.token), form=f, day=offDay(f,back);
+        if(tk){ if(+tk[2]!==+S)throw '다른 학생의 종이예요 (QR '+R.token+')'; form=tk[1]; day=tk[3].slice(0,4)+'-'+tk[3].slice(4,6)+'-'+tk[3].slice(6,8); }
+        return rpc('gz2_p6_issue',tok({p:{form:form,day:day}})).then(function(is){ if(!is||!is.ok)throw (is&&is.reason)||'종이를 찾지 못했어요';
+          var tl=null;
+          if(R&&R.ok){var L=layoutOf(form,is); if(L){try{tl=window.P6R.tally(R,L);}catch(e){tl={error:'판독 중 오류'};}}}
+          else tl={error:(R&&R.why)||'판독 도구를 불러오지 못했어요'};
+          if(tl){tl.qr=!!tk; if(form!==f)notes.push(PN[form]+' 종이로 들어갔어요(QR)');}
+          return cvBlob(c).then(function(b){return hsh(b).then(function(h){
+            return rpc('gz2_p6_upload_url',tok({p:{token:is.token,n:i+1,ext:'jpg',md5:h}})).then(function(u){ if(u&&u.dup){notes.push('같은 사진은 건너뜀');return null;} if(!u||!u.ok)throw (u&&u.reason)||'올리기 주소 실패';
+              return fetch(u.url,{method:'PUT',headers:{'Content-Type':'image/jpeg'},body:b}).then(function(x){ if(!x.ok)throw '사진 저장 실패 '+x.status;
+                return rpc('gz2_p6_attach',tok({p:{token:is.token,photos:[{path:u.path,md5:h,tally:tl}],by:STAFFV?'교사':'학생'}}));});});});}).then(function(a){
+            if(a&&a.ok&&a.added){done++; last=tl;} ppMsg(f,'사진 읽는 중… ('+(i+1)+'/'+files.length+')');});
+        });}); });
+    seq.then(function(){ PP.busy=0;
+        var m=done?('사진 '+done+'장 올렸어요 ✓'+(last?(last.error?' · 집계 못 함: '+last.error:' · '+last.summary):'')):'새로 올린 사진이 없어요';
+        ppMsg(f,m+(notes.length?' ('+notes.filter(function(x,i,a){return a.indexOf(x)===i;}).join(' · ')+')':''),!!(last&&last.error)); drawPaper(); })
+      .catch(function(e){ PP.busy=0; ppMsg(f,String(e||'올리지 못했어요'),1); drawPaper(); });
   }
   root.addEventListener('click',function(e){var b=e.target.closest('[data-pprint]'); if(b){printP(b.dataset.pprint,!!b.dataset.pnext);}});
   root.addEventListener('change',function(e){var i=e.target.closest('[data-pup]'); if(i&&i.files&&i.files.length){uploadP(i.dataset.pup,[].slice.call(i.files,0,8)); i.value='';}});
