@@ -926,7 +926,7 @@ function gzBuildPos(){
         return '<div style="border:'+(now?'2px solid #1E3A2F':'1px solid #dedbd2')+';border-radius:10px;padding:10px 12px;margin-bottom:8px;background:#fff'+(done?';opacity:.6':'')+'">'
         +'<div style="display:flex;align-items:baseline;gap:8px"><b style="font-size:16px;color:#1F2421">'+no+'. '+name+'</b>'
         +(now?'<b style="font-size:13px;color:#1E3A2F">지금</b>':done?'<span style="font-size:13px;color:#50605a">끝 ✓</span>':'')
-        +'<span style="margin-left:auto;font-size:13px;color:#50605a;white-space:nowrap">'+(p.from||'').slice(5).replace('-','/')+' ~ '+(p.to||'').slice(5).replace('-','/')+(wk?' · '+wk:'')+'</span></div>'
+        +'<span style="margin-left:auto;font-size:13px;color:#50605a;white-space:nowrap">'+(p.from||'').slice(5).replace('-','/')+(p.to&&p.to!==p.from?' ~ '+p.to.slice(5).replace('-','/'):'')+(wk?' · '+wk:'')+'</span></div>'
         +'<div style="font-size:13px;color:#50605a;margin-top:4px">'+gzAreaWord(p.title||'')+'</div></div>'; }
       /* 영역 코드(G-GRM 등)는 학생 화면에 내보내지 않는다(점검표 B1) — method_area 이름으로 */
       function gzAreaWord(t){var pp=String(t).split(' — ');if(window.gzTerm)pp[0]=gzTerm(pp[0]);if(pp[1]==='범위 미확정')pp.length=1;t=pp.join(' · ');var M=Object.assign({'L-MPO':'현대시','L-CPO':'고전시가','L-DRA':'극·희곡','D-SOC':'독서(사회)','D-HUM':'독서(인문)','D-SCI':'독서(과학)','D-ART':'독서(예술·기술)'},(typeof GZAREANM==='object'&&GZAREANM)||{});
@@ -941,11 +941,12 @@ function gzBuildPos(){
       /* 시험 준비 방식(국존 10/21 18:45): 기본 4주 · 학생별 6주 · 학교 진도 맞춤 — gz_student_plan_card plan.prep_mode */
       var bn=pl.block_now||'', cur=bn.indexOf('1구간')===0?1:bn.indexOf('2구간')===0?2:(bn.indexOf('3구간')===0||bn==='내신 직전')?3:0;
       var pm=pl.prep_mode||'4주', ps=(pl.prep_start||'').slice(5).replace('-','/');
+      var pmLabel=(pm==='기타'&&pl.prep_weeks)?pl.prep_weeks+'주':pm; /* 기타 = 선생님이 숫자로 정한 주수(국존 10/22 01:05) */
       function sst(n){return cur===n?'now':(cur>n?'done':'');}
       /* 사용법·시스템 사정 안내문은 넣지 않는다(점검표 B4) */
       R+=(pm==='학교진도')
         ? gzCard('시험 준비','<div style="font-size:16px;line-height:1.5"><b>학교 진도에 맞춰</b> 공부해요</div><div style="font-size:13px;color:#50605a;margin-top:4px">학교에서 배우는 순서대로 이어 가요</div>')
-        : gzCard('시험까지 3단계 · '+pm+' 계획',
+        : gzCard('시험까지 3단계 · '+pmLabel+' 계획',
             (bn==='시험 준비 전'&&ps?'<div style="font-size:13px;color:#50605a;margin-bottom:8px">'+ps+'부터 시작해요</div>':'')
             +seg(1,'학습진도',pl.p1,sst(1))+seg(2,'문제연습',pl.p2,sst(2))+seg(3,'실전·오답 보강',pl.p3,sst(3)));
       /* 아직 준비 중인 것 — 한 줄에 하나, 학생 말(점검표 B1·B4·F1). 안내문은 뺀다 */
