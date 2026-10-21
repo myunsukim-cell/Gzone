@@ -915,13 +915,21 @@ function gzBuildPos(){
       q("select to_char(enrolled_at,'MM/DD') en,(current_date-enrolled_at::date)/7+1 wk from students where id="+sid())
     ]).then(function(rr){
       var stu=(rr[0]||[])[0]||{};   /* 철거된 3코너 전용 조회 2건(coaching_logs·student_reports)도 함께 제거 */
-      function seg(no,name,p,now){ if(!p)return '';
-        var dn=(p.from&&p.to)?Math.round((new Date(p.to)-new Date(p.from))/864e5)+1:0; var wk=dn>=14?(Math.round(dn/7*10)/10)+'주':(dn>0?dn+'일':''); return '<div style="border:1.5px solid '+(now?'#12211a':'#ded7c3')+';border-radius:10px;padding:9px 11px;margin-bottom:7px;background:#fff">'
-        +'<div style="display:flex;align-items:baseline"><b style="font-size:14.5px">'+no+'. '+name+'</b>'
-        +'<span style="margin-left:auto;font-size:11px;color:#98a49e">'+(p.from||'').slice(5).replace('-','/')+' ~ '+(p.to||'').slice(5).replace('-','/')+(wk?' · '+wk:'')+'</span></div>'
-        +'<div style="font-size:12px;color:#50605a;margin-top:3px">'+(p.title||'')+'</div></div>'; }
+      /* 3단계 한 칸 — 점검표 v1: C3 글자 16·13 · C4 글자색 진함·중간 · C5 테두리 하나 · F4 「지금」「끝 ✓」 글자 · D4 끝낸 칸 ✓ */
+      function seg(no,name,p,st){ if(!p)return '';
+        var dn=(p.from&&p.to)?Math.round((new Date(p.to)-new Date(p.from))/864e5)+1:0; var wk=dn>=14?(Math.round(dn/7*10)/10)+'주':(dn>0?dn+'일':'');
+        var now=st==='now', done=st==='done';
+        return '<div style="border:'+(now?'2px solid #1E3A2F':'1px solid #dedbd2')+';border-radius:10px;padding:10px 12px;margin-bottom:8px;background:#fff'+(done?';opacity:.6':'')+'">'
+        +'<div style="display:flex;align-items:baseline;gap:8px"><b style="font-size:16px;color:#1F2421">'+no+'. '+name+'</b>'
+        +(now?'<b style="font-size:13px;color:#1E3A2F">지금</b>':done?'<span style="font-size:13px;color:#50605a">끝 ✓</span>':'')
+        +'<span style="margin-left:auto;font-size:13px;color:#50605a;white-space:nowrap">'+(p.from||'').slice(5).replace('-','/')+' ~ '+(p.to||'').slice(5).replace('-','/')+(wk?' · '+wk:'')+'</span></div>'
+        +'<div style="font-size:13px;color:#50605a;margin-top:4px">'+gzAreaWord(p.title||'')+'</div></div>'; }
+      /* 영역 코드(G-GRM 등)는 학생 화면에 내보내지 않는다(점검표 B1) — method_area 이름으로 */
+      function gzAreaWord(t){var M=Object.assign({'L-MPO':'현대시','L-CPO':'고전시가','L-DRA':'극·희곡','D-SOC':'독서(사회)','D-HUM':'독서(인문)','D-SCI':'독서(과학)','D-ART':'독서(예술·기술)'},(typeof GZAREANM==='object'&&GZAREANM)||{});
+        return String(t).replace(/\b([LDGE]-[A-Z]{3})\b/g,function(m){return M[m]||m;});}
       var L='';
-      L+=gzCard('남은 날','<b style="font-family:\'Noto Serif KR\',serif;font-size:27px;font-weight:900">'+gzDD(ex.d_day)+'</b> <span style="font-size:12px;color:#50605a">'+((ex.exam_start||ex.exam_date||'').slice(5).replace('-','/'))+' 시작 · <b>'+(pl.weeks_left||'–')+'주</b> 남았어요</span>');
+      /* 시험 날짜는 맨 위 목표 막대·「시험일까지 진도」에 이미 있어 여기서는 뺀다(점검표 H1 같은 정보 두 번 금지) */
+      L+=gzCard('남은 날','<b style="font-family:\'Noto Serif KR\',serif;font-size:27px;font-weight:900">'+gzDD(ex.d_day)+'</b> <span style="font-size:13px;color:#50605a"><b>'+(pl.weeks_left||'–')+'주</b> 남았어요</span>');
       L+=gzCard('시험 범위', ex.scope_n>0?('<b>'+ex.scope_n+'건 등록</b>'):'<span style="color:#8a8264">아직 <b>안 나왔어요</b><br><span style="font-size:11px">학교가 범위를 알려 주면 여기에 떠요</span></span>');
       /* 이동 3 원본 철거(2026-08-27 · S5 사양 「내 위치 9코너를 4코너로 줄였다 — 기록성 3코너(지나온 기록·내 점수 이력·보낸 것)는 내 기록으로 이동·흡수」).
          수신처 실재 확인 후 제거: 지나온 기록→내 기록 학습 통장(coaching_logs 주차) · 내 점수→점수와 출석(exam_results·입학진단) · 선생님이 보낸 것→통장 행 리포트열(student_reports 주차). */
@@ -929,19 +937,19 @@ function gzBuildPos(){
       /* 시험 준비 방식(국존 10/21 18:45): 기본 4주 · 학생별 6주 · 학교 진도 맞춤 — gz_student_plan_card plan.prep_mode */
       var bn=pl.block_now||'', cur=bn.indexOf('1구간')===0?1:bn.indexOf('2구간')===0?2:(bn.indexOf('3구간')===0||bn==='내신 직전')?3:0;
       var pm=pl.prep_mode||'4주', ps=(pl.prep_start||'').slice(5).replace('-','/');
+      function sst(n){return cur===n?'now':(cur>n?'done':'');}
+      /* 사용법·시스템 사정 안내문은 넣지 않는다(점검표 B4) */
       R+=(pm==='학교진도')
-        ? gzCard('시험 준비','<div style="font-size:13.5px;line-height:1.6"><b>학교 진도에 맞춰</b> 공부해요</div><div style="font-size:12px;color:#50605a;margin-top:3px">따로 3단계로 나누지 않고, 학교에서 배우는 순서대로 이어 가요</div>'
-            +'<div style="'+GZC.hint+'">준비 방식은 선생님과 정해요</div>')
+        ? gzCard('시험 준비','<div style="font-size:16px;line-height:1.5"><b>학교 진도에 맞춰</b> 공부해요</div><div style="font-size:13px;color:#50605a;margin-top:4px">학교에서 배우는 순서대로 이어 가요</div>')
         : gzCard('시험까지 3단계 · '+pm+' 계획',
-            (bn==='시험 준비 전'&&ps?'<div style="font-size:12px;color:#50605a;margin-bottom:6px">'+ps+'부터 시작해요</div>':'')
-            +seg(1,'학습진도',pl.p1,cur===1)+seg(2,'문제연습',pl.p2,cur===2)+seg(3,'실전·오답 보강',pl.p3,cur===3)
-            +'<div style="'+GZC.hint+'">준비 방식(4주·6주·학교 진도)은 선생님과 정해요</div>');
+            (bn==='시험 준비 전'&&ps?'<div style="font-size:13px;color:#50605a;margin-bottom:8px">'+ps+'부터 시작해요</div>':'')
+            +seg(1,'학습진도',pl.p1,sst(1))+seg(2,'문제연습',pl.p2,sst(2))+seg(3,'실전·오답 보강',pl.p3,sst(3)));
       R+=gzCard('아직 없는 자료 '+gaps.length+'가지','<div style="font-size:12.5px;color:#6d6656;line-height:1.6;background:#f4f2ec;border:1px dashed #cfc9b8;border-radius:8px;padding:8px 10px">'+gaps.join(' · ')+'</div><div style="'+GZC.hint+'">채워질수록 왼쪽 칸들이 실제 값으로 바뀌어요</div>');
       
       var sec=document.createElement('div');
       sec.id='gzPos'; sec.className='phase';
       sec.innerHTML='<div style="padding:14px 22px 4px"><h2 style="margin:0;font-family:\'Noto Serif KR\',serif;font-size:22px">시험까지 남은 공부</h2>'
-        +'<div style="font-size:12px;color:#98a49e;margin:2px 0 10px">'+(ex.phase||'')+' · 다음 시험 '+((ex.exam_start||ex.exam_date||'미정').slice(5).replace('-','/'))+'</div>'
+        +'<div style="height:10px"></div>'
         +'<div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap"><div style="width:300px;flex:none">'+L+'</div><div style="flex:1;min-width:330px">'+R+'</div></div></div>';
       host.parentElement.insertBefore(sec,host.nextSibling); gzOrder();
       var a=document.getElementById('gzAtt'); if(a)set('gzPosAtt',a.textContent);
