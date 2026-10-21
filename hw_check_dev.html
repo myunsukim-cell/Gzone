@@ -1,0 +1,55 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- hw_check v0.1 2026-10-21 MAP(DB방) — 학생 「내 글이 맞게 읽혔나요?」. 학생 링크(sid+k)로 자기 원고의 헷갈린 글자만 고른다.
+     고른 값은 hw_uncertain.student_pick(학생 확인)에만 — 확정은 선생님(hw_bulk·hw_review). 원천 gz2_stu_hw_items / gz2_stu_hw_pick. -->
+<title>내 글 확인</title>
+<style>
+:root{--green:#1E4D3B;--mint:#E6F0EA;--line:#D9E2DC;--dim:#66746C;--amber:#E8A33D;--amberbg:#FFF5E3;--ink:#17261F}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#F4F7F5;color:var(--ink);font-size:16px;line-height:1.55}
+button,input{font:inherit;color:inherit}
+header{background:var(--green);color:#fff;padding:14px 16px}header small{opacity:.8;font-size:13px;display:block}header b{font-size:18px}
+main{max-width:560px;margin:0 auto;padding:14px 14px 40px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.lead{font-size:14.5px;margin-bottom:10px}.dim{color:var(--dim);font-size:13.5px}
+.pages{display:flex;gap:8px;overflow-x:auto;margin:6px 0 4px}.pages img{height:120px;border-radius:8px;border:1px solid var(--line);cursor:zoom-in;background:#eee}
+.it{border-top:1px solid var(--line);padding:12px 0}.it:first-of-type{border-top:0}
+.sent{font-size:16px;line-height:1.8}.sent mark{background:#FFE7A3;border-bottom:2px solid #D79A00;padding:0 3px;border-radius:3px;font-weight:700}
+.it.done .sent mark{background:#DDF0E3;border-color:var(--green)}
+.opts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.opts button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;min-height:40px}
+.opts button.on{background:var(--green);color:#fff;border-color:var(--green)}
+.opts input{border:1px solid var(--line);border-radius:999px;padding:7px 12px;width:130px}
+.bar{height:8px;background:#E3E9E5;border-radius:4px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--green)}
+.big{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;padding:10px;z-index:9}.big img{max-width:100%;max-height:100%}
+.ok{background:var(--mint);border-radius:12px;padding:14px;text-align:center}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+</style></head><body>
+<header><small>내 글 확인</small><b>내 글이 맞게 읽혔나요?</b></header>
+<main id="m"><p class="dim">불러오는 중…</p></main>
+<div class="big" id="big" role="dialog" aria-label="원고 크게 보기"><img id="bigimg" alt="내 원고"></div>
+<script>
+const U='https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/',K='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+const Q=new URLSearchParams(location.search),SID=+Q.get('sid'),KK=Q.get('k')||'';
+const rpc=async(f,b)=>{const r=await fetch(U+f,{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify(b)});return r.json();};
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let D=null;
+async function load(){let d;try{d=await rpc('gz2_stu_hw_items',{p_sid:SID,p_k:KK});}catch(e){m.innerHTML='<p class="dim">불러오지 못했어요. 잠시 뒤 다시 열어 주세요.</p>';return;}
+ if(!d||!d.ok){m.innerHTML='<p class="dim">'+esc((d&&d.reason)||'학원에서 보내 준 링크로 열어 주세요.')+'</p>';return;}D=d;draw();}
+function draw(){const E=D.essays||[];
+ if(!E.length){m.innerHTML='<div class="card ok"><b>확인할 곳이 없어요</b><p class="dim" style="margin-top:4px">글씨가 모두 맞게 읽혔거나, 선생님이 이미 확인했어요.</p></div>';return;}
+ m.innerHTML=E.map(e=>{const it=(e.items||[]),dn=it.filter(x=>x.pick).length;
+  return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><b>'+esc(e.title||'내 글')+'</b><span class="dim">'+esc(e.date||'')+'</span></div>'
+  +'<p class="lead" style="margin-top:6px">글씨를 글자로 바꾸다가 <b>헷갈린 곳 '+it.length+'군데</b>예요. 노란 글자가 내가 쓴 것과 같은지 골라 주세요. 맞춤법은 고치지 말고 <b>쓴 그대로</b> 골라요.</p>'
+  +'<div class="pages">'+(e.pages||[]).map((u,i)=>u?'<img src="'+esc(u)+'" alt="원고 '+(i+1)+'쪽" data-big="'+esc(u)+'">':'').join('')+'</div><p class="dim">사진을 누르면 크게 보여요.</p>'
+  +'<div class="bar"><i style="width:'+(it.length?Math.round(100*dn/it.length):0)+'%"></i></div><p class="dim">'+dn+' / '+it.length+' 골랐어요</p>'
+  +it.map(x=>{const opts=[x.guess].concat((x.cands||[]).filter(c=>c&&c!==x.guess)).slice(0,5);
+    return '<div class="it'+(x.pick?' done':'')+'" id="it'+x.id+'"><div class="sent">…'+esc(x.before)+'<mark>'+esc(x.pick||x.guess)+'</mark>'+esc(x.after)+'…</div><div class="dim">'+x.page+'쪽</div>'
+    +'<div class="opts">'+opts.map(o=>'<button data-id="'+x.id+'" data-v="'+esc(o)+'" class="'+(x.pick===o?'on':'')+'">'+esc(o)+(o===x.guess?' (이대로)':'')+'</button>').join('')
+    +'<input data-in="'+x.id+'" placeholder="다르게 썼어요" aria-label="내가 쓴 글자" value="'+(x.pick&&!opts.includes(x.pick)&&x.pick!=='?'?esc(x.pick):'')+'"><button data-id="'+x.id+'" data-v="?" class="'+(x.pick==='?'?'on':'')+'">잘 모르겠어요</button></div></div>';}).join('')
+  +(dn===it.length?'<div class="ok" style="margin-top:10px"><b>다 골랐어요</b><p class="dim">선생님이 확인하면 첨삭이 와요.</p></div>':'')+'</div>';}).join('');}
+async function pick(id,v){const r=await rpc('gz2_stu_hw_pick',{p_sid:SID,p_k:KK,p_id:+id,p_val:v});if(r&&r.ok){for(const e of D.essays)for(const x of (e.items||[]))if(x.id==id)x.pick=v;draw();}else alert((r&&r.reason)||'저장하지 못했어요');}
+document.addEventListener('click',e=>{const b=e.target.closest('button[data-id]');if(b){pick(b.dataset.id,b.dataset.v);return;}
+ const im=e.target.closest('[data-big]');if(im){bigimg.src=im.dataset.big;big.style.display='flex';return;}if(e.target.closest('#big'))big.style.display='none';});
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset.in&&t.value.trim())pick(t.dataset.in,t.value.trim());});
+load();
+</script></body></html>

@@ -1,6 +1,38 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><!-- DEV BUILD: 운영 gmap2_student.html(Storage) 개발 DB판 · 2026-10-20 --><script>/* [seq 348 · 2026-10-08] D-day 공통 — 지난 시험 「D--2」 방지 */window.gzDD=function(n,k){if(n==null||n===''||isNaN(+n))return 'D-–';n=+n;if(n>0)return 'D-'+n;if(n===0)return 'D-day';return k==='goal'?('기한 '+(-n)+'일 지남'):('끝난 지 '+(-n)+'일');};
+<head><!-- DEV BUILD: 운영 gmap2_student.html(로그인 열기 포함) 개발 DB판 · 2026-10-21 --><script>/* [2026-10-21 MAP(DB방)] 로그인으로 열기 — 학생 링크(sid·k)가 없으면 로그인 정보로 학생을 찾아 연다(노트 15193 후속).
+   로그인 정보 받는 곳: ① window.__GZ_JWT ② 바깥 사이트(웹헤즈 칸)가 postMessage로 보내는 {gz:'auth', access_token}.
+   이 페이지는 열릴 때 바깥에 {gz:'need_auth'}를 보낸다. 연결된 학생이 하나면 바로, 여럿이면 고르게, 없으면 연결 요청(이름+전화번호). */
+(function(){
+var q=location.search+(window.__DESK_Q||'');
+if(/[?&]sid=\d+/.test(q)&&/[?&]k=[a-f0-9]{32}/.test(q))return;
+var SB='https://hbsbrhgmofxvzgrvkkpg.supabase.co',PK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH',TOK=null,done=false;
+try{window.stop();}catch(e){}
+var css='body{margin:0;font-family:Pretendard,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:#F4F7F5;color:#17261F}.w{max-width:440px;margin:0 auto;padding:28px 18px}h1{font-size:19px;margin:0 0 6px}p{font-size:14.5px;line-height:1.6;color:#4d5a53}.b{display:block;width:100%;min-height:46px;margin:8px 0;border:0;border-radius:12px;background:#1E4D3B;color:#fff;font:700 15px inherit;cursor:pointer}.b.g{background:#fff;color:#1E4D3B;border:1px solid #cfd8d2}input,select{width:100%;box-sizing:border-box;min-height:44px;margin:5px 0;padding:8px 12px;border:1px solid #cfd8d2;border-radius:10px;font:15px inherit}.m{font-size:13px;color:#b42318;min-height:18px}';
+function page(h){document.documentElement.innerHTML='<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>G-MAP 학생</title><style>'+css+'</style></head><body><div class="w">'+h+'</div></body>';}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function rpc(f,b){return fetch(SB+'/rest/v1/rpc/'+f,{method:'POST',headers:{apikey:PK,Authorization:'Bearer '+TOK,'Content-Type':'application/json'},body:JSON.stringify(b||{})}).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error((j&&(j.message||j.reason))||('오류 '+r.status));return j;});});}
+function go(s){var u=location.pathname+'?sid='+s.sid+'&k='+s.k+'&via=login';try{parent.postMessage({gz:'student_opened',sid:s.sid},'*');}catch(e){}location.replace(u);}
+function entry(){page('<h1>학생 페이지 여는 중…</h1><p>로그인한 계정과 연결된 학생을 찾고 있어요.</p>');
+ rpc('gz2_student_entry_me').then(function(d){var S=(d&&d.students)||[];
+  if(S.length===1)return go(S[0]);
+  if(S.length>1){page('<h1>누구의 페이지를 열까요?</h1>'+S.map(function(s,i){return '<button class="b g" data-i="'+i+'">'+esc(s.name)+' · '+esc(s.school||'')+' '+esc(s.grade||'')+'</button>';}).join(''));
+   document.querySelectorAll('[data-i]').forEach(function(b){b.onclick=function(){go(S[+b.dataset.i]);};});return;}
+  linkForm(d&&d.pending);}).catch(function(e){page('<h1>로그인을 확인하지 못했어요</h1><p>'+esc(e.message)+'</p><p>다시 로그인한 뒤 열어 주세요.</p>');});}
+function linkForm(pend){page('<h1>학생과 연결해 주세요</h1><p>'+(pend?'연결 요청이 학원 확인을 기다리고 있어요. 확인이 끝나면 바로 열립니다.<br>':'')+'처음 한 번만 하면 됩니다. 학원에 등록된 이름과 전화번호를 넣어 주세요.</p>'
+ +'<select id="kd"><option value="학생">학생 본인</option><option value="학부모">학부모</option></select><input id="nm" placeholder="학생 이름"><input id="ph" placeholder="전화번호 (학생 본인 또는 학부모 번호)" inputmode="tel"><div class="m" id="ms"></div><button class="b" id="go">연결하기</button>');
+ document.getElementById('go').onclick=function(){var ms=document.getElementById('ms');ms.textContent='';
+  rpc('gz2_link_request',{p_kind:document.getElementById('kd').value,p_student_name:document.getElementById('nm').value,p_phone:document.getElementById('ph').value,p_relation:null})
+  .then(function(r){if(r&&r.status==='자동연결')entry();else page('<h1>연결 요청을 보냈어요</h1><p>학원에서 확인하면 이 화면을 다시 열 때 바로 학생 페이지가 열립니다.</p>');})
+  .catch(function(e){ms.textContent=e.message;});};}
+function start(t){if(done||!t)return;done=true;TOK=t;entry();}
+window.addEventListener('message',function(ev){if(ev.source!==window.parent)return;var d=ev.data||{};if(d.gz==='auth'&&d.access_token)start(d.access_token);});
+page('<h1>학생 페이지</h1><p>로그인 정보를 기다리는 중…</p>');
+if(window.__GZ_JWT)start(window.__GZ_JWT);
+else{try{if(window.parent!==window)parent.postMessage({gz:'need_auth',page:'student'},'*');}catch(e){}
+ setTimeout(function(){if(!done)page('<h1>학생 페이지</h1><p>학원에서 보내 준 학생 링크로 열거나, 학원 사이트에 로그인한 뒤 열어 주세요.</p>');},6000);}
+})();
+</script><script>/* [seq 348 · 2026-10-08] D-day 공통 — 지난 시험 「D--2」 방지 */window.gzDD=function(n,k){if(n==null||n===''||isNaN(+n))return 'D-–';n=+n;if(n>0)return 'D-'+n;if(n===0)return 'D-day';return k==='goal'?('기한 '+(-n)+'일 지남'):('끝난 지 '+(-n)+'일');};
 /* [2026-10-19 국존 승인 · 학생 화면 10가지 ④] 학생 화면 용어 사전 — 한 곳. DB 값(acl_kr 등)은 바꾸지 않고 화면에 그릴 때만 바꾼다.
    [긴 말, 좁은 곳 말] — 좁은 곳(목록·칩·한 줄 글자)은 gzTerm(x,1) */
 window.GZ_TERM={'범주 섞음':['종류 헷갈림'],'핵심어 바꿈':['핵심 낱말 바꿔치기'],'단어 바꿈':['낱말 바꿔치기'],'순서 바꿈':['순서 뒤바꿈'],
@@ -2983,6 +3015,14 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
         +'<div class="bs"><button class="b p" onclick="v16go(0)">다음 목표 세우기 → 내 목표</button></div></div>';});
   }
 })();
+</script>
+<script>/* [2026-10-21 MAP(DB방)] 「내 글이 맞게 읽혔나요?」 — 손글씨 원고에 헷갈린 글자가 남아 있으면 맨 위에 한 줄 안내(노트 15190). 실패해도 페이지에 영향 없음. */
+(function(){try{var t=(window.gzSK&&gzSK())||{};if(!t.sid||!t.k)return;var PK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+fetch('https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/gz2_stu_hw_items',{method:'POST',headers:{apikey:PK,Authorization:'Bearer '+PK,'Content-Type':'application/json'},body:JSON.stringify({p_sid:t.sid,p_k:t.k})})
+.then(function(r){return r.json();}).then(function(d){if(!d||!d.ok)return;var n=0;(d.essays||[]).forEach(function(e){(e.items||[]).forEach(function(x){if(!x.pick)n++;});});if(!n)return;
+var a=document.createElement('a');a.href='hw_check_dev.html?sid='+t.sid+'&k='+t.k;a.id='gzHwBar';
+a.style.cssText='display:block;margin:0;padding:12px 16px;background:#FFF5E3;color:#5a3d06;border-bottom:2px solid #E8A33D;font:600 15px Pretendard,sans-serif;text-decoration:none';
+a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷갈린 곳 '+n+'군데 →';document.body.insertBefore(a,document.body.firstChild);}).catch(function(){});}catch(e){}})();
 </script>
 </body>
 

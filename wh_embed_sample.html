@@ -1,0 +1,18 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>웹헤즈 칸 연결 예시</title>
+<!-- 2026-10-21 국존 DB방 — 웹헤즈 사이트 칸에 국존 학생 페이지를 끼울 때의 최소 예시(개발 DB). 웹헤즈 몫: 로그인 → 칸(iframe) → 학생 페이지가 보내는 need_auth에 로그인 토큰을 postMessage로 답함.
+     실제 사이트에서는 카카오 로그인(REST) 뒤 받은 Supabase 세션의 access_token을 같은 방식으로 넘긴다. 토큰을 주소(URL)에 넣지 않는다. -->
+<style>body{margin:0;font-family:Pretendard,system-ui,sans-serif;background:#eef1f4}.top{background:#222;color:#fff;padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.top input{padding:6px 8px;border-radius:6px;border:0;min-width:180px}.top button{padding:6px 12px;border-radius:6px;border:0;cursor:pointer}#st{font-size:12px;opacity:.8}
+.slot{max-width:1180px;margin:12px auto;background:#fff;border:2px dashed #999}iframe{width:100%;height:85vh;border:0;display:block}</style></head><body>
+<div class="top"><b>웹헤즈 사이트(예시)</b><input id="em" placeholder="시험 계정 이메일"><input id="pw" type="password" placeholder="비밀번호"><button id="li">로그인</button><span id="st">로그인 전</span></div>
+<div class="slot"><iframe id="slot" src="gmap2_student_dev.html" title="국존 학생 페이지"></iframe></div>
+<script>
+const SB='https://hbsbrhgmofxvzgrvkkpg.supabase.co',PK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';let TOKEN=null,ASKED=false;const f=document.getElementById('slot');
+function send(){if(TOKEN&&ASKED)f.contentWindow.postMessage({gz:'auth',access_token:TOKEN},'*');}
+window.addEventListener('message',e=>{if(e.source!==f.contentWindow)return;const d=e.data||{};
+ if(d.gz==='need_auth'){ASKED=true;send();} if(d.gz==='student_opened')document.getElementById('st').textContent='학생 페이지 열림 (학생 '+d.sid+')';});
+document.getElementById('li').onclick=async()=>{const r=await fetch(SB+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:PK,'Content-Type':'application/json'},body:JSON.stringify({email:em.value,password:pw.value})});
+ const j=await r.json();if(!j.access_token){document.getElementById('st').textContent='로그인 실패';return;}TOKEN=j.access_token;document.getElementById('st').textContent='로그인됨';
+ ASKED=false;f.src='gmap2_student_dev.html';};
+</script></body></html>
