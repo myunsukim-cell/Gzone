@@ -36,7 +36,11 @@ else{try{if(window.parent!==window)parent.postMessage({gz:'need_auth',page:'stud
 /* [2026-10-19 국존 승인 · 학생 화면 10가지 ④] 학생 화면 용어 사전 — 한 곳. DB 값(acl_kr 등)은 바꾸지 않고 화면에 그릴 때만 바꾼다.
    [긴 말, 좁은 곳 말] — 좁은 곳(목록·칩·한 줄 글자)은 gzTerm(x,1) */
 window.GZ_TERM={'범주 섞음':['종류 헷갈림'],'핵심어 바꿈':['핵심 낱말 바꿔치기'],'단어 바꿈':['낱말 바꿔치기'],'순서 바꿈':['순서 뒤바꿈'],
- '범위 과장':['선지가 지문보다 크게 말함','크게 말함'],'처방':['다음엔 이렇게'],'미극복':['아직'],'극복':['잡음'],'확인보완 시간':['수업'],'본수업':['수업']};
+ '범위 과장':['선지가 지문보다 크게 말함','크게 말함'],'처방':['다음엔 이렇게'],'미극복':['아직'],'극복':['잡음'],'확인보완 시간':['수업'],'본수업':['수업'],
+ /* [2026-10-22 국존 00:56 승인] 시험 범위 탭 「시험까지 남은 공부」 — 점검표 B1·B4. DB 값(gz_student_plan_card)은 그대로, 학생 화면 표시만 */
+ '최난도 단원 1차 진도 완주':['가장 어려운 단원부터 한 번 끝까지'],'2차 심화 + 문제 풀이 연습 + 나머지 단원 진도':['어려운 단원 한 번 더 · 문제 풀기 · 남은 단원 끝내기'],'전체 모의고사 + 틀린 문항 영역별 재분류':['실전처럼 풀어 보기 · 틀린 문제는 종류별로 모으기'],
+ '1구간 최난도 진도 완주':['1단계 학습진도'],'2구간 심화·문제풀이':['2단계 문제연습'],'3구간 총정리·실전':['3단계 실전·오답 보강'],'내신 직전':['시험 바로 앞'],'학교 진도 맞춤':['학교 진도에 맞춰'],
+ '시험일 미확정':['시험 날짜가 아직 안 나왔어요'],'시험범위 미등록':['시험 범위가 아직 안 나왔어요'],'학교 출제분포 없음 — 전국 통계 대체':['우리 학교 기출 자료가 없어서 전국 모의고사 자료로 보여 줘요'],'개인 진단 미실시':['진단 시험을 아직 안 봤어요'],'진도계획표 미발행':['선생님 진도 계획표가 아직 없어요']};
 window.gzTerm=function(s,narrow){s=String(s==null?'':s).trim();var t=window.GZ_TERM[s];return t?((narrow&&t[1])?t[1]:t[0]):s;};
 window.gzFirstSent=function(s){s=String(s==null?'':s).trim();var m=s.match(/^[\s\S]*?[.!?。](?=\s|$)/);return m?m[0]:s;};</script><script>/* [2026-10-02] 학생 링크 토큰 공통 — 학습 기록은 gz2_plan_day_add(토큰·계획 소유·날짜 검사) 경유 */
 window.gzSK=function(){var s=(location.search||'')+(window.__DESK_Q||'');return {sid:+((s.match(/[?&]sid=(\d+)/)||[])[1]||0),k:((s.match(/[?&]k=([a-f0-9]{32})/)||[])[1]||'')};};
@@ -925,7 +929,7 @@ function gzBuildPos(){
         +'<span style="margin-left:auto;font-size:13px;color:#50605a;white-space:nowrap">'+(p.from||'').slice(5).replace('-','/')+' ~ '+(p.to||'').slice(5).replace('-','/')+(wk?' · '+wk:'')+'</span></div>'
         +'<div style="font-size:13px;color:#50605a;margin-top:4px">'+gzAreaWord(p.title||'')+'</div></div>'; }
       /* 영역 코드(G-GRM 등)는 학생 화면에 내보내지 않는다(점검표 B1) — method_area 이름으로 */
-      function gzAreaWord(t){var M=Object.assign({'L-MPO':'현대시','L-CPO':'고전시가','L-DRA':'극·희곡','D-SOC':'독서(사회)','D-HUM':'독서(인문)','D-SCI':'독서(과학)','D-ART':'독서(예술·기술)'},(typeof GZAREANM==='object'&&GZAREANM)||{});
+      function gzAreaWord(t){var pp=String(t).split(' — ');if(window.gzTerm)pp[0]=gzTerm(pp[0]);if(pp[1]==='범위 미확정')pp.length=1;t=pp.join(' · ');var M=Object.assign({'L-MPO':'현대시','L-CPO':'고전시가','L-DRA':'극·희곡','D-SOC':'독서(사회)','D-HUM':'독서(인문)','D-SCI':'독서(과학)','D-ART':'독서(예술·기술)'},(typeof GZAREANM==='object'&&GZAREANM)||{});
         return String(t).replace(/\b([LDGE]-[A-Z]{3})\b/g,function(m){return M[m]||m;});}
       var L='';
       /* 시험 날짜는 맨 위 목표 막대·「시험일까지 진도」에 이미 있어 여기서는 뺀다(점검표 H1 같은 정보 두 번 금지) */
@@ -944,7 +948,8 @@ function gzBuildPos(){
         : gzCard('시험까지 3단계 · '+pm+' 계획',
             (bn==='시험 준비 전'&&ps?'<div style="font-size:13px;color:#50605a;margin-bottom:8px">'+ps+'부터 시작해요</div>':'')
             +seg(1,'학습진도',pl.p1,sst(1))+seg(2,'문제연습',pl.p2,sst(2))+seg(3,'실전·오답 보강',pl.p3,sst(3)));
-      R+=gzCard('아직 없는 자료 '+gaps.length+'가지','<div style="font-size:12.5px;color:#6d6656;line-height:1.6;background:#f4f2ec;border:1px dashed #cfc9b8;border-radius:8px;padding:8px 10px">'+gaps.join(' · ')+'</div><div style="'+GZC.hint+'">채워질수록 왼쪽 칸들이 실제 값으로 바뀌어요</div>');
+      /* 아직 준비 중인 것 — 한 줄에 하나, 학생 말(점검표 B1·B4·F1). 안내문은 뺀다 */
+      if(gaps.length) R+=gzCard('아직 준비 중인 것 '+gaps.length+'가지',gaps.map(function(g){return '<div style="font-size:13px;color:#50605a;line-height:1.6">· '+(window.gzTerm?gzTerm(g):g)+'</div>';}).join(''));
       
       var sec=document.createElement('div');
       sec.id='gzPos'; sec.className='phase';
@@ -1012,8 +1017,8 @@ function gzBuildStudy(){
           +'</div></div>';
       });
       H+='<div style="'+C+'"><div style="'+CAP+'">시험일까지 진도</div>'
-        +'<div class="mini">'+(ex.phase||'')+' · '+(ex.exam_block||'')+' · 시험 '+((ex.exam_date||'').slice(5).replace('-','/'))+' ('+gzDD(ex.d_day)+')</div>'
-        +rows+'<div class="mini">■ 한 것 · │ 지금 여기 — 세부 계획선은 면 정의 확정 후 붙어요</div>'
+        +'<div class="mini">'+(window.gzTerm?gzTerm(ex.exam_block||''):(ex.exam_block||''))+' · 시험 '+((ex.exam_date||'').slice(5).replace('-','/'))+' ('+gzDD(ex.d_day)+')</div>'
+        +rows+'<div class="mini">■ 한 것 · │ 지금 여기</div>'
         +'<button onclick="if(window.gzOpenLesson)gzOpenLesson();" style="width:100%;background:#12211a;color:#fff;border:0;border-radius:9px;padding:12px;font-size:14.5px;font-weight:800;margin-top:8px;cursor:pointer">이어서 공부하기 →</button>'
         +'<div class="mini" style="text-align:center;margin-top:4px">아래 학습 페이지의 이어서 하던 면으로 내려가요</div></div>';
       /* 7 오늘의 문제 — [2026-10-19 국존 승인 ③] 작은 안내 → 큰 제목(작품 · 유형) → 진한 단추 → 왜 틀렸나 1줄 · 다음엔 이렇게 1줄 + 자세히 보기. 흰 카드 하나 */
