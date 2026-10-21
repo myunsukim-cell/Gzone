@@ -926,9 +926,16 @@ function gzBuildPos(){
       /* 이동 3 원본 철거(2026-08-27 · S5 사양 「내 위치 9코너를 4코너로 줄였다 — 기록성 3코너(지나온 기록·내 점수 이력·보낸 것)는 내 기록으로 이동·흡수」).
          수신처 실재 확인 후 제거: 지나온 기록→내 기록 학습 통장(coaching_logs 주차) · 내 점수→점수와 출석(exam_results·입학진단) · 선생님이 보낸 것→통장 행 리포트열(student_reports 주차). */
       var R='';
-      R+=gzCard('시험까지 3단계',
-        seg(1,'학습진도',pl.p1,true)+seg(2,'문제연습',pl.p2,false)+seg(3,'실전·오답 보강',pl.p3,false)
-        +'<div style="'+GZC.hint+'">이름과 기간은 선생님 쪽에서 정해져요</div>');
+      /* 시험 준비 방식(국존 10/21 18:45): 기본 4주 · 학생별 6주 · 학교 진도 맞춤 — gz_student_plan_card plan.prep_mode */
+      var bn=pl.block_now||'', cur=bn.indexOf('1구간')===0?1:bn.indexOf('2구간')===0?2:(bn.indexOf('3구간')===0||bn==='내신 직전')?3:0;
+      var pm=pl.prep_mode||'4주', ps=(pl.prep_start||'').slice(5).replace('-','/');
+      R+=(pm==='학교진도')
+        ? gzCard('시험 준비','<div style="font-size:13.5px;line-height:1.6"><b>학교 진도에 맞춰</b> 공부해요</div><div style="font-size:12px;color:#50605a;margin-top:3px">따로 3단계로 나누지 않고, 학교에서 배우는 순서대로 이어 가요</div>'
+            +'<div style="'+GZC.hint+'">준비 방식은 선생님과 정해요</div>')
+        : gzCard('시험까지 3단계 · '+pm+' 계획',
+            (bn==='시험 준비 전'&&ps?'<div style="font-size:12px;color:#50605a;margin-bottom:6px">'+ps+'부터 시작해요</div>':'')
+            +seg(1,'학습진도',pl.p1,cur===1)+seg(2,'문제연습',pl.p2,cur===2)+seg(3,'실전·오답 보강',pl.p3,cur===3)
+            +'<div style="'+GZC.hint+'">준비 방식(4주·6주·학교 진도)은 선생님과 정해요</div>');
       R+=gzCard('아직 없는 자료 '+gaps.length+'가지','<div style="font-size:12.5px;color:#6d6656;line-height:1.6;background:#f4f2ec;border:1px dashed #cfc9b8;border-radius:8px;padding:8px 10px">'+gaps.join(' · ')+'</div><div style="'+GZC.hint+'">채워질수록 왼쪽 칸들이 실제 값으로 바뀌어요</div>');
       
       var sec=document.createElement('div');
