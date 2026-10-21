@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>국존 일괄 검수</title>
+<!-- 2026-10-21 MAP(DB방): 학생이 고른 글자(student_pick)·판독 메모(candidates.note) 표시 — 노트 15190 -->
 <style>
 :root{--ink:#1a1a1a;--line:#d6dee6;--head:#1a3a5c;--ok:#1e7a4a;--warn:#c8801a;--bg:#f6f8fa}
 *{box-sizing:border-box}
@@ -178,8 +179,8 @@ function paint(){
         return `<div class="row ${i.status!=='pending'?'done':''} ${i.item_type!=='glyph'?'idt':''} ${SEEN.has(i.id)?'seen':''}" id="r${i.id}">
         <div id="c${i.id}" data-id="${i.id}" class="crop ${i.bbox?'':'none'}" ${cropAttr(i)} onclick="openBig(${i.id})">${c!==null?c:'위치 없음<br>눌러서 원본에서 찍기'}</div>
         <div class="side">
-          <div class="ctx">${ctxHTML(i)}${i.item_type!=='glyph'?' <span class="tag w">본인 확인</span>':''}</div>
-          <div class="ai">AI 판독 <b>${esc(i.guess||"□")}</b></div>
+          <div class="ctx">${ctxHTML(i)}${i.item_type!=='glyph'?(i.candidates&&i.candidates.note?' <span class="tag w">판독 메모 — 위치 못 찾음</span>':' <span class="tag w">본인 확인</span>'):''}</div>
+          <div class="ai">AI 판독 <b>${esc(i.guess||"□")}</b>${i.student_pick?` · <span class="tag" style="border-color:#1E4D3B;color:#1E4D3B">학생이 고름 <b>${esc(i.student_pick==='?'?'모르겠음':i.student_pick)}</b></span>`:''}${(i.candidates&&i.candidates.note)?`<div class="tag" style="display:block;margin-top:4px;white-space:normal;line-height:1.5">판독 메모: ${esc(i.candidates.note)}</div>`:''}</div>
           <div id="a${i.id}">${actHTML(i)}</div>
         </div>
       </div>`;}).join("")+`</div>`;
