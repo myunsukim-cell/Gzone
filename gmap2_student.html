@@ -2594,7 +2594,10 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
       if(el.id==='lessonflow')el.style.display='';
     });
   }
-  function gbar(){var g=$('v16goal'),t=$('v16gtxt'),b=$('v16gbar');if(!g||!t)return;var tt=g.querySelector('.tt'),dd=g.querySelector('.pill');var x=tt?('목표 '+tt.textContent.trim()+(dd?' · '+dd.textContent.trim():'')):(g.innerText||'').replace(/\s+/g,' ').trim();if(x&&x.indexOf('불러오는')<0)t.textContent=x.slice(0,70)+(x.length>70?'…':'');
+  function gbar(){var g=$('v16goal'),t=$('v16gtxt'),b=$('v16gbar');if(!g||!t)return;var tt=g.querySelector('.tt'),dd=g.querySelector('.pill');var x=tt?('목표 '+tt.textContent.trim()+(dd?' · '+dd.textContent.trim():'')):(g.innerText||'').replace(/\s+/g,' ').trim();if(x&&x.indexOf('불러오는')<0){
+      /* 2026-10-22 월례평가 직전 회차 비교(규칙 65) — 비교할 회차가 있을 때만 한 줄 덧붙임(B6 해낸 것 먼저) */
+      var mo=V.goal&&V.goal.monthly; if(mo&&!mo.no_prev&&mo.delta!=null){var dl=+mo.delta;x+=' · '+mo.month+'월 검사 '+(dl>0?'+'+dl+'점 올랐어요':dl===0?'지난번과 같아요':Math.abs(dl)+'점 — 다음 검사에서 되찾기');}
+      t.textContent=x.slice(0,90)+(x.length>90?'…':'');}
     if(b)b.classList.toggle('on',V.tab==='goal');}
   setInterval(gbar,1500);
   relocate(); var nR=0, tR=setInterval(function(){relocate(); if(++nR>120)clearInterval(tR);},500);
