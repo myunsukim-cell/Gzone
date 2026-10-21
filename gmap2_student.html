@@ -916,12 +916,12 @@ function gzBuildPos(){
     ]).then(function(rr){
       var stu=(rr[0]||[])[0]||{};   /* 철거된 3코너 전용 조회 2건(coaching_logs·student_reports)도 함께 제거 */
       function seg(no,name,p,now){ if(!p)return '';
-        var wk=p.weeks||''; return '<div style="border:1.5px solid '+(now?'#12211a':'#ded7c3')+';border-radius:10px;padding:9px 11px;margin-bottom:7px;background:#fff">'
+        var dn=(p.from&&p.to)?Math.round((new Date(p.to)-new Date(p.from))/864e5)+1:0; var wk=dn>=14?(Math.round(dn/7*10)/10)+'주':(dn>0?dn+'일':''); return '<div style="border:1.5px solid '+(now?'#12211a':'#ded7c3')+';border-radius:10px;padding:9px 11px;margin-bottom:7px;background:#fff">'
         +'<div style="display:flex;align-items:baseline"><b style="font-size:14.5px">'+no+'. '+name+'</b>'
-        +'<span style="margin-left:auto;font-size:11px;color:#98a49e">'+(p.from||'').slice(5).replace('-','/')+' ~ '+(p.to||'').slice(5).replace('-','/')+' · '+wk+'주</span></div>'
+        +'<span style="margin-left:auto;font-size:11px;color:#98a49e">'+(p.from||'').slice(5).replace('-','/')+' ~ '+(p.to||'').slice(5).replace('-','/')+(wk?' · '+wk:'')+'</span></div>'
         +'<div style="font-size:12px;color:#50605a;margin-top:3px">'+(p.title||'')+'</div></div>'; }
       var L='';
-      L+=gzCard('남은 날','<b style="font-family:\'Noto Serif KR\',serif;font-size:27px;font-weight:900">'+gzDD(ex.d_day)+'</b> <span style="font-size:12px;color:#50605a">'+((ex.exam_start||'').slice(5).replace('-','/'))+' 시작 · <b>'+(pl.weeks_left||'–')+'주</b> 남았어요</span>');
+      L+=gzCard('남은 날','<b style="font-family:\'Noto Serif KR\',serif;font-size:27px;font-weight:900">'+gzDD(ex.d_day)+'</b> <span style="font-size:12px;color:#50605a">'+((ex.exam_start||ex.exam_date||'').slice(5).replace('-','/'))+' 시작 · <b>'+(pl.weeks_left||'–')+'주</b> 남았어요</span>');
       L+=gzCard('시험 범위', ex.scope_n>0?('<b>'+ex.scope_n+'건 등록</b>'):'<span style="color:#8a8264">아직 <b>안 나왔어요</b><br><span style="font-size:11px">학교가 범위를 알려 주면 여기에 떠요</span></span>');
       /* 이동 3 원본 철거(2026-08-27 · S5 사양 「내 위치 9코너를 4코너로 줄였다 — 기록성 3코너(지나온 기록·내 점수 이력·보낸 것)는 내 기록으로 이동·흡수」).
          수신처 실재 확인 후 제거: 지나온 기록→내 기록 학습 통장(coaching_logs 주차) · 내 점수→점수와 출석(exam_results·입학진단) · 선생님이 보낸 것→통장 행 리포트열(student_reports 주차). */
@@ -934,7 +934,7 @@ function gzBuildPos(){
       var sec=document.createElement('div');
       sec.id='gzPos'; sec.className='phase';
       sec.innerHTML='<div style="padding:14px 22px 4px"><h2 style="margin:0;font-family:\'Noto Serif KR\',serif;font-size:22px">시험까지 남은 공부</h2>'
-        +'<div style="font-size:12px;color:#98a49e;margin:2px 0 10px">'+(ex.phase||'')+' · 다음 시험 '+((ex.exam_start||'미정').slice(5).replace('-','/'))+'</div>'
+        +'<div style="font-size:12px;color:#98a49e;margin:2px 0 10px">'+(ex.phase||'')+' · 다음 시험 '+((ex.exam_start||ex.exam_date||'미정').slice(5).replace('-','/'))+'</div>'
         +'<div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap"><div style="width:300px;flex:none">'+L+'</div><div style="flex:1;min-width:330px">'+R+'</div></div></div>';
       host.parentElement.insertBefore(sec,host.nextSibling); gzOrder();
       var a=document.getElementById('gzAtt'); if(a)set('gzPosAtt',a.textContent);
