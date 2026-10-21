@@ -2462,6 +2462,11 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 #v16 .gzc-nx{display:block;width:100%;min-height:48px;font:inherit;font-size:15px;font-weight:700;color:var(--deep);border:1.5px solid var(--deep);background:#fff;border-radius:12px;cursor:pointer}
 #v16 #v16cardsC{margin-top:12px}
 #v16 #v16cardsC>.tq{padding:14px}
+#v16 .vgoal{display:flex;gap:10px;align-items:baseline;width:100%;text-align:left;border:0;cursor:pointer;background:#1E4D3B;color:#fff;padding:9px 14px;border-radius:12px;margin:6px 0 8px;font:inherit}
+#v16 .vgoal .gq{font-size:12.5px;opacity:.85;flex:none}#v16 .vgoal .gt{font-size:14.5px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#v16 .vgoal .ga{font-size:18px;opacity:.8}
+#v16 .vgoal.on{outline:3px solid #E8A33D}
+#v16 .vrail .rt small.rq{display:block;font-size:12px;font-weight:500;opacity:.75;margin-top:2px}
+#v16 #v16tabs{display:flex!important;grid-template-columns:none!important;overflow-x:auto;scrollbar-width:none;gap:0}#v16 #v16tabs::-webkit-scrollbar{display:none}#v16 #v16tabs button{flex:1 0 auto!important;white-space:nowrap;padding-left:16px;padding-right:16px;min-width:0}
 </style>
 <script id="v16js">
 (function(){
@@ -2477,28 +2482,35 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   var S=SK.sid;
 
   /* [seq 365 · 2026-10-08 국존] 탭 = 종이 플래너 4장(오늘 P6D · 이번 주 P6W · 이번 달 P6M · 올해 P6Y). 종이에 쓰고 사진 올리면 여기서 모인다 */
-  var ACT=[{id:'day',v:'하루 기록',n:'오늘',m:'오늘 기록 한 장 — 할 일 ☐ · 시간표 · 돌아보기',c:'#2E7D4F',bg:'#E4EFE8'},
-   {id:'week',v:'한 주 기록',n:'이번 주',m:'한 주 기록 — 요일 할 일 ☐ · 습관 ☐ · 일요일 밤 사진 한 장',c:'#1D5C57',bg:'#E2F1EF'},
-   {id:'month',v:'한 달 기록',n:'이번 달',m:'달력 기록 — 시험 · 수업 · 중간 목표가 미리 찍혀요',c:'#4B3F8F',bg:'#ECE8F8'},
-   {id:'year',v:'1년 기록',n:'올해',m:'1년 기록 — 목표 · 시험 지도 · 자란 것',c:'#9A6B00',bg:'#FFF1C2'}];
+  /* [2026-10-21 국존 승인 · 목업 v18] 탭 = 학생 공부 순서 6개(상담 자료집 16단계) + 맨 위 목표 막대(goal, 탭 줄에는 안 보임).
+     종전 기간 탭(오늘·이번 주·이번 달·올해, seq 365)은 걸음 이름으로 남았다 — 종이 계획표는 「자기주도 학습」 안. */
+  var ACT=[{id:'study',n:'자기주도 학습',q:'오늘 내가 할 공부는?',st:'4·5·6',c:'#2E7D4F',bg:'#E4EFE8'},
+   {id:'lesson',n:'오늘 수업',q:'오늘 수업에서 무엇을 하지?',st:'7·8·10',c:'#1D5C57',bg:'#E2F1EF'},
+   {id:'wrong',n:'오답 노트',q:'다시 풀어야 할 문제는?',st:'9·14',c:'#A4472F',bg:'#FBEAE4'},
+   {id:'scope',n:'시험 범위',q:'이번 시험, 어디까지 하면 되지?',st:'11·13·14',c:'#4B3F8F',bg:'#ECE8F8'},
+   {id:'lec',n:'이 달의 강좌',q:'더 들어야 할 강좌는?',st:'4·15',c:'#1E5A8A',bg:'#E3EEF7'},
+   {id:'mine',n:'나를 위한 자료',q:'이 학원에서 나에게 도움이 될 것은?',st:'15·16',c:'#7A5A12',bg:'#F7EFD9'},
+   {id:'goal',n:'목표와 성장',q:'나 얼마나 늘었지?',st:'3·15',c:'#9A6B00',bg:'#FFF1C2',hide:true}];
   function actOf(id){for(var i=0;i<ACT.length;i++)if(ACT[i].id===id)return ACT[i];return ACT[0];}
   var ST=[
-   {i:0,o:1,a:'year',v:'세우기',n:'목표와 중간 목표',val:'공감',why:'「국어는 감이 아니라 데이터」 — 목표는 점수·기한·이유 세 가지로. 기한은 우리 가족이 골라요.',app:'목표·중간 목표·D-day를 늘 맨 위에 둬요. 중간 목표를 이루면 불이 켜져요.',me:'선생님과 목표 한 줄, 이유 한 줄.'},
-   {i:1,o:3,a:'day',v:'해내기',n:'오늘 과제',val:'최고',why:'「강의 다음이 공부」 — 강의를 들은 뒤 예습으로 내 것을 만들어요.',app:'오늘 과제를 열면 영상·교안·확인 퀴즈. 제출 = 완료, 틀린 문제는 오답노트로.',me:'열고, 풀고, 제출.'},
-   {i:2,o:4,a:'day',v:'알아내기',n:'오늘의 문제 · 오답노트',val:'열정',day:'home',why:'「우리 아이 약점의 이름」 — 틀린 문제에 유형 이름이 붙어요.',app:'틀렸던 문제 카드 5장(섞어서, 틀린 카드는 한 번 더) + 같은 종류 새 문제 5개 + 오답노트.',me:'하루 5장, 틀리면 왜 틀렸나·다음엔 이렇게 읽기.'},
-   {i:3,o:5,a:'day',v:'숨기지 않기',n:'못 한 날',val:'신뢰',day:'home',why:'「약속 대신 기록」 — 못 한 날도 기록이 되면 숨길 일이 없어요.',app:'「못 해요」를 누르면 이유가 기록되고 과제관리 시간에 자동 편성.',me:'이유 고르고 한 번 보내기.'},
-   {i:4,o:1,a:'day',v:'정하기',n:'수업 전 · 오늘 목표',val:'재미',day:'class',why:'「시작은 시간표 하나」 — 앉자마자 시작해요.',app:'오늘 목표 하나(꼭) + 지난 과제·양·어려움·어려웠던 것·오늘 작품(선택) → 선생님 카드.',me:'답하고 하나 골라 보내기.'},
-   {i:5,o:2,a:'day',v:'확인하기',n:'수업 1·2·3교시',val:'사랑',day:'class',why:'「혼자 못 채우는 자리를 수업이 개별로 채워요」',app:'오리엔테이션 · 오늘 수업 순서(과제 결과로 바뀜) · 수업 후 다음 주 목표 3개. 리포트 초안 자동.',me:'확인 → 실전 → 다음 주 목표.'},
-   {i:6,o:1,a:'month',v:'채우기',n:'시험 범위 · 진도 · 자료',val:'최고',why:'「학교가 다르면 공부법이 달라요」 — 내신은 범위 본문을 완전히 내 것으로.',app:'D-day·범위·나눠 둔 셋·자료집·우리 학교 기출. 범위가 나오면 자동.',me:'남은 작품 하나, 자료집 한 회차.'},
-   {i:7,o:2,a:'month',v:'다지기',n:'직전 약점 5문항',val:'열정',why:'「같은 3등급, 다른 원인」 — 마지막엔 내 약한 유형만.',app:'오답 습관으로 5문항 자동 추출.',me:'풀고 끝.'},
-   {i:8,o:2,a:'year',v:'돌아보기',n:'시험 복기',val:'신뢰',why:'「해설로 끝나지 않습니다 — 스스로 고치는 여섯 단」',app:'넘어선 것 1·틀린 문항 먼저, 점수는 버튼.',me:'틀린 문항 다시 보고 「다음엔」 한 줄.'},
-   {i:9,o:3,a:'year',v:'더 강해지기',n:'자란 것 · 다음 목표',val:'공감',why:'「두 달의 실제 궤적」 — 기록으로 자란 만큼 보고 다음 목표를 세워요.',app:'이번 달 나·약점 지도·주별 공부 기록·힘 눈금 → 다음 목표.',me:'다음 목표 한 줄 → 다시 세우기.'},
-   {i:10,o:0,a:'day',v:'기록',n:'오늘 기록',val:'신뢰',why:'「손으로 쓴 계획이 남아요」 — 온라인 칸은 잘 안 써서, 종이에 쓰고 사진으로 모아요.',app:'오늘 양식 인쇄(목표·일정이 미리 찍힘) · 사진 올리기 · 올린 기록.',me:'인쇄 → 쓰고 ☐ 체크 → 저녁에 사진.'},
-   {i:11,o:0,a:'week',v:'기록',n:'이번 주 기록',val:'신뢰',why:'「한 주가 한 장」 — 요일마다 할 일 3줄, 습관 3개.',app:'주간 양식 인쇄 · 사진 올리기 · ☐ 집계(할 일 완료율 · 습관 달성률).',me:'월요일에 인쇄 → 일요일 밤 사진 한 장.'},
-   {i:12,o:1,a:'week',v:'평가',n:'이번 주 선생님 평가',val:'사랑',why:'「수업은 혼자 못 채우는 자리를 채워요」',app:'주별 수업 기록과 선생님 평가.',me:'읽고 다음 주 첫 할 일에 반영.'},
-   {i:13,o:0,a:'month',v:'기록',n:'이번 달 기록',val:'최고',why:'「시험은 달력 위에서 준비해요」 — 내신 · 모의고사 · 수능 · 휴일이 미리 찍혀요.',app:'월간 달력 인쇄 · 사진 올리기 · 날마다 ☐ 집계.',me:'달 첫날 인쇄 → 했으면 ☐ → 달 끝에 사진.'},
-   {i:14,o:3,a:'month',v:'자료',n:'강의 · 강좌 · 책장',val:'열정',why:'「강의 다음이 공부」',app:'강의 보기 · 내 강좌와 진도 · 새 강좌 · 신청 · 책장.',me:'이번 달 들을 강좌 고르기.'},
-   {i:15,o:0,a:'year',v:'기록',n:'올해 기록',val:'공감',why:'「1년 시험 지도」 — 3월~2월 시험과 방학이 한 장에.',app:'연간 양식 인쇄 · 달마다 목표 ☐.',me:'학기 초 인쇄 → 달마다 목표 한 줄.'}];
+   {i:0,o:0,a:'goal',v:'세우기',n:'목표와 중간 목표',val:'공감',why:'「국어는 감이 아니라 데이터」 — 목표는 점수·기한·이유 세 가지로. 기한은 우리 가족이 골라요.',app:'목표·중간 목표·D-day를 늘 맨 위에 둬요. 중간 목표를 이루면 불이 켜져요.',me:'선생님과 목표 한 줄, 이유 한 줄.'},
+   {i:1,o:0,a:'study',v:'해내기',n:'오늘 과제',val:'최고',why:'「강의 다음이 공부」 — 강의를 들은 뒤 예습으로 내 것을 만들어요.',app:'오늘 과제를 열면 영상·교안·확인 퀴즈. 제출 = 완료, 틀린 문제는 오답노트로.',me:'열고, 풀고, 제출.'},
+   {i:2,o:0,a:'wrong',v:'알아내기',n:'오늘의 문제 · 오답노트',val:'열정',day:'home',why:'「우리 아이 약점의 이름」 — 틀린 문제에 유형 이름이 붙어요.',app:'틀렸던 문제 카드 5장(섞어서, 틀린 카드는 한 번 더) + 같은 종류 새 문제 5개 + 오답노트.',me:'하루 5장, 틀리면 왜 틀렸나·다음엔 이렇게 읽기.'},
+   {i:3,o:3,a:'study',v:'숨기지 않기',n:'못 한 날',val:'신뢰',day:'home',why:'「약속 대신 기록」 — 못 한 날도 기록이 되면 숨길 일이 없어요.',app:'「못 해요」를 누르면 이유가 기록되고 과제관리 시간에 자동 편성.',me:'이유 고르고 한 번 보내기.'},
+   {i:4,o:0,a:'lesson',v:'정하기',n:'수업 전 · 오늘 목표',val:'재미',day:'class',why:'「시작은 시간표 하나」 — 앉자마자 시작해요.',app:'오늘 목표 하나(꼭) + 지난 과제·양·어려움·어려웠던 것·오늘 작품(선택) → 선생님 카드.',me:'답하고 하나 골라 보내기.'},
+   {i:5,o:1,a:'lesson',v:'확인하기',n:'오늘 수업 순서',val:'사랑',day:'class',why:'「혼자 못 채우는 자리를 수업이 개별로 채워요」',app:'오리엔테이션 · 오늘 수업 순서(과제 결과로 바뀜) · 수업 후 다음 주 목표 3개. 리포트 초안 자동.',me:'확인 → 실전 → 다음 주 목표.'},
+   {i:6,o:0,a:'scope',v:'채우기',n:'시험 범위 · 진도 · 자료',val:'최고',why:'「학교가 다르면 공부법이 달라요」 — 내신은 범위 본문을 완전히 내 것으로.',app:'D-day·범위·나눠 둔 셋·자료집·우리 학교 기출. 범위가 나오면 자동.',me:'남은 작품 하나, 자료집 한 회차.'},
+   {i:7,o:1,a:'scope',v:'다지기',n:'직전 약점 5문항',val:'열정',why:'「같은 3등급, 다른 원인」 — 마지막엔 내 약한 유형만.',app:'오답 습관으로 5문항 자동 추출.',me:'풀고 끝.'},
+   {i:8,o:3,a:'scope',v:'돌아보기',n:'시험 복기',val:'신뢰',why:'「해설로 끝나지 않습니다 — 스스로 고치는 여섯 단」',app:'넘어선 것 1·틀린 문항 먼저, 점수는 버튼.',me:'틀린 문항 다시 보고 「다음엔」 한 줄.'},
+   {i:9,o:1,a:'goal',v:'더 강해지기',n:'자란 것 · 다음 목표',val:'공감',why:'「두 달의 실제 궤적」 — 기록으로 자란 만큼 보고 다음 목표를 세워요.',app:'이번 달 나·약점 지도·주별 공부 기록·힘 눈금 → 다음 목표.',me:'다음 목표 한 줄 → 다시 세우기.'},
+   {i:10,o:2,a:'study',v:'기록',n:'오늘 계획표',val:'신뢰',why:'「손으로 쓴 계획이 남아요」 — 온라인 칸은 잘 안 써서, 종이에 쓰고 사진으로 모아요.',app:'오늘 양식 인쇄(목표·일정이 미리 찍힘) · 사진 올리기 · 올린 기록.',me:'인쇄 → 쓰고 ☐ 체크 → 저녁에 사진.'},
+   {i:11,o:1,a:'study',v:'기록',n:'이번 주 계획표',val:'신뢰',why:'「한 주가 한 장」 — 요일마다 할 일 3줄, 습관 3개.',app:'주간 양식 인쇄 · 사진 올리기 · ☐ 집계(할 일 완료율 · 습관 달성률).',me:'월요일에 인쇄 → 일요일 밤 사진 한 장.'},
+   {i:12,o:2,a:'lesson',v:'평가',n:'선생님이 남긴 것',val:'사랑',why:'「수업은 혼자 못 채우는 자리를 채워요」',app:'주별 수업 기록과 선생님 평가.',me:'읽고 다음 주 첫 할 일에 반영.'},
+   {i:13,o:2,a:'scope',v:'기록',n:'이번 달 시험 달력',val:'최고',why:'「시험은 달력 위에서 준비해요」 — 내신 · 모의고사 · 수능 · 휴일이 미리 찍혀요.',app:'월간 달력 인쇄 · 사진 올리기 · 날마다 ☐ 집계.',me:'달 첫날 인쇄 → 했으면 ☐ → 달 끝에 사진.'},
+   {i:14,o:0,a:'lec',v:'자료',n:'강의 · 강좌',val:'열정',why:'「강의 다음이 공부」',app:'강의 보기 · 내 강좌와 진도 · 새 강좌 · 신청 · 책장.',me:'이번 달 들을 강좌 고르기.'},
+   {i:15,o:2,a:'goal',v:'기록',n:'올해 시험 지도',val:'공감',why:'「1년 시험 지도」 — 3월~2월 시험과 방학이 한 장에.',app:'연간 양식 인쇄 · 달마다 목표 ☐.',me:'학기 초 인쇄 → 달마다 목표 한 줄.'},
+   {i:16,o:0,a:'mine',v:'읽기',n:'책장 · 독서',val:'열정',why:'「읽은 책이 쌓이면 실력이 쌓여요」',app:'내 책장 · 읽은 책 · 이번 달 읽을 책.',me:'이번 달 한 권 고르기.'},
+   {i:17,o:1,a:'mine',v:'묻기',n:'필요한 것 요청하기',val:'신뢰',why:'「필요한 건 말하면 학원이 채워요」',app:'자료 · 강좌 · 질문을 선생님께 보내요.',me:'한 줄로 보내기.'}];
 
   /* 자리 배치표 — [걸음, 찾는 법]. 같은 걸음 안에서는 이 순서대로 놓인다. 기존 카드는 아이디로 찾아 그대로 옮긴다 */
   function card(sel){var e=document.querySelector(sel);return e?(e.closest('.card')||e.closest('.newlec')||e):null;}
@@ -2507,7 +2519,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   var PLAN=[
    [0,q1('#v16goal')],[0,q1('#firstSec')],[0,function(){return card('#gzCareer');}],
    [10,q1('#v16p_P6D')],[11,q1('#v16p_P6W')],[13,q1('#v16p_P6M')],[15,q1('#v16p_P6Y')],
-   [1,q1('#v16hw')],[1,function(){return card('#gzHwCard');}],[1,q1('#gzLesson')],[1,q1('#gzStudyBody')],[1,q1('#v16cardsC')],[14,function(){return card('#gzWatch');}],[14,function(){return card('#gzCourse');}],[14,q1('#gzReqBox')],[14,q1('#gzShelfCard')],
+   [1,q1('#v16hw')],[1,function(){return card('#gzHwCard');}],[1,q1('#gzLesson')],[1,q1('#gzStudyBody')],[1,q1('#v16cardsC')],[14,function(){return card('#gzWatch');}],[14,function(){return card('#gzCourse');}],[17,q1('#gzReqBox')],[16,q1('#gzShelfCard')],
    [2,q1('#gzTodayQ')],[2,q1('#v16rev')],[2,function(){return card('#gzWrongStat');}],
    [3,q1('#v16skip')],
    [4,q1('#premeta')],
@@ -2521,12 +2533,13 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   /* ── 상태: 수업일/수업 없는 날 · 국면 · 지금 걸음 — 전부 기록에서 자동 ── */
   var V={day:'home',cls:'',phase:'평상',now:1,done:{},line:{},tab:null,sel:null,help:{},user:false,ctx:null,goal:null,pend:[],skipped:[],exam:null};
   function kst(){return new Date(Date.now()+9*36e5);}
-  function stepsOf(tab){return ST.filter(function(x){return x.a===tab&&(!x.day||x.day===V.day);}).sort(function(a,b){return (a.o||0)-(b.o||0);});}
+  function stepsOf(tab){return ST.filter(function(x){return x.a===tab;}).sort(function(a,b){return (a.o||0)-(b.o||0);});}
 
   /* ── 틀 ── */
   var root=document.createElement('div'); root.id='v16';
   var h='<div class="vh" id="v16hd"><div class="vtop"><button class="vlogo" id="v16logo" title="국존 공부 지도 다시 보기">국존</button><span class="vname" id="v16name">…</span><span class="vinfo" id="v16info"></span></div><div class="vty" id="v16ty"></div>'
-   +'<div class="vtabs" id="v16tabs">'+ACT.map(function(a){return '<button data-tab="'+a.id+'" style="--ac:'+a.c+';--abg:'+a.bg+'"><span class="n">'+a.n+'</span></button>';}).join('')+'</div>'
+   +'<button class="vgoal" id="v16gbar" data-tab="goal" title="목표와 성장 보기"><span class="gq">나 얼마나 늘었지?</span><span class="gt" id="v16gtxt">목표 불러오는 중…</span><span class="ga">›</span></button>'
+   +'<div class="vtabs" id="v16tabs">'+ACT.filter(function(a){return !a.hide;}).map(function(a){return '<button data-tab="'+a.id+'" style="--ac:'+a.c+';--abg:'+a.bg+'"><span class="n">'+a.n+'</span></button>';}).join('')+'</div>'
    +'<div class="vchips" id="v16chips"></div></div>'
    +'<div class="vbody"><nav class="vrail" id="v16rail"></nav><main class="vmain" id="v16main">';
   ST.forEach(function(x){var a=actOf(x.a);
@@ -2560,6 +2573,9 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
       if(el.id==='lessonflow')el.style.display='';
     });
   }
+  function gbar(){var g=$('v16goal'),t=$('v16gtxt'),b=$('v16gbar');if(!g||!t)return;var tt=g.querySelector('.tt'),dd=g.querySelector('.pill');var x=tt?('목표 '+tt.textContent.trim()+(dd?' · '+dd.textContent.trim():'')):(g.innerText||'').replace(/\s+/g,' ').trim();if(x&&x.indexOf('불러오는')<0)t.textContent=x.slice(0,70)+(x.length>70?'…':'');
+    if(b)b.classList.toggle('on',V.tab==='goal');}
+  setInterval(gbar,1500);
   relocate(); var nR=0, tR=setInterval(function(){relocate(); if(++nR>120)clearInterval(tR);},500);
   document.addEventListener('DOMContentLoaded',relocate);
 
@@ -2571,7 +2587,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     $('v16chips').style.setProperty('--ac',a.c); $('v16chips').style.setProperty('--abg',a.bg);
     $('v16chips').innerHTML=list.map(function(x){return '<button class="sch'+cls(x)+'" data-i="'+x.i+'"><i></i>'+esc(x.n)+'</button>';}).join('');
     var rail=$('v16rail'); rail.style.setProperty('--ac',a.c); rail.style.setProperty('--abg',a.bg);
-    rail.innerHTML='<div class="rt">'+a.n+'</div><div class="rlist">'+list.map(function(x){return '<button class="stp'+cls(x)+'" data-i="'+x.i+'"><b></b><span class="t"><i>'+esc(x.n)+'</i>'+(V.line[x.i]?'<small>'+esc(V.line[x.i])+'</small>':'')+'</span></button>';}).join('')+'</div>';
+    rail.innerHTML='<div class="rt">'+a.n+(a.q?'<small class="rq">'+a.q+'</small>':'')+'</div><div class="rlist">'+list.map(function(x){return '<button class="stp'+cls(x)+'" data-i="'+x.i+'"><b></b><span class="t"><i>'+esc(x.n)+'</i>'+(V.line[x.i]?'<small>'+esc(V.line[x.i])+'</small>':'')+'</span></button>';}).join('')+'</div>';
     [].forEach.call(root.querySelectorAll('.vstep'),function(s){s.classList.toggle('on',+s.dataset.i===V.sel);});
     var hd=$('v16hd'); if(hd)root.style.setProperty('--hh',hd.offsetHeight+'px');
     centerChip(); if(window.requestAnimationFrame)requestAnimationFrame(centerChip); setTimeout(centerChip,300);
@@ -2589,7 +2605,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     rpc('gz2_student_visit',tok({p:step==null?{ua:(navigator.userAgent||'').slice(0,120)}:{step:step}})); }
   window.v16visit=visit; visit(null);
   root.addEventListener('click',function(e){
-    var t=e.target.closest('[data-tab]'); if(t&&root.contains(t)&&t.closest('#v16tabs')){V.user=true;goTab(t.dataset.tab);return;}
+    var t=e.target.closest('[data-tab]'); if(t&&root.contains(t)&&(t.closest('#v16tabs')||t.id==='v16gbar')){V.user=true;goTab(t.dataset.tab);return;}
     var s=e.target.closest('.sch,.stp'); if(s){V.user=true;V.sel=+s.dataset.i;render();visit(V.sel);window.scrollTo(0,0);return;}
     var hq=e.target.closest('[data-help]'); if(hq){var th=$('v16three'+hq.dataset.help); if(th)th.hidden=!th.hidden; return;}
     if(e.target.id==='v16logo'){openMap(false);return;}
@@ -2600,18 +2616,22 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 
   /* ── 국존 공부 지도(첫 로그인 · 로고) ── */
   var COLS=['처음 한 번','수업 없는 날(엿새)','수업일(하루)','시험 앞뒤'];
-  var MAP={day:[null,['오늘 기록 · 오늘 과제','할 일 ☐ → 저녁에 사진',10],['수업 전 오늘 목표 → 1·2·3교시','수업 후 다음 주 목표',4],null],
-   week:[['이번 주 기록 인쇄','월요일에 미리 인쇄',11],['요일 할 일 ☐ · 습관 ☐','일요일 밤 사진 한 장',11],['선생님 평가','이번 주 수업 기록',12],null],
-   month:[['이번 달 달력 기록','시험 · 수업 · 중간 목표',13],['강의 · 강좌 · 책장','이번 달 들을 것',14],null,['시험 범위 → 직전 약점 5문항','범위가 나오면 자동',6]],
-   year:[['올해 목표 세우기','선생님과 점수 · 기한 · 이유',0],['올해 기록','달마다 목표 한 줄',15],null,['시험 복기 → 다음 목표','자란 만큼 다시 세우기',8]]};
+  var MAP={goal:[['목표 세우기','점수 · 기한 · 이유',0],null,null,['자란 것 → 다음 목표','시험 뒤 다시 세우기',9]],
+   study:[['계획표 받기','오늘 · 이번 주 계획표 인쇄',11],['오늘 과제 → 계획표 ☐','못 하면 「못 한 날」',1],['오늘 과제 확인','수업 전에 끝냈나',1],null],
+   lesson:[null,null,['수업 전 목표 → 수업 순서','수업 뒤 다음 주 계획',4],null],
+   wrong:[null,['오늘의 문제 5장','틀린 문제 다시',2],['선생님과 오답 짚기','왜 틀렸나 · 다음엔',2],null],
+   scope:[['우리 학교 시험 범위','범위가 나오면 자동',6],null,null,['직전 약점 5문항 → 시험 복기','시험 7일 안 · 끝나면 복기',7]],
+   lec:[['이 달의 강좌 고르기','시험 범위에서 이어짐',14],['강의 듣기','이어 듣기',14],null,null],
+   mine:[['책장 · 독서','이번 달 한 권',16],null,null,['필요한 것 요청하기','자료 · 강좌 · 질문',17]]};
+  var MAPROWS=['goal','study','lesson','wrong','scope','lec','mine'].map(function(id){return actOf(id);});
   var MS={first:true,sel:null};
   var MKEY='gz17map:'+S;
   function mapHtml(){
     var wide=window.innerWidth>=900, g='';
-    if(!wide){ g='<div class="mlist">'+ACT.map(function(x){return '<div class="blk"><div class="rh" style="background:'+x.c+'"><b>'+x.n+' · '+x.v+'</b><i>'+x.m+'</i></div>'
+    if(!wide){ g='<div class="mlist">'+MAPROWS.map(function(x){return '<div class="blk"><div class="rh" style="background:'+x.c+'"><b>'+x.n+'</b><i>'+x.q+'</i></div>'
         +MAP[x.id].map(function(c,ci){return c?'<button class="c" data-cell="'+c[2]+'"><span class="w">'+COLS[ci]+'</span><span><b>'+c[0]+'</b><small>'+c[1]+'</small></span></button>':'';}).join('')+'</div>';}).join('')+'</div>'; }
     else { g='<div class="mgrid"><div></div>'+COLS.map(function(c){return '<div class="hd">'+c+'</div>';}).join('');
-      ACT.forEach(function(x){ g+='<div class="rh" style="background:'+x.c+'"><b>'+x.n+'</b><i>'+x.v+' — '+x.m+'</i></div>';
+      MAPROWS.forEach(function(x){ g+='<div class="rh" style="background:'+x.c+'"><b>'+x.n+'</b><i>'+x.q+'</i></div>';
         MAP[x.id].forEach(function(c){ g+=c?'<button class="c" data-cell="'+c[2]+'"><b>'+c[0]+'</b><small>'+c[1]+'</small></button>':'<div class="c e"></div>'; }); });
       g+='</div>'; }
     var x=MS.sel!=null?ST[MS.sel]:null;
@@ -2619,7 +2639,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
       :'<div class="mnote">칸을 누르면 왜 하는지 · 앱이 뭘 해 주는지 · 내가 뭘 하는지가 나와요.</div>';
     return '<div class="in"><div style="display:flex;align-items:center;gap:8px"><span class="vlogo" style="display:inline-flex;align-items:center;justify-content:center">국존</span><span style="font-size:12.5px;color:var(--dm)">국존 공부 지도 · 사용 설명</span></div>'
       +'<h1>국존에서 공부하는 법이 곧 이 사이트를 쓰는 법이에요</h1>'
-      +'<div class="sub">위 4칸(오늘 · 이번 주 · 이번 달 · 올해)은 <b>기록 4장(하루 · 한 주 · 한 달 · 1년)</b>과 같아요. 칸마다 양식을 인쇄해 손으로 쓰고 ☐에 체크한 뒤 <b>사진 한 장</b>을 올리면 여기에 모여요. 시험 · 모의고사 · 수능 · 휴일은 양식에 미리 찍혀요.</div>'
+      +'<div class="sub">맨 위 초록 막대는 <b>내 목표와 성장</b>, 그 아래 6칸은 <b>공부 순서</b>예요 — 자기주도 학습 → 오늘 수업 → 오답 노트 → 시험 범위 → 이 달의 강좌 → 나를 위한 자료. 종이 계획표는 「자기주도 학습」에서 인쇄하고 사진을 올려요.</div>'
       +g+ex+'<button class="mgo" data-mapclose="1">'+(MS.first?'시작하기':'닫기')+'</button><div class="mnote">다시 보려면 왼쪽 위 「국존」 로고를 누르세요.</div></div>';
   }
   function openMap(first){MS.first=!!first;MS.sel=null;var m=$('v16map');m.innerHTML=mapHtml();m.hidden=false;document.body.style.overflow='hidden';}
@@ -2664,7 +2684,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     if(!V.user){V.tab=ST[V.now].a;V.sel=V.now;}
     render();
     drawGoal(); drawHw(); drawPaper(); drawSkip(); drawPhase(); drawExam(); drawGrow(); drawBeyond(); drawCardsC();
-    setTimeout(function(){ if(window.__FIRST_ACTIVE&&!V.user){V.now=0;V.tab='year';V.sel=0;render();} },2500);   /* 첫 수업 과정 중이면 내 목표부터 */
+    setTimeout(function(){ if(window.__FIRST_ACTIVE&&!V.user){V.now=0;V.tab='goal';V.sel=0;render();} },2500);   /* 첫 수업 과정 중이면 내 목표부터 */
   });
   /* [2026-10-19 국존 지시 19:12] 수업일에는 걸음 2가 숨으므로 「오늘 과제」 끝에 카드 입구 하나(테두리 단추 — 진한 단추는 과제 쪽 하나) */
   function drawCardsC(){var b=$('v16cardsC'); if(!b)return; if(V.day!=='class'){b.hidden=true;return;}
@@ -2678,7 +2698,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     $('v16info').innerHTML=(V.day==='class'?'오늘 '+esc(tyName(V.ty)||'수업')+' '+esc(V.cls):(V.nx?'다음 '+esc(tyName(V.nx.st)||'수업')+' '+esc(V.nx.d)+' '+esc(V.nx.tm):'수업 없는 날'))+(sk&&sk!=='–'&&sk!=='0'?' · 🔥 '+esc(sk)+'일':'')+(ex?'<br>'+esc(ex):'');
   }
   setTimeout(paintInfo,3500); setTimeout(paintInfo,8000);
-  if(!V.tab){V.tab='day';V.sel=1;} render();
+  if(!V.tab){V.tab='study';V.sel=1;} render();
 
 
   /* ── [seq 330 · 2026-10-08] 학생 플래너: 위로 가는 줄 · 어제 정한 첫 할 일 · 오늘 돌아보기 · 이번 주 습관 · 한 주 기록 ── */
