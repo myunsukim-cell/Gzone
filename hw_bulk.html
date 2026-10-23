@@ -162,7 +162,7 @@ function observe(){
 function markSeen(id){if(SEEN.has(id))return;SEEN.add(id);const r=document.getElementById("r"+id);if(r)r.classList.add("seen");stat();}
 function visRows(){const f=document.getElementById("filt").value;return ITEMS.filter(i=>f==="all"?1:f==="done"?i.status!=="pending":i.status==="pending");}
 function actHTML(i){
-  if(i.status!=='pending') return `<div class="done-b">완료 · ${esc(i.fix||"")} · ${esc(i.reviewed_by||"")}</div>`;
+  if(i.status!=='pending') return `<div class="done-b">완료 · ${esc(i.fix||"")} · ${esc(i.reviewed_by||"")} <button class="s" style="margin-left:6px;font-size:12px;padding:1px 8px" onclick="reOpen(${i.id})">수정</button></div>`;
   return `<div class="act"><input id="f${i.id}" value="${esc(i.fix||i.guess||"")}" data-o="${esc(i.guess||"")}" oninput="chg(${i.id})" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();one(${i.id},true);}" onfocus="cur(${i.id})"><button class="ok" id="b${i.id}" onclick="one(${i.id},true)">맞음</button></div>`;
 }
 function chg(id){const el=document.getElementById("f"+id),b=document.getElementById("b"+id);const c=el.value.trim()!==el.dataset.o;
@@ -250,6 +250,17 @@ async function one(id,adv){const w=who();if(!w)return;const it=ITEMS.find(x=>x.i
     if(r.ok){mark(it,w);it.fix=fix;doneRow(it);stat();note(`저장 — ${it.guess||"□"} → ${fix}`);
       if(adv){const n=nextPending(id);if(n){const el=document.getElementById("f"+n.id);if(el){document.getElementById("r"+n.id).scrollIntoView({block:"center",behavior:"smooth"});el.focus({preventScroll:true});el.select();}}}
     }else note("실패: "+(r.err||r.reason||""));
+  }catch(e){note("오류: "+e.message.slice(0,80));}}
+/* 2026-10-24 국존 「잘못 입력했을 때 수정 버튼」 — 확정한 칸을 다시 고친다(gz_hw_reedit: 본문·첨삭 기록·라벨 동시 교체) */
+function reOpen(id){const it=ITEMS.find(x=>x.id===id);if(!it)return;const a=document.getElementById("a"+id);
+  a.innerHTML=`<div class="act"><input id="f${id}" value="${esc(it.fix||"")}" data-o="${esc(it.fix||"")}" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();reSave(${id});}if(event.key==='Escape'){event.stopPropagation();reCancel(${id});}"><button class="fx" onclick="reSave(${id})">다시 저장</button><button onclick="reCancel(${id})">취소</button></div>`;
+  const el=document.getElementById("f"+id);el.focus();el.select();}
+function reCancel(id){const it=ITEMS.find(x=>x.id===id);if(it)document.getElementById("a"+id).innerHTML=actHTML(it);}
+async function reSave(id){const w=who();if(!w)return;const it=ITEMS.find(x=>x.id===id);const fix=document.getElementById("f"+id).value.trim();
+  if(!fix){alert("글자를 입력하세요.");return;}
+  try{const r=await rpc("gz_hw_reedit",{p_id:id,p_fix:fix,p_by:w});
+    if(r.ok){const old=it.fix;it.fix=r.fix!==undefined?r.fix:fix;it.reviewed_by=w;reCancel(id);note(`다시 저장 — ${old||"□"} → ${it.fix||"□"}`);}
+    else note("실패: "+(r.err||""));
   }catch(e){note("오류: "+e.message.slice(0,80));}}
 async function bulk(list){const w=who();if(!w)return;if(!list.length){note("저장할 항목이 없습니다.");return;}note(`저장 중… ${list.length}건`);
   try{const r=await rpc("gz_hw_confirm_bulk",{p_items:list.map(x=>({id:x.id,fix:x.fix})),p_by:w});
