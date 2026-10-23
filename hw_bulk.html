@@ -249,6 +249,7 @@ async function one(id,adv){const w=who();if(!w)return;const it=ITEMS.find(x=>x.i
   markSeen(id);
   try{const r=await rpc("gz_hw_confirm",{p_id:id,p_fix:fix,p_by:w});
     if(r.ok){mark(it,w);it.fix=fix;doneRow(it);stat();note(`저장 — ${it.guess||"□"} → ${fix}`);
+      if(fix!==(it.guess||""))propagate(id,w);
       if(adv){const n=nextPending(id);if(n){const el=document.getElementById("f"+n.id);if(el){document.getElementById("r"+n.id).scrollIntoView({block:"center",behavior:"smooth"});el.focus({preventScroll:true});el.select();}}}
     }else note("실패: "+(r.err||r.reason||""));
   }catch(e){note("오류: "+e.message.slice(0,80));}}
@@ -260,7 +261,8 @@ function reCancel(id){const it=ITEMS.find(x=>x.id===id);if(it)document.getElemen
 async function reSave(id){const w=who();if(!w)return;const it=ITEMS.find(x=>x.id===id);const fix=document.getElementById("f"+id).value.trim();
   if(!fix){alert("글자를 입력하세요.");return;}
   try{const r=await rpc("gz_hw_reedit",{p_id:id,p_fix:fix,p_by:w});
-    if(r.ok){const old=it.fix;it.fix=r.fix!==undefined?r.fix:fix;it.reviewed_by=w;reCancel(id);note(`다시 저장 — ${old||"□"} → ${it.fix||"□"}`);}
+    if(r.ok){const old=it.fix;it.fix=r.fix!==undefined?r.fix:fix;it.reviewed_by=w;reCancel(id);note(`다시 저장 — ${old||"□"} → ${it.fix||"□"}`);
+      if(it.fix!==(it.guess||""))propagate(id,w);}
     else note("실패: "+(r.err||""));
   }catch(e){note("오류: "+e.message.slice(0,80));}}
 /* 2026-10-24 국존 01:19 「학생별로 가장 반복되는 글자 오류를 순서대로 — 대표 글자를 적용하면 나머지는 알아서」
@@ -285,9 +287,20 @@ async function sameApply(sid,k){const g=RULES[sid].same[k];
   const ids=g.items.map(x=>x.id).filter(id=>{const it=ITEMS.find(i=>i.id===id);return it&&it.status==="pending";});
   const v=prompt(`${RULES[sid].student_name} — AI가 「${g.guess}」로 읽은 ${ids.length}곳을 모두 같은 글자로 확정합니다.\n(빈 칸은 「빈칸」, 모르면 앞에 ?)\n\n`+g.items.map(x=>x.ctx).join("\n"),g.guess);
   if(v===null||!v.trim())return;await bulk(ids.map(id=>({id,fix:v.trim()})));await loadRules();paint();}
+/* 2026-10-24 국존 01:37 「하나를 수정하면 그걸로 나머지를 읽을 수 있지 않냐」 — 고친 칸 하나를 이 학생의 필체 규칙으로 삼아
+   같은 학생의 원고 전체와 대기 칸을 다시 읽어 같은 오독을 자동으로 고친다(gz_hw_propagate). 고친 곳은 첨삭 기록에 「전파」로 남는다. */
+async function propagate(id,w){const it=ITEMS.find(x=>x.id===id);
+  note(`「${it.guess}→${it.fix}」 — ${it.student_name} 원고 전체에서 같은 필체를 찾는 중…`);
+  try{const r=await rpc("gz_hw_propagate",{p_item:id,p_by:w});
+    if(!r.ok){note("전파 실패: "+(r.err||""));return;}
+    const n=(r.text_fixed||0)+(r.items_fixed||0);
+    if(n){(r.changes||[]).forEach(c=>{if(c.id){const t=ITEMS.find(x=>x.id===c.id);if(t){mark(t,"전파:"+w);t.fix=c.fix;doneRow(t);}}});stat();
+      note(`✔ ${it.student_name}: 같은 필체 오독 ${n}곳 자동 수정 — `+(r.changes||[]).map(c=>c.before?`${c.before}→${c.after}`:`칸 ${c.id}→${c.fix}`).join(" · "));}
+    else note(`${it.student_name}: 같은 필체 오독 추가 없음 (규칙 ${r.rule} 저장 — 다음 원고부터 적용)`);
+  }catch(e){note("전파 오류: "+e.message.slice(0,80));}}
 async function bulk(list){const w=who();if(!w)return;if(!list.length){note("저장할 항목이 없습니다.");return;}note(`저장 중… ${list.length}건`);
   try{const r=await rpc("gz_hw_confirm_bulk",{p_items:list.map(x=>({id:x.id,fix:x.fix})),p_by:w});
-    list.forEach(x=>{const it=ITEMS.find(y=>y.id===x.id);if(it){mark(it,w);it.fix=x.fix;doneRow(it);}});
+    list.forEach(x=>{const it=ITEMS.find(y=>y.id===x.id);if(it){mark(it,w);it.fix=x.fix;doneRow(it);if(x.fix!==(it.guess||""))propagate(x.id,w);}});
     stat();note(`저장 완료 — ${r.done}건${r.fail?` · 실패 ${r.fail}`:""}`);
   }catch(e){note("오류: "+e.message.slice(0,90));}}
 function collect(fid){ // 화면에서 실제로 본 대기 항목만
