@@ -104,6 +104,7 @@ function who(){const w=document.getElementById("who").value.trim();if(!w){alert(
 
 async function load(){
   ITEMS=await rest("v_hw_unc_all?select=*&order=student_name,seq");
+  await loadRules();
   try{(await rest("v_hw_review_queue?select=id,htr_raw")).forEach(r=>RAW[r.id]=r.htr_raw||"");}catch(e){}
   paint();
   for(const p of [...new Set(ITEMS.map(i=>i.img_path).filter(Boolean))]){
@@ -173,7 +174,7 @@ function paint(){
   const by=new Map();rows.forEach(i=>{if(!by.has(i.feedback_id))by.set(i.feedback_id,[]);by.get(i.feedback_id).push(i);});
   document.getElementById("body").innerHTML=[...by.values()].map(g=>{
     const h=g[0],tr=(h.traits||[]).map(t=>`<span class="tag w">${esc(t)}</span>`).join("");
-    return `<div class="grp"><div class="gh"><b>${esc(h.student_name)}</b><span class="tag">${g.length}건</span>${tr}<span class="sp"></span>
+    return `<div class="grp"><div class="gh"><b>${esc(h.student_name)}</b><span class="tag">${g.length}건</span>${tr}${ruleHTML(h.student_id)}<span class="sp"></span>
       <button class="s" onclick="grpOk(${h.feedback_id})">이 학생 본 항목 「맞음」</button></div>`+
       g.map(i=>{const c=cropHTML(i);
         return `<div class="row ${i.status!=='pending'?'done':''} ${i.item_type!=='glyph'?'idt':''} ${SEEN.has(i.id)?'seen':''}" id="r${i.id}">
@@ -185,7 +186,7 @@ function paint(){
         </div>
       </div>`;}).join("")+`</div>`;
   }).join("")||'<div class="grp"><div class="row">해당 항목 없음</div></div>';
-  observe();stat();
+  observe();stat();applyHints();
 }
 function stat(){
   const p=ITEMS.filter(i=>i.status==="pending"),sp=p.filter(i=>SEEN.has(i.id)).length;
@@ -262,6 +263,28 @@ async function reSave(id){const w=who();if(!w)return;const it=ITEMS.find(x=>x.id
     if(r.ok){const old=it.fix;it.fix=r.fix!==undefined?r.fix:fix;it.reviewed_by=w;reCancel(id);note(`다시 저장 — ${old||"□"} → ${it.fix||"□"}`);}
     else note("실패: "+(r.err||""));
   }catch(e){note("오류: "+e.message.slice(0,80));}}
+/* 2026-10-24 국존 01:19 「학생별로 가장 반복되는 글자 오류를 순서대로 — 대표 글자를 적용하면 나머지는 알아서」
+   gz_hw_rules: 학생별 확정 혼동 규칙(많은 순)과 걸리는 대기 칸 · 같은 판독 묶음. 적용은 gz_hw_confirm_bulk(칸마다 본문·라벨 정상 기록). */
+let RULES={};
+async function loadRules(){try{const r=await rpc("gz_hw_rules",{});RULES={};(r||[]).forEach(s=>{RULES[s.student_id]=s;});}catch(e){RULES={};}}
+function ruleHTML(sid){const s=RULES[sid];if(!s)return"";let h="";
+  (s.rules||[]).forEach((r,k)=>{const hp=(r.hits||[]).filter(x=>{const it=ITEMS.find(i=>i.id===x.id);return it&&it.status==="pending";});
+    h+=`<span class="tag w" style="margin-left:6px" title="교사 확정 ${r.n}번">반복 ${esc(r.src)}→${esc(r.fix)} ×${r.n}${hp.length?` <button class="s" style="font-size:11px;padding:0 6px" onclick="ruleApply(${sid},${k})">대기 ${hp.length}곳 적용</button>`:""}</span>`;});
+  (s.same||[]).forEach((g,k)=>{const n=g.items.filter(x=>{const it=ITEMS.find(i=>i.id===x.id);return it&&it.status==="pending";}).length;
+    if(n>1)h+=`<span class="tag w" style="margin-left:6px">같은 판독 「${esc(g.guess)}」 ${n}곳 <button class="s" style="font-size:11px;padding:0 6px" onclick="sameApply(${sid},${k})">한꺼번에</button></span>`;});
+  return h;}
+function applyHints(){Object.values(RULES).forEach(s=>(s.rules||[]).forEach(r=>(r.hits||[]).forEach(x=>{
+  const it=ITEMS.find(i=>i.id===x.id),el=document.getElementById("f"+x.id);
+  if(it&&it.status==="pending"&&el&&el.value.trim()===(it.guess||"")){el.value=x.fix;chg(x.id);el.title=`이 학생 반복 오류 ${r.src}→${r.fix} 자동 제안`;}})));}
+async function ruleApply(sid,k){const r=RULES[sid].rules[k];
+  const list=r.hits.filter(x=>{const it=ITEMS.find(i=>i.id===x.id);return it&&it.status==="pending";}).map(x=>({id:x.id,fix:(document.getElementById("f"+x.id)||{}).value?.trim()||x.fix,ctx:x.ctx}));
+  if(!list.length)return;
+  if(!confirm(`${RULES[sid].student_name} — ${r.src}→${r.fix} 규칙을 ${list.length}곳에 적용합니다.\n\n`+list.map(x=>`${x.ctx} → ${x.fix}`).join("\n")))return;
+  await bulk(list);await loadRules();paint();}
+async function sameApply(sid,k){const g=RULES[sid].same[k];
+  const ids=g.items.map(x=>x.id).filter(id=>{const it=ITEMS.find(i=>i.id===id);return it&&it.status==="pending";});
+  const v=prompt(`${RULES[sid].student_name} — AI가 「${g.guess}」로 읽은 ${ids.length}곳을 모두 같은 글자로 확정합니다.\n(빈 칸은 「빈칸」, 모르면 앞에 ?)\n\n`+g.items.map(x=>x.ctx).join("\n"),g.guess);
+  if(v===null||!v.trim())return;await bulk(ids.map(id=>({id,fix:v.trim()})));await loadRules();paint();}
 async function bulk(list){const w=who();if(!w)return;if(!list.length){note("저장할 항목이 없습니다.");return;}note(`저장 중… ${list.length}건`);
   try{const r=await rpc("gz_hw_confirm_bulk",{p_items:list.map(x=>({id:x.id,fix:x.fix})),p_by:w});
     list.forEach(x=>{const it=ITEMS.find(y=>y.id===x.id);if(it){mark(it,w);it.fix=x.fix;doneRow(it);}});
