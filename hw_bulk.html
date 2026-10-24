@@ -20,6 +20,19 @@ button.g{background:var(--ok);color:#fff;border-color:var(--ok);font-weight:700}
 button.s{padding:3px 9px;font-size:12px}
 button:disabled{opacity:.45;cursor:default}
 .msg{font-size:12px;color:#556}
+.ph{position:relative;width:100%;overflow:hidden;border-radius:6px;background:#eef1f4;outline:1px solid var(--line)}
+.ph img{position:absolute;max-width:none;user-select:none}
+.ph .bx{position:absolute;border:2px solid #e33;background:#e3333314;border-radius:3px;cursor:pointer}
+.ph .bx.done{border-color:#1e7a4a;background:#1e7a4a14}
+.ph .bx b{position:absolute;left:-2px;top:-20px;background:#e33;color:#fff;font-size:12px;line-height:18px;padding:0 5px;border-radius:4px 4px 4px 0}
+.ph .bx.done b{background:#1e7a4a}
+.ph .bx.cur{box-shadow:0 0 0 3px #f5c400}
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:6px 14px;padding:10px 14px}
+.prow{display:grid;grid-template-columns:30px 1fr;gap:6px;align-items:center;padding:4px 6px;border-radius:6px}
+.prow.cur{background:#fff7d6}.prow .no{font-weight:800;color:#e33;text-align:center}.prow.done .no{color:#1e7a4a}
+.prow .cx{font-size:12px;color:#556;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow .act input{font-size:18px;padding:5px 8px}.prow .act button{font-size:13px;padding:0 10px}
+.pbar{display:flex;gap:8px;align-items:center;padding:8px 14px 12px;border-bottom:1px solid #e8edf2}
 .grp{margin:12px 14px;background:#fff;border:1px solid var(--line);border-radius:9px;overflow:hidden}
 .gh{background:#eef2f6;padding:7px 11px;display:flex;gap:9px;align-items:center;font-size:13px;border-bottom:1px solid var(--line)}
 .gh b{font-size:14px}
@@ -109,7 +122,7 @@ async function load(){
   paint();
   for(const p of [...new Set(ITEMS.map(i=>i.img_path).filter(Boolean))]){
     try{const s=await rpc("gz_hw_sign_read",{p_bucket:"klean-students",p_path:p,p_expires:7200});
-      IMG[p]=s.url;const im=new Image();im.onload=()=>{DIM[p]={w:im.naturalWidth,h:im.naturalHeight};repaintCrops(p);};im.src=s.url;
+      IMG[p]=s.url;const im=new Image();im.onload=()=>{DIM[p]={w:im.naturalWidth,h:im.naturalHeight};clearTimeout(window.__rp);window.__rp=setTimeout(paint,150);};im.src=s.url;
     }catch(e){}
   }
 }
@@ -164,7 +177,7 @@ function markSeen(id){if(SEEN.has(id))return;SEEN.add(id);const r=document.getEl
 function visRows(){const f=document.getElementById("filt").value;return ITEMS.filter(i=>f==="all"?1:f==="done"?i.status!=="pending":i.status==="pending");}
 function actHTML(i){
   if(i.status!=='pending') return `<div class="done-b">완료 · ${esc(i.fix||"")} · ${esc(i.reviewed_by||"")} <button class="s" style="margin-left:6px;font-size:12px;padding:1px 8px" onclick="reOpen(${i.id})">수정</button></div>`;
-  return `<div class="act"><input id="f${i.id}" value="${esc(i.fix||i.guess||"")}" data-o="${esc(i.guess||"")}" oninput="chg(${i.id})" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();one(${i.id},true);}" onfocus="cur(${i.id})"><button class="ok" id="b${i.id}" onclick="one(${i.id},true)">맞음</button></div>`;
+  return `<div class="act"><input id="f${i.id}" value="${esc(i.fix||i.guess||"")}" data-o="${esc(i.guess||"")}" oninput="chg(${i.id})" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();one(${i.id},true);}" onfocus="cur(${i.id});document.querySelectorAll('.bx.cur').forEach(b=>b.classList.remove('cur'));const b=document.getElementById('bx${i.id}');if(b)b.classList.add('cur');"><button class="ok" id="b${i.id}" onclick="one(${i.id},true)">맞음</button></div>`;
 }
 function chg(id){const el=document.getElementById("f"+id),b=document.getElementById("b"+id);const c=el.value.trim()!==el.dataset.o;
   el.classList.toggle("ch",c);b.textContent=c?"고쳐 저장":"맞음";b.className=c?"fx":"ok";}
@@ -176,18 +189,39 @@ function paint(){
     const h=g[0],tr=(h.traits||[]).map(t=>`<span class="tag w">${esc(t)}</span>`).join("");
     return `<div class="grp"><div class="gh"><b>${esc(h.student_name)}</b><span class="tag">${g.length}건</span>${tr}${ruleHTML(h.student_id)}<span class="sp"></span>
       <button class="s" onclick="grpOk(${h.feedback_id})">이 학생 본 항목 「맞음」</button></div>`+
-      g.map(i=>{const c=cropHTML(i);
-        return `<div class="row ${i.status!=='pending'?'done':''} ${i.item_type!=='glyph'?'idt':''} ${SEEN.has(i.id)?'seen':''}" id="r${i.id}">
-        <div id="c${i.id}" data-id="${i.id}" class="crop ${i.bbox?'':'none'}" ${cropAttr(i)} onclick="openBig(${i.id})">${c!==null?c:'위치 없음<br>눌러서 원본에서 찍기'}</div>
-        <div class="side">
-          <div class="ctx">${ctxHTML(i)}${i.item_type!=='glyph'?(i.candidates&&i.candidates.note?' <span class="tag w">판독 메모 — 위치 못 찾음</span>':' <span class="tag w">본인 확인</span>'):''}</div>
-          <div class="ai">AI 판독 <b>${esc(i.guess||"□")}</b>${i.student_pick?` · <span class="tag" style="border-color:#1E4D3B;color:#1E4D3B">학생이 고름 <b>${esc(i.student_pick==='?'?'모르겠음':i.student_pick)}</b></span>`:''}${(i.candidates&&i.candidates.note)?`<div class="tag" style="display:block;margin-top:4px;white-space:normal;line-height:1.5">판독 메모: ${esc(i.candidates.note)}</div>`:''}</div>
-          <div id="a${i.id}">${actHTML(i)}</div>
-        </div>
-      </div>`;}).join("")+`</div>`;
+      photoGroups(g).map(pg=>photoHTML(pg)).join("")+`</div>`;
   }).join("")||'<div class="grp"><div class="row">해당 항목 없음</div></div>';
   observe();stat();applyHints();
 }
+/* 2026-10-24 국존 10:15 「한 화면에 글자만 쪼개놓음 — 사진 1회에 첨삭은 몰아서」 — 같은 사진의 칸을 사진 한 장에 번호로 모아 보여 주고 한 번에 저장 */
+function photoGroups(g){const m=new Map();g.forEach(i=>{const k=(i.img_path||"(사진 없음)");if(!m.has(k))m.set(k,[]);m.get(k).push(i);});return [...m.values()];}
+function photoView(pg){const bs=pg.filter(i=>i.bbox&&i.bbox.w);if(!bs.length)return null;
+  let x0=Math.min(...bs.map(i=>i.bbox.x))-.04,x1=Math.max(...bs.map(i=>i.bbox.x+i.bbox.w))+.04,y0=Math.min(...bs.map(i=>i.bbox.y))-.05,y1=Math.max(...bs.map(i=>i.bbox.y+i.bbox.h))+.05;
+  x0=Math.max(0,x0);y0=Math.max(0,y0);x1=Math.min(1,x1);y1=Math.min(1,y1);if(x1-x0<.45){const c=(x0+x1)/2;x0=Math.max(0,c-.225);x1=Math.min(1,x0+.45);}
+  return {x:x0,y:y0,w:x1-x0,h:y1-y0};}
+function photoHTML(pg){const p=pg[0].img_path,u=IMG[p],d=DIM[p],v=photoView(pg),pend=pg.filter(i=>i.status==="pending").length,pct=n=>(n*100).toFixed(3)+"%";
+  pg.forEach((i,k)=>i._no=k+1);
+  let ph;
+  if(!v) ph=`<div class="ph" style="height:60px;display:flex;align-items:center;justify-content:center;color:#889">위치 없는 칸 — 아래 목록에서 바로 입력</div>`;
+  else if(!u||!d) ph=`<div class="ph" style="height:220px;display:flex;align-items:center;justify-content:center;color:#889">원본 불러오는 중…</div>`;
+  else ph=`<div class="ph" style="aspect-ratio:${(v.w*d.w).toFixed(1)}/${(v.h*d.h).toFixed(1)};width:min(100%,calc(80vh * ${((v.w*d.w)/(v.h*d.h)).toFixed(4)}));margin:0 auto">
+    <img src="${u}" alt="" style="width:${pct(1/v.w)};left:${pct(-v.x/v.w)};top:${pct(-v.y/v.h)}">`+
+    pg.filter(i=>i.bbox&&i.bbox.w).map(i=>`<div class="bx ${i.status!=='pending'?'done':''}" id="bx${i.id}" style="left:${pct((i.bbox.x-v.x)/v.w)};top:${pct((i.bbox.y-v.y)/v.h)};width:${pct(i.bbox.w/v.w)};height:${pct(i.bbox.h/v.h)}" onclick="focusRow(${i.id})"><b>${i._no}</b></div>`).join("")+`</div>`;
+  return `<div style="padding:10px 14px 0">${ph}</div>
+  <div class="plist">${pg.map(i=>`<div class="prow row ${i.status!=='pending'?'done':''}" id="r${i.id}">
+      <div class="no">${i._no}</div>
+      <div><div class="cx" title="${esc((i.ctx_before||'')+'['+(i.guess||'')+']'+(i.ctx_after||''))}">${esc((i.ctx_before||'').slice(-10))}<b style="color:#c22">[${esc(i.guess||'□')}]</b>${esc((i.ctx_after||'').slice(0,10))}${i.item_type!=='glyph'?' <span class="tag w">메모</span>':''}</div>
+      <div id="a${i.id}">${actHTML(i)}</div></div></div>`).join("")}</div>
+  <div class="pbar"><button class="g" onclick="photoSave('${esc(p)}',${pg[0].feedback_id})" ${pend?'':'disabled'}>이 사진 ${pend}칸 한 번에 저장</button>
+   <span class="msg">번호와 사진의 빨간 네모가 짝입니다. 맞는 칸은 그대로 두고, 틀린 칸만 고친 뒤 이 단추 하나로 저장 · 빈 칸은 「빈칸」 또는 □</span></div>`;}
+function focusRow(id){const el=document.getElementById("f"+id);document.querySelectorAll(".bx.cur").forEach(b=>b.classList.remove("cur"));const b=document.getElementById("bx"+id);if(b)b.classList.add("cur");if(el){el.focus();el.select();}cur(id);}
+async function photoSave(p,fid){const list=ITEMS.filter(i=>i.status==="pending"&&i.img_path===p&&i.feedback_id===fid)
+  .map(i=>({id:i.id,fix:(document.getElementById("f"+i.id)||{}).value?.trim()||i.guess||""})).filter(x=>x.fix);
+  if(!list.length)return;const w=who();if(!w)return;
+  const ch=list.filter(x=>{const it=ITEMS.find(i=>i.id===x.id);return it&&x.fix!==(it.guess||"");});
+  await bulk(list,true);paint();
+  if(ch.length)await propagate(ch[ch.length-1].id,w);   // 고친 칸들이 학생 규칙으로 쌓인 뒤 한 번만 다시 읽기
+  paint();}
 function stat(){
   const p=ITEMS.filter(i=>i.status==="pending"),sp=p.filter(i=>SEEN.has(i.id)).length;
   const ap=ITEMS.filter(i=>i.status==="pending"&&needPick(i)).length;
@@ -298,9 +332,9 @@ async function propagate(id,w){const it=ITEMS.find(x=>x.id===id);
       note(`✔ ${it.student_name}: 같은 필체 오독 ${n}곳 자동 수정 — `+(r.changes||[]).map(c=>c.before?`${c.before}→${c.after}`:`칸 ${c.id}→${c.fix}`).join(" · "));}
     else note(`${it.student_name}: 같은 필체 오독 추가 없음 (규칙 ${r.rule} 저장 — 다음 원고부터 적용)`);
   }catch(e){note("전파 오류: "+e.message.slice(0,80));}}
-async function bulk(list){const w=who();if(!w)return;if(!list.length){note("저장할 항목이 없습니다.");return;}note(`저장 중… ${list.length}건`);
+async function bulk(list,noProp){const w=who();if(!w)return;if(!list.length){note("저장할 항목이 없습니다.");return;}note(`저장 중… ${list.length}건`);
   try{const r=await rpc("gz_hw_confirm_bulk",{p_items:list.map(x=>({id:x.id,fix:x.fix})),p_by:w});
-    list.forEach(x=>{const it=ITEMS.find(y=>y.id===x.id);if(it){mark(it,w);it.fix=x.fix;doneRow(it);if(x.fix!==(it.guess||""))propagate(x.id,w);}});
+    list.forEach(x=>{const it=ITEMS.find(y=>y.id===x.id);if(it){mark(it,w);it.fix=x.fix;doneRow(it);if(!noProp&&x.fix!==(it.guess||""))propagate(x.id,w);}});
     stat();note(`저장 완료 — ${r.done}건${r.fail?` · 실패 ${r.fail}`:""}`);
   }catch(e){note("오류: "+e.message.slice(0,90));}}
 function collect(fid){ // 화면에서 실제로 본 대기 항목만
