@@ -1,59 +1,133 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>논술 첨삭지</title>
-<!-- 2026-10-26 MAP(DB방) 채팅 38: 학생·학부모 첨삭지 열람(M15-F5·F6). 열쇠 = parent_home과 같은 sid+k. DB gz_es_share -->
+<!-- 2026-10-26 MAP(DB방) 채팅 38 v2: 학생·학부모 첨삭지 받기 — 사양 spec_M15v2_F5 · DB gz_es_share(sid,k,open) 익명 · 학생 열쇠 -->
 <style>
-:root{--ink:#1d2329;--sub:#6a737d;--line:#e3e6e9;--bg:#f7f6f2;--card:#fff;--acc:#1a3a5c;--ok:#1e7a4a}
+:root{--paper:#f7f5ef;--sheet:#fff;--line:#e3e0d6;--ink:#1f2a24;--mid:#5c6660;--soft:#6f7872;
+--green:#1E4D3B;--green-wash:#e8f0ec;--amber:#a35f00;--amber-wash:#fbf1e1;--red:#b3261e;
+--f:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif}
-.wrap{max-width:760px;margin:0 auto;padding:16px}
-header{padding:18px 16px 6px;max-width:760px;margin:0 auto}
-header .k{font-size:12px;color:var(--sub);letter-spacing:.3px}
-header h1{font-size:21px;margin:2px 0 0;letter-spacing:-.3px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
-.top{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
-.top b{font-size:16px}
-.score{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums;color:var(--acc)}
-.muted{color:var(--sub);font-size:13px}
-.memo{margin:10px 0 0;padding:10px 12px;background:#f3f6f9;border-left:3px solid var(--acc);border-radius:6px}
-.memo .l{font-size:12px;color:var(--sub);display:block}
-button{font:inherit;font-size:14px;padding:8px 16px;border-radius:8px;border:1px solid var(--acc);background:var(--acc);color:#fff;cursor:pointer;margin-top:12px}
-button.ghost{background:#fff;color:var(--acc)}
-.doc{width:100%;height:80vh;border:1px solid var(--line);border-radius:10px;background:#fff}
-.empty{padding:30px 10px;text-align:center;color:var(--sub)}
-.bar{display:flex;gap:8px;align-items:center;margin:4px 0 10px}
-footer{text-align:center;color:var(--sub);font-size:12px;padding:20px}
-</style>
-</head>
-<body>
-<header><div class="k">국존 국어전문학원 · 논술 첨삭지</div><h1 id="who">불러오는 중…</h1></header>
-<div class="wrap" id="app"></div>
-<footer>이 링크는 학생·학부모 전용입니다. 다른 분께 전달하지 말아 주세요.</footer>
+html,body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 var(--f)}
+.bar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:16px;padding:8px 16px;background:var(--sheet);border-bottom:1px solid var(--line);font-size:13px;color:var(--mid);flex-wrap:wrap}
+.bar b{font-size:16px;color:var(--ink)}
+.bar .sp{flex:1}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tabs button{font:inherit;font-size:13px;min-height:36px;padding:0 12px;border-radius:6px;border:0;background:transparent;color:var(--mid);cursor:pointer}
+.tabs button.on{background:var(--green);color:#fff;font-weight:500}
+.tabs button:focus-visible,.btn:focus-visible,.lnk:focus-visible,.li[role=button]:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.tabs .n{margin-left:4px;font-variant-numeric:tabular-nums}
+main{padding:16px;display:grid;gap:16px;max-width:1280px;margin:0 auto}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+.cols.l{grid-template-columns:minmax(0,300px) minmax(0,1fr)}
+@media (max-width:860px){.cols,.cols.l{grid-template-columns:1fr}}
+.card{background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:8px;min-width:0;align-content:start}
+.card.main{border-color:var(--green)}
+.card>*,details>*{min-width:0}
+.t24{font-size:24px;font-weight:700;line-height:1.3;margin:0}
+.t19{font-size:19px;font-weight:700;line-height:1.35;margin:0;text-wrap:balance}
+.t16{font-size:16px;margin:0}
+.t13{font-size:13px;color:var(--mid);margin:0}
+.soft{color:var(--soft)}
+.num{font-variant-numeric:tabular-nums}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--line);background:var(--sheet);color:var(--ink);font:500 16px var(--f);white-space:nowrap;cursor:pointer;text-decoration:none}
+.btn.p{background:var(--green);border-color:var(--green);color:#fff}
+.btn.full{width:100%}
+.btn.s{font-size:13px;padding:0 12px}
+.btn:disabled{opacity:.45;cursor:default}
+.lnk{background:none;border:0;padding:0;font:500 13px var(--f);color:var(--green);cursor:pointer;white-space:nowrap;text-decoration:none;min-height:24px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row .sp{flex:1}
+.li{display:flex;gap:8px;align-items:center;min-height:44px;padding:4px 0;border-top:1px solid var(--line)}
+.li:first-child{border-top:0}
+.li[role=button]{cursor:pointer}
+.li .tx{flex:1;min-width:0}
+.li .tx .t16{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li.on{background:var(--green-wash);margin:0 -8px;padding:4px 8px;border-radius:6px;border-top-color:transparent}
+.st{font-size:13px;white-space:nowrap;color:var(--mid)}
+.st.ok{color:var(--green);font-weight:500}
+.st.todo{color:var(--amber);font-weight:500}
+.st.bad{color:var(--red);font-weight:500}
+.chev{color:var(--soft)}
+.lbl{font-size:13px;color:var(--mid);margin:0}
+.lbl b{color:var(--ink);font-weight:500}
+input[type=text],input[type=search],textarea,select{font:inherit;font-size:16px;padding:8px 12px;min-height:44px;border:1px solid var(--line);border-radius:8px;background:var(--sheet);color:var(--ink);width:100%}
+textarea{min-height:88px;resize:vertical}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:4px 8px;font-size:16px;align-items:baseline}
+.kv dt{color:var(--mid);font-size:13px}
+.kv dd{margin:0;min-width:0}
+.drop{border:1px dashed var(--mid);border-radius:10px;padding:16px;text-align:center;color:var(--mid);font-size:13px;cursor:pointer}
+.drop.on{background:var(--green-wash);border-color:var(--green)}
+.done{background:var(--green-wash);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--green)}
+.warn{background:var(--amber-wash);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--amber)}
+.err{font-size:13px;color:var(--red)}
+.empty{padding:24px;text-align:center;color:var(--mid);font-size:13px}
+.grid{overflow-x:auto}
+.grid table{border-collapse:collapse;width:100%;min-width:640px;font-size:13px}
+.grid th,.grid td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+.grid th{color:var(--mid);font-weight:500}
+.grid td .t{font-size:13px;font-weight:500;color:var(--ink)}
+.mk{font-size:13px;white-space:nowrap}
+.mk.ok{color:var(--green)}.mk.todo{color:var(--amber)}.mk.none{color:var(--soft)}
+.bars{display:grid;gap:8px}
+.bars .b{display:grid;grid-template-columns:72px minmax(0,1fr) 40px;gap:8px;align-items:center;font-size:13px}
+.bars .b span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.bars .tr{height:8px;background:#efece4;border-radius:4px;overflow:hidden}.bars .tr i{display:block;height:100%;background:var(--amber)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;z-index:99;max-width:92vw;display:none}
+.toast.bad{background:var(--red)}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumbs figure{margin:0;position:relative;width:64px}
+.thumbs img{width:64px;height:84px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.thumbs figcaption{font-size:13px;color:var(--mid);text-align:center}
+.thumbs .x{position:absolute;top:2px;right:2px;width:24px;height:24px;border-radius:12px;border:0;background:rgba(0,0,0,.6);color:#fff;cursor:pointer;font-size:13px}
+iframe.inner{width:100%;height:calc(100vh - 120px);border:1px solid var(--line);border-radius:10px;background:#fff}
+.paper{width:100%;height:calc(100vh - 260px);min-height:520px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.three>div{background:#f4f6f5;border-radius:8px;padding:8px 12px;font-size:13px}
+.three b{display:block;font-size:13px;color:var(--ink)}
+@media (max-width:700px){.three{grid-template-columns:1fr}}
+.chk{display:flex;gap:8px;align-items:center;min-height:44px;font-size:13px;color:var(--mid);cursor:pointer}
+.chk input{width:20px;height:20px}
+details>summary{cursor:pointer;color:var(--green);font-size:13px;font-weight:500;min-height:32px;list-style:none}
+details>summary::-webkit-details-marker{display:none}
+
+main{max-width:640px}
+.doc{width:100%;height:calc(100vh - 140px);min-height:560px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.blk{background:#f4f6f5;border-radius:8px;padding:8px 12px}
+.blk b{display:block;font-size:13px;color:var(--mid);font-weight:500}
+footer{max-width:640px;margin:0 auto;padding:0 16px 24px;font-size:13px;color:var(--soft)}
+</style></head><body>
+<header class="bar"><b>논술 첨삭지</b><span class="sp"></span><span id="who"></span></header>
+<main id="app"><div class="empty">불러오는 중…</div></main>
+<footer>국존 국어전문학원 · 이 링크는 학생·학부모 전용입니다. 다른 분께 전달하지 말아 주세요.</footer>
 <script>
 const URL_="https://qcnsadcpsonuxnjyrlez.supabase.co",KEY="sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0";
 const q=new URLSearchParams(location.search),SID=+q.get("sid"),K=q.get("k")||"";
-const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[①-⑳]/g,c=>String(c.charCodeAt(0)-0x245F)).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const md=d=>{if(!d)return"";const p=String(d).slice(5,10).split("-");return (+p[0])+"월 "+(+p[1])+"일";};
 async function call(open){const r=await fetch(URL_+"/rest/v1/rpc/gz_es_share",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json"},body:JSON.stringify({p_sid:SID,p_k:K,p_open:open||null})});return r.json();}
 let D=null;
-async function list(){const app=document.getElementById("app");
-  if(!SID||!K){document.getElementById("who").textContent="링크가 올바르지 않습니다";return;}
-  D=await call();if(!D||!D.ok){document.getElementById("who").textContent=(D&&D.error)||"링크가 맞지 않습니다";return;}
-  document.getElementById("who").textContent=D.student.name+" 학생";
-  app.innerHTML=D.list.length?D.list.map(x=>`<div class="card"><div class="top"><b>『${esc(x.book)}』</b><span class="muted">${esc(x.date||'')}${x.teacher?' · '+esc(x.teacher)+' 선생님':''}${x.attempt>1?' · 고쳐 쓰기 '+x.attempt+'회':''}</span><span class="score">${x.score??''} / ${x.max??''}</span></div>
-    ${x.memo?`<div class="memo"><span class="l">선생님 한마디</span>${esc(x.memo)}</div>`:''}
-    ${x.parent?`<div class="memo" style="border-left-color:var(--ok)"><span class="l">학부모님께</span>${esc(x.parent)}</div>`:''}
-    <button data-id="${x.id}">첨삭지 열기</button></div>`).join(""):'<div class="card empty">아직 발행된 첨삭지가 없습니다.<br>선생님 확인이 끝나면 이곳과 알림으로 보내 드립니다.</div>';
-  app.querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>openDoc(+b.dataset.id));}
-async function openDoc(id){const app=document.getElementById("app");app.innerHTML='<div class="empty">여는 중…</div>';
-  const r=await call(id);if(!r.ok||!r.doc){app.innerHTML='<div class="card empty">첨삭지를 열 수 없습니다</div>';return;}
-  const x=(r.list||[]).find(v=>v.id===id)||{};
-  app.innerHTML=`<div class="bar"><button class="ghost" id="back" style="margin:0">← 목록</button><span class="muted">『${esc(x.book||'')}』 ${x.score??''}/${x.max??''}</span><span style="flex:1"></span><button class="ghost" id="pr" style="margin:0">인쇄</button></div><iframe class="doc" id="doc" sandbox="allow-same-origin allow-modals"></iframe>`;
-  const f=document.getElementById("doc");f.srcdoc=r.doc.html;
-  document.getElementById("back").onclick=list;document.getElementById("pr").onclick=()=>{try{f.contentWindow.print()}catch(e){}};}
+function fixText(f){if(!f)return"";if(typeof f==="string")return f;return [f["제목"],f["이렇게"]].filter(Boolean).join(" — ");}
+function full(x){return `<div class="card main"><div class="row"><p class="t19">『${esc(x.book)}』</p><span class="sp"></span><span class="st num">${x.score??""} / ${x.max??""}</span></div>
+  <p class="t13">${md(x.date)}${x.teacher?" · "+esc(x.teacher)+" 선생님":""}${x.attempt>1?" · 고쳐 쓰기 "+x.attempt+"회":""}</p>
+  ${x.memo?`<p class="t16">${esc(x.memo)}</p>`:""}
+  ${x.good?`<div class="blk"><b>잘한 것</b>${esc(x.good)}</div>`:""}
+  ${x.fix?`<div class="blk"><b>다음엔 이렇게</b>${esc(fixText(x.fix))}</div>`:""}
+  ${x.parent?`<div class="blk"><b>학부모님께</b>${esc(x.parent)}</div>`:""}
+  ${x.home?`<div class="blk"><b>집에서 이렇게</b>${esc(x.home)}</div>`:""}
+  <button class="btn p full" data-id="${x.id}">첨삭지 전체 보기</button></div>`;}
+async function list(){const app=$("#app");
+ if(!SID||!K){app.innerHTML='<div class="card"><p class="t19">링크가 올바르지 않아요</p><p class="t16">학원에서 받은 알림의 링크로 다시 열어 주세요.</p></div>';return;}
+ D=await call();if(!D||!D.ok){app.innerHTML=`<div class="card"><p class="t19">${esc((D&&D.error)||"링크가 맞지 않아요")}</p><p class="t16">학원에 문의해 주세요.</p></div>`;return;}
+ $("#who").textContent=D.student.name+" 학생";const L=D.list||[];
+ app.innerHTML=L.length?full(L[0])+(L.length>1?`<div class="card"><p class="t19">지난 첨삭지</p>${L.slice(1,4).map(x=>`<div class="li" role="button" tabindex="0" data-id="${x.id}"><div class="tx"><p class="t16">『${esc(x.book)}』</p><p class="t13">${md(x.date)}${x.teacher?" · "+esc(x.teacher)+" 선생님":""}</p></div><span class="st num">${x.score??""}/${x.max??""}</span><span class="chev">›</span></div>`).join("")}
+   ${L.length>4?`<details><summary>${L.length-4}장 더 ›</summary>${L.slice(4).map(x=>`<div class="li" role="button" tabindex="0" data-id="${x.id}"><div class="tx"><p class="t16">『${esc(x.book)}』</p><p class="t13">${md(x.date)}</p></div><span class="st num">${x.score??""}/${x.max??""}</span></div>`).join("")}</details>`:""}</div>`:"")
+  :'<div class="card"><p class="t19">아직 받은 첨삭지가 없어요</p><p class="t16">선생님 확인이 끝나면 이곳과 알림으로 보내 드려요.</p></div>';
+ app.querySelectorAll("[data-id]").forEach(b=>{b.onclick=()=>openDoc(+b.dataset.id);b.onkeydown=e=>{if(e.key==="Enter")openDoc(+b.dataset.id);};});window.scrollTo(0,0);}
+async function openDoc(id){const app=$("#app");app.innerHTML='<div class="empty">여는 중…</div>';
+ const r=await call(id);if(!r.ok||!r.doc){app.innerHTML='<div class="card"><p class="t19">첨삭지를 열 수 없어요</p><button class="btn" id="back">← 목록</button></div>';$("#back").onclick=list;return;}
+ const x=(r.list||[]).find(v=>v.id===id)||{};
+ app.innerHTML=`<div class="row"><button class="btn s" id="back">← 목록</button><span class="t13">『${esc(x.book||"")}』 ${x.score??""}/${x.max??""}</span><span class="sp"></span><button class="lnk" id="pr">인쇄</button></div><iframe class="doc" id="doc" title="첨삭지" sandbox="allow-same-origin allow-modals"></iframe>`;
+ const f=$("#doc");f.srcdoc=r.doc.html;$("#back").onclick=list;$("#pr").onclick=()=>{try{f.contentWindow.print()}catch(e){}};window.scrollTo(0,0);}
 list();
-</script>
-</body>
-</html>
+</script></body></html>
