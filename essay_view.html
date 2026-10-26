@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>논술 첨삭지</title>
+<!-- 2026-10-26 MAP(DB방) 채팅 38: 학생·학부모 첨삭지 열람(M15-F5·F6). 열쇠 = parent_home과 같은 sid+k. DB gz_es_share -->
+<style>
+:root{--ink:#1d2329;--sub:#6a737d;--line:#e3e6e9;--bg:#f7f6f2;--card:#fff;--acc:#1a3a5c;--ok:#1e7a4a}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:16px}
+header{padding:18px 16px 6px;max-width:760px;margin:0 auto}
+header .k{font-size:12px;color:var(--sub);letter-spacing:.3px}
+header h1{font-size:21px;margin:2px 0 0;letter-spacing:-.3px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.top{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.top b{font-size:16px}
+.score{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums;color:var(--acc)}
+.muted{color:var(--sub);font-size:13px}
+.memo{margin:10px 0 0;padding:10px 12px;background:#f3f6f9;border-left:3px solid var(--acc);border-radius:6px}
+.memo .l{font-size:12px;color:var(--sub);display:block}
+button{font:inherit;font-size:14px;padding:8px 16px;border-radius:8px;border:1px solid var(--acc);background:var(--acc);color:#fff;cursor:pointer;margin-top:12px}
+button.ghost{background:#fff;color:var(--acc)}
+.doc{width:100%;height:80vh;border:1px solid var(--line);border-radius:10px;background:#fff}
+.empty{padding:30px 10px;text-align:center;color:var(--sub)}
+.bar{display:flex;gap:8px;align-items:center;margin:4px 0 10px}
+footer{text-align:center;color:var(--sub);font-size:12px;padding:20px}
+</style>
+</head>
+<body>
+<header><div class="k">국존 국어전문학원 · 논술 첨삭지</div><h1 id="who">불러오는 중…</h1></header>
+<div class="wrap" id="app"></div>
+<footer>이 링크는 학생·학부모 전용입니다. 다른 분께 전달하지 말아 주세요.</footer>
+<script>
+const URL_="https://qcnsadcpsonuxnjyrlez.supabase.co",KEY="sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0";
+const q=new URLSearchParams(location.search),SID=+q.get("sid"),K=q.get("k")||"";
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+async function call(open){const r=await fetch(URL_+"/rest/v1/rpc/gz_es_share",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json"},body:JSON.stringify({p_sid:SID,p_k:K,p_open:open||null})});return r.json();}
+let D=null;
+async function list(){const app=document.getElementById("app");
+  if(!SID||!K){document.getElementById("who").textContent="링크가 올바르지 않습니다";return;}
+  D=await call();if(!D||!D.ok){document.getElementById("who").textContent=(D&&D.error)||"링크가 맞지 않습니다";return;}
+  document.getElementById("who").textContent=D.student.name+" 학생";
+  app.innerHTML=D.list.length?D.list.map(x=>`<div class="card"><div class="top"><b>『${esc(x.book)}』</b><span class="muted">${esc(x.date||'')}${x.teacher?' · '+esc(x.teacher)+' 선생님':''}${x.attempt>1?' · 고쳐 쓰기 '+x.attempt+'회':''}</span><span class="score">${x.score??''} / ${x.max??''}</span></div>
+    ${x.memo?`<div class="memo"><span class="l">선생님 한마디</span>${esc(x.memo)}</div>`:''}
+    ${x.parent?`<div class="memo" style="border-left-color:var(--ok)"><span class="l">학부모님께</span>${esc(x.parent)}</div>`:''}
+    <button data-id="${x.id}">첨삭지 열기</button></div>`).join(""):'<div class="card empty">아직 발행된 첨삭지가 없습니다.<br>선생님 확인이 끝나면 이곳과 알림으로 보내 드립니다.</div>';
+  app.querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>openDoc(+b.dataset.id));}
+async function openDoc(id){const app=document.getElementById("app");app.innerHTML='<div class="empty">여는 중…</div>';
+  const r=await call(id);if(!r.ok||!r.doc){app.innerHTML='<div class="card empty">첨삭지를 열 수 없습니다</div>';return;}
+  const x=(r.list||[]).find(v=>v.id===id)||{};
+  app.innerHTML=`<div class="bar"><button class="ghost" id="back" style="margin:0">← 목록</button><span class="muted">『${esc(x.book||'')}』 ${x.score??''}/${x.max??''}</span><span style="flex:1"></span><button class="ghost" id="pr" style="margin:0">인쇄</button></div><iframe class="doc" id="doc" sandbox="allow-same-origin allow-modals"></iframe>`;
+  const f=document.getElementById("doc");f.srcdoc=r.doc.html;
+  document.getElementById("back").onclick=list;document.getElementById("pr").onclick=()=>{try{f.contentWindow.print()}catch(e){}};}
+list();
+</script>
+</body>
+</html>
