@@ -3068,7 +3068,7 @@ var a=document.createElement('a');a.href='hw_check.html?sid='+t.sid+'&k='+t.k;a.
 a.style.cssText='display:block;margin:0;padding:12px 16px;background:#FFF5E3;color:#5a3d06;border-bottom:2px solid #E8A33D;font:600 15px Pretendard,sans-serif;text-decoration:none';
 a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷갈린 곳 '+n+'군데 →';document.body.insertBefore(a,document.body.firstChild);}).catch(function(){});}catch(e){}})();
 </script>
-<script>/* ═══ [2026-10-27 21:01 MAP 채팅37 · 국존 「재시공」] ① 할 양 합의 카드 v2 — 학생 쪽 (과제 여러 개 · 과제별 요일 조정) · ② 과제별 끝냈어요/못 했어요(gz2_agree_done)
+<script>/* ═══ [2026-10-27 21:01 MAP 채팅37 · 국존 「재시공」] ① 할 양 합의 카드 v2 — 학생 쪽 (과제 여러 개 · 과제별 요일 조정) · ② 과제별 끝냈어요/못 했어요(gz2_agree_done) · ③ 탭 위 알림 띠(gz2_agree_alerts_my·seen)
    - 자리: 자기주도 학습 › 오늘 과제 맨 위. 옛 「이번 주 과제 내기」 표를 대신한다(합의가 하나라도 있을 때만).
    - 원천: gz2_agree_my(내 합의) · gz2_agree_reply(승인 ok / 조정 adjust). 둘 다 학생 열쇠 함수.
    - 상태: 제안(승인·조정 고르기) → 조정요청(선생님 답 기다림) → 합의(요일별 단계 = study_plan_day). */
@@ -3151,7 +3151,7 @@ a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷
     if(a.status==='제안') h+='<div class="btns"><button class="dark" data-c8="ok">이대로 할게요</button><button data-c8="adj">조정할게요</button></div><div class="msg">'+esc(S.msg)+'</div>'
       +'<div class="note">'+md(a.reply_by)+'까지 답이 없으면 선생님 제안 그대로 정해져요. 정한 요일이 「오늘 과제」 순서와 알림 기준이 됩니다.</div>';
     else if(a.status==='조정요청') h+='<div class="note">'+hm(a.replied_at)+'에 조정을 보냈어요(이유: '+esc(a.adj_reason)+'). 선생님이 받으면 합의되고, 다시 제안하면 새 제안이 여기 떠요.</div>';
-    else h+='<div class="note">과제를 누르면 「끝냈어요 / 못 했어요」를 남길 수 있어요. '+hm(a.agreed_at)+' 합의('+esc({'학생 승인':'내가 승인','교사 수용':'선생님이 내 조정을 받음','무응답 확정':'답이 없어 제안대로 확정'}[a.agreed_by]||a.agreed_by)+'). 끝낸 기록은 선생님 이행표에 바로 보입니다.</div>';
+    else h+=(a.stage?'<div class="note" style="background:#FFF1D6;border-radius:8px;padding:6px 9px;color:#7a5a12;font-weight:700">알림 받는 때 ('+esc(a.stage)+' 단계): '+({'구조':'할 날 전날 21:00 · 할 날 17:00 · 안 한 다음 날 07:00 · 수업 전날 20:00','선택':'할 날 17:00 · 수업 전날 20:00','계획':'안 한 다음 날 07:00 · 수업 전날 20:00','자기주도':'수업 전날 20:00'}[a.stage]||'')+'</div>':'')+'<div class="note">과제를 누르면 「끝냈어요 / 못 했어요」를 남길 수 있어요. '+hm(a.agreed_at)+' 합의('+esc({'학생 승인':'내가 승인','교사 수용':'선생님이 내 조정을 받음','무응답 확정':'답이 없어 제안대로 확정'}[a.agreed_by]||a.agreed_by)+'). 끝낸 기록은 선생님 이행표에 바로 보입니다.</div>';
     return h;
   }
   function paint(){var b=document.querySelector('#gzC8 .c8box');if(b)b.innerHTML=body();}
@@ -3163,7 +3163,7 @@ a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷
     var c=t.dataset.c8;
     if(c==='done'||c==='skip'){var g=function(id){var e=document.getElementById(id);return e?e.value:'';};
       var p={op:c,line:g('c8line'),ok:g('c8ok'),total:g('c8tot'),n:g('c8n'),pages:g('c8pg')};t.disabled=true;
-      rpc('gz2_agree_done',{p_sid:SID,p_k:K,p_day:S.sel,p:p}).then(function(r){if(r&&r.ok){S.a=r.agree;S.msg='';paint();}else{t.disabled=false;S.msg=(r&&(r.reason||r.message))||'저장하지 못했어요';paint();}});return;}
+      rpc('gz2_agree_done',{p_sid:SID,p_k:K,p_day:S.sel,p:p}).then(function(r){if(r&&r.ok){S.a=r.agree;S.msg='';paint();loadAlerts();}else{t.disabled=false;S.msg=(r&&(r.reason||r.message))||'저장하지 못했어요';paint();}});return;}
     if(c==='adj'){S.mode='adjust';S.adj={};a.items.forEach(function(it){S.adj[it.id]=it.days.slice();});S.why='';S.msg='';paint();return;}
     if(c==='cancel'){S.mode='view';S.msg='';paint();return;}
     if(c==='ok'||c==='send'){
@@ -3171,9 +3171,41 @@ a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷
       if(c==='send')S.why=p.reason;
       t.disabled=true;
       rpc('gz2_agree_reply',{p_sid:SID,p_k:K,p_id:a.id,p:p}).then(function(r){
-        if(r&&r.ok){S.a=r.agree;S.mode='view';S.msg='';paint();}else{t.disabled=false;S.msg=(r&&(r.reason||r.message))||'저장하지 못했어요';paint();}});
+        if(r&&r.ok){S.a=r.agree;S.mode='view';S.msg='';paint();loadAlerts();}else{t.disabled=false;S.msg=(r&&(r.reason||r.message))||'저장하지 못했어요';paint();}});
     }
   }
+
+  /* ③ 알림 띠 — 탭 위, 어느 탭에서도 보임. 내용은 계획 칸에서 바로 계산(gz2_agree_alerts_my), 띠가 보이면 「봤음」(gz2_agree_alert_seen) */
+  var AL={list:[]};
+  var acss='#gzAL{max-width:980px;margin:10px auto 6px;padding:0 12px}#gzAL .al{display:flex;align-items:center;gap:10px;border-radius:12px;padding:10px 14px;margin-bottom:8px}'
+   +'#gzAL .al b{font-size:15.5px}#gzAL .al small{display:block;font-size:13.5px;opacity:.85;margin-top:1px}#gzAL .al .x{flex:1;min-width:0}'
+   +'#gzAL .al button{font:inherit;font-size:14px;font-weight:800;border-radius:9px;padding:9px 14px;cursor:pointer;white-space:nowrap}'
+   +'#gzAL .miss{background:#FBEAE4;border:2px solid #A4472F;color:#7a2a17}#gzAL .miss button{background:#A4472F;color:#fff;border:0}#gzAL .miss button.o{background:#fff;color:#A4472F;border:1.5px solid #A4472F}'
+   +'#gzAL .today,#gzAL .next{background:#12211a;color:#fff}#gzAL .today button,#gzAL .next button{background:#fff;color:#12211a;border:0}'
+   +'#gzAL .wait{background:#FFF1D6;border:2px solid #B8892E;color:#5a4108}#gzAL .wait button{background:#B8892E;color:#fff;border:0}'
+   +'#gzAL .info{background:#f6f5f1;border:1px solid #e3dfd3;color:#55606b;padding:8px 14px}#gzAL .info b{font-size:14px}';
+  function ilist(L){return (L||[]).map(function(x){return esc(x.label)+(x.step?' '+esc(x.step)+'단계':'')+' '+Number(x.min)+'분';}).join(' · ');}
+  function goCard(dayId){
+    var tb=[].slice.call(document.querySelectorAll('#v16 button')).filter(function(b){return b.innerText.trim().indexOf('자기주도 학습')===0&&b.offsetParent;})[0];if(tb)tb.click();
+    setTimeout(function(){var c=[].slice.call(document.querySelectorAll('#v16 .sch[data-i="1"], #v16 .stp[data-i="1"]')).filter(function(e){return e.offsetParent;})[0];if(c)c.click();
+      setTimeout(function(){if(dayId){S.sel=dayId;S.msg='';paint();}var el=document.getElementById(dayId?'gzC8':'gzC8');if(el)el.scrollIntoView({behavior:'smooth',block:dayId?'end':'start'});},400);},300);}
+  function paintAlerts(){
+    var box=document.getElementById('gzAL');
+    if(!box){var tabs=document.getElementById('v16tabs');if(!tabs)return;var st=document.createElement('style');st.textContent=acss;document.head.appendChild(st);
+      box=document.createElement('div');box.id='gzAL';tabs.parentNode.insertBefore(box,tabs);
+      box.addEventListener('click',function(e){var b=e.target.closest('button[data-go]');if(!b)return;goCard(+b.dataset.day||null);});}
+    var ORD={miss:1,today:2,next:3,wait:4,info:5};var L=(AL.list||[]).slice().sort(function(x,y){return (ORD[x.tone]||9)-(ORD[y.tone]||9);});if(!L.length){box.innerHTML='';box.style.display='none';return;}box.style.display='';
+    box.innerHTML=L.map(function(a){
+      var first=(a.items&&a.items[0])||{};
+      if(a.tone==='miss')return '<div class="al miss"><span style="font-size:20px">⚠</span><div class="x"><b>'+esc(a.title)+'</b><small>'+ilist(a.items)+'</small></div><button data-go="1" data-day="'+(first.day_id||'')+'">지금 하기</button><button class="o" data-go="1" data-day="'+(first.day_id||'')+'">못 했어요</button></div>';
+      if(a.tone==='today'||a.tone==='next')return '<div class="al '+a.tone+'"><span style="font-size:20px">📌</span><div class="x"><b>'+esc(a.title)+'</b><small>'+ilist(a.items)+'</small></div>'+(a.tone==='today'?'<button data-go="1" data-day="'+(first.day_id||'')+'">바로 하기</button>':'<button data-go="1" data-day="">보기</button>')+'</div>';
+      if(a.tone==='wait')return '<div class="al wait"><span style="font-size:20px">✉</span><div class="x"><b>'+esc(a.title)+'</b><small>'+esc(a.body||'')+'</small></div><button data-go="1" data-day="">확인하기</button></div>';
+      return '<div class="al info"><span>🔔</span><div class="x"><b>'+esc(a.title)+'</b></div></div>';}).join('');
+    var ids=L.filter(function(a){return !a.seen&&a.id;}).map(function(a){return a.id;});
+    if(ids.length)rpc('gz2_agree_alert_seen',{p_sid:SID,p_k:K,p_ids:ids});
+  }
+  function loadAlerts(){rpc('gz2_agree_alerts_my',{p_sid:SID,p_k:K}).then(function(r){AL.list=(r&&r.ok&&r.alerts)||[];AL.stage=r&&r.stage;AL.kinds=r&&r.kinds;paintAlerts();});}
+  window.gzALreload=loadAlerts;
   function mount(){
     var hw=document.getElementById('gzHwCard'); var card=hw&&hw.closest('.card');
     if(!card||!document.getElementById('v16')){setTimeout(mount,500);return;}
@@ -3181,7 +3213,7 @@ a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷
     var st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
     var d=document.createElement('div');d.id='gzC8';d.innerHTML='<div class="c8box"><div class="note">이번 주 할 양 불러오는 중…</div></div>';
     card.parentNode.insertBefore(d,card); d.addEventListener('click',act);
-    window.gzC8reload=load; load();
+    window.gzC8reload=load; load(); loadAlerts();
   }
   mount();
 })();
