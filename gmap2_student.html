@@ -3068,6 +3068,105 @@ var a=document.createElement('a');a.href='hw_check.html?sid='+t.sid+'&k='+t.k;a.
 a.style.cssText='display:block;margin:0;padding:12px 16px;background:#FFF5E3;color:#5a3d06;border-bottom:2px solid #E8A33D;font:600 15px Pretendard,sans-serif;text-decoration:none';
 a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷갈린 곳 '+n+'군데 →';document.body.insertBefore(a,document.body.firstChild);}).catch(function(){});}catch(e){}})();
 </script>
+<script>/* ═══ [2026-10-27 21:01 MAP 채팅37 · 국존 「재시공」] ① 할 양 합의 카드 v2 — 학생 쪽 (과제 여러 개 · 과제별 요일 조정)
+   - 자리: 자기주도 학습 › 오늘 과제 맨 위. 옛 「이번 주 과제 내기」 표를 대신한다(합의가 하나라도 있을 때만).
+   - 원천: gz2_agree_my(내 합의) · gz2_agree_reply(승인 ok / 조정 adjust). 둘 다 학생 열쇠 함수.
+   - 상태: 제안(승인·조정 고르기) → 조정요청(선생님 답 기다림) → 합의(요일별 단계 = study_plan_day). */
+(function(){
+  var BASE='https://qcnsadcpsonuxnjyrlez.supabase.co', AK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
+  var QS=(location.search||'')+'&'+(window.__DESK_Q||'');
+  var SID=Number((QS.match(/sid=(\d+)/)||[])[1]||0), K=(QS.match(/k=([a-f0-9]{32})/)||[])[1]||'';
+  if(!SID||!K) return;
+  function rpc(fn,body){return fetch(BASE+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:AK,Authorization:'Bearer '+AK,'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();}).catch(function(){return {ok:false,reason:'연결 실패'};});}
+  var DN=['','월','화','수','목','금','토','일'];
+  var NAME={1:'배경 알기',2:'낱말 · 개념',3:'본문 분석',4:'정리하며 쓰기',5:'본문 외우기',6:'기본 문제',7:'심화 문제'};
+  var KN={1:['영상','#1E5A8A','#E3EEF7'],2:['영상','#1E5A8A','#E3EEF7'],3:['영상','#1E5A8A','#E3EEF7'],4:['정리','#7A5A12','#F7EFD9'],5:['정리','#7A5A12','#F7EFD9'],6:['풀이','#A4472F','#FBEAE4'],7:['풀이','#A4472F','#FBEAE4']};
+  var MINS=[20,30,40,60];
+  var S={a:null,mode:'view',adj:{},why:'',msg:''};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function md(d){if(!d)return '';var x=new Date(d+'T00:00:00+09:00');return (x.getMonth()+1)+'/'+x.getDate()+'('+'일월화수목금토'[x.getDay()]+')';}
+  function hm(t){if(!t)return '';var x=new Date(new Date(t).getTime()+9*36e5).toISOString();return Number(x.slice(5,7))+'/'+Number(x.slice(8,10))+' '+x.slice(11,16);}
+  var css='#gzC8{margin:0 0 14px}#gzC8 .c8box{border:2px solid #12211a;border-radius:12px;background:#fff;padding:14px 15px}'
+   +'#gzC8 .c8top{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:#2E7D4F}#gzC8 .c8top .st{margin-left:auto;font-size:12px;border-radius:999px;padding:2px 10px}'
+   +'#gzC8 .st.wait{background:#FFF1D6;color:#8a5a00}#gzC8 .st.adj{background:#E3EEF7;color:#1E5A8A}#gzC8 .st.ok{background:#E3F1E8;color:#1F6B3F}'
+   +'#gzC8 h4{font-size:18px;margin:8px 0 2px}#gzC8 .from{font-size:12.5px;color:#7d8590}'
+   +'#gzC8 .grid{display:grid;grid-template-columns:92px 1fr;gap:8px 10px;margin:12px 0 4px;font-size:14.5px;align-items:center}#gzC8 .grid>span{color:#7d8590;font-size:13px}'
+   +'#gzC8 .chip{display:inline-block;border:1.5px solid #d6d3ca;border-radius:9px;padding:4px 10px;margin:0 4px 4px 0;font:inherit;font-size:14px;font-weight:700;color:#55606b;background:#fff}'
+   +'#gzC8 button.chip{cursor:pointer}#gzC8 .chip.on{border-color:#12211a;background:#12211a;color:#fff}#gzC8 .chip.chg{border-color:#1E5A8A;background:#1E5A8A;color:#fff}#gzC8 .chip.was{text-decoration:line-through;color:#a7a59e}'
+   +'#gzC8 .k{display:inline-block;font-size:11px;font-weight:800;border-radius:999px;padding:1px 7px;margin-left:4px;vertical-align:1px}'
+   +'#gzC8 .sum{background:#f6f5f1;border-radius:9px;padding:9px 11px;font-size:14px;margin-top:6px}#gzC8 .sum b{font-size:16px}'
+   +'#gzC8 .btns{display:flex;gap:8px;margin-top:12px}#gzC8 .btns button{flex:1;font:inherit;font-size:15px;font-weight:800;border-radius:10px;padding:11px;border:1.5px solid #12211a;background:#fff;color:#12211a;cursor:pointer}#gzC8 .btns button.dark{background:#12211a;color:#fff}#gzC8 .btns button:disabled{opacity:.5}'
+   +'#gzC8 input{width:100%;font:inherit;font-size:14px;border:1px solid #cfd6cf;border-radius:8px;padding:8px;box-sizing:border-box}'
+   +'#gzC8 .note{font-size:12.5px;color:#55606b;margin-top:8px;line-height:1.5}#gzC8 .msg{font-size:13px;color:#A4472F;margin-top:6px;font-weight:700}'
+   +'#gzC8 .week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:10px}#gzC8 .week div{border:1px solid #e3dfd3;border-radius:9px;padding:6px 4px;text-align:center;font-size:12.5px;min-height:62px;color:#a7a59e}'
+   +'#gzC8 .week div b{display:block;font-size:13px;color:#55606b;margin-bottom:3px}#gzC8 .week div.on{border:2px solid #12211a;color:#12211a;background:#fff}#gzC8 .week div.on b{color:#12211a}#gzC8 .week div.done{border-color:#2E7D4F;background:#E3F1E8}#gzC8 .week div{text-align:left;padding:6px;min-height:84px}#gzC8 .week p{margin:4px 0;font-size:12px;color:#12211a;line-height:1.4}#gzC8 .week i{display:block;font-style:normal;font-size:11.5px;color:#55606b;margin-top:4px;font-weight:700}#gzC8 .grid>span .k{margin-left:0}';
+  var KC={'강좌':['#1E5A8A','#E3EEF7'],'복습테스트':['#7A3E9D','#F1E6F7'],'모의고사':['#7A5A12','#F7EFD9'],'문항':['#A4472F','#FBEAE4'],'글쓰기':['#1F6B3F','#E3F1E8'],'독서':['#55606b','#EEF0F2'],'오답 재풀이':['#A4472F','#FBEAE4']};
+  function tag(k){var c=KC[k]||['#555','#eee'];return '<span class="k" style="color:'+c[0]+';background:'+c[1]+'">'+esc(k)+'</span>';}
+  function addD(d,n){var x=new Date(d+'T12:00:00Z');x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10);}
+  function dow(d){var g=new Date(d+'T12:00:00Z').getUTCDay();return g===0?7:g;}
+  function today(){return new Date(Date.now()+9*36e5).toISOString().slice(0,10);}
+  function name(it){return esc(it.label)+(it.steps?' '+it.steps.join('·')+'단계':'');}
+  function plan(a,daysOf){var by={},t=today();a.items.forEach(function(it){var end=it.own_due||a.due,d=addD(t,1),k=0,ds=daysOf(it),list=[];while(d<=end){if(ds.indexOf(dow(d))>=0)list.push(d);d=addD(d,1);}
+      list.forEach(function(d,j){var st=null;if(it.steps){var n=list.length,ns=it.steps.length;st=j<ns?((j===n-1&&ns>n)?it.steps[j]+'~'+it.steps[ns-1]:String(it.steps[j])):it.steps[ns-1]+' 복습';}(by[d]=by[d]||[]).push({kind:it.kind,label:it.label,step:st,min:it.minutes,status:'예정'});});});return by;}
+  function week(by,a){var t=today(),d0=addD(t,1),cells='',d=d0;for(var i=0;i<7;i++){var L=by[d]||[],s=L.reduce(function(x,r){return x+Number(r.min);},0),x=new Date(d+'T00:00:00+09:00');
+      cells+='<div class="'+(L.length?'on':'')+'"><b>'+DN[dow(d)]+' '+(x.getMonth()+1)+'/'+x.getDate()+(d===a.due?' 기한':'')+'</b>'+L.map(function(r){return '<p>'+tag(r.kind)+' '+esc(r.label)+(r.step?' '+esc(r.step)+'단계':'')+' · '+Number(r.min)+'분'+(r.status==='완료'?' ✓':'')+'</p>';}).join('')+(s?'<i>'+s+'분</i>':'')+'</div>';d=addD(d,1);}
+    return '<div class="week">'+cells+'</div>';}
+  function sum(by){return Object.keys(by).reduce(function(x,k){return x+by[k].reduce(function(y,r){return y+Number(r.min);},0);},0);}
+  function body(){
+    var a=S.a;
+    if(!a) return '<div class="c8top">이번 주 할 양 · 선생님과 합의</div><div class="note">수업이 끝나면 선생님이 이번 주 할 양을 보내요. 여기서 확인하고 정해요.</div>';
+    var tg=a.status==='제안'?(S.mode==='adjust'?'<span class="st adj">조정 쓰는 중</span>':'<span class="st wait">내 확인 기다리는 중</span>'):a.status==='조정요청'?'<span class="st adj">선생님 답 기다리는 중</span>':'<span class="st ok">합의됨 ✓</span>';
+    var h='<div class="c8top">이번 주 할 양 · 선생님과 합의'+tg+'</div>';
+    var by=a.status==='합의'?(function(){var m={};(a.schedule||[]).forEach(function(r){(m[r.date]=m[r.date]||[]).push(r);});return m;})()
+          :plan(a,function(it){return S.mode==='adjust'?S.adj[it.id]:it.final_days;});
+    var base=sum(plan(a,function(it){return it.days;})), now=sum(by);
+    h+='<h4>과제 '+a.items.length+'개 · 이번 주 '+now+'분</h4><div class="from">'+esc(a.teacher||'선생님')+' 제안 · '+hm(a.offered_at)+' · 기한 '+md(a.due)+'</div>';
+    if(S.mode==='adjust'){
+      h+='<div class="grid">'+a.items.map(function(it){return '<span>'+tag(it.kind)+'</span><div><b>'+name(it)+'</b> · '+it.minutes+'분/회'+(it.own_due?' · <b style="color:#A4472F">기한 '+md(it.own_due)+'</b>':'')+'<br>'
+          +[1,2,3,4,5,6,7].map(function(d){var on=S.adj[it.id].indexOf(d)>=0,orig=it.days.indexOf(d)>=0;return '<button class="chip'+(on?(orig?' on':' chg'):orig?' was':'')+'" data-it="'+it.id+'" data-day="'+d+'">'+DN[d]+'</button>';}).join('')+'</div>';}).join('')
+        +'<span>이유</span><div><input id="c8why" maxlength="200" placeholder="왜 바꾸는지 한 줄 (필수)" value="'+esc(S.why)+'"></div></div>'
+        +week(by,a)+'<div class="sum">조정하면 이번 주 <b>'+now+'분</b> · 선생님 제안 '+base+'분'+(now!==base?' <span style="color:'+(now<base?'#A4472F':'#1F6B3F')+'">('+(now>base?'+':'−')+Math.abs(base-now)+'분)</span>':'')+'</div>'
+        +'<div class="btns"><button class="dark" data-c8="send">조정 보내기</button><button data-c8="cancel">취소</button></div><div class="msg">'+esc(S.msg)+'</div>'
+        +'<div class="note">과제·1회 시간·기한은 선생님이 정해요. 과제마다 할 요일만 바꿀 수 있어요.</div>';
+      return h;
+    }
+    h+='<div class="grid"><span>담은 과제</span><div>'+a.items.map(function(it){return '<div style="margin:2px 0">'+tag(it.kind)+' '+name(it)+' · '+it.minutes+'분/회'+(it.detail?' <small style="color:#7d8590">'+esc(it.detail)+'</small>':'')+(it.own_due?' · <b style="color:#A4472F">기한 '+md(it.own_due)+'</b>':'')+'</div>';}).join('')+'</div>'
+      +(a.how?'<span>공부 방법</span><div>'+esc(a.how)+'</div>':'')+'</div>'+week(by,a);
+    if(a.status==='제안') h+='<div class="btns"><button class="dark" data-c8="ok">이대로 할게요</button><button data-c8="adj">조정할게요</button></div><div class="msg">'+esc(S.msg)+'</div>'
+      +'<div class="note">'+md(a.reply_by)+'까지 답이 없으면 선생님 제안 그대로 정해져요. 정한 요일이 「오늘 과제」 순서와 알림 기준이 됩니다.</div>';
+    else if(a.status==='조정요청') h+='<div class="note">'+hm(a.replied_at)+'에 조정을 보냈어요(이유: '+esc(a.adj_reason)+'). 선생님이 받으면 합의되고, 다시 제안하면 새 제안이 여기 떠요.</div>';
+    else h+='<div class="note">'+hm(a.agreed_at)+' 합의('+esc({'학생 승인':'내가 승인','교사 수용':'선생님이 내 조정을 받음','무응답 확정':'답이 없어 제안대로 확정'}[a.agreed_by]||a.agreed_by)+'). 끝낸 기록은 선생님 이행표에 바로 보입니다.</div>';
+    return h;
+  }
+  function paint(){var b=document.querySelector('#gzC8 .c8box');if(b)b.innerHTML=body();}
+  function load(){rpc('gz2_agree_my',{p_sid:SID,p_k:K}).then(function(r){S.a=(r&&r.ok&&r.agree)||null;S.mode='view';S.msg='';paint();
+    var old=document.getElementById('gzHwCard');old=old&&old.closest('.card');if(old)old.style.display=S.a?'none':'';var me=document.getElementById('gzC8');if(me)me.style.display=S.a?'':'none';});} /* 합의가 없으면 이 카드는 숨기고 옛 표를 그대로 둔다 */
+  function act(e){
+    var t=e.target.closest('[data-c8],[data-day]');if(!t)return;var a=S.a;
+    if(t.dataset.day){var L=S.adj[t.dataset.it],i=+t.dataset.day,j=L.indexOf(i);if(j>=0)L.splice(j,1);else L.push(i);L.sort();S.why=(document.getElementById('c8why')||{}).value||S.why;paint();return;}
+    var c=t.dataset.c8;
+    if(c==='adj'){S.mode='adjust';S.adj={};a.items.forEach(function(it){S.adj[it.id]=it.days.slice();});S.why='';S.msg='';paint();return;}
+    if(c==='cancel'){S.mode='view';S.msg='';paint();return;}
+    if(c==='ok'||c==='send'){
+      var p=c==='ok'?{op:'ok'}:{op:'adjust',reason:(document.getElementById('c8why')||{}).value||'',items:a.items.map(function(it){return {id:it.id,days:S.adj[it.id]};})};
+      if(c==='send')S.why=p.reason;
+      t.disabled=true;
+      rpc('gz2_agree_reply',{p_sid:SID,p_k:K,p_id:a.id,p:p}).then(function(r){
+        if(r&&r.ok){S.a=r.agree;S.mode='view';S.msg='';paint();}else{t.disabled=false;S.msg=(r&&(r.reason||r.message))||'저장하지 못했어요';paint();}});
+    }
+  }
+  function mount(){
+    var hw=document.getElementById('gzHwCard'); var card=hw&&hw.closest('.card');
+    if(!card||!document.getElementById('v16')){setTimeout(mount,500);return;}
+    if(document.getElementById('gzC8'))return;
+    var st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
+    var d=document.createElement('div');d.id='gzC8';d.innerHTML='<div class="c8box"><div class="note">이번 주 할 양 불러오는 중…</div></div>';
+    card.parentNode.insertBefore(d,card); d.addEventListener('click',act);
+    window.gzC8reload=load; load();
+  }
+  mount();
+})();
+</script>
 </body>
 
 </html>
