@@ -2141,7 +2141,7 @@ body.full #v8frame{max-width:980px;margin:0 auto}
 })();
 </script>
 
-<script>/* ═══ [2026-10-27 21:01 MAP 채팅37 · 국존 「재시공」] ① 할 양 합의 v2 — 교사 쪽 (코칭 카드 ⑤ 「과제 · 다음 전략」 자리)
+<script>/* ═══ [2026-10-27 21:01 MAP 채팅37 · 국존 「재시공」] ① 할 양 합의 v2 — 교사 쪽 (코칭 카드 ⑤ 「과제 · 다음 전략」 자리) · ② 합의 뒤 이행표(날짜×과제 끝냄·못 함·안 함·결과, 이행률)
    - 기한 하나(다음 수업 · +7일 · 시험 전날 · 날짜) + 과제 여러 개(강좌·복습테스트·모의고사·문항·글쓰기·독서·오답 재풀이)
    - 과제마다 1회 시간·요일, 날짜가 정해진 과제만 「기한 따로」.
    - 원천: gz2_agree_staff · gz2_agree_pick · gz2_agree_offer · gz2_agree_accept.  agreeZone(el, sid, rpc) */
@@ -2212,14 +2212,19 @@ body.full #v8frame{max-width:980px;margin:0 auto}
       if(a.status==='제안') return '<div style="border:2px solid #B8892E;border-radius:9px;padding:9px 11px;margin-top:10px;font-size:13px"><b>보냄 · 학생 답 기다리는 중</b> <span class="mini">'+hm(a.offered_at)+' · 기한 '+md(a.due)+'</span>'+list+'<div class="mini">'+md(a.reply_by)+'까지 답이 없으면 제안대로 확정</div></div>';
       if(a.status==='조정요청') return '<div style="border:2px solid #1E5A8A;border-radius:9px;padding:9px 11px;margin-top:10px;font-size:13px;line-height:1.6"><b style="color:#1E5A8A">↩ 학생 조정 요청 — '+hm(a.replied_at)+'</b>'+list+'이유: 「'+esc(a.adj_reason)+'」'
         +'<div style="display:flex;gap:6px;margin-top:8px"><button type="button" data-go="accept" style="'+BTN+'background:#1e2733;color:#fff;border:0">그대로 받기</button><button type="button" data-go="edit" style="'+BTN+'background:#fff;border:1.5px solid #1e2733">다시 제안</button></div></div>';
-      if(a.status==='합의'){var by={};(a.schedule||[]).forEach(function(r){(by[r.date]=by[r.date]||[]).push(r);});
+      if(a.status==='합의'){var by={},td=a.today,x=a.rate||{};(a.schedule||[]).forEach(function(r){(by[r.date]=by[r.date]||[]).push(r);});
+        var pct=x.due_n?Math.round(100*(x.done_due_n||0)/x.due_n):null;
+        function ev(r){var q=r.result||{};if(r.status==='건너뜀')return '<span style="color:#7d8590">못 함 — '+esc(q.why||'')+'</span>';if(r.status!=='완료')return r.date<td?'<b style="color:#A4472F">안 함</b>':(r.date===td?'오늘':'예정');
+          return '<span style="color:#1F6B3F">✓ '+hm(r.done_at)+(q.late?' (늦게)':q.early?' (미리)':'')+'</span>'+(q.ok!=null?' · '+q.ok+'/'+q.total:'')+(q.n?' · '+q.n+'문항':'')+(q.pages?' · '+esc(q.pages)+'쪽':'')+(q.quiz_row?' · 확인 문항 제출':'')+(q.line?' · 「'+esc(q.line)+'」':'');}
         return '<div style="border:2px solid #2E7D4F;border-radius:9px;padding:9px 11px;margin-top:10px;font-size:13px;line-height:1.6"><b style="color:#1F6B3F">합의 ✓ '+hm(a.agreed_at)+' · '+esc(a.agreed_by)+'</b> <span class="mini">기한 '+md(a.due)+'</span>'
-          +Object.keys(by).sort().map(function(d){var s=by[d].reduce(function(x,r){return x+Number(r.min);},0);return '<div style="border-top:1px dashed #dfe4ea;margin-top:3px;padding-top:3px"><b>'+md(d)+'</b> '+s+'분 · '+by[d].map(function(r){return tag(r.kind)+' '+esc(r.label)+(r.step?' '+esc(r.step)+'단계':'')+(r.status==='완료'?' ✓':'');}).join(' ')+'</div>';}).join('')+'</div>';}
+          +'<div style="display:flex;gap:10px;flex-wrap:wrap;background:#f3f5f8;border-radius:8px;padding:6px 9px;margin:6px 0"><b>이행 '+(pct===null?'—':pct+'%')+'</b><span>오늘까지 '+(x.due_n||0)+'칸 중 끝 '+(x.done_due_n||0)+'</span>'+(x.miss_n?'<b style="color:#A4472F">안 함 '+x.miss_n+'</b>':'')+(x.skip_n?'<span>못 함 '+x.skip_n+'</span>':'')+'<span class="mini">전체 '+(x.done_n||0)+'/'+(x.all_n||0)+'</span></div>'
+          +Object.keys(by).sort().map(function(d){return '<div style="border-top:1px dashed #dfe4ea;margin-top:3px;padding-top:3px'+(d===td?';background:#FFFBEF':'')+'"><b>'+md(d)+(d===td?' 오늘':'')+'</b>'+by[d].map(function(r){return '<div style="margin-left:8px">'+tag(r.kind)+' '+esc(r.label)+(r.step?' '+esc(r.step)+'단계':'')+' '+Number(r.min)+'분 — '+ev(r)+'</div>';}).join('')+'</div>';}).join('')+'</div>';}
       return '';
     }
     function paint(){
-      var a=(S.d||{}).agree, showForm=!a||a.status==='합의'||S.edit;
-      el.innerHTML='<h3><span class="zn">5</span>이번 주 할 양 — 학생과 합의</h3>'+(showForm?form():'')+cur()+'<div class="mini" style="color:#A4472F;font-weight:700;margin-top:4px">'+esc(S.msg)+'</div>';
+      var a=(S.d||{}).agree, agreed=a&&a.status==='합의'&&!S.edit, showForm=!a||S.edit||(agreed&&S.fresh);
+      var msg='<div class="mini" style="color:#A4472F;font-weight:700;margin-top:4px">'+esc(S.msg)+'</div>';
+      el.innerHTML='<h3><span class="zn">5</span>이번 주 할 양 — 학생과 합의</h3>'+(agreed?cur()+(S.fresh?'<div style="margin-top:10px;font-weight:800">새 할 양 정하기</div>'+form()+msg:'<button type="button" data-go="fresh" style="'+CH+';margin-top:8px;border-style:dashed">＋ 새 할 양 정하기 (다음 주)</button>'+msg):(showForm?form():'')+cur()+msg);
     }
     function load(){return rpc('gz2_agree_staff',{p_sid:sid}).then(function(r){
       if(!r||!r.ok){el.innerHTML='<div class="mini">합의 칸을 불러오지 못했습니다: '+esc((r&&r.reason)||'')+'</div>';return;}
@@ -2254,10 +2259,11 @@ body.full #v8frame{max-width:980px;margin:0 auto}
         S.items=a.items.map(function(it){return {kind:it.kind,ref_id:it.ref_id,label:it.label,detail:it.detail||'',steps:(it.steps||[]).slice(),open:it.steps||[],days:it.final_days.slice(),minutes:it.minutes,own_due:it.own_due||null};});
         rpc('gz2_agree_pick',{p_sid:sid,p_kind:'강좌',p_q:null}).then(function(r){(r.rows||[]).forEach(function(c){S.items.forEach(function(it){if(it.kind==='강좌'&&it.ref_id===c.id)it.open=c.open;});});paint();});paint();return;}
       if(g==='noedit'){S.edit=false;paint();return;}
+      if(g==='fresh'){S.fresh=true;paint();return;}
       if(g==='offer'){t.disabled=true;S.msg='';
         var items=S.items.map(function(it){return {kind:it.kind,ref_id:it.ref_id,label:it.label,detail:it.detail,steps:it.kind==='강좌'?it.steps:null,minutes:it.minutes,days:it.days,own_due:it.own_due||null};});
         rpc('gz2_agree_offer',{p:{student_id:sid,due:S.due,how:S.how,items:items}}).then(function(r){
-          if(r&&r.ok){S.edit=false;S.items=[];S.msg='';if(onSent)try{onSent(r.agree);}catch(_){};load();}else{S.msg=(r&&(r.reason||r.message))||'보내지 못했습니다';paint();}});return;}
+          if(r&&r.ok){S.edit=false;S.fresh=false;S.items=[];S.msg='';if(onSent)try{onSent(r.agree);}catch(_){};load();}else{S.msg=(r&&(r.reason||r.message))||'보내지 못했습니다';paint();}});return;}
       if(g==='accept'){t.disabled=true;rpc('gz2_agree_accept',{p_id:a.id}).then(function(r){if(r&&r.ok){S.msg='';load();}else{S.msg=(r&&(r.reason||r.message))||'받지 못했습니다';paint();}});}
     });
     el.agreeReload=load; return load();
