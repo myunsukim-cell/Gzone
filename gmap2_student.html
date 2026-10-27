@@ -2558,7 +2558,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 
   /* ── 틀 ── */
   var root=document.createElement('div'); root.id='v16';
-  var h='<div class="vh" id="v16hd"><div class="vtop"><button class="vlogo" id="v16logo" title="국존 공부 지도 다시 보기">국존</button><span class="vname" id="v16name">…</span><span class="vinfo" id="v16info"></span></div><div class="vty" id="v16ty"></div>'
+  var h='<div class="vh" id="v16hd"><div class="vtop"><button class="vlogo" id="v16logo" title="국존 공부 지도 다시 보기">국존</button><span class="vname" id="v16name">…</span><span class="vinfo" id="v16info"></span><a id="v16gpath" href="#" title="내 성적으로 갈 수 있는 대학·학과 보기 (2026-10-27)" onclick="window.open(\'gpath.html\'+location.search+(window.__DESK_Q||\'\'),\'_blank\');return false;" style="margin-left:auto;flex:none;font-size:12.5px;font-weight:800;color:#1E4D3B;background:#E8F0EB;border:1px solid #cfe0d5;border-radius:999px;padding:4px 10px;text-decoration:none">진학 조회</a></div><div class="vty" id="v16ty"></div>'
    +'<button class="vgoal" id="v16gbar" data-tab="goal" title="목표와 성장 보기"><span class="gq">나 얼마나 늘었지?</span><span class="gt" id="v16gtxt">목표 불러오는 중…</span><span class="ga">›</span></button>'
    +'<div class="vtabs" id="v16tabs">'+ACT.filter(function(a){return !a.hide;}).map(function(a){return '<button data-tab="'+a.id+'" style="--ac:'+a.c+';--abg:'+a.bg+'"><span class="n">'+a.n+'</span></button>';}).join('')+'</div>'
    +'<div class="vchips" id="v16chips"></div></div>'
