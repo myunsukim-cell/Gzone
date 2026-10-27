@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>사양서 M14 · 진학 조회</title>
+<style>
+body{margin:0;background:#F4F7F5;color:#17261F;font:14.5px/1.6 Pretendard,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.w{max-width:960px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:21px;margin:0 0 4px}h2{font-size:17px;margin:26px 0 8px;border-left:5px solid #1E4D3B;padding-left:8px}h3{font-size:15px;margin:14px 0 6px}
+.mut{color:#5c6b63;font-size:13px}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:640px;background:#fff;font-size:13.5px}
+th,td{border:1px solid #dbe3de;padding:6px 8px;text-align:left;vertical-align:top}th{background:#e8f0eb}
+code{background:#eef2ef;padding:1px 4px;border-radius:4px;font-size:12.5px}
+.box{background:#fff;border:1px solid #dbe3de;border-radius:10px;padding:10px 12px}
+</style></head><body><div class="w">
+<h1>사양서 M14 · 진학 조회 (gpath.html)</h1>
+<div class="mut">2026-10-27 MAP · 국존 10:23 「학생이 자신의 성적을 입력하고 어디를 진학할 수 있는지 조회 … 앞으로의 성적에 대한 시뮬레이션 … 목표 대학 찾기 기능」 · 들어오는 길: 학생 페이지(gmap2_student.html) 맨 위 「진학 조회」 → <code>gpath.html?sid=&amp;k=</code></div>
+
+<h2>0. 데이터 원천과 계산</h2>
+<div class="tw"><table>
+<tr><th>무엇</th><th>표.칼럼</th><th>비고</th></tr>
+<tr><td>학생 본인 내신</td><td><code>gpath_student_grade</code>(student_id, term 1-1~3-1, grp 국어·수학·영어·사회·과학·한국사·진로융합, grade5, credits, achv)</td><td>학기×교과군 평균 5등급. 시뮬레이션 값은 저장하지 않음</td></tr>
+<tr><td>계열</td><td><code>gpath_student_profile.track_field</code></td><td>인문·자연</td></tr>
+<tr><td>대학별 반영 칸</td><td><code>v_gpath_univ_cells</code> ← <code>gpath_issue_fact</code> C1-03 2028 (note 'matrix2028%') value_text 30칸</td><td>● 반영 · ◐ 계열 맞으면(사회=인문, 과학=자연)·그 밖 ◐ 반영 · ○ × ? 제외</td></tr>
+<tr><td>학과별 컷</td><td><code>gpath_admission_results</code> result_year 2026, track_type 교과, gpa_70(없으면 gpa_avg)</td><td>9등급제 숫자. 의약·예체능 행은 「갈 수 있는 곳」 계산에서 뺌(목표 찾기에는 보임)</td></tr>
+<tr><td>수능 최저</td><td><code>gpath_issue_fact</code> C5-01 2028 (note 'csat_min2028%') value_text·content</td><td>계산에 넣지 않고 글로 보여 줌</td></tr>
+<tr><td>목표</td><td><code>gpath_student_goal</code>(admit_year 2028, univ_id, unit_name, track_type 교과, priority, set_by)</td><td>최대 6개</td></tr>
+<tr><td>환산</td><td><code>gz_gpath_g5_to_g9</code> · <code>gz_gpath_g9_to_g5</code></td><td>누적 비율 대략값(9등급 1·2·3·4등급 = 4·11·23·40%, 5등급 1·2등급 = 10·34%의 등급 중앙 위치를 직선 보간)</td></tr>
+</table></div>
+<div class="box" style="margin-top:8px"><b>판정</b> — 반영 평균(학점 가중) → 9등급 위치로 환산 → 학과 컷과의 차이 margin. margin ≥ 0.3 안정 · 0~0.3 적정 · -0.3~0 소신 · 그 아래 상향. 컷이 5등급 1.0 구간(9등급 1.55보다 높음)이면 내 평균 1.0 적정 · 1.1까지 소신 · 그 밖 상향.
+<br><b>남은 학기 필요 평균</b> = (컷의 5등급 환산 × (입력 학점 + 남은 반영 칸×4) − 입력 가중합) ÷ (남은 반영 칸×4). 1 미만이면 「모두 1등급이어도 닿지 않음」.</div>
+
+<h2>1. ① 내 성적</h2>
+<div class="tw"><table><tr><th>화면 칸</th><th>표.칼럼</th><th>함수</th></tr>
+<tr><td>머리 이름·학교·학년</td><td>students.name·school·grade</td><td>gz2_gpath_me</td></tr>
+<tr><td>계열 고르기</td><td>gpath_student_profile.track_field</td><td>gz2_gpath_me / gz2_gpath_grade_save</td></tr>
+<tr><td>학기×교과 칸(등급·학점)</td><td>gpath_student_grade.grade5·credits</td><td>gz2_gpath_me / gz2_gpath_grade_save</td></tr></table></div>
+<div class="tw"><table><tr><th>단추</th><th>하는 일</th><th>저장 칼럼</th><th>성공</th><th>실패</th></tr>
+<tr><td>저장하기</td><td>입력 칸 저장, 빈 칸은 지움, 계열 저장</td><td>gpath_student_grade 전 칼럼 · gpath_student_profile.track_field</td><td>「저장했어요 (n칸)」</td><td>「저장 실패: 권한 없음」 등 토스트</td></tr></table></div>
+
+<h2>2. ② 지금 갈 수 있는 곳</h2>
+<div class="tw"><table><tr><th>화면 칸</th><th>표.칼럼</th><th>함수</th></tr>
+<tr><td>대학 카드: 반영 평균 · 반영 칸 n/m</td><td>v_gpath_univ_cells × 입력 성적</td><td>gz2_gpath_calc</td></tr>
+<tr><td>안정·적정·소신·상향 개수</td><td>gpath_admission_results.gpa_70/gpa_avg</td><td>gz2_gpath_calc</td></tr>
+<tr><td>수능 최저 칩·문장</td><td>gpath_issue_fact C5-01 value_text·content</td><td>gz2_gpath_calc</td></tr>
+<tr><td>학과 목록(펼침)</td><td>unit_name·cut9·band</td><td>gz2_gpath_calc(detail:true, univ_ids)</td></tr></table></div>
+<div class="mut">단추: 대학 이름 줄 = 학과 목록 펼치기/접기(조회만).</div>
+
+<h2>3. ③ 앞으로 시뮬레이션</h2>
+<div class="tw"><table><tr><th>화면 칸·단추</th><th>하는 일</th><th>함수</th></tr>
+<tr><td>막대(1.0~5.0)</td><td>아직 성적이 없는 반영 칸에 그 값을 넣어 다시 계산(저장 안 함)</td><td>gz2_gpath_calc 2회(지금 · 시뮬)</td></tr>
+<tr><td>교과별로 다르게 넣기</td><td>빈 칸마다 값을 따로 넣음, 비우면 막대 값</td><td>같음</td></tr>
+<tr><td>지금까지 / 시뮬레이션 후</td><td>입력 평균 · 안정+적정 학과 수</td><td>같음</td></tr></table></div>
+
+<h2>4. ④ 목표 대학 찾기</h2>
+<div class="tw"><table><tr><th>화면 칸·단추</th><th>하는 일</th><th>저장·조회 칼럼</th><th>함수</th></tr>
+<tr><td>찾기(대학·학과 이름 일부)</td><td>학과 목록, 컷 9→5등급, 경쟁률·모집, 지금 반영 평균, 남은 학기 필요 평균, 수능 최저</td><td>gpath_univ.univ_name · gpath_admission_results.unit_name</td><td>gz2_gpath_target</td></tr>
+<tr><td>목표로 저장</td><td>목표 1행 추가(같은 것은 「이미 목표에 있어요」, 6개 넘으면 거부)</td><td>gpath_student_goal</td><td>gz2_gpath_goal_save</td></tr>
+<tr><td>내 목표 · 빼기</td><td>저장한 목표를 다시 계산해 보여 줌 · 삭제</td><td>gpath_student_goal</td><td>gz2_gpath_me · gz2_gpath_target · gz2_gpath_goal_save(delete_id)</td></tr></table></div>
+
+<h2>5. 수용 사례 · 검수 흐름</h2>
+<div class="tw"><table><tr><th>구분</th><th>주어진 상황</th><th>할 때</th><th>그러면</th></tr>
+<tr><td>정상</td><td>고2 학생, 1학년 두 학기 12칸 입력(평균 1.40, 자연)</td><td>② 탭</td><td>대학 카드 27개, 대학을 누르면 학과별 판정(가천대 31행 확인)</td></tr>
+<tr><td>정상</td><td>같은 학생</td><td>③ 막대 1.2</td><td>안정+적정 학과 107개 → 163개</td></tr>
+<tr><td>경계</td><td>컷 1.00(인하대 의예과)</td><td>④ 목표 저장</td><td>「남은 학기를 모두 1등급 받아도 닿지 않아요」 + 「5등급 1.0 구간」 안내</td></tr>
+<tr><td>실패</td><td>열쇠(k)가 틀린 링크</td><td>화면 열기</td><td>「열 수 없어요: 권한 없음」</td></tr></table></div>
+<div class="mut">검수: Playwright 390px — 페이지 오류 0, 저장 12칸, 대학 27, 학과 31, 시뮬 107→163, 찾기 53, 목표 1, 틀린 열쇠 거부. 시험 학생(id 8) 입력·목표·계열은 시험 뒤 모두 지움.</div>
+
+<h2>6. 하지 않는 것</h2>
+<div class="mut">수능 최저 충족 판정, 학종·논술 판정, 성취도 반영 대학(연세·서강 등)의 성취도 점수 계산, 상위 N과목 고르기(◐를 전 과목으로 계산). 2028 실제 입결(5등급제)이 나오면 컷 원천을 바꾼다.</div>
+</div></body></html>
