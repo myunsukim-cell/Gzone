@@ -3031,7 +3031,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     if(ex){var bl=g.block==='학교진도'?'학교 진도에 맞춰요':(g.block||''); band='<div class="band ex"><span class="chip">지금 시기</span><b>지금은 내신 준비 기간이에요</b><span class="s">'+esc((g.exam&&g.exam.name)||'학교 시험')+'까지 '+(g.d_day!=null?g.d_day+'일':'')+(bl?' · '+esc(bl):'')+'</span></div>';}
     else if(g&&g.mode==='rev'){band='<div class="band"><span class="chip">지금 시기</span><b>지금은 시험 복기 기간이에요</b><span class="s">'+esc((g.exam&&g.exam.name)||'시험')+'에서 틀린 문항을 다시 봐요</span></div>';}
     else {var j=g&&g.jeolgi||{}; band='<div class="band"><span class="chip">지금 시기</span><b>지금은 평소 공부 기간이에요</b><span class="s">'+(j.from?esc(j.from)+'~'+esc(j.to):'')+(nx?(j.from?' · ':'')+esc(nx)+'부터 내신 준비를 해요':'')+'</span></div>';}
-    var dl=V13.done?'<span>어제 <em>'+V13.done.y+'개</em>, 이번 주에는 <em>'+V13.done.wt+'개 중 '+V13.done.wd+'개</em>를 끝냈어요</span>':'';
+    var dl=V13.done?'<span>어제 <em>'+V13.done.y+'개</em>, 이번 주에는 <em>'+V13.done.w+'개</em>를 끝냈어요</span>':'';
     var big=NUM.map(function(p,i){var x=C[p[0]][p[1]],s=st13(p[0],p[1]);if(!s&&x[3]&&nx)s=[nx+'부터','l'];
       return '<button type="button" class="bc" data-go13="'+x[2]+'"><span class="hd"><span class="num">'+(i+1)+'</span><span class="wh">'+['이번 달','집에서','학원에서'][p[1]]+'</span></span><span class="t">'+esc(x[0])+'</span><span class="s">'+esc(x[1])+'</span><span class="ft">'+(s?'<span class="st '+s[1]+'">'+esc(s[0])+'</span>':'<span></span>')+'<span class="go">시작</span></span></button>';}).join('');
     var h=band+'<div class="todo"><b>오늘 이것만 하면 돼요</b>'+dl+'</div><div class="big">'+big+'</div>'
@@ -3068,6 +3068,8 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   });
   $('v13home').addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role=button][data-go13]')){e.preventDefault();e.target.click();}});
   window.addEventListener('resize',function(){if(V.home)v13paint();});
+  /* [2026-10-31 국존 「오케이」 · 남은 할 일 2번] 칸 상태는 기록에서 — gz2_cell_state */
+  rpc('gz2_cell_state',tok()).then(function(j){if(j&&j.ok){V13.st=j.st||{};V13.done=j.done||null;v13paint();}});
 
   /* ── 기록 읽기 → 시기·지금 걸음 ── */
   var today=(function(){var d=kst();return d.toISOString().slice(0,10);})();
