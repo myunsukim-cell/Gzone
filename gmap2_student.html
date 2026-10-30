@@ -557,6 +557,83 @@ fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_week_review',{me
  if(wk0){document.getElementById('pm5lab').innerHTML='오늘 배울 「'+e(wk0)+'」, 어디까지 알아요? <span class="opt">선택</span>';document.getElementById('pm5seg').hidden=false;document.getElementById('pm5q').hidden=true;}
 }).catch(function(){});})();</script>
 <div class="gzStepCap" id="gzStep2">② 수업 중 — 오늘 수업 순서와 오늘 할 일</div>
+<!-- [2026-10-30 국존 「진행」] 질문 기록지 — 문제 사진 + 궁금한 것(수업 중·집) → 선생님 답 → 내 말로 한 줄. 표 gz2_question -->
+<div id="gzQ" style="margin:8px 0 14px;border:1px solid #d9e3dd;border-radius:14px;padding:14px 15px;background:#fff">
+ <style>
+ #gzQ .qh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}#gzQ .qh b{font-size:17px}#gzQ .qh span{font-size:12.5px;color:#6b706c}
+ #gzQ .ch{display:inline-flex;align-items:center;justify-content:center;min-height:36px;min-width:36px;padding:0 11px;border-radius:18px;border:1px solid #d9d3c4;background:#fff;font:inherit;font-size:13px;cursor:pointer;color:#1f2421}
+ #gzQ .ch[aria-pressed=true]{background:#1D5C57;border-color:#1D5C57;color:#fff;font-weight:800}
+ #gzQ .lb{font-size:12.5px;font-weight:800;color:#4E5652;margin:10px 0 5px}
+ #gzQ textarea,#gzQ input[type=text]{width:100%;box-sizing:border-box;border:1px solid #c9d0c9;border-radius:10px;padding:9px 11px;font:inherit;font-size:14px}
+ #gzQ .go{width:100%;min-height:46px;border:0;border-radius:10px;background:#1D5C57;color:#fff;font:inherit;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px}
+ #gzQ .ph{display:flex;gap:8px;flex-wrap:wrap}#gzQ .ph img{width:96px;height:96px;object-fit:cover;border-radius:8px;border:1px solid #d9d3c4}
+ #gzQ .cam{display:flex;flex-direction:column;align-items:center;justify-content:center;width:96px;height:96px;border:2px dashed #1D5C57;border-radius:10px;color:#1D5C57;font-weight:800;font-size:12px;cursor:pointer;text-align:center}
+ #gzQ .msg{font-size:12.5px;margin-top:6px}#gzQ .msg.e{color:#A4472F}#gzQ .msg.ok{color:#1E7A5A}
+ #gzQ .row{display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:start;padding:10px 0;border-top:1px solid #efece4;font-size:13px}
+ #gzQ .row img{width:52px;height:52px;object-fit:cover;border-radius:6px;border:1px solid #d9d3c4}
+ #gzQ .st{border-radius:12px;padding:3px 9px;font-size:11.5px;font-weight:800;color:#fff;white-space:nowrap}
+ #gzQ .ans{border-left:4px solid #1D5C57;background:#EEF5F1;border-radius:0 8px 8px 0;padding:8px 10px;margin-top:6px;line-height:1.55}
+ #gzQ .kk{font-size:11px;color:#7A5A12;border:1px solid #E6DFCC;border-radius:8px;padding:0 6px;margin-left:4px}
+ </style>
+ <div class="qh"><b>질문 기록지</b><span>모르는 문제를 찍고, 궁금한 것을 적어요. 수업 중에도, 집에서도.</span></div>
+ <div class="lb">어디서?</div><div id="gzQplace" style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="ch" data-pl="수업" aria-pressed="false">수업 중</button><button type="button" class="ch" data-pl="집" aria-pressed="true">집에서 · 자기주도 학습 시간</button></div>
+ <div style="font-size:12px;color:#6b706c;margin-top:4px">수업 중이면 선생님이 돌 때 오고, 집에서면 선생님이 글로 답해요.</div>
+ <div class="lb">질문할 문제 사진 (1~2장)</div>
+ <div class="ph" id="gzQph"><label class="cam">📷<br>사진 찍기<input id="gzQfile" type="file" accept="image/*" capture="environment" style="display:none"></label></div>
+ <div class="lb">무엇이 궁금한지 내 말로</div>
+ <textarea id="gzQtext" rows="3" placeholder="예: ③번 선지에서 「서술자가 직접 개입한다」가 왜 맞는지 모르겠어요. 지문 어느 줄이 근거인가요?"></textarea>
+ <div class="lb">짚으면 더 빨리 답해요 (안 골라도 돼요)</div>
+ <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><input id="gzQitem" type="text" inputmode="numeric" placeholder="문항 번호" style="width:110px"><span id="gzQch"></span></div>
+ <button type="button" class="go" id="gzQgo">질문 올리기</button><div class="msg" id="gzQmsg"></div>
+ <div style="margin-top:14px;border-top:2px solid #1f2421;padding-top:10px"><div class="qh"><b style="font-size:15px">내 질문 노트</b><span id="gzQcount"></span></div><div id="gzQlist"><div style="font-size:12.5px;color:#6b706c;margin-top:6px">불러오는 중…</div></div></div>
+</div>
+<script>
+(function(){
+var SB='https://qcnsadcpsonuxnjyrlez.supabase.co',PK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
+var QS=(location.search||'')+'&'+String(window.__DESK_Q||'');
+var SID=+((QS.match(/[?&]sid=(\d+)/)||[])[1]||0),K=(QS.match(/[?&]k=([a-f0-9]{32})/)||[])[1]||'';
+var box=document.getElementById('gzQ'); if(!box)return; if(!SID||!K){box.style.display='none';return;}
+function $(i){return document.getElementById(i);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function rpc(f,b){return fetch(SB+'/rest/v1/rpc/'+f,{method:'POST',headers:{apikey:PK,Authorization:'Bearer '+PK,'Content-Type':'application/json'},body:JSON.stringify(b)}).then(function(r){return r.json();});}
+var S={place:'집',photos:[],choice:''};
+$('gzQplace').addEventListener('click',function(e){var b=e.target.closest('[data-pl]');if(!b)return;S.place=b.dataset.pl;[].forEach.call(this.querySelectorAll('[data-pl]'),function(x){x.setAttribute('aria-pressed',String(x===b));});});
+$('gzQch').innerHTML=['①','②','③','④','⑤','지문'].map(function(c){return '<button type="button" class="ch" data-c="'+c+'" aria-pressed="false" style="margin-right:4px">'+c+'</button>';}).join('');
+$('gzQch').addEventListener('click',function(e){var b=e.target.closest('[data-c]');if(!b)return;S.choice=S.choice===b.dataset.c?'':b.dataset.c;[].forEach.call(this.querySelectorAll('[data-c]'),function(x){x.setAttribute('aria-pressed',String(x.dataset.c===S.choice));});});
+function msg(t,c){var m=$('gzQmsg');m.className='msg'+(c?' '+c:'');m.textContent=t;}
+function paintPh(){var h='';S.photos.forEach(function(p,i){h+='<img src="'+p.preview+'" alt="질문 사진 '+(i+1)+'">';});
+ if(S.photos.length<2)h+='<label class="cam">📷<br>'+(S.photos.length?'한 장 더':'사진 찍기')+'<input id="gzQfile" type="file" accept="image/*" capture="environment" style="display:none"></label>';
+ $('gzQph').innerHTML=h;var f=$('gzQfile');if(f)f.addEventListener('change',onFile);}
+function onFile(e){var f=e.target.files&&e.target.files[0];if(!f)return;var ext=((f.name||'').split('.').pop()||'jpg').toLowerCase();if(!/^(jpg|jpeg|png|webp|heic)$/.test(ext))ext=(f.type||'').indexOf('png')>=0?'png':'jpg';
+ msg('사진 올리는 중…');rpc('gz2_q_photo_url',{p_sid:SID,p_k:K,p:{ext:ext}}).then(function(u){if(!u||!u.ok)throw new Error((u&&u.reason)||'사진 주소를 받지 못함');
+  return fetch(u.upload_url,{method:'PUT',headers:{'Content-Type':f.type||'image/jpeg'},body:f}).then(function(r){if(!r.ok)throw new Error('사진 올리기 실패 '+r.status);S.photos.push({path:u.path,preview:URL.createObjectURL(f)});paintPh();msg('사진 '+S.photos.length+'장 ✓','ok');});
+ }).catch(function(er){msg(er.message,'e');});}
+paintPh();
+$('gzQgo').onclick=function(){var t=$('gzQtext').value.trim();if(!S.photos.length){msg('문제 사진을 한 장 찍어 주세요','e');return;}if(t.length<10){msg('궁금한 것을 10자 이상 적어 주세요 — 지문 · 선지를 짚어서','e');return;}
+ this.disabled=true;var me=this;rpc('gz2_q_add',{p_sid:SID,p_k:K,p:{place:S.place,photos:S.photos.map(function(p){return p.path;}),q:t,item:$('gzQitem').value.trim(),choice:S.choice}}).then(function(r){me.disabled=false;
+  if(!r||!r.ok){msg((r&&r.reason)||'올리지 못했어요','e');return;}msg(S.place==='수업'?'올렸어요. 선생님이 돌 때 와요.':'올렸어요. 선생님이 글로 답해요.','ok');S.photos=[];S.choice='';$('gzQtext').value='';$('gzQitem').value='';paintPh();
+  [].forEach.call($('gzQch').querySelectorAll('[data-c]'),function(x){x.setAttribute('aria-pressed','false');});load();}).catch(function(){me.disabled=false;msg('올리지 못했어요','e');});};
+var COL={'대기':'#6B706C','답함':'#1D5C57','해결':'#1E7A5A','아직':'#B8892E','다시':'#A4472F'},LBL={'대기':'답 대기','답함':'답 왔어요','해결':'해결','아직':'아직','다시':'다시 물을 것'};
+function load(){rpc('gz2_q_mine',{p_sid:SID,p_k:K}).then(function(r){if(!r||!r.ok){$('gzQlist').innerHTML='<div class="msg e">불러오지 못했어요</div>';return;}
+ $('gzQcount').innerHTML='이번 달 질문 <b>'+r.month_n+'개</b>'+(r.prev_n!=null?' · 지난달 '+r.prev_n+'개':'')+(r.open_n?' · 아직·다시 물을 것 <b>'+r.open_n+'개</b>':'');
+ var rows=r.rows||[];if(!rows.length){$('gzQlist').innerHTML='<div style="font-size:12.5px;color:#6b706c;margin-top:6px">아직 올린 질문이 없어요. 질문은 곧 성취도예요.</div>';return;}
+ $('gzQlist').innerHTML=rows.map(function(x){var tag=[x.item?x.item+'번':'',x.choice||''].filter(Boolean).join(' ');
+  var h='<div class="row">'+(x.photo?'<img src="'+esc(x.photo)+'" alt="질문 사진">':'<span></span>')+'<div><b>'+esc(x.at)+' · '+(x.place==='수업'?'수업 중':'집')+(tag?' · '+esc(tag):'')+'</b>'+((x.causes||[]).length?'<span class="kk">선생님 판단 · '+esc(x.causes.join(' · '))+'</span>':'')+'<div style="color:#4E5652">'+esc(x.q)+'</div>';
+  if(x.mode==='글'&&x.answer)h+='<div class="ans"><b>'+esc(x.by||'선생님')+' · '+esc(x.answered_at||'')+'</b><br>'+esc(x.answer)+'</div>';
+  if(x.mode==='자리')h+='<div class="ans">선생님이 자리에서 답했어요.</div>';
+  if(x.mode==='수업 때'&&x.status==='대기')h+='<div style="font-size:12px;color:#6b706c;margin-top:4px">다음 수업 때 선생님이 직접 답해요.</div>';
+  if(x.summary)h+='<div style="margin-top:4px">내 한 줄: '+esc(x.summary)+'</div>';
+  if(x.status==='답함'||x.status==='아직'||x.status==='다시'){h+='<div class="lb" style="margin-top:8px">받은 답을 내 말로 한 줄</div><input type="text" id="gzQs'+x.id+'" value="'+esc(x.summary||'')+'" placeholder="선생님 설명을 내 말로"><div style="display:flex;gap:6px;margin-top:6px">'
+   +['해결','아직','다시'].map(function(s){return '<button type="button" class="ch" data-sum="'+x.id+'" data-s="'+s+'" aria-pressed="'+(x.status===s)+'">'+(s==='다시'?'다시 물을 것':s)+'</button>';}).join('')+'</div>';}
+  return h+'</div><span class="st" style="background:'+(COL[x.status]||'#6B706C')+'">'+(LBL[x.status]||x.status)+'</span></div>';}).join('')
+  +'<div style="font-size:12px;color:#6b706c;margin-top:6px">선생님은 대신 적지 않아요. 내 말로 적어야 내 것이 돼요. 「아직」 「다시 물을 것」은 다음 수업에서 먼저 물어요.</div>';
+ });}
+$('gzQlist').addEventListener('click',function(e){var b=e.target.closest('[data-sum]');if(!b)return;var id=+b.dataset.sum,t=($('gzQs'+id)||{}).value||'';
+ rpc('gz2_q_summary',{p_sid:SID,p_k:K,p:{id:id,summary:t,status:b.dataset.s}}).then(function(r){if(!r||!r.ok){alert((r&&r.reason)||'저장하지 못했어요');return;}load();});});
+load();
+})();
+</script>
+
 
   <!-- [오리엔테이션 v1 · 2026-09-10 계획 #17 · 강좌 6405 · lecture_contents 오리엔테이션 1~7 · 읽음=gz2_student_write ot_page] -->
   <div id="oriCard" style="margin:8px 0 12px;border:1px solid #e2ddd0;border-radius:14px;padding:13px 15px;background:#faf9f5;display:none">
@@ -2257,6 +2334,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 #v16 .stp.now .t i{font-weight:700}
 #v16 .vstep{display:none}
 #v16 .vstep.on{display:block}
+#v16 #gzQ .qh b{display:none}
 #v16 .vact{font-size:12.5px;color:var(--ac);background:var(--abg);border-radius:9px;padding:7px 11px;margin-bottom:10px;line-height:1.5}
 #v16 .vact b{font-family:'Gowun Batang',serif;font-size:14px;margin-right:6px}
 #v16 .vhh{display:flex;align-items:center;gap:8px;margin:2px 0 10px;flex-wrap:wrap}
@@ -2535,7 +2613,8 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
    {i:14,o:0,a:'lec',v:'자료',n:'강의 · 강좌',val:'열정',why:'「강의 다음이 공부」',app:'강의 보기 · 내 강좌와 진도 · 새 강좌 · 신청 · 책장.',me:'이번 달 들을 강좌 고르기.'},
    {i:15,o:2,a:'goal',v:'기록',n:'올해 시험 지도',val:'공감',why:'「1년 시험 지도」 — 3월~2월 시험과 방학이 한 장에.',app:'연간 양식 인쇄 · 달마다 목표 ☐.',me:'학기 초 인쇄 → 달마다 목표 한 줄.'},
    {i:16,o:0,a:'mine',v:'읽기',n:'책장 · 독서',val:'열정',why:'「읽은 책이 쌓이면 실력이 쌓여요」',app:'내 책장 · 읽은 책 · 이번 달 읽을 책.',me:'이번 달 한 권 고르기.'},
-   {i:17,o:1,a:'mine',v:'묻기',n:'필요한 것 요청하기',val:'신뢰',why:'「필요한 건 말하면 학원이 채워요」',app:'자료 · 강좌 · 질문을 선생님께 보내요.',me:'한 줄로 보내기.'}];
+   {i:17,o:1,a:'mine',v:'묻기',n:'필요한 것 요청하기',val:'신뢰',why:'「필요한 건 말하면 학원이 채워요」',app:'자료 · 강좌 · 질문을 선생님께 보내요.',me:'한 줄로 보내기.'},
+   {i:18,o:1.5,a:'lesson',v:'묻기',n:'질문 기록지',val:'신뢰',why:'「질문은 곧 실력」 — 물어본 것을 잊지 않게 질문과 답을 남겨요.',app:'문제 사진 + 궁금한 것 → 선생님 답 → 내가 한 줄 요약. 수업 때도, 집에서도.',me:'사진 찍고 궁금한 것 적어 보내기.'}];
 
   /* 자리 배치표 — [걸음, 찾는 법]. 같은 걸음 안에서는 이 순서대로 놓인다. 기존 카드는 아이디로 찾아 그대로 옮긴다 */
   function card(sel){var e=document.querySelector(sel);return e?(e.closest('.card')||e.closest('.newlec')||e):null;}
@@ -2544,7 +2623,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   var PLAN=[
    [0,q1('#v16goal')],[0,q1('#firstSec')],[0,function(){return card('#gzCareer');}],
    [10,q1('#v16p_P6D')],[11,q1('#v16p_P6W')],[13,q1('#v16p_P6M')],[15,q1('#v16p_P6Y')],
-   [1,q1('#v16hw')],[1,function(){return card('#gzHwCard');}],[1,q1('#gzLesson')],[1,q1('#gzStudyBody')],[1,q1('#v16cardsC')],[14,function(){return card('#gzWatch');}],[14,function(){return card('#gzCourse');}],[17,q1('#gzReqBox')],[16,q1('#gzShelfCard')],
+   [1,q1('#v16hw')],[1,function(){return card('#gzHwCard');}],[1,q1('#gzLesson')],[1,q1('#gzStudyBody')],[1,q1('#v16cardsC')],[14,function(){return card('#gzWatch');}],[14,function(){return card('#gzCourse');}],[17,q1('#gzReqBox')],[18,q1('#gzQ')],[16,q1('#gzShelfCard')],
    [2,q1('#gzTodayQ')],[2,q1('#v16rev')],[2,function(){return card('#gzWrongStat');}],
    [3,q1('#v16skip')],
    [4,q1('#premeta')],
