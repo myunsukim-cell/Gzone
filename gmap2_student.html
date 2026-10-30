@@ -2843,8 +2843,19 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     return {open:open,now:now,sub3:sub};}
   var MAPROWS=['goal','study','lesson','wrong','scope','lec','mine'].map(function(id){return actOf(id);});
   var MS={first:true,sel:null};
+  /* [2026-10-30 국존 「진행」] 지난달 공부 시간 — 수업 출석 1번 = 3시간 + 출석한 자기주도 학습 시간(gz2_study_month) */
+  var SM=null;
+  function smTxt(){var base='처음 온 달은 입학 진단, 1·2·3·8월은 성취도 종합 검사 결과로';
+    if(!SM||!SM.ok||!SM.last)return '지난달 공부 시간 · '+base;
+    var L=SM.last,P=SM.prev||{},t=+L.total_h||0,pt=+P.total_h||0;
+    if(!t)return L.month+'월 공부 시간은 이번 달부터 쌓여요 · '+base;
+    var h=function(x){x=Math.round(x*10)/10;return (x%1?x.toFixed(1):String(x))+'시간';};
+    var d=pt?(t>pt?' · '+P.month+'월보다 '+h(t-pt)+' 늘었어요':t===pt?' · '+P.month+'월과 같아요':' · '+P.month+'월보다 '+h(pt-t)+' 적어요'):'';
+    return L.month+'월 공부 시간 '+h(t)+'(수업 '+L.class_n+'번 · 자기주도 학습 '+h(+L.self_h||0)+')'+d+' · '+base;}
+  rpc('gz2_study_month',tok()).then(function(j){SM=j;var m=$('v16map');if(m&&!m.hidden)m.innerHTML=mapHtml();});
   var MKEY='gz17map:'+S;
   function mapHtml(){
+    MAP.goal[0][1]=smTxt();
     var wide=window.innerWidth>=900, g='', M=mapState();
     if(!wide){ g='<div class="mlist">'+MAPROWS.map(function(x){return '<div class="blk"><div class="rh" style="background:'+x.c+'"><b>'+x.n+'</b><i>'+x.q+'</i></div>'
         +MAP[x.id].map(function(c,ci){if(!c)return '';var lk=ci===3&&!M.open,nw=ci===M.now;return '<button class="c'+(lk?' lock':'')+(nw?' now':'')+'" data-cell="'+c[2]+'"><span class="w">'+COLS[ci][0]+(nw?'<br><span class="nw">지금</span>':'')+'</span><span><b>'+c[0]+'</b><small>'+(lk?'시험 4주 전부터 열려요':c[1])+'</small></span></button>';}).join('')+'</div>';}).join('')+'</div>'; }
