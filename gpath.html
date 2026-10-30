@@ -387,6 +387,7 @@ function jyData(){var r=JY.d,L=jyLevel(r.grade),T=[];
   else if(e.cat==='모의'||e.cat==='수능'){if(e.pct!=null)T[i].pct.push({v:+e.pct,n:e.name});else if(e.raw!=null)T[i].mraw.push({v:+e.raw,n:e.name});}});
  (r.hs||[]).forEach(function(h){var m=/^(\d)-(\d)$/.exec(h.term);if(m)T[6+(+m[1]-1)*2+(+m[2]-1)].g=+h.g;});
  (r.gz||[]).forEach(function(x){var i=jyIdx(x.ym+'-15',L);if(i>=0&&i<12)T[i].months.push(x);});
+ (r.tests||[]).forEach(function(x){var i=jyIdx(x.d,L);if(i>=0&&i<12){(T[i].tests=T[i].tests||[]).push(x);}});
  T.forEach(function(t){var a=function(A){if(!A.length)return null;var s=0;A.forEach(function(x){s+=x.v;});return Math.round(s/A.length*10)/10;};
   t.rawAvg=a(t.raw);t.pctAvg=a(t.pct);t.mrawAvg=a(t.mraw);
   t.gzAvg=t.months.length?Math.round(t.months.reduce(function(s,x){return s+(+x.total||0);},0)/t.months.length):null;});
@@ -409,6 +410,8 @@ function jyPaint(){var D=jyData(),T=D.T,NOW=D.NOW;if(JY.sel==null)JY.sel=NOW>=0?
  [100,80,60].forEach(function(v){h+=ax(PL,CW*6,y1m(v),v+'점',2);});[1,3,5].forEach(function(g){h+=ax(divX,CW*7,y1h(g),g+'등급',W-40);});
  [100,75,50].forEach(function(p){h+=ax(divX,CW*7,y2(p),String(p),2);});[gmax,gmax/2,0].forEach(function(v){h+=ax(PL,CW*13,y3(v),v+'점',2);});
  h+='<div class="jy-empty" style="left:'+PL+'px;width:'+(CW*6).toFixed(1)+'px;top:226px;height:92px">중학교에는 전국 모의고사가 없어요</div>';
+ var G=JY.d.goal;if(G&&G.cut5!=null){var gy=y1h(+G.cut5);h+='<div style="position:absolute;left:'+divX.toFixed(1)+'px;width:'+(CW*7).toFixed(1)+'px;top:'+gy.toFixed(1)+'px;border-top:2px dashed #7A4FB0"></div><div style="position:absolute;right:44px;top:'+(gy+3).toFixed(1)+'px;font-size:10.5px;font-weight:800;color:#5E3A8C;background:#fff;padding:0 3px;white-space:nowrap">목표 '+esc(G.univ||'')+' '+esc(G.unit||'')+' 교과 합격선 '+(+G.cut5).toFixed(2)+'</div>';}
+ else h+='<div style="position:absolute;right:44px;top:'+(S1.top+S1.h-14)+'px;font-size:10.5px;color:#5E3A8C;white-space:nowrap">「목표」 탭에서 학과를 담으면 합격선이 보여요</div>';
  var p1m=[],p1h=[],p2=[],p3=[],dots='';
  function dot(i,y,c,t){var x=cx(i);dots+='<span aria-hidden="true" style="pointer-events:none;position:absolute;left:'+(x-7).toFixed(1)+'px;top:'+(y-7).toFixed(1)+'px;width:10px;height:10px;border-radius:50%;background:'+c+';border:2px solid #fff;box-shadow:0 0 0 1px '+c+'"></span><div class="jy-v" style="left:'+(x-22).toFixed(1)+'px;top:'+(y-25).toFixed(1)+'px;color:'+c+'">'+t+'</div>';}
  T.forEach(function(t,i){
@@ -438,6 +441,12 @@ function jyDetail(t,i,NOW){var fut=NOW>=0&&i>NOW,h='<div style="margin-top:var(-
     h+='<span class="t">'+x.total+'</span>';});
    h+='</div><div class="n" style="margin-top:6px">주간 점수는 확인 테스트 답안지 · 강좌 6·7단계 채점 · 직접 적기에서 와요. 칸에 손을 대면 시험 이름이 보여요.</div>';}
   h+='</div>';}
+ var G2=JY.d.goal;if(i>=6&&i<12&&G2&&G2.cut5!=null)h+=jyRow('#7A4FB0','dashed','목표까지','합격선 '+(+G2.cut5).toFixed(2)+'등급'+(t.g!=null?' · 이 학기 '+t.g+'등급':''),esc(G2.univ||'')+' '+esc(G2.unit||'')+' 2026 교과 합격선('+esc(G2.basis||'')+')을 5등급으로 바꾼 값이에요');
+ if(i<12){var A=['문학','문법','독서','화법·작문·매체','기타'],by={};(t.tests||[]).forEach(function(x){var b=by[x.a]||(by[x.a]={n:0,s:0});b.n++;b.s+=+x.v;});
+  h+='<div class="jy-row" style="border-top:2px solid var(--ink)"><div class="k">매 수업 시험 · 이 학기 영역별</div>';
+  if(!(t.tests||[]).length)h+='<div class="v">기록 없음</div>';
+  else{h+='<div style="margin-top:4px">';A.forEach(function(a){var b=by[a];if(a==='기타'&&!b)return;h+='<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;font-size:13px;padding:5px 0;border-bottom:1px dashed var(--line)"><b>'+a+'</b><span style="color:var(--ink2)">'+(b?b.n:0)+'회</span><b style="text-align:right">'+(b?Math.round(b.s/b.n)+'점':'–')+'</b></div>';});h+='</div>';}
+  h+='<div class="n" style="margin-top:6px">수업 중·복습·확인·심화·기출 테스트와 답안지예요. 주마다 마지막 점수가 위 주간 점수표에 들어가요.</div></div>';}
  h+='</div>';$('jyDet').innerHTML=h;}
 $('jyBox').addEventListener('click',function(e){var b=e.target.closest('[data-jy]');if(!b)return;JY.sel=+b.dataset.jy;jyPaint();});
 
