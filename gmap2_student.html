@@ -2319,6 +2319,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 #v16 .mgrid{display:grid;grid-template-columns:150px repeat(4,1fr);gap:5px;font-size:13px}
 #v16 .mgrid .hd{position:relative;line-height:1.3}#v16 .mgrid .hd small{display:block;font-weight:500;font-size:11px;opacity:.9}#v16 .mgrid .hd.now{background:#B8892E}#v16 .mgrid .hd.lock{background:#8C918E}
 #v16 .mgrid .hd .nw,#v16 .mlist .nw{display:inline-block;background:#fff;color:#8a5a00;border:1.5px solid #B8892E;border-radius:10px;font-size:10.5px;font-weight:800;padding:0 6px;margin-left:4px}
+#v16 .mrule{margin:10px 0 0;border:1px solid var(--ln);border-radius:10px;background:#fff;padding:8px 12px;font-size:13px}#v16 .mrule summary{cursor:pointer;font-weight:800}#v16 .mrule ol{margin:6px 0 2px;padding-left:20px;line-height:1.7}
 #v16 .mgrid .c.now{border:2px solid #B8892E}#v16 .mgrid .c.lock,#v16 .mlist .c.lock{background:#F3F2EE;color:#8C918E;border-style:dashed}#v16 .mlist .c.now{background:#FFF8EA}
 #v16 .mgrid .hd{background:#1F2421;color:#fff;text-align:center;padding:8px 2px;border-radius:7px;font-weight:700}
 #v16 .mgrid .rh{padding:9px 10px;border-radius:9px;color:#fff;line-height:1.35}
@@ -2645,9 +2646,9 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   /* [2026-10-30 국존 「반영 진행」] 공부 지도 4칸 — 이번 달 시작 → 자기주도 학습 시간 → 빈틈 보완 수업 → 내신 준비(시험 4주 전 자동). 정본 19159·18440·19532 */
   var COLS=[['이번 달 시작','한 달에 한 번 · 지난 시험 복기'],['자기주도 학습 시간','주 4시간 · 선생님과 함께'],['빈틈 보완 수업','매주 확인 · 보완 · 완성'],['내신 준비','시험 4주 전부터 열려요']];
   var MAP={goal:[['지난달 자란 것 → 이번 달 목표','지난달 공부 시간 · 처음 온 달은 입학 진단, 1·2·3·8월은 성취도 종합 검사 결과로',0],null,null,null],
-   study:[['계획표 받기','이번 달 · 이번 주 계획표 인쇄',11],['오늘 과제 → 계획표 ☐','못 하면 「못 한 날」',1],['오늘 과제 확인','수업 전에 끝냈나',1],null],
-   lesson:[null,null,['수업 전 목표 → 수업 순서','확인 시험 2~3회 · 선생님이 한 명씩 돌아가며 피드백 5~6회',4],null],
-   wrong:[null,['오늘의 문제 5장','틀린 문제 다시',2],['선생님과 오답 짚기','틀린 것은 개인별 자료집으로 모여요',2],null],
+   study:[['계획표 받기','이번 달 · 이번 주 계획표 인쇄',11],['오늘 과제 → 계획표 ☐','못 해 오면 별도 과제 시간에 와요',1],['오늘 과제 확인','수업 전에 끝냈나',1],null],
+   lesson:[null,null,['시작 기록지 → 오늘 진행 계획 → 끝 기록지','확인 시험 2~3회 · 선생님이 한 명씩 돌아가며 피드백 5~6회',4],null],
+   wrong:[null,['오늘의 문제 5장','틀린 문제 다시',2],['선생님과 오답 짚기','질문은 지문 · 선지를 짚어서 → 질문 기록지에 · 틀린 것은 개인별 자료집으로',2],null],
    scope:[['지난 시험 복기','시험이 끝난 달 · 틀린 문항 → 다음 시험',7],null,null,['시험 범위 → 직전 약점 5문항','마지막 2주는 개인별 자료집 · 범위가 나오면 자동',6]],
    lec:[['이 달의 강좌 고르기','7단계 교재(강의 · 정리 · 문제) · 시험 범위에서 이어짐',14],['강의 듣기','이어 듣기',14],null,null],
    mine:[['책장 · 독서','이번 달 한 권',16],['필요한 것 요청하기','자료 · 강좌 · 질문',17],null,null]};
@@ -2672,7 +2673,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     return '<div class="in"><div style="display:flex;align-items:center;gap:8px"><span class="vlogo" style="display:inline-flex;align-items:center;justify-content:center">국존</span><span style="font-size:12.5px;color:var(--dm)">국존 공부 지도 · 사용 설명</span></div>'
       +'<h1>국어 점수는 자기주도력에서 옵니다. 국존은 그 힘을 훈련합니다.</h1>'
       +'<div class="sub">국존에서 공부하는 한 달 순서예요 — <b>이번 달 시작</b>(목표 · 지난 시험 복기) → 매주 <b>자기주도 학습 시간</b>과 <b>빈틈 보완 수업</b> → 학교 시험이 다가오면 <b>내신 준비</b>. 학교 시험 날짜가 등록되면 시험 4주 전에 내신 준비 칸이 저절로 열리고, 지금 할 칸에 「지금」이 붙어요. 종이 계획표는 「자기주도 학습」에서 인쇄하고 사진을 올려요.</div>'
-      +g+ex+'<button class="mgo" data-mapclose="1">'+(MS.first?'시작하기':'닫기')+'</button><div class="mnote">다시 보려면 왼쪽 위 「국존」 로고를 누르세요.</div></div>';
+      +g+'<details class="mrule"><summary>국존 교실 규칙 보기</summary><ol><li>핸드폰 등은 학원에 제출해요.</li><li>수업 시간은 정숙.</li><li>조용히 말해요.</li><li>과제를 못 해 오면 별도 과제 시간에 와요.</li><li>질문은 구체적으로 — 지문, 선지의 개념 등을 짚어서.</li><li>주어진 시간 안에 지시 내용을 수행해 제출하고 피드백을 받아요.</li><li>수업 시작 전과 끝에 메타인지 기록지를 써요.</li></ol></details>'+ex+'<button class="mgo" data-mapclose="1">'+(MS.first?'시작하기':'닫기')+'</button><div class="mnote">다시 보려면 왼쪽 위 「국존」 로고를 누르세요.</div></div>';
   }
   function openMap(first){MS.first=!!first;MS.sel=null;var m=$('v16map');m.innerHTML=mapHtml();m.hidden=false;document.body.style.overflow='hidden';}
   function closeMap(){$('v16map').hidden=true;document.body.style.overflow='';try{localStorage.setItem(MKEY,'1');}catch(e){}}
