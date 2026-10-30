@@ -2701,6 +2701,72 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 #v16 .vgoal.on{outline:3px solid #E8A33D}
 #v16 .vrail .rt small.rq{display:block;font-size:12px;font-weight:500;opacity:.75;margin-top:2px}
 #v16 #v16tabs{display:flex!important;grid-template-columns:none!important;overflow-x:auto;scrollbar-width:none;gap:0}#v16 #v16tabs::-webkit-scrollbar{display:none}#v16 #v16tabs button{flex:1 0 auto!important;white-space:nowrap;padding-left:16px;padding-right:16px;min-width:0}
+
+/* [2026-10-31 국존 「순서대로 진행」 · 노트 19886] 학생 첫 화면 13판 — 위 단추 4개 · 오늘 할 일 세 장 · 공부 지도 5줄 3칸은 펼치기 */
+#v16 #v16gbar,#v16 #v16tabs,#v16 #v16gpath{display:none!important}
+#v16 .v13top{display:flex;gap:6px;padding:8px 12px 10px;border-top:1px solid var(--ln)}
+#v16 .v13top button{flex:1 1 0;min-width:0;min-height:40px;font:inherit;font-size:13.5px;font-weight:800;border-radius:10px;cursor:pointer;padding:6px 4px;background:#fff;color:var(--c);border:1.5px solid var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#v16 .v13top button.on{background:var(--c);color:#fff}
+#v16.v13today .vbody,#v16.v13today .vchips{display:none!important}
+#v13home{display:none;box-sizing:border-box;max-width:1180px;margin:0 auto;padding:14px 14px 60px;color:#1F2421;flex-direction:column;gap:12px}
+#v16.v13today #v13home{display:flex}
+#v13home .band{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-radius:12px;padding:10px 14px;background:#fff;border:1px solid #E2DED4}
+#v13home .band.ex{background:#ECE8F8;border-color:#CFC6EE}
+#v13home .band .chip{font-size:12px;font-weight:800;border-radius:999px;padding:3px 10px;background:#2E7D4F;color:#fff}
+#v13home .band.ex .chip{background:#4B3F8F}
+#v13home .band b{font-size:15px}
+#v13home .band span.s{font-size:13px;color:#4A4F4B}
+#v13home .todo{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-size:13.5px;color:#33383A}
+#v13home .todo>b{font-size:15px;color:#1F2421}
+#v13home .todo em{font-style:normal;font-weight:800;color:#1E4D3B}
+#v13home .big{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#v13home .bc{text-align:left;font:inherit;border:2px solid #B8892E;background:#fff;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;cursor:pointer;min-height:124px;color:inherit}
+#v13home .bc .hd{display:flex;align-items:center;gap:8px}
+#v13home .num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:15px;background:#8A5A00;color:#fff;font-size:15px;font-weight:800;flex:none}
+#v13home .bc .wh{font-size:12px;color:#6B6F6B}
+#v13home .bc .t{font-size:17px;font-weight:800;line-height:1.35}
+#v13home .bc .s{font-size:13px;color:#4A4F4B;line-height:1.5}
+#v13home .bc .ft{display:flex;justify-content:space-between;align-items:center;margin-top:auto;gap:8px}
+#v13home .bc .go{font-size:13.5px;font-weight:800;color:#fff;background:#8A5A00;border-radius:8px;padding:6px 12px}
+#v13home .st{font-size:12px;font-weight:800;border-radius:6px;padding:3px 8px;align-self:flex-start}
+#v13home .st.d{background:#E3F0E7;color:#1E4D3B}#v13home .st.p{background:#FFF1CF;color:#8A5A00}#v13home .st.n{background:#EEECE6;color:#6B6F6B}#v13home .st.l{background:#EEECE6;color:#8A8577}
+#v13home .tog{min-height:46px;border:1.5px solid #1E4D3B;border-radius:12px;background:#fff;color:#1E4D3B;font:inherit;font-size:14.5px;font-weight:800;cursor:pointer}
+#v13home h1{font-size:21px;font-weight:800;line-height:1.35;margin:4px 0 0}
+#v13home .lg{font-size:12.5px;color:#555A56}
+#v13home .lg b.d{color:#1E4D3B}#v13home .lg b.p{color:#8A5A00}
+#v13home .grid{display:grid;grid-template-columns:150px repeat(3,minmax(0,1fr));gap:5px}
+#v13home .ch{border-radius:8px;padding:8px 6px;text-align:center;color:#fff;background:#1F2421}
+#v13home .ch.now{background:#B8892E}
+#v13home .ch b{font-size:14px}#v13home .ch small{display:block;font-size:11.5px;opacity:.9}
+#v13home .nw{font-size:11px;background:#fff;color:#8A5A00;border-radius:9px;padding:1px 6px;margin-left:4px;font-weight:800}
+#v13home .rh{border-radius:8px;padding:9px 10px;color:#fff}
+#v13home .rh b{display:block;font-size:15px}#v13home .rh i{font-style:normal;font-size:11.5px;opacity:.9;line-height:1.35}
+#v13home .c{font:inherit;color:inherit;text-align:left;border-radius:8px;box-sizing:border-box;padding:9px 10px;min-height:70px;display:flex;flex-direction:column;gap:4px;background:#fff;border:1px solid #E2DED4;cursor:pointer}
+#v13home .c.cur{border:1.5px solid #E2C98F}
+#v13home .c.pick{border:2px solid #B8892E}
+#v13home .c.lock{background:#F1EFE9;border:1px solid #DDD8CC;color:#8A8577}
+#v13home .c .r1{display:flex;align-items:flex-start;gap:6px}
+#v13home .c .r1 b{font-size:13.5px;line-height:1.35;flex:1}
+#v13home .c .sn{flex:none;width:20px;height:20px;border-radius:10px;background:#8A5A00;color:#fff;font-size:11px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+#v13home .c small{font-size:11.5px;color:#555A56;line-height:1.4}
+#v13home .c.lock small{color:#8A8577}
+#v13home .c .st{margin-top:auto}
+#v13home .q{flex:none;width:32px;height:32px;border-radius:16px;border:1px solid #CFCABD;background:#fff;color:#555A56;font:inherit;font-size:14px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+#v13home .why{background:#fff;border:1px solid #E2DED4;border-left:4px solid #B8892E;border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.6}
+#v13home .why b{display:block;font-size:14.5px;margin-bottom:4px}
+#v13home .why .go2{margin-top:8px;font:inherit;font-size:13px;font-weight:800;color:#fff;background:#1E4D3B;border:0;border-radius:8px;padding:7px 12px;cursor:pointer}
+#v13home .plist{display:flex;flex-direction:column;gap:10px}
+#v13home .pb{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #E2DED4}
+#v13home .pb .ph{padding:8px 12px;color:#fff}#v13home .pb .ph b{font-size:14.5px}#v13home .pb .ph span{font-size:11.5px;opacity:.9;margin-left:4px}
+#v13home .pr{display:flex;gap:8px;padding:9px 12px;border-top:1px solid #EFEBE2;align-items:flex-start;width:100%;font:inherit;color:inherit;text-align:left;background:#fff;border-left:0;border-right:0;border-bottom:0;cursor:pointer}
+#v13home .pr.pick{background:#FFF8E8}#v13home .pr.lock{color:#8A8577}
+#v13home .pr .cl{flex:none;width:78px;font-size:11.5px;color:#555A56;line-height:1.35}
+#v13home .pr .bd{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+#v13home .pr .bd .r1{display:flex;gap:6px;align-items:flex-start}#v13home .pr .bd b{font-size:13.5px;line-height:1.35}
+#v13home .pr .sn{flex:none;width:20px;height:20px;border-radius:10px;background:#8A5A00;color:#fff;font-size:11px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+#v13home .foot{font-size:12px;color:#555A56}
+@media (max-width:899px){#v13home .big{grid-template-columns:1fr}#v13home h1{font-size:17px}#v13home .bc{min-height:0}}
+@media (max-width:520px){#v16 .v13top{padding:8px 8px 10px;gap:4px}#v16 .v13top button{font-size:12.5px;padding:6px 2px}}
 </style>
 <script id="v16js">
 (function(){
@@ -2766,17 +2832,18 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   ];
 
   /* ── 상태: 수업일/수업 없는 날 · 국면 · 지금 걸음 — 전부 기록에서 자동 ── */
-  var V={day:'home',cls:'',phase:'평상',now:1,done:{},line:{},tab:null,sel:null,help:{},user:false,ctx:null,goal:null,pend:[],skipped:[],exam:null};
+  var V={home:true,day:'home',cls:'',phase:'평상',now:1,done:{},line:{},tab:null,sel:null,help:{},user:false,ctx:null,goal:null,pend:[],skipped:[],exam:null};
   function kst(){return new Date(Date.now()+9*36e5);}
   function stepsOf(tab){return ST.filter(function(x){return x.a===tab;}).sort(function(a,b){return (a.o||0)-(b.o||0);});}
 
   /* ── 틀 ── */
   var root=document.createElement('div'); root.id='v16';
   var h='<div class="vh" id="v16hd"><div class="vtop"><button class="vlogo" id="v16logo" title="국존 공부 지도 다시 보기">국존</button><span class="vname" id="v16name">…</span><span class="vinfo" id="v16info"></span><a id="v16gpath" href="#" title="내 성적으로 갈 수 있는 대학·학과 보기 (2026-10-27)" onclick="window.open(\'gpath.html\'+location.search+(window.__DESK_Q||\'\'),\'_blank\');return false;" style="margin-left:auto;flex:none;font-size:12.5px;font-weight:800;color:#1E4D3B;background:#E8F0EB;border:1px solid #cfe0d5;border-radius:999px;padding:4px 10px;text-decoration:none">진학 조회</a></div><div class="vty" id="v16ty"></div>'
+   +'<div class="v13top" id="v13top"><button data-v13="today" style="--c:#1E4D3B">오늘</button><button data-v13="trend" style="--c:#4B3F8F">성적 추이</button><button data-v13="report" style="--c:#9A6B00"><span class="v13w">이번 달 리포트</span></button><button data-v13="gpath" style="--c:#1E5A8A">진학 조회</button></div>'
    +'<button class="vgoal" id="v16gbar" data-tab="goal" title="목표와 성장 보기"><span class="gq">나 얼마나 늘었지?</span><span class="gt" id="v16gtxt">목표 불러오는 중…</span><span class="ga">›</span></button>'
    +'<div class="vtabs" id="v16tabs">'+ACT.filter(function(a){return !a.hide;}).map(function(a){return '<button data-tab="'+a.id+'" style="--ac:'+a.c+';--abg:'+a.bg+'"><span class="n">'+a.n+'</span></button>';}).join('')+'</div>'
    +'<div class="vchips" id="v16chips"></div></div>'
-   +'<div class="vbody"><nav class="vrail" id="v16rail"></nav><main class="vmain" id="v16main">';
+   +'<div id="v13home"></div><div class="vbody"><nav class="vrail" id="v16rail"></nav><main class="vmain" id="v16main">';
   ST.forEach(function(x){var a=actOf(x.a);
     var holds='',idx=0; PLAN.forEach(function(p,j){ if(p[0]===x.i){ holds+=(p[2]==='sc'&&!holds.match(/v16scw/)?'<div id="v16scw" hidden>':'')+'<div class="hold" data-p="'+j+'"></div>'; } });
     if(holds.indexOf('v16scw')>=0)holds+='</div>';
@@ -2820,6 +2887,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   /* ── 그리기 ── */
   function render(){
     var tab=V.tab, a=actOf(tab), list=stepsOf(tab);
+    root.classList.toggle('v13today',!!V.home); [].forEach.call(root.querySelectorAll('#v13top button'),function(b){b.classList.toggle('on',V.home&&b.dataset.v13==='today');});
     [].forEach.call(root.querySelectorAll('#v16tabs button'),function(b){b.classList.toggle('on',b.dataset.tab===tab);});
     function cls(x){return (V.done[x.i]?' done':'')+(V.now===x.i?' now':'')+(V.sel===x.i?' sel':'');}
     $('v16chips').style.setProperty('--ac',a.c); $('v16chips').style.setProperty('--abg',a.bg);
@@ -2834,8 +2902,8 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   function centerChip(){var bar=$('v16chips'),on=bar&&bar.querySelector('.sch.sel'); if(!on||!bar.clientWidth)return;
     bar.scrollLeft=Math.max(0,on.offsetLeft-(bar.clientWidth-on.offsetWidth)/2);}
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){centerChip();});
-  function goTab(tab){V.tab=tab;var L=stepsOf(tab);var pick=V.user?L[0]:(L.filter(function(x){return x.i===V.now;})[0]||L[0]);/* [seq 365] 탭을 누르면 그 기간 기록부터 */V.sel=pick?pick.i:null;render();if(V.sel!=null)visit(V.sel);window.scrollTo(0,0);}
-  function go(i){var x=ST[i];if(!x)return;if(x.day&&x.day!==V.day){/* 그날 걸음이 아니면 같은 탭 첫 걸음 */}V.tab=x.a;V.sel=i;render();window.scrollTo(0,0);}
+  function goTab(tab){V.home=false;V.tab=tab;var L=stepsOf(tab);var pick=V.user?L[0]:(L.filter(function(x){return x.i===V.now;})[0]||L[0]);/* [seq 365] 탭을 누르면 그 기간 기록부터 */V.sel=pick?pick.i:null;render();if(V.sel!=null)visit(V.sel);window.scrollTo(0,0);}
+  function go(i){var x=ST[i];if(!x)return;V.home=false;if(x.day&&x.day!==V.day){/* 그날 걸음이 아니면 같은 탭 첫 걸음 */}V.tab=x.a;V.sel=i;render();window.scrollTo(0,0);}
   window.v16go=go;
   /* [seq 335] 학생 열람 기록 — 파일럿 지표(주 활성일·복귀 간격). 관문 안(iframe)·수업 카드 미리보기(v=staff)는 기록하지 않는다 */
   var STAFFV=(window.top!==window)||/[?&]v=staff\b/.test(location.search||''), VSEEN={};
@@ -2846,7 +2914,8 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     var t=e.target.closest('[data-tab]'); if(t&&root.contains(t)&&(t.closest('#v16tabs')||t.id==='v16gbar')){V.user=true;goTab(t.dataset.tab);return;}
     var s=e.target.closest('.sch,.stp'); if(s){V.user=true;V.sel=+s.dataset.i;render();visit(V.sel);window.scrollTo(0,0);return;}
     var hq=e.target.closest('[data-help]'); if(hq){var th=$('v16three'+hq.dataset.help); if(th)th.hidden=!th.hidden; return;}
-    if(e.target.id==='v16logo'){openMap(false);return;}
+    if(e.target.id==='v16logo'){V13.open=true;goToday();return;}
+    var vb=e.target.closest('[data-v13]'); if(vb&&root.contains(vb)){V.user=true;v13top(vb.dataset.v13);return;}
     if(e.target.id==='v16scb'){var w=$('v16scw'); if(w){w.hidden=!w.hidden; e.target.textContent=w.hidden?'점수 보기 (성적 그래프 · 학원 테스트 · 모의고사)':'점수 접기';} return;}
   });
   /* 기존 단추가 숨은 걸음을 향하면 그 걸음으로 먼저 간다 */
@@ -2880,7 +2949,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   rpc('gz2_study_month',tok()).then(function(j){SM=j;var m=$('v16map');if(m&&!m.hidden)m.innerHTML=mapHtml();});
   var MKEY='gz17map:'+S;
   /* [2026-10-30 19:23 국존 「진행」] 공부 지도 다시 — 24절기 달력(시험 6주 · 복기 2주 · 절기 공부)이 지금 시기를 정하고 → 오늘 할 일 3개(gz2_guide_now). 정본 #5424 · #5385 · #4836 */
-  var GN=null; rpc('gz2_guide_now',tok()).then(function(j){GN=j;var m=$('v16map');if(m&&!m.hidden)m.innerHTML=mapHtml();});
+  var GN=null; rpc('gz2_guide_now',tok()).then(function(j){GN=j;var m=$('v16map');if(m&&!m.hidden)m.innerHTML=mapHtml();if(window.v13paint)v13paint();});
   function guidePlan(){
     var g=GN&&GN.ok?GN:null, j=g&&g.jeolgi||{}, ex=g&&g.exam||{}, P;
     var BN={'1구간':'1구간 진도 완주','2구간':'2구간 심화 · 학교 기출','3구간':'3구간 실전 · 내 약점','학교진도':'학교 진도에 맞춰'};
@@ -2933,7 +3002,72 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   });
   window.addEventListener('resize',function(){var m=$('v16map');if(!m.hidden)m.innerHTML=mapHtml();render();});
   var seen=false; try{seen=localStorage.getItem(MKEY)==='1';}catch(e){}
-  if(!seen)openMap(true);
+  /* ── [2026-10-31 국존 「순서대로 진행」 · 노트 19886 · 13판] 오늘 화면 ── */
+  var V13={open:false,help:null,st:{},done:null};
+  (function(){var k='gz13first:'+S,t=kst().toISOString().slice(0,10),f=null;try{f=localStorage.getItem(k);if(!f){f=t;localStorage.setItem(k,t);}}catch(e){f=t;}V13.open=(f===t);})();
+  var R13=[['목표와 성장','나 얼마나 늘었지?','#9A6B00'],['오늘 공부','오늘 할 공부와 수업','#1D5C57'],['오답 노트','다시 풀어야 할 문제는?','#A4472F'],['시험 범위','이번 시험, 어디까지?','#4B3F8F'],['강좌 · 자료','들을 강좌 · 읽을 책 · 필요한 것','#1E5A8A']];
+  var C13=[['이번 달 시작','한 달에 한 번 · 지난 시험 복기'],['자기주도 학습 시간','주 4시간 · 선생님과 함께'],['빈틈 보완 수업','매주 확인 · 보완 · 완성']];
+  /* 칸: [제목, 한 줄, 누르면 갈 걸음, 내신 준비 때만] — 내신 준비 기간에는 x 칸으로 바뀐다 */
+  function cells13(ex){return [
+    [['이번 달 목표 · 계획표 받기','지난달 자란 것을 보고 이번 달 목표를 정해요',0],['계획표 ☐ 체크','저녁에 사진 올리기',10],['끝 기록지 · 다음 주 목표','수업 끝에 한 줄',5]],
+    [ex?['범위 작품 진도','제일 어려운 작품부터',6]:['범위 작품 진도','내신 준비 때 해요',6,1],['오늘 과제','강의 · 정리 · 확인 퀴즈',1],['시작 기록지 → 확인 시험 → 선생님 설명','수업 전 과제 확인 포함',4]],
+    [['이번 달 오답 목록 · 유형 · 분석','많이 걸린 유형을 봐요',2],ex&&GN&&GN.block==='3구간'?['직전 약점 5문항','내 약한 유형만 풀어요',7]:['오늘의 문제 5장','틀렸던 문제를 다시 풀어요',2],['선생님과 오답 짚기','질문은 지문과 선지를 짚어서 질문 기록지에',18]],
+    [['지난 시험 복기','틀린 문항을 다음 시험으로',8],ex?['범위 · 기출 · 개인별 자료집','마지막 2주는 내 자료집으로',6]:['범위 · 기출 · 개인별 자료집','내신 준비 때 해요',6,1],ex?['범위 작품 모의고사 · 오늘 심화 문제','수업 시간에 풀 문제를 미리 봐요',6]:['이번 주 확인 → 오늘 심화 문제','수업 시간에 풀 문제를 미리 봐요',6]],
+    [['이 달의 강좌 · 책 한 권','7단계 교재(강의 · 정리 · 문제)',14],['강의 듣기 · 책 읽기','지난번에 멈춘 곳부터',14],['필요한 것 요청하기','자료 · 강좌 · 질문',17]]];}
+  function mode13(){var g=GN&&GN.ok?GN:null; if(g&&g.mode==='exam')return 'exam'; return V.todayCls?'class':'home';}
+  function nextExam13(){var g=GN&&GN.ok?GN:null; if(!g||!g.cells)return null; var seen=false; for(var i=0;i<g.cells.length;i++){var c=g.cells[i]; if(c.now)seen=true; else if(seen&&c.kind==='x')return c.d;} return null;}
+  /* 칸 상태 — 칸 상태 함수가 채우는 V13.st['줄-칸'] = [글, d|p|n]. 아직 없으면 화면에 있는 기록으로만 채운다 */
+  function st13(r,c){var k=r+'-'+c; if(V13.st[k])return V13.st[k];
+    if(r===0&&c===0&&V.goal&&V.goal.has_goal)return ['✓ 목표 '+(V.goal.title||'').slice(0,14),'d'];
+    if(r===1&&c===1){if(!V.ctx)return null; return V.pend.length?[V.pend.length+'개 남았어요','n']:['✓ 오늘 과제 끝','d'];}
+    if(r===1&&c===2&&V.day==='class')return V.done[4]?['✓ 시작 기록지','d']:['아직','n'];
+    if(r===0&&c===2&&V.day==='class')return V.done[5]?['✓ 끝 기록지','d']:['아직','n'];
+    return null;}
+  function v13html(){
+    var md=mode13(), ex=md==='exam', nowCol={home:1,'class':2,exam:1}[md], C=cells13(ex), g=GN&&GN.ok?GN:null;
+    var NUM={home:[[1,1],[2,1],[4,1]],'class':[[1,2],[2,2],[0,2]],exam:[[1,0],[3,1],[2,1]]}[md];
+    function numOf(r,c){for(var i=0;i<NUM.length;i++)if(NUM[i][0]===r&&NUM[i][1]===c)return i+1;return 0;}
+    var nx=nextExam13(), band;
+    if(ex){var bl=g.block==='학교진도'?'학교 진도에 맞춰요':(g.block||''); band='<div class="band ex"><span class="chip">지금 시기</span><b>지금은 내신 준비 기간이에요</b><span class="s">'+esc((g.exam&&g.exam.name)||'학교 시험')+'까지 '+(g.d_day!=null?g.d_day+'일':'')+(bl?' · '+esc(bl):'')+'</span></div>';}
+    else if(g&&g.mode==='rev'){band='<div class="band"><span class="chip">지금 시기</span><b>지금은 시험 복기 기간이에요</b><span class="s">'+esc((g.exam&&g.exam.name)||'시험')+'에서 틀린 문항을 다시 봐요</span></div>';}
+    else {var j=g&&g.jeolgi||{}; band='<div class="band"><span class="chip">지금 시기</span><b>지금은 평소 공부 기간이에요</b><span class="s">'+(j.from?esc(j.from)+'~'+esc(j.to):'')+(nx?(j.from?' · ':'')+esc(nx)+'부터 내신 준비를 해요':'')+'</span></div>';}
+    var dl=V13.done?'<span>어제 <em>'+V13.done.y+'개</em>, 이번 주에는 <em>'+V13.done.wt+'개 중 '+V13.done.wd+'개</em>를 끝냈어요</span>':'';
+    var big=NUM.map(function(p,i){var x=C[p[0]][p[1]],s=st13(p[0],p[1]);if(!s&&x[3]&&nx)s=[nx+'부터','l'];
+      return '<button type="button" class="bc" data-go13="'+x[2]+'"><span class="hd"><span class="num">'+(i+1)+'</span><span class="wh">'+['이번 달','집에서','학원에서'][p[1]]+'</span></span><span class="t">'+esc(x[0])+'</span><span class="s">'+esc(x[1])+'</span><span class="ft">'+(s?'<span class="st '+s[1]+'">'+esc(s[0])+'</span>':'<span></span>')+'<span class="go">시작</span></span></button>';}).join('');
+    var h=band+'<div class="todo"><b>오늘 이것만 하면 돼요</b>'+dl+'</div><div class="big">'+big+'</div>'
+      +'<button type="button" class="tog" data-tog13="1" aria-expanded="'+(V13.open?'true':'false')+'">'+(V13.open?'공부 지도 접기 ▲':'공부 지도 전체 보기 ▼')+'</button>';
+    if(V13.open){
+      h+='<h1>국어 점수는 자기주도력에서 옵니다. 국존은 그 힘을 훈련합니다.</h1><div class="lg"><b class="d">✓ 끝</b> · <b class="p">하는 중</b> · <b>아직</b> · 칸을 누르면 그 화면으로 가요 · 「?」를 누르면 왜 하는지 나와요</div>';
+      var wide=window.innerWidth>=700;
+      function cell(r,c,x){var n=numOf(r,c),lk=!!x[3],s=st13(r,c);if(!s&&lk&&nx)s=[nx+'부터','l'];var show=s&&(s[1]==='d'||c===nowCol||n);return {n:n,lk:lk,s:show?s:null};}
+      if(wide){
+        h+='<div class="grid"><div></div>'+C13.map(function(c,ci){return '<div class="ch'+(ci===nowCol?' now':'')+'"><b>'+c[0]+(ci===nowCol?'<span class="nw">지금</span>':'')+'</b><small>'+c[1]+'</small></div>';}).join('');
+        R13.forEach(function(r,ri){h+='<div class="rh" style="background:'+r[2]+'"><b>'+r[0]+'</b><i>'+r[1]+'</i></div>';
+          C[ri].forEach(function(x,ci){var q=cell(ri,ci,x);
+            h+='<div role="button" tabindex="0" class="c'+(q.lk?' lock':q.n?' pick':ci===nowCol?' cur':'')+'" data-go13="'+x[2]+'"><span class="r1">'+(q.n?'<span class="sn">'+q.n+'</span>':'')+'<b>'+esc(x[0])+'</b><button type="button" class="q" data-why13="'+x[2]+'" aria-label="왜 하나">?</button></span><small>'+esc(x[1])+'</small>'+(q.s?'<span class="st '+q.s[1]+'">'+esc(q.s[0])+'</span>':'')+'</div>';});});
+        h+='</div>';
+      } else {
+        h+='<div class="plist">'+R13.map(function(r,ri){return '<div class="pb"><div class="ph" style="background:'+r[2]+'"><b>'+r[0]+'</b><span>'+r[1]+'</span></div>'+C[ri].map(function(x,ci){var q=cell(ri,ci,x);
+          return '<div role="button" tabindex="0" class="pr'+(q.n?' pick':'')+(q.lk?' lock':'')+'" data-go13="'+x[2]+'"><span class="cl">'+C13[ci][0]+(ci===nowCol?' · 지금':'')+'</span><span class="bd"><span class="r1">'+(q.n?'<span class="sn">'+q.n+'</span>':'')+'<b>'+esc(x[0])+'</b></span>'+(q.s?'<span class="st '+q.s[1]+'">'+esc(q.s[0])+'</span>':'')+'</span><button type="button" class="q" data-why13="'+x[2]+'" aria-label="왜 하나">?</button></div>';}).join('')+'</div>';}).join('')+'</div>';
+      }
+      if(V13.help!=null){var w=ST[V13.help]; if(w)h+='<div class="why" id="v13why"><b>'+esc(w.n)+'</b>왜 하나요 — '+w.why+'<br>국존이 해 주는 것 — '+w.app+'<br>내가 하는 것 — '+w.me+'<br><button type="button" class="go2" data-go13="'+w.i+'">이 화면으로 가기</button></div>';}
+    }
+    return h+'<div class="foot">처음 들어온 날에는 공부 지도가 펼쳐진 채로 보여요.</div>';}
+  function v13paint(){var b=$('v13home'); if(b&&V.home)b.innerHTML=v13html();}
+  window.v13paint=v13paint; window.v13state=function(o){if(o&&o.st)V13.st=o.st; if(o&&o.done)V13.done=o.done; v13paint();};
+  function goToday(){V.home=true;render();v13paint();window.scrollTo(0,0);visit(null);}
+  function v13top(k){
+    if(k==='today'){goToday();return;}
+    if(k==='gpath'){window.open('gpath.html'+location.search+(window.__DESK_Q||''),'_blank');return;}
+    if(k==='trend'){go(8);var w=$('v16scw'),bt=$('v16scb');if(w){w.hidden=false;if(bt)bt.textContent='점수 접기';}visit(8);return;}
+    if(k==='report'){go(9);visit(9);return;}}
+  $('v13home').addEventListener('click',function(e){
+    var q=e.target.closest('[data-why13]'); if(q){e.stopPropagation();var i=+q.dataset.why13;V13.help=(V13.help===i?null:i);v13paint();var w=$('v13why');if(w&&w.scrollIntoView)w.scrollIntoView({behavior:'smooth',block:'nearest'});return;}
+    if(e.target.closest('[data-tog13]')){V13.open=!V13.open;V13.help=null;v13paint();return;}
+    var c=e.target.closest('[data-go13]'); if(c){V.user=true;var i2=+c.dataset.go13;go(i2);visit(i2);return;}
+  });
+  $('v13home').addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role=button][data-go13]')){e.preventDefault();e.target.click();}});
+  window.addEventListener('resize',function(){if(V.home)v13paint();});
 
   /* ── 기록 읽기 → 시기·지금 걸음 ── */
   var today=(function(){var d=kst();return d.toISOString().slice(0,10);})();
@@ -2964,9 +3098,9 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     var st=(ctx.student||{}); $('v16name').textContent=st.name||'';
     paintInfo();
     if(!V.user){V.tab=ST[V.now].a;V.sel=V.now;}
-    render();
+    render(); v13paint();
     drawGoal(); drawHw(); drawPaper(); drawSkip(); drawPhase(); drawExam(); drawGrow(); drawBeyond(); drawCardsC();
-    setTimeout(function(){ if(window.__FIRST_ACTIVE&&!V.user){V.now=0;V.tab='goal';V.sel=0;render();} },2500);   /* 첫 수업 과정 중이면 내 목표부터 */
+    setTimeout(function(){ if(window.__FIRST_ACTIVE&&!V.user){V.now=0;V.tab='goal';V.sel=0;render();v13paint();} },2500);   /* 첫 수업 과정 중이면 내 목표부터 */
   });
   /* [2026-10-19 국존 지시 19:12] 수업일에는 걸음 2가 숨으므로 「오늘 과제」 끝에 카드 입구 하나(테두리 단추 — 진한 단추는 과제 쪽 하나) */
   function drawCardsC(){var b=$('v16cardsC'); if(!b)return; if(V.day!=='class'){b.hidden=true;return;}
@@ -2980,7 +3114,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     $('v16info').innerHTML=(V.day==='class'?'오늘 '+esc(tyName(V.ty)||'수업')+' '+esc(V.cls):(V.nx?'다음 '+esc(tyName(V.nx.st)||'수업')+' '+esc(V.nx.d)+' '+esc(V.nx.tm):'수업 없는 날'))+(sk&&sk!=='–'&&sk!=='0'?' · 🔥 '+esc(sk)+'일':'')+(ex?'<br>'+esc(ex):'');
   }
   setTimeout(paintInfo,3500); setTimeout(paintInfo,8000);
-  if(!V.tab){V.tab='study';V.sel=1;} render();
+  if(!V.tab){V.tab='study';V.sel=1;} render(); v13paint();
 
 
   /* ── [seq 330 · 2026-10-08] 학생 플래너: 위로 가는 줄 · 어제 정한 첫 할 일 · 오늘 돌아보기 · 이번 주 습관 · 한 주 기록 ── */
