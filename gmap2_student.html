@@ -2496,6 +2496,22 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 #v16 .rq .fb{font-size:13px;line-height:1.6;color:#3d4440;border-left:3px solid var(--gold);padding:5px 10px;background:#FFFCF2;margin-top:4px}
 #v16 .vmap{position:fixed;inset:0;z-index:9500;background:var(--pp);overflow:auto;padding:16px 16px 40px}
 #v16 .vmap .in{max-width:1080px;margin:0 auto}
+.vmap .g3cal{background:#fff;border:1px solid #E2DED4;border-radius:14px;padding:12px 14px;margin:12px 0}
+.vmap .g3cal .t{font-size:14px;font-weight:800}.vmap .g3cal .t small{font-weight:500;color:#555A56;font-size:12px;margin-left:6px}
+.vmap .g3grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:3px;margin-top:8px}
+.vmap .g3grid div{height:44px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;line-height:1.2}
+.vmap .g3grid div span{font-size:11px}.vmap .g3grid .s{background:#E4EFE8;color:#1E4D3B}.vmap .g3grid .x{background:#E8E2F7;color:#3D3275}.vmap .g3grid .r{background:#FBE7DF;color:#8A3A22}.vmap .g3grid .on{background:#1F2421;color:#fff}
+.vmap .g3lg{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:#4A4F4B;margin-top:8px}.vmap .g3lg i{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin-right:3px}
+.vmap .g3now{border-radius:14px;padding:14px 16px;margin:0 0 12px}.vmap .g3now .k{font-size:13px;font-weight:800}.vmap .g3now .h{font-size:22px;font-weight:800;line-height:1.3;margin:2px 0}.vmap .g3now .d{font-size:13.5px;color:#33383A;line-height:1.55}
+.vmap .g3h{font-size:14px;font-weight:800;margin:4px 0 8px}
+.vmap .g3todo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.vmap .g3todo button{text-align:left;border:1.5px solid var(--g3ac);background:#fff;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:6px;cursor:pointer;min-height:112px;font:inherit;color:#1F2421}
+.vmap .g3todo button i{font-style:normal;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:14px;background:var(--g3ac);color:#fff;font-size:14px;font-weight:800}
+.vmap .g3todo button b{font-size:16px}.vmap .g3todo button small{font-size:13px;color:#4A4F4B;line-height:1.5}.vmap .g3todo button em{font-style:normal;font-size:13px;font-weight:700;color:var(--g3ac);margin-top:auto}
+.vmap .g3q{font-size:13px;color:#4A4F4B;background:#fff;border:1px dashed #CFCABD;border-radius:10px;padding:10px 12px;margin:10px 0}
+.vmap .g3sm{background:#fff;border:1px solid #E2DED4;border-radius:14px;padding:12px 14px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}.vmap .g3sm b{font-size:14px}.vmap .g3sm strong{font-size:24px;color:#1E4D3B}.vmap .g3sm span{font-size:13px;color:#4A4F4B}
+@media(max-width:640px){.vmap .g3todo{grid-template-columns:1fr}.vmap .g3grid div{height:38px;font-size:9.5px}.vmap .g3grid div span{font-size:9px}.vmap .g3now .h{font-size:20px}}
+
 #v16 .vmap h1{font-family:'Gowun Batang',serif;font-size:21px;margin:8px 0 4px;line-height:1.4}
 #v16 .vmap .sub{font-size:13.5px;color:var(--dm);line-height:1.65;margin-bottom:12px}
 #v16 .mgrid{display:grid;grid-template-columns:150px repeat(4,1fr);gap:5px;font-size:13px}
@@ -2854,22 +2870,47 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     return L.month+'월 공부 시간 '+h(t)+'(수업 '+L.class_n+'번 · 자기주도 학습 '+h(+L.self_h||0)+')'+d+' · '+base;}
   rpc('gz2_study_month',tok()).then(function(j){SM=j;var m=$('v16map');if(m&&!m.hidden)m.innerHTML=mapHtml();});
   var MKEY='gz17map:'+S;
+  /* [2026-10-30 19:23 국존 「진행」] 공부 지도 다시 — 24절기 달력(시험 6주 · 복기 2주 · 절기 공부)이 지금 시기를 정하고 → 오늘 할 일 3개(gz2_guide_now). 정본 #5424 · #5385 · #4836 */
+  var GN=null; rpc('gz2_guide_now',tok()).then(function(j){GN=j;var m=$('v16map');if(m&&!m.hidden)m.innerHTML=mapHtml();});
+  function guidePlan(){
+    var g=GN&&GN.ok?GN:null, j=g&&g.jeolgi||{}, ex=g&&g.exam||{}, P;
+    var BN={'1구간':'1구간 진도 완주','2구간':'2구간 심화 · 학교 기출','3구간':'3구간 실전 · 내 약점'};
+    if(g&&g.mode==='exam'){
+      var ac={'1구간':'#4B3F8F','2구간':'#4B3F8F','3구간':'#A4472F'}[g.block]||'#4B3F8F';
+      P={ac:ac,bg:g.block==='3구간'?'#FBEAE4':'#ECE8F8',head:(ex.name||'학교 시험')+' '+(ex.window||'')+' — '+(BN[g.block]||''),
+        sub:gzDD(g.d_day)+' · 시험 '+ex.date+'. '+(g.block==='1구간'?'시험 범위에서 제일 어려운 작품부터 진도를 끝내요.':g.block==='2구간'?'진도를 끝낸 작품을 심화하고 우리 학교 기출을 풀어요.':'새 진도는 없어요. 내 약한 유형과 개인별 자료집으로 마무리해요.'),
+        home:g.block==='1구간'?[['범위 작품 진도 1개','제일 어려운 작품부터 강의 · 정리',6],['오늘의 문제 5장','틀렸던 문제를 다시 풀어요',2],['계획표 ☐ 체크','이번 주 진도 칸에 체크',10]]
+            :g.block==='2구간'?[['학교 기출 한 회','우리 학교 기출로 심화',6],['오늘의 문제 5장','틀렸던 문제를 다시 풀어요',2],['계획표 ☐ 체크','이번 주 진도 칸에 체크',10]]
+            :[['직전 약점 5문항','내가 자주 틀리는 유형만',7],['개인별 자료집 1회차','마지막 2주는 내 자료집으로',6],['계획표 ☐ 체크','오늘 끝낸 것에 체크',10]]};
+    } else if(g&&g.mode==='rev'){
+      P={ac:'#7A5A12',bg:'#F7EFD9',head:(ex.name||'시험')+' 끝 — 복기 2주',sub:'틀린 문항을 다시 보고, 다음 목표를 세운 뒤 다음 공부로 넘어가요.',
+        home:[['틀린 문항 다시 보기','넘어선 것 하나 먼저, 그다음 틀린 것',8],['「다음엔」 한 줄','다음 시험에서 바꿀 것 하나',8],['다음 목표 세우기','점수 · 기한 · 이유',9]]};
+    } else if(g&&g.grade==='고3'){
+      /* 고3은 1학기 기말로 내신 끝 — 이후는 수능(#4836) */
+      P={ac:'#1E5A8A',bg:'#E3EEF7',head:'수능 국어 — 이 달의 강좌로 이어 가요',sub:'고3 내신은 1학기 기말로 끝났어요. 지금은 수능 공부가 주인이에요.',
+        home:[['이 달의 강좌 1강','수능 강좌 이어 듣기',14],['오늘의 문제 5장','틀렸던 문제를 다시 풀어요',2],['계획표 ☐ 체크','종이 계획표에 체크하고 사진 올리기',10]]};
+    } else {
+      P={ac:'#2E7D4F',bg:'#E4EFE8',head:j.line||'이번 절기 공부',sub:'학교 시험 6주 기간이 아니라 절기 공부가 주인이에요. 학교 시험 날짜가 등록되면 시험 칸이 저절로 깔려요.',
+        home:[['이번 절기 강좌 1강',j.line||'이 달의 강좌에서 이어 듣기',14],['오늘의 문제 5장','틀렸던 문제를 다시 풀어요',2],['계획표 ☐ 체크','종이 계획표에 체크하고 사진 올리기',10]]};
+    }
+    P.kicker='지금 · '+(j.n?j.n+' '+j.from+'~'+j.to:'불러오는 중…');
+    P.cls=[['시작 기록지 한 줄','지금 제일 헷갈리는 것을 적어 보내요',4],['오늘 수업 순서대로','확인 시험 → 선생님이 돌아가며 짚어 줘요',5],['끝 기록지','오늘 알게 된 것 · 다음 주 목표',5]];
+    return P;}
   function mapHtml(){
-    MAP.goal[0][1]=smTxt();
-    var wide=window.innerWidth>=900, g='', M=mapState();
-    if(!wide){ g='<div class="mlist">'+MAPROWS.map(function(x){return '<div class="blk"><div class="rh" style="background:'+x.c+'"><b>'+x.n+'</b><i>'+x.q+'</i></div>'
-        +MAP[x.id].map(function(c,ci){if(!c)return '';var lk=ci===3&&!M.open,nw=ci===M.now;return '<button class="c'+(lk?' lock':'')+(nw?' now':'')+'" data-cell="'+c[2]+'"><span class="w">'+COLS[ci][0]+(nw?'<br><span class="nw">지금</span>':'')+'</span><span><b>'+c[0]+'</b><small>'+(lk?'시험 4주 전부터 열려요':c[1])+'</small></span></button>';}).join('')+'</div>';}).join('')+'</div>'; }
-    else { g='<div class="mgrid"><div></div>'+COLS.map(function(c,ci){var lk=ci===3&&!M.open,nw=ci===M.now;return '<div class="hd'+(nw?' now':'')+(lk?' lock':'')+'">'+c[0]+(nw?'<span class="nw">지금</span>':'')+'<small>'+(ci===3?M.sub3:c[1])+'</small></div>';}).join('');
-      MAPROWS.forEach(function(x){ g+='<div class="rh" style="background:'+x.c+'"><b>'+x.n+'</b><i>'+x.q+'</i></div>';
-        MAP[x.id].forEach(function(c,ci){var lk=ci===3&&!M.open,nw=ci===M.now; g+=c?'<button class="c'+(lk?' lock':'')+(nw?' now':'')+'" data-cell="'+c[2]+'"><b>'+c[0]+'</b><small>'+(lk?'시험 4주 전부터 열려요':c[1])+'</small></button>':'<div class="c e"></div>'; }); });
-      g+='</div>'; }
-    var x=MS.sel!=null?ST[MS.sel]:null;
-    var ex=x?'<div class="mex"><b>'+x.n+' · '+x.v+'</b><br>왜 — '+x.why+'<br>국존이 — '+x.app+'<br>내가 — '+x.me+'<div style="margin-top:8px"><button class="b p" data-mapto="'+x.i+'">이 속도로 가기</button></div></div>'
-      :'<div class="mnote">칸을 누르면 왜 하는지 · 국존이 뭘 해 주는지 · 내가 뭘 하는지가 나와요.</div>';
-    return '<div class="in"><div style="display:flex;align-items:center;gap:8px"><span class="vlogo" style="display:inline-flex;align-items:center;justify-content:center">국존</span><span style="font-size:12.5px;color:var(--dm)">국존 공부 지도 · 사용 설명</span></div>'
-      +'<h1>국어 점수는 자기주도력에서 옵니다. 국존은 그 힘을 훈련합니다.</h1>'
-      +'<div class="sub">국존에서 공부하는 한 달 순서예요 — <b>이번 달 시작</b>(목표 · 지난 시험 복기) → 매주 <b>자기주도 학습 시간</b>과 <b>빈틈 보완 수업</b> → 학교 시험이 다가오면 <b>내신 준비</b>. 학교 시험 날짜가 등록되면 시험 4주 전에 내신 준비 칸이 저절로 열리고, 지금 할 칸에 「지금」이 붙어요. 종이 계획표는 「자기주도 학습」에서 인쇄하고 사진을 올려요.</div>'
-      +g+'<details class="mrule"><summary>국존 교실 규칙 보기</summary><ol><li>핸드폰 등은 학원에 제출해요.</li><li>수업 시간은 정숙.</li><li>조용히 말해요.</li><li>과제를 못 해 오면 별도 과제 시간에 와요.</li><li>질문은 구체적으로 — 지문, 선지의 개념 등을 짚어서.</li><li>주어진 시간 안에 지시 내용을 수행해 제출하고 피드백을 받아요.</li><li>수업 시작 전과 끝에 메타인지 기록지를 써요.</li></ol></details>'+ex+'<button class="mgo" data-mapclose="1">'+(MS.first?'시작하기':'닫기')+'</button><div class="mnote">다시 보려면 왼쪽 위 「국존」 로고를 누르세요.</div></div>';
+    var P=guidePlan(), cls=!!V.todayCls, list=cls?P.cls:P.home, cells=(GN&&GN.ok&&GN.cells)||[];
+    var cal='<div class="g3cal"><div class="t">올해 공부 달력<small>24절기 · 15일마다 한 칸 · 학교 시험 날짜가 등록되면 시험 칸이 저절로 깔려요</small></div><div class="g3grid">'
+      +cells.map(function(c){return '<div class="'+(c.now?'on':c.kind)+'"><b>'+esc(c.n)+'</b><span>'+esc(c.d)+'</span></div>';}).join('')+'</div>'
+      +'<div class="g3lg"><span><i style="background:#E8E2F7"></i>학교 시험 6주</span><span><i style="background:#FBE7DF"></i>시험 끝 복기 2주</span><span><i style="background:#E4EFE8"></i>절기 공부</span><span><i style="background:#1F2421"></i>지금</span></div></div>';
+    var now='<div class="g3now" style="background:'+P.bg+'"><div class="k" style="color:'+P.ac+'">'+esc(P.kicker)+'</div><div class="h">'+esc(P.head)+'</div><div class="d">'+esc(P.sub)+'</div></div>';
+    var todo='<div class="g3h">오늘('+(cls?'수업 날':'수업 없는 날')+') 이것만 하면 돼요</div><div class="g3todo" style="--g3ac:'+P.ac+'">'
+      +list.map(function(t,i){return '<button data-mapto="'+t[2]+'"><i>'+(i+1)+'</i><b>'+esc(t[0])+'</b><small>'+esc(t[1])+'</small><em>열기 ›</em></button>';}).join('')+'</div>';
+    var L=SM&&SM.ok&&SM.last, sm='';
+    if(L){var t=+L.total_h||0,pt=+(SM.prev&&SM.prev.total_h)||0,h=function(x){x=Math.round(x*10)/10;return (x%1?x.toFixed(1):String(x))+'시간';};
+      sm='<div class="g3sm"><b>지난달('+L.month+'월) 공부 시간</b>'+(t?'<strong>'+h(t)+'</strong><span>수업 '+L.class_n+'번 + 자기주도 학습 '+h(+L.self_h||0)+(pt?' · <b style="color:#1E4D3B">'+SM.prev.month+'월보다 '+(t>=pt?h(t-pt)+' 늘었어요':h(pt-t)+' 적어요')+'</b>':'')+'</span>':'<span>기록이 아직 없어요 · 이번 달부터 쌓여요</span>')+'</div>';}
+    return '<div class="in"><div style="display:flex;align-items:center;gap:8px"><span class="vlogo" style="display:inline-flex;align-items:center;justify-content:center">국존</span><span style="font-size:12.5px;color:var(--dm)">국존 공부 지도</span></div>'
+      +cal+now+todo+'<div class="g3q">막히면 문제를 사진 찍어 <b>질문 기록지</b>에 올려요. 선생님이 답해 줘요.</div>'+sm
+      +'<details class="mrule"><summary>국존 교실 규칙 보기</summary><ol><li>핸드폰 등은 학원에 제출해요.</li><li>수업 시간은 정숙.</li><li>조용히 말해요.</li><li>과제를 못 해 오면 별도 과제 시간에 와요.</li><li>질문은 구체적으로 — 지문, 선지의 개념 등을 짚어서.</li><li>주어진 시간 안에 지시 내용을 수행해 제출하고 피드백을 받아요.</li><li>수업 시작 전과 끝에 메타인지 기록지를 써요.</li></ol></details>'
+      +'<button class="mgo" data-mapto="'+list[0][2]+'">1번부터 시작하기</button><div class="mnote" style="text-align:center">다시 보려면 왼쪽 위 「국존」을 누르세요 · <a href="#" data-mapclose="1">닫기</a></div></div>';
   }
   function openMap(first){MS.first=!!first;MS.sel=null;var m=$('v16map');m.innerHTML=mapHtml();m.hidden=false;document.body.style.overflow='hidden';}
   function closeMap(){$('v16map').hidden=true;document.body.style.overflow='';try{localStorage.setItem(MKEY,'1');}catch(e){}}
