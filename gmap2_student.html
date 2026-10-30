@@ -2874,12 +2874,12 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   var GN=null; rpc('gz2_guide_now',tok()).then(function(j){GN=j;var m=$('v16map');if(m&&!m.hidden)m.innerHTML=mapHtml();});
   function guidePlan(){
     var g=GN&&GN.ok?GN:null, j=g&&g.jeolgi||{}, ex=g&&g.exam||{}, P;
-    var BN={'1구간':'1구간 진도 완주','2구간':'2구간 심화 · 학교 기출','3구간':'3구간 실전 · 내 약점'};
+    var BN={'1구간':'1구간 진도 완주','2구간':'2구간 심화 · 학교 기출','3구간':'3구간 실전 · 내 약점','학교진도':'학교 진도에 맞춰'};
     if(g&&g.mode==='exam'){
       var ac={'1구간':'#4B3F8F','2구간':'#4B3F8F','3구간':'#A4472F'}[g.block]||'#4B3F8F';
       P={ac:ac,bg:g.block==='3구간'?'#FBEAE4':'#ECE8F8',head:(ex.name||'학교 시험')+' '+(ex.window||'')+' — '+(BN[g.block]||''),
-        sub:gzDD(g.d_day)+' · 시험 '+ex.date+'. '+(g.block==='1구간'?'시험 범위에서 제일 어려운 작품부터 진도를 끝내요.':g.block==='2구간'?'진도를 끝낸 작품을 심화하고 우리 학교 기출을 풀어요.':'새 진도는 없어요. 내 약한 유형과 개인별 자료집으로 마무리해요.'),
-        home:g.block==='1구간'?[['범위 작품 진도 1개','제일 어려운 작품부터 강의 · 정리',6],['오늘의 문제 5장','틀렸던 문제를 다시 풀어요',2],['계획표 ☐ 체크','이번 주 진도 칸에 체크',10]]
+        sub:gzDD(g.d_day)+' · 시험 '+ex.date+'. '+(g.block==='학교진도'?'선생님과 정한 대로 학교 진도에 맞춰 시험을 준비해요.':g.block==='1구간'?'시험 범위에서 제일 어려운 작품부터 진도를 끝내요.':g.block==='2구간'?'진도를 끝낸 작품을 심화하고 우리 학교 기출을 풀어요.':'새 진도는 없어요. 내 약한 유형과 개인별 자료집으로 마무리해요.'),
+        home:(g.block==='1구간'||g.block==='학교진도')?[['범위 작품 진도 1개','제일 어려운 작품부터 강의 · 정리',6],['오늘의 문제 5장','틀렸던 문제를 다시 풀어요',2],['계획표 ☐ 체크','이번 주 진도 칸에 체크',10]]
             :g.block==='2구간'?[['학교 기출 한 회','우리 학교 기출로 심화',6],['오늘의 문제 5장','틀렸던 문제를 다시 풀어요',2],['계획표 ☐ 체크','이번 주 진도 칸에 체크',10]]
             :[['직전 약점 5문항','내가 자주 틀리는 유형만',7],['개인별 자료집 1회차','마지막 2주는 내 자료집으로',6],['계획표 ☐ 체크','오늘 끝낸 것에 체크',10]]};
     } else if(g&&g.mode==='rev'){
@@ -2901,7 +2901,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     var P=guidePlan(), cls=!!V.todayCls, list=cls?P.cls:P.home, cells=(GN&&GN.ok&&GN.cells)||[];
     var cal='<div class="g3cal"><div class="t">올해 공부 달력<small>24절기 · 15일마다 한 칸 · 학교 시험 날짜가 등록되면 시험 칸이 저절로 깔려요</small></div><div class="g3grid">'
       +cells.map(function(c){return '<div class="'+(c.now?'on':c.kind)+'"><b>'+esc(c.n)+'</b><span>'+esc(c.d)+'</span></div>';}).join('')+'</div>'
-      +'<div class="g3lg"><span><i style="background:#E8E2F7"></i>학교 시험 6주</span><span><i style="background:#FBE7DF"></i>시험 끝 복기 2주</span><span><i style="background:#E4EFE8"></i>절기 공부</span><span><i style="background:#1F2421"></i>지금</span></div></div>';
+      +'<div class="g3lg"><span><i style="background:#E8E2F7"></i>학교 시험 준비(기본 4주)</span><span><i style="background:#FBE7DF"></i>시험 끝 복기 2주</span><span><i style="background:#E4EFE8"></i>절기 공부</span><span><i style="background:#1F2421"></i>지금</span></div></div>';
     var now='<div class="g3now" style="background:'+P.bg+'"><div class="k" style="color:'+P.ac+'">'+esc(P.kicker)+'</div><div class="h">'+esc(P.head)+'</div><div class="d">'+esc(P.sub)+'</div></div>';
     var todo='<div class="g3h">오늘('+(cls?'수업 날':'수업 없는 날')+') 이것만 하면 돼요</div><div class="g3todo" style="--g3ac:'+P.ac+'">'
       +list.map(function(t,i){return '<button data-mapto="'+t[2]+'"><i>'+(i+1)+'</i><b>'+esc(t[0])+'</b><small>'+esc(t[1])+'</small><em>열기 ›</em></button>';}).join('')+'</div>';
