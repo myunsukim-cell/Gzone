@@ -3629,7 +3629,7 @@ a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷
    +'#gzC8 .note{font-size:12.5px;color:#55606b;margin-top:8px;line-height:1.5}#gzC8 .msg{font-size:13px;color:#A4472F;margin-top:6px;font-weight:700}'
    +'#gzC8 .week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:10px}#gzC8 .week div{border:1px solid #e3dfd3;border-radius:9px;padding:6px 4px;text-align:center;font-size:12.5px;min-height:62px;color:#a7a59e}'
    +'#gzC8 .week div b{display:block;font-size:13px;color:#55606b;margin-bottom:3px}#gzC8 .week div.on{border:2px solid #12211a;color:#12211a;background:#fff}#gzC8 .week div.on b{color:#12211a}#gzC8 .week div.done{border-color:#2E7D4F;background:#E3F1E8}#gzC8 .week div{text-align:left;padding:6px;min-height:84px}#gzC8 .week p{margin:4px 0;font-size:12px;color:#12211a;line-height:1.4}#gzC8 .week i{display:block;font-style:normal;font-size:11.5px;color:#55606b;margin-top:4px;font-weight:700}#gzC8 .grid>span .k{margin-left:0}#gzC8 .week button.it{display:block;width:100%;text-align:left;font:inherit;font-size:12px;line-height:1.4;margin:4px 0;padding:4px 5px;border:1px solid #e3dfd3;border-radius:7px;background:#fff;color:#12211a;cursor:pointer}#gzC8 .week button.it.ok{background:#E3F1E8;border-color:#2E7D4F}#gzC8 .week button.it.sk{background:#f3f1ec;color:#7d8590}#gzC8 .week button.it.ms{border-color:#A4472F;background:#FBEAE4}#gzC8 .week button.it.sel{outline:2px solid #12211a}#gzC8 .week div.td{background:#FFFBEF}#gzC8 .dp{margin-top:10px;border:2px solid #12211a;border-radius:11px;padding:11px 12px}#gzC8 .dph{font-size:14.5px;margin-bottom:8px}#gzC8 .ev{font-size:14px;margin-bottom:6px}#gzC8 .ev input{width:auto;display:inline-block}';
-  var KC={'강좌':['#1E5A8A','#E3EEF7'],'복습테스트':['#7A3E9D','#F1E6F7'],'모의고사':['#7A5A12','#F7EFD9'],'문항':['#A4472F','#FBEAE4'],'글쓰기':['#1F6B3F','#E3F1E8'],'독서':['#55606b','#EEF0F2'],'오답 재풀이':['#A4472F','#FBEAE4']};
+  var KC={'강좌':['#1E5A8A','#E3EEF7'],'복습테스트':['#7A3E9D','#F1E6F7'],'모의고사':['#7A5A12','#F7EFD9'],'문항':['#A4472F','#FBEAE4'],'글쓰기':['#1F6B3F','#E3F1E8'],'독서':['#55606b','#EEF0F2'],'오답 재풀이':['#A4472F','#FBEAE4'],'자료':['#4A5A2A','#EEF2E2']};
   function tag(k){var c=KC[k]||['#555','#eee'];return '<span class="k" style="color:'+c[0]+';background:'+c[1]+'">'+esc(k)+'</span>';}
   function addD(d,n){var x=new Date(d+'T12:00:00Z');x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10);}
   function dow(d){var g=new Date(d+'T12:00:00Z').getUTCDay();return g===0?7:g;}
@@ -3647,11 +3647,13 @@ a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷
     var h='<div class="dp"><div class="dph">'+tag(r.kind)+' <b>'+esc(r.label)+(r.step?' '+esc(r.step)+'단계':'')+'</b> · '+md(r.date)+' · '+Number(r.min)+'분'
       +(r.status==='완료'?' <span class="st ok">끝 ✓</span>':r.status==='건너뜀'?' <span class="st wait">못 함</span>':'')+'</div>';
     if(r.status==='완료'||r.status==='건너뜀')h+='<div class="note">남긴 것: '+esc(res.why||res.line||'')+(res.ok!=null?' · '+res.ok+'/'+res.total+'개 맞음':'')+(res.n?' · '+res.n+'문항':'')+(res.pages?' · '+esc(res.pages)+'쪽':'')+(res.quiz_row?' · 확인 문항을 냈어요':'')+' — 다시 남기면 고쳐져요</div>';
+    if(r.detail)h+='<div class="note">'+esc(r.detail)+'</div>';
+    if(r.photo)h+='<div class="btns" style="margin-top:8px"><button data-c8="photo" data-ph="'+esc(r.photo)+'">선생님이 붙인 사진 보기</button></div>';
     var f='';
     if(r.kind==='복습테스트'||r.kind==='모의고사'||r.kind==='문항')f='<div class="ev">맞은 수 <input id="c8ok" type="number" min="0" style="width:80px"> / 전체 <input id="c8tot" type="number" min="1" style="width:80px"></div>';
     else if(r.kind==='오답 재풀이')f='<div class="ev">다시 푼 문항 수 <input id="c8n" type="number" min="1" style="width:80px"></div>';
     else if(r.kind==='독서')f='<div class="ev">읽은 쪽 <input id="c8pg" placeholder="예) 12~40" style="width:140px"></div>';
-    var ph={'강좌':'배운 것 한 줄 (오늘 확인 문항을 냈으면 비워도 돼요)','글쓰기':'어디까지 썼는지 한 줄','독서':'기억에 남는 것 한 줄'}[r.kind]||'한 줄 메모(선택) · 못 했으면 이유';
+    var ph={'강좌':'배운 것 한 줄 (오늘 확인 문항을 냈으면 비워도 돼요)','글쓰기':'어디까지 썼는지 한 줄','독서':'기억에 남는 것 한 줄','자료':'어디까지 했는지 한 줄'}[r.kind]||'한 줄 메모(선택) · 못 했으면 이유';
     h+=f+'<input id="c8line" maxlength="200" placeholder="'+ph+'">'
       +'<div class="btns"><button class="dark" data-c8="done">끝냈어요</button>'+(r.date<=t?'<button data-c8="skip">못 했어요 (이유를 위 칸에)</button>':'')+'</div><div class="msg">'+esc(S.msg)+'</div></div>';
     return h;}
@@ -3690,6 +3692,7 @@ a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷
     var t=e.target.closest('[data-c8],[data-day],[data-dayid]');if(!t)return;var a=S.a;if(t.dataset.dayid){S.sel=+t.dataset.dayid;S.msg='';paint();return;}
     if(t.dataset.day){var L=S.adj[t.dataset.it],i=+t.dataset.day,j=L.indexOf(i);if(j>=0)L.splice(j,1);else L.push(i);L.sort();S.why=(document.getElementById('c8why')||{}).value||S.why;paint();return;}
     var c=t.dataset.c8;
+    if(c==='photo'){var w=window.open('about:blank','_blank');rpc('gz2_agree_photo_get',{p_sid:SID,p_k:K,p_path:t.dataset.ph}).then(function(r){if(r&&r.ok&&r.url){if(w)w.location=r.url;else location.href=r.url;}else{if(w)w.close();S.msg=(r&&r.reason)||'사진을 열지 못했어요';paint();}});return;}
     if(c==='done'||c==='skip'){var g=function(id){var e=document.getElementById(id);return e?e.value:'';};
       var p={op:c,line:g('c8line'),ok:g('c8ok'),total:g('c8tot'),n:g('c8n'),pages:g('c8pg')};t.disabled=true;
       rpc('gz2_agree_done',{p_sid:SID,p_k:K,p_day:S.sel,p:p}).then(function(r){if(r&&r.ok){S.a=r.agree;S.msg='';paint();loadAlerts();}else{t.disabled=false;S.msg=(r&&(r.reason||r.message))||'저장하지 못했어요';paint();}});return;}
