@@ -2714,6 +2714,27 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 #v13trend{display:none;box-sizing:border-box;max-width:1180px;margin:0 auto;padding:14px 14px 60px;color:#1F2421;--s8:8px;--s16:16px;--ink:#17261F;--ink2:#4E5C55;--ink3:#7A867F;--line:#E2E5DF}
 #v16.v13trend .vbody,#v16.v13trend .vchips{display:none!important}
 #v16.v13trend #v13trend{display:block}
+/* [2026-10-31 결정 20146 · 정의 19963] 이번 달 리포트 = 다섯 가지 힘(자기주도력을 세는 방법). 16블록은 각 힘 아래 한 줄 */
+#v13rep{display:none;box-sizing:border-box;max-width:1180px;margin:0 auto;padding:16px 16px 64px;color:#17261F}
+#v16.v13rep .vbody,#v16.v13rep .vchips{display:none!important}
+#v16.v13rep #v13rep{display:block}
+#v13rep .rp-hd{background:#fff;border:1px solid #E2DED4;border-radius:14px;padding:16px;margin-bottom:16px}
+#v13rep .rp-hd .m{font-size:13px;font-weight:800;color:#9A6B00}
+#v13rep .rp-hd h3{margin:4px 0 8px;font-size:24px;line-height:1.3;font-weight:800}
+#v13rep .rp-hd p{margin:0;font-size:16px;line-height:1.55;color:#4E5C55}
+#v13rep .rp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+#v13rep .rp-c{background:#fff;border:1px solid #E2DED4;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px}
+#v13rep .rp-c .nm{font-size:19px;font-weight:800;line-height:1.3}
+#v13rep .rp-c .wt{font-size:13px;color:#4E5C55;line-height:1.5}
+#v13rep .rp-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:8px 0;border-top:1px solid #EEEAE0}
+#v13rep .rp-row .k{font-size:16px;color:#17261F}
+#v13rep .rp-row .v{font-size:16px;font-weight:800;color:#17261F;white-space:nowrap;font-variant-numeric:tabular-nums}
+#v13rep .rp-wait{padding:8px 0;border-top:1px solid #EEEAE0;font-size:13px;line-height:1.5;color:#4E5C55}
+#v13rep .rp-wait b{font-weight:700;color:#17261F}
+#v13rep .rp-bl{margin-top:auto;padding-top:8px;font-size:13px;color:#7A867F;line-height:1.5}
+#v13rep .rp-ft{margin:16px 0 0;font-size:13px;color:#4E5C55;line-height:1.5}
+#v13rep .rp-more{display:block;width:100%;min-height:48px;margin-top:16px;border:1.5px solid #9A6B00;border-radius:12px;background:#fff;color:#7A5400;font:inherit;font-size:16px;font-weight:800;cursor:pointer}
+@media(max-width:599px){#v13rep{padding:12px 12px 56px}#v13rep .rp-grid{grid-template-columns:1fr}#v13rep .rp-hd h3{font-size:22px}}
 #v13trend .card{background:#fff;border:1px solid #E2DED4;border-radius:14px;padding:14px 16px;margin-bottom:12px}
 #v13trend .t2{font-size:17px;font-weight:800}
 #v13trend .sub{font-size:13px;color:#4E5C55;line-height:1.5}
@@ -2878,7 +2899,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
    +'<button class="vgoal" id="v16gbar" data-tab="goal" title="목표와 성장 보기"><span class="gq">나 얼마나 늘었지?</span><span class="gt" id="v16gtxt">목표 불러오는 중…</span><span class="ga">›</span></button>'
    +'<div class="vtabs" id="v16tabs">'+ACT.filter(function(a){return !a.hide;}).map(function(a){return '<button data-tab="'+a.id+'" style="--ac:'+a.c+';--abg:'+a.bg+'"><span class="n">'+a.n+'</span></button>';}).join('')+'</div>'
    +'<div class="vchips" id="v16chips"></div></div>'
-   +'<div id="v13home"></div><div id="v13trend"></div><div class="vbody"><nav class="vrail" id="v16rail"></nav><main class="vmain" id="v16main">';
+   +'<div id="v13home"></div><div id="v13trend"></div><div id="v13rep"></div><div class="vbody"><nav class="vrail" id="v16rail"></nav><main class="vmain" id="v16main">';
   ST.forEach(function(x){var a=actOf(x.a);
     var holds='',idx=0; PLAN.forEach(function(p,j){ if(p[0]===x.i){ holds+=(p[2]==='sc'&&!holds.match(/v16scw/)?'<div id="v16scw" hidden>':'')+'<div class="hold" data-p="'+j+'"></div>'; } });
     if(holds.indexOf('v16scw')>=0)holds+='</div>';
@@ -2922,7 +2943,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   /* ── 그리기 ── */
   function render(){
     var tab=V.tab, a=actOf(tab), list=stepsOf(tab);
-    if(V.home)V.trend=false; root.classList.toggle('v13today',!!V.home); root.classList.toggle('v13trend',!!V.trend); [].forEach.call(root.querySelectorAll('#v13top button'),function(b){b.classList.toggle('on',(V.home&&b.dataset.v13==='today')||(V.trend&&b.dataset.v13==='trend'));});
+    if(V.home){V.trend=false;V.rep=false;} root.classList.toggle('v13today',!!V.home); root.classList.toggle('v13trend',!!V.trend); root.classList.toggle('v13rep',!!V.rep); [].forEach.call(root.querySelectorAll('#v13top button'),function(b){b.classList.toggle('on',(V.home&&b.dataset.v13==='today')||(V.trend&&b.dataset.v13==='trend')||(V.rep&&b.dataset.v13==='report'));});
     [].forEach.call(root.querySelectorAll('#v16tabs button'),function(b){b.classList.toggle('on',b.dataset.tab===tab);});
     function cls(x){return (V.done[x.i]?' done':'')+(V.now===x.i?' now':'')+(V.sel===x.i?' sel':'');}
     $('v16chips').style.setProperty('--ac',a.c); $('v16chips').style.setProperty('--abg',a.bg);
@@ -2937,8 +2958,8 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   function centerChip(){var bar=$('v16chips'),on=bar&&bar.querySelector('.sch.sel'); if(!on||!bar.clientWidth)return;
     bar.scrollLeft=Math.max(0,on.offsetLeft-(bar.clientWidth-on.offsetWidth)/2);}
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){centerChip();});
-  function goTab(tab){V.home=false;V.trend=false;V.tab=tab;var L=stepsOf(tab);var pick=V.user?L[0]:(L.filter(function(x){return x.i===V.now;})[0]||L[0]);/* [seq 365] 탭을 누르면 그 기간 기록부터 */V.sel=pick?pick.i:null;render();if(V.sel!=null)visit(V.sel);window.scrollTo(0,0);}
-  function go(i){var x=ST[i];if(!x)return;V.home=false;V.trend=false;if(x.day&&x.day!==V.day){/* 그날 걸음이 아니면 같은 탭 첫 걸음 */}V.tab=x.a;V.sel=i;render();window.scrollTo(0,0);}
+  function goTab(tab){V.home=false;V.trend=false;V.rep=false;V.tab=tab;var L=stepsOf(tab);var pick=V.user?L[0]:(L.filter(function(x){return x.i===V.now;})[0]||L[0]);/* [seq 365] 탭을 누르면 그 기간 기록부터 */V.sel=pick?pick.i:null;render();if(V.sel!=null)visit(V.sel);window.scrollTo(0,0);}
+  function go(i){var x=ST[i];if(!x)return;V.home=false;V.trend=false;V.rep=false;if(x.day&&x.day!==V.day){/* 그날 걸음이 아니면 같은 탭 첫 걸음 */}V.tab=x.a;V.sel=i;render();window.scrollTo(0,0);}
   window.v16go=go;
   /* [seq 335] 학생 열람 기록 — 파일럿 지표(주 활성일·복귀 간격). 관문 안(iframe)·수업 카드 미리보기(v=staff)는 기록하지 않는다 */
   var STAFFV=(window.top!==window)||/[?&]v=staff\b/.test(location.search||''), VSEEN={};
@@ -3066,7 +3087,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     if(ex){var bl=g.block==='학교진도'?'학교 진도에 맞춰요':(g.block||''); band='<div class="band ex"><span class="chip">지금 시기</span><b>지금은 내신 준비 기간이에요</b><span class="s">'+esc((g.exam&&g.exam.name)||'학교 시험')+'까지 '+(g.d_day!=null?g.d_day+'일':'')+(bl?' · '+esc(bl):'')+'</span></div>';}
     else if(g&&g.mode==='rev'){band='<div class="band"><span class="chip">지금 시기</span><b>지금은 시험 복기 기간이에요</b><span class="s">'+esc((g.exam&&g.exam.name)||'시험')+'에서 틀린 문항을 다시 봐요</span></div>';}
     else {var j=g&&g.jeolgi||{}; band='<div class="band"><span class="chip">지금 시기</span><b>지금은 평소 공부 기간이에요</b><span class="s">'+(j.from?esc(j.from)+'~'+esc(j.to):'')+(nx?(j.from?' · ':'')+esc(nx)+'부터 내신 준비를 해요':'')+'</span></div>';}
-    var dl=V13.done?'<span>어제 <em>'+V13.done.y+'개</em>, 이번 주에는 <em>'+V13.done.w+'개</em>를 끝냈어요</span>':'';
+    var dl=V13.done?'<span>어제 <em>'+V13.done.y+'개</em>, 이번 주에는 '+(V13.done.goal?'<em>'+V13.done.goal+'개 중 '+V13.done.w+'개</em>':'<em>'+V13.done.w+'개</em>')+'를 끝냈어요</span>':'';
     var big=NUM.map(function(p,i){var x=C[p[0]][p[1]],s=st13(p[0],p[1]);if(!s&&x[3]&&nx)s=[nx+'부터','l'];
       return '<button type="button" class="bc" data-go13="'+x[2]+'"><span class="hd"><span class="num">'+(i+1)+'</span><span class="wh">'+['이번 달','집에서','학원에서'][p[1]]+'</span></span><span class="t">'+esc(x[0])+'</span><span class="s">'+esc(x[1])+'</span><span class="ft">'+(s?'<span class="st '+s[1]+'">'+esc(s[0])+'</span>':'<span></span>')+'<span class="go">시작</span></span></button>';}).join('');
     var h=band+'<div class="todo"><b>오늘 이것만 하면 돼요</b>'+dl+'</div><div class="big">'+big+'</div>'
@@ -3094,8 +3115,8 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   function v13top(k){
     if(k==='today'){goToday();return;}
     if(k==='gpath'){window.open('gpath.html'+location.search+(window.__DESK_Q||''),'_blank');return;}
-    if(k==='trend'){V.home=false;V.trend=true;render();jyLoad();window.scrollTo(0,0);visit(8);return;}
-    if(k==='report'){go(9);visit(9);return;}}
+    if(k==='trend'){V.home=false;V.rep=false;V.trend=true;render();jyLoad();window.scrollTo(0,0);visit(8);return;}
+    if(k==='report'){V.home=false;V.trend=false;V.rep=true;render();repLoad();window.scrollTo(0,0);visit(9);return;}}
   $('v13home').addEventListener('click',function(e){
     var q=e.target.closest('[data-why13]'); if(q){e.stopPropagation();var i=+q.dataset.why13;V13.help=(V13.help===i?null:i);v13paint();var w=$('v13why');if(w&&w.scrollIntoView)w.scrollIntoView({behavior:'smooth',block:'nearest'});return;}
     if(e.target.closest('[data-tog13]')){V13.open=!V13.open;V13.help=null;v13paint();return;}
@@ -3103,6 +3124,25 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   });
   $('v13home').addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role=button][data-go13]')){e.preventDefault();e.target.click();}});
   window.addEventListener('resize',function(){if(V.home)v13paint();});
+  /* [2026-10-31 결정 20146 · 정의 19963] 이번 달 리포트 = 다섯 가지 힘. 숫자는 gz2_power5_month(학생 링크 열쇠)에서만. 없으면 어떻게 쌓이는지 한 줄 */
+  var REP={d:null,busy:false};
+  var REP_HOW={method:'오늘의 문제를 풀고, 모르는 것을 선생님께 먼저 물으면 쌓여요.',steady:'학원에 오고 과제를 끝낼 때마다 쌓여요.',higher:'목표를 스스로 높이거나 어려운 단계를 고르면 쌓여요.',accept:'선생님이 짚어 준 것을 다음 확인 시험에서 맞히면 쌓여요.',honest:'확인 시험 답안지에 확신 표시를 하면 쌓여요.'};
+  function repJs(w,a,b){var c=String(w).charCodeAt(String(w).length-1);return (c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28)?a:b;}
+  function repJoin(L){return L.length<2?L.join(''):L.slice(0,-1).map(function(x){return x+repJs(x,'과','와');}).join(' ')+' '+L[L.length-1];}
+  function repNum(v){return String(v).replace(/(\d+)\.0(?=시간)/g,'$1');}
+  function repPaint(){var el=$('v13rep');if(!el)return;var d=REP.d;
+    if(!d){el.innerHTML='<div class="rp-hd"><div class="m">이번 달 리포트</div><h3>이번 달 내 자기주도력</h3><p>'+(REP.busy?'불러오는 중이에요.':'불러오지 못했어요. 위 「이번 달 리포트」를 한 번 더 눌러 주세요.')+'</p></div>';return;}
+    var h='<div class="rp-hd"><div class="m">'+esc(d.month_label||'')+' 리포트</div><h3>이번 달 내 자기주도력을 셌어요</h3><p>국어 점수는 자기주도력에서 와요. 국존은 그 힘을 다섯 가지로 나눠 셉니다.</p></div><div class="rp-grid">';
+    (d.powers||[]).forEach(function(p){var has=[],wait=[];(p.items||[]).forEach(function(it){if(it.value)has.push(it);else wait.push(it.label);});
+      h+='<section class="rp-c"><div class="nm">'+esc(p.name)+'</div><div class="wt">'+esc(p.what)+'</div>';
+      has.forEach(function(it){h+='<div class="rp-row"><span class="k">'+esc(it.label)+'</span><span class="v">'+esc(repNum(it.value))+'</span></div>';});
+      if(wait.length)h+='<div class="rp-wait">'+(has.length?'<b>'+esc(repJoin(wait))+'</b>'+repJs(wait[wait.length-1],'은','는')+' 아직 기록이 없어요. ':'<b>아직 센 기록이 없어요.</b> ')+esc(REP_HOW[p.key]||'기록이 쌓이면 여기에 나와요.')+'</div>';
+      h+='<div class="rp-bl">이 힘을 이루는 것: '+esc((p.blocks||[]).join(', '))+'</div></section>';});
+    h+='</div><p class="rp-ft">남과 비교하지 않아요. 이번 달에 내가 한 일을 센 숫자예요.</p><button type="button" class="rp-more" data-repmore="1">자란 것과 다음 목표 보기 ›</button>';
+    el.innerHTML=h;}
+  function repLoad(){if(REP.d){repPaint();return;}REP.busy=true;repPaint();
+    rpc('gz2_power5_month',tok()).then(function(j){REP.busy=false;if(j&&j.ok)REP.d=j;repPaint();}).catch(function(){REP.busy=false;repPaint();});}
+  $('v13rep').addEventListener('click',function(e){if(!e.target.closest('[data-repmore]'))return;V.user=true;go(9);visit(9);});
   /* [2026-10-31 국존 13판 · 남은 할 일 4번] 성적 추이 단추 = 내 국어 여정(gpath.html에서 옮김, 그림 코드는 같은 판) */
   $('v13trend').innerHTML='<div class="card" id="jyCard"><div class="t2">내 국어 여정</div><div class="sub" style="margin-bottom:var(--s8)">지금 학기가 오른쪽 끝이고 그 옆이 목표예요. 학기를 누르면 아래에 그 학기 점수표가 나와요. 아래 막대를 왼쪽으로 밀면 중1까지 보여요.</div><div style="position:relative"><div class="jy-scroll"><div class="jy-box" id="jyBox"><div class="sub" style="padding:var(--s16)">불러오는 중…</div></div></div><div id="jyLabs" aria-hidden="true" style="position:absolute;left:0;right:0;top:0;pointer-events:none"></div></div><div id="jyDet"></div></div><button type="button" class="more" data-trmore="1">학원 테스트와 모의고사 점수 자세히 보기 ›</button>';
   var JY={d:null,sel:null};
