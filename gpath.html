@@ -102,34 +102,6 @@ details summary{cursor:pointer;color:var(--pri);font-weight:700;min-height:44px;
 @keyframes sk{to{background-position:-200% 0}}
 @media (prefers-reduced-motion:reduce){.skel{animation:none}}
 [hidden]{display:none!important}
-/* 학기 여정 (2026-10-30 국존 「오케이 반영」) */
-.jy-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;direction:rtl;padding-bottom:6px;scrollbar-color:#9AA3A8 #EEF0F2}
-.jy-scroll::-webkit-scrollbar{height:12px}.jy-scroll::-webkit-scrollbar-track{background:#EEF0F2;border-radius:6px}.jy-scroll::-webkit-scrollbar-thumb{background:#9AA3A8;border-radius:6px}
-.jy-box{position:relative;direction:ltr;min-height:120px}
-.jy-term.goal{border:2px solid #7A4FB0;color:#5E3A8C}
-.jy-chip{position:absolute;height:24px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:12px;font-weight:800;white-space:nowrap}
-.jy-clab{position:absolute;left:0;height:24px;padding:0 8px;display:flex;align-items:center;background:#fff;border-radius:6px;font-size:11.5px;font-weight:800;box-shadow:2px 0 4px rgba(0,0,0,.08)}
-.jy-term{position:absolute;top:0;height:44px;padding:0;border-radius:8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;border:1px solid #D9D3C4;background:#fff;color:var(--ink)}
-.jy-term b{font-size:11.5px}.jy-term span{font-size:10.5px}
-.jy-term.now{border:2px solid var(--ink)}.jy-term.fut{border-style:dashed;color:var(--ink3)}
-.jy-term[aria-pressed=true]{background:#1F5FAF;border-color:#1F5FAF;color:#fff}
-.jy-lab{position:absolute;left:0;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;white-space:nowrap;background:rgba(255,255,255,.94);border-radius:6px;padding:1px 6px}
-.jy-lab small{font-size:11px;font-weight:500;color:var(--ink2)}
-.jy-ln{display:inline-block;width:16px;height:0;border-top:3px solid}
-.jy-ax{position:absolute;font-size:10px;color:var(--ink3);width:38px;text-align:right}
-.jy-v{position:absolute;width:44px;text-align:center;font-size:11px;font-weight:800;pointer-events:none}
-.jy-empty{position:absolute;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink3)}
-.jy-row{border-top:1px solid var(--line);padding-top:9px;margin-top:9px}
-.jy-row .k{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:var(--ink2)}
-.jy-row .v{font-size:15px;font-weight:800;margin-top:2px}
-.jy-row .n{font-size:12px;color:var(--ink2);line-height:1.5}
-.jy-wk{display:grid;grid-template-columns:34px repeat(5,minmax(0,1fr)) 44px;gap:3px;margin-top:6px}
-.jy-wk span{height:28px;display:flex;align-items:center;justify-content:center;border-radius:5px;font-size:12.5px;font-variant-numeric:tabular-nums}
-.jy-wk .h{font-size:11px;font-weight:700;color:var(--ink3)}
-.jy-wk .m{font-weight:800}
-.jy-wk .s{font-weight:700;color:#1F5C40;background:#E3F1EA}
-.jy-wk .z{font-size:10.5px;color:#8A2F23;border:1px dashed #C9A9A2;background:#fff}
-.jy-wk .t{font-weight:800;color:#fff;background:#1E7A5A}
 </style>
 </head>
 <body>
@@ -194,12 +166,6 @@ details summary{cursor:pointer;color:var(--pri);font-weight:700;min-height:44px;
 
 <!-- ━━ 내 성적 ━━ -->
 <section id="v-mine" hidden>
-  <div class="card" id="jyCard">
-    <div class="t2">내 국어 여정</div>
-    <div class="sub" style="margin-bottom:var(--s8)">지금 학기가 오른쪽 끝, 그 옆이 목표예요. 학기를 누르면 아래에 국존 시험 주간 점수표가 열려요. 아래 막대를 왼쪽으로 밀면 중1까지 보여요.</div>
-    <div style="position:relative"><div class="jy-scroll"><div class="jy-box" id="jyBox"><div class="sub" style="padding:var(--s16)">불러오는 중…</div></div></div><div id="jyLabs" aria-hidden="true" style="position:absolute;left:0;right:0;top:0;pointer-events:none"></div></div>
-    <div id="jyDet"></div>
-  </div>
   <div class="card">
     <div class="t2">계열</div>
     <div class="seg" id="trackSeg"><button data-t="인문" aria-pressed="true">인문 (사회 반영)</button><button data-t="자연" aria-pressed="false">자연 (과학 반영)</button></div>
@@ -242,7 +208,7 @@ function minTxt(c){c=String(c||'');var a=c.indexOf('— ');if(a>=0)c=c.slice(a+2
 /* ── 탭 ── */
 function view(v){document.querySelectorAll('.tabs button').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.v===v));});
  ['go','goal','mine'].forEach(function(x){$('v-'+x).hidden=(x!==v);});window.scrollTo(0,0);
- if(v==='go')refresh(); if(v==='goal')paintGoals(); if(v==='mine')jyLoad();}
+ if(v==='go')refresh(); if(v==='goal')paintGoals(); }
 document.querySelector('.tabs').addEventListener('click',function(e){var b=e.target.closest('button');if(b)view(b.dataset.v);});
 document.addEventListener('click',function(e){var g=e.target.closest('[data-goto]');if(g)view(g.dataset.goto);});
 
@@ -374,104 +340,7 @@ $('tRes').addEventListener('click',function(e){var it=e.target.closest('.it');if
  openSheet(sheetHtml({uid:uid,unit:unit,univ:x.univ,line:x.line,band:r&&r.x.band,cut9:x.cut9,my9:r&&r.u.eq9,my5:x.now5,comp:x.comp,quota:x.quota,min:x.min_rule,need:x.need_left5}));});
 
 
-/* ── 학기 여정 (2026-10-30 국존 「오케이 반영」 · 3안: 원점수 선 + 아래 칸, 지금 학기가 오른쪽 끝) ── */
-var JY={d:null,sel:null};
-function jyLevel(g){var m=/^(중|고)([1-3])/.exec(String(g||''));return m?(m[1]==='중'?0:3)+(+m[2]):0;}
-function jyIdx(dstr,L){var d=new Date(dstr+'T12:00:00'),n=new Date();var y=d.getFullYear(),mo=d.getMonth()+1;var sy=mo<3?y-1:y,sem=(mo>=3&&mo<=7)?1:2;
- var ny=n.getFullYear(),nm=n.getMonth()+1,syN=nm<3?ny-1:ny;var lv=L-(syN-sy);if(lv<1||lv>6)return -1;return (lv-1)*2+sem-1;}
-function jyNow(L){var nm=new Date().getMonth()+1;return (L-1)*2+((nm>=3&&nm<=7)?0:1);}
-function jyAch(v){return v>=90?'A':v>=80?'B':v>=70?'C':v>=60?'D':'E';}
-var JY_AC={A:'#123E73',B:'#2F6DB5',C:'#7FA6D6',D:'#BFD2EA',E:'#E3EBF5'},JY_AT={A:'#fff',B:'#fff',C:'#0E2A4D',D:'#0E2A4D',E:'#0E2A4D'};
-function jyLoad(){if(JY.d){jyPaint();return;}
- rpc('gz2_gpath_journey',{p_sid:SID,p_k:K}).then(function(r){JY.d=r;jyPaint();})
- .catch(function(e){$('jyBox').innerHTML='<div class="sub" style="padding:var(--s16)">여정을 불러오지 못했어요 — '+esc(e.message)+'</div>';});}
-function jyData(){var r=JY.d,L=jyLevel(r.grade),T=[];
- var NM=['중1-1','중1-2','중2-1','중2-2','중3-1','중3-2','고1-1','고1-2','고2-1','고2-2','고3-1','고3-2'];
- for(var i=0;i<12;i++)T.push({k:NM[i],raw:[],mraw:[],mg:[],g:null,months:[],tests:[]});
- (r.exams||[]).forEach(function(e){var i=jyIdx(e.d,L);if(i<0||i>11)return;
-  if(e.cat==='내신'){if(e.raw!=null)T[i].raw.push({v:+e.raw,n:e.name});}
-  else if(e.cat==='모의'||e.cat==='수능'){if(e.raw!=null)T[i].mraw.push({v:+e.raw,n:e.name});if(e.g!=null&&/^\d$/.test(String(e.g)))T[i].mg.push({v:+e.g,n:e.name});}});
- (r.hs||[]).forEach(function(h){var m=/^(\d)-(\d)$/.exec(h.term);if(m)T[6+(+m[1]-1)*2+(+m[2]-1)].g=+h.g;});
- (r.gz||[]).forEach(function(x){var i=jyIdx(x.ym+'-15',L);if(i>=0&&i<12)T[i].months.push(x);});
- (r.tests||[]).forEach(function(x){var i=jyIdx(x.d,L);if(i>=0&&i<12)T[i].tests.push(x);});
- T.forEach(function(t){var a=function(A,dg){if(!A.length)return null;var s=0;A.forEach(function(x){s+=x.v;});var f=Math.pow(10,dg||0);return Math.round(s/A.length*f)/f;};
-  t.rawAvg=a(t.raw,1);t.mrawAvg=a(t.mraw,1);t.mgAvg=a(t.mg,0);
-  t.gzAvg=t.months.length?Math.round(t.months.reduce(function(s,x){return s+(+x.total||0);},0)/t.months.length):null;});
- return {L:L,T:T,NOW:L?Math.min(11,jyNow(L)):-1};}
-function jyPaint(){var D=jyData(),T=D.T,NOW=D.NOW;
- if(NOW<0){$('jyBox').innerHTML='<div class="sub" style="padding:var(--s16)">학년이 중1~고3일 때 학기 칸이 나와요.</div>';$('jyLabs').innerHTML='';$('jyDet').innerHTML='';return;}
- var NC=NOW+2,GI=NOW+1;if(JY.sel==null||JY.sel>GI)JY.sel=NOW;var sel=JY.sel;
- var sc=document.querySelector('.jy-scroll'),PL=50,CW=56,avail=sc?sc.clientWidth:600;var W=Math.max(PL+CW*NC+8,avail);CW=(W-PL-8)/NC;
- function cx(i){return PL+CW*(i+.5);}
- var hasHi=NOW>=6,divX=PL+CW*Math.min(6,NC),G=JY.d.goal,CH=24;
- var h='',labs='',vr='',dots='',paths={S:'',M:'',G:''};
- for(var i=0;i<NC;i++){var bg=i===sel?'#EAF1FB':(i===GI?'#F7F3FC':'');if(bg)h+='<div style="position:absolute;top:44px;bottom:0;left:'+(PL+CW*i).toFixed(1)+'px;width:'+CW.toFixed(1)+'px;background:'+bg+'"></div>';}
- if(hasHi)h+='<div style="position:absolute;top:4px;bottom:0;left:'+divX.toFixed(1)+'px;border-left:2px solid var(--ink)"></div>';
- for(var i=0;i<NC;i++){var gl=i===GI,p=gl?null:T[i].k.split('-');
-  h+='<button type="button" class="jy-term'+(i===NOW?' now':'')+(gl?' goal':'')+'" data-jy="'+i+'" aria-pressed="'+(i===sel)+'" aria-label="'+(gl?'내 목표':T[i].k+(i===NOW?' 지금 학기':''))+' 열기" style="left:'+(PL+CW*i+2).toFixed(1)+'px;width:'+(CW-4).toFixed(1)+'px"><b>'+(gl?'목표':p[0])+'</b><span>'+(gl?'입시':(i===NOW?'지금':p[1]+'학기'))+'</span></button>';}
- function lab(top,c,dash,name,unit){return '<div class="jy-lab" style="top:'+top+'px"><span class="jy-ln" style="border-top-style:'+dash+';border-color:'+c+'"></span>'+name+'<small>'+unit+'</small></div>';}
- function ax(x1,w,y,t,lx){return '<div style="position:absolute;left:'+x1.toFixed(1)+'px;width:'+w.toFixed(1)+'px;top:'+y.toFixed(1)+'px;border-top:1px solid #EFECE4"></div><div class="jy-ax" style="left:'+lx.toFixed(1)+'px;top:'+(y-6).toFixed(1)+'px">'+t+'</div>';}
- function dot(i,y,c,t){var x=cx(i);dots+='<span aria-hidden="true" style="pointer-events:none;position:absolute;left:'+(x-7).toFixed(1)+'px;top:'+(y-7).toFixed(1)+'px;width:11px;height:11px;border-radius:50%;background:'+c+';border:2px solid #fff;box-shadow:0 0 0 1px '+c+'"></span><div class="jy-v" style="left:'+(x-26).toFixed(1)+'px;top:'+(y-25).toFixed(1)+'px;color:'+c+'">'+t+'</div>';}
- function chip(i,top,t,st){vr+='<div class="jy-chip" style="left:'+(cx(i)-CW/2+2).toFixed(1)+'px;width:'+(CW-4).toFixed(1)+'px;top:'+top.toFixed(1)+'px;'+st+'">'+t+'</div>';}
- function clab(top,t){labs+='<div class="jy-clab" style="top:'+top.toFixed(1)+'px">'+t+'</div>';}
- var top=80;
- /* 학교 시험 */
- labs+=lab(top-24,'#1F5FAF','solid','학교 시험','원점수 선 · 성취도 · 등급');var H=116;
- function ys(v){var c=Math.max(60,Math.min(100,v));return top+(100-c)/40*H;}
- [100,80,60].forEach(function(v){h+=ax(PL,CW*NC,ys(v),v+'점',2);});
- var seg='';T.forEach(function(t,i){if(i>NOW||t.rawAvg==null)return;var y=ys(t.rawAvg);seg+=(seg?' L ':'M ')+cx(i).toFixed(1)+' '+y.toFixed(1);dot(i,y,'#1F5FAF',String(t.rawAvg));});paths.S=seg;
- var cy=top+H+8;clab(cy,'성취도');
- T.forEach(function(t,i){if(i>NOW)return;if(t.rawAvg!=null){var a=jyAch(t.rawAvg);chip(i,cy,a,'background:'+JY_AC[a]+';color:'+JY_AT[a]);}});
- cy+=CH+4;clab(cy,'등급');
- T.forEach(function(t,i){if(i>NOW)return;if(i>=6&&t.g!=null)chip(i,cy,t.g+'등급','background:#0B3D6E;color:#fff');else chip(i,cy,'—','background:#F6F6F2;color:#9AA3A8');});
- chip(GI,cy,G&&G.cut5!=null?'목표 '+(+G.cut5).toFixed(2):'목표 담기','background:#F1EAFB;color:#5E3A8C;font-size:10.5px');
- top=cy+CH+48;
- /* 모의고사 */
- labs+=lab(top-24,'#C2620E','dashed','모의고사','원점수 선 · 등급(9등급)');H=84;
- function ym(v){var c=Math.max(50,Math.min(100,v));return top+(100-c)/50*H;}
- if(hasHi){[100,75,50].forEach(function(v){h+=ax(divX,PL+CW*NC-divX,ym(v),v+'점',divX-44);});}
- h+='<div class="jy-empty" style="left:'+PL+'px;width:'+((hasHi?divX-50:PL+CW*NC)-PL).toFixed(1)+'px;top:'+top+'px;height:'+H+'px;justify-content:flex-end">중학교에는 전국 모의고사가 없어요</div>';
- seg='';T.forEach(function(t,i){if(i>NOW||i<6||t.mrawAvg==null)return;var y=ym(t.mrawAvg);seg+=(seg?' L ':'M ')+cx(i).toFixed(1)+' '+y.toFixed(1);dot(i,y,'#C2620E',t.mrawAvg+'점');});paths.M=seg;
- cy=top+H+8;if(hasHi)clab(cy,'등급');
- T.forEach(function(t,i){if(i>NOW||i<6)return;if(t.mgAvg!=null)chip(i,cy,t.mgAvg+'등급','background:#C2620E;color:#fff');else chip(i,cy,'—','background:#F6F6F2;color:#9AA3A8');});
- top=cy+CH+48;
- /* 국존 시험 */
- labs+=lab(top-24,'#1E7A5A','dotted','국존 시험','학기 평균 월간 점수 (월간 = 주간 합)');H=66;
- var gmax=0;T.forEach(function(t){if(t.gzAvg>gmax)gmax=t.gzAvg;});gmax=Math.max(100,Math.ceil(gmax*1.2/100)*100);
- function yg(v){return top+(gmax-v)/gmax*H;}
- [gmax,gmax/2,0].forEach(function(v){h+=ax(PL,CW*NC,yg(v),v+'점',2);});
- seg='';T.forEach(function(t,i){if(i>NOW||t.gzAvg==null)return;var y=yg(t.gzAvg);seg+=(seg?' L ':'M ')+cx(i).toFixed(1)+' '+y.toFixed(1);dot(i,y,'#1E7A5A',String(t.gzAvg));});paths.G=seg;
- var BH=Math.ceil(top+H+16);
- h+='<svg width="'+W+'" height="'+BH+'" viewBox="0 0 '+W+' '+BH+'" aria-hidden="true" style="position:absolute;left:0;top:0;pointer-events:none"><path d="'+paths.S+'" fill="none" stroke="#1F5FAF" stroke-width="2.5"/><path d="'+paths.M+'" fill="none" stroke="#C2620E" stroke-width="2.5" stroke-dasharray="8 5"/><path d="'+paths.G+'" fill="none" stroke="#1E7A5A" stroke-width="2.5" stroke-dasharray="2 4"/></svg>'+dots+vr;
- var box=$('jyBox');box.style.width=W+'px';box.style.height=BH+'px';box.innerHTML=h;$('jyLabs').innerHTML=labs;
- jyDetail(T,sel,NOW,GI);}
-function jyRow(c,dash,k,v,n){return '<div class="jy-row"><div class="k"><span class="jy-ln" style="border-top-style:'+dash+';border-color:'+c+'"></span>'+k+'</div><div class="v">'+v+'</div>'+(n?'<div class="n">'+n+'</div>':'')+'</div>';}
-function jyMondays(ym){var y=+ym.slice(0,4),m=+ym.slice(5,7),out=[];var d=new Date(y,m-1,1);while(d.getDay()!==1)d.setDate(d.getDate()+1);
- while(d.getMonth()===m-1){out.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'));d.setDate(d.getDate()+7);}return out;}
-function jyDetail(T,i,NOW,GI){var G=JY.d.goal,h='<div style="margin-top:var(--s16)">';
- if(i===GI){h+='<div class="sub" style="font-weight:700">입시 목표</div><div class="t2" style="margin-top:2px">내 목표</div>';
-  if(G&&G.cut5!=null)h+=jyRow('#1F5FAF','solid','학교 시험',(+G.cut5).toFixed(2)+'등급',esc(G.univ||'')+' '+esc(G.unit||'')+' 2026 교과 합격선('+esc(G.basis||'')+')을 5등급으로 바꾼 값이에요');
-  else h+='<div class="n" style="font-size:13px;color:var(--ink2);margin-top:6px">「목표」 탭에서 가고 싶은 학과를 담으면 합격선이 여기에 나와요.</div>';
-  $('jyDet').innerHTML=h+'</div>';return;}
- var t=T[i];h+='<div class="sub" style="font-weight:700">'+t.k.replace('-','학년 ')+'학기'+(i===NOW?' · 지금':'')+'</div>';
- if(i>=6&&G&&G.cut5!=null)h+=jyRow('#7A4FB0','solid','목표까지','합격선 '+(+G.cut5).toFixed(2)+'등급'+(t.g!=null?' · 이 학기 '+t.g+'등급':''),esc(G.univ||'')+' '+esc(G.unit||''));
- h+='<div class="jy-row"><div class="k"><span class="jy-ln" style="border-top-style:dotted;border-color:#1E7A5A"></span>국존 시험 · 주간 점수표</div>';
- if(!t.months.length)h+='<div class="v">기록 없음</div><div class="n">확인 테스트 답안지 · 강좌 6·7단계 채점 · 직접 적기를 하면 주마다 점수가 쌓여요.</div>';
- else{h+='<div class="n">한 달 점수 = 그 달 주간 점수를 더한 값이에요. 빈 칸은 0으로 들어가요.</div><div class="jy-wk"><span class="h"></span><span class="h">1주</span><span class="h">2주</span><span class="h">3주</span><span class="h">4주</span><span class="h">5주</span><span class="h">합</span>';
-  t.months.forEach(function(x){var by={};(x.weeks||[]).forEach(function(w){by[w.wk]=w;});var M=jyMondays(x.ym);
-   h+='<span class="m">'+(+x.ym.slice(5,7))+'월</span>';
-   for(var w=0;w<5;w++){if(w>=M.length){h+='<span></span>';continue;}var z=by[M[w]];h+=z?'<span class="s" title="'+esc(z.test||'')+'">'+z.score+'</span>':'<span class="z">빈 칸</span>';}
-   h+='<span class="t">'+x.total+'</span>';});
-  h+='</div><div class="n" style="margin-top:6px">주간 점수는 확인 테스트 답안지 · 강좌 6·7단계 채점 · 직접 적기에서 와요.</div>';}
- h+='</div>';
- var A=['문학','문법','독서','화법·작문·매체','기타'],by={};t.tests.forEach(function(x){var b=by[x.a]||(by[x.a]={n:0,s:0});b.n++;b.s+=+x.v;});
- h+='<div class="jy-row" style="border-top:2px solid var(--ink)"><div class="k">매 수업 시험 · 이 학기 영역별</div>';
- if(!t.tests.length)h+='<div class="v">기록 없음</div>';
- else{h+='<div style="margin-top:4px">';A.forEach(function(a){var b=by[a];if(a==='기타'&&!b)return;h+='<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;font-size:13px;padding:5px 0;border-bottom:1px dashed var(--line)"><b>'+a+'</b><span style="color:var(--ink2)">'+(b?b.n:0)+'회</span><b style="text-align:right">'+(b?Math.round(b.s/b.n)+'점':'–')+'</b></div>';});h+='</div>';}
- h+='<div class="n" style="margin-top:6px">수업 중·복습·확인·심화·기출 테스트와 답안지예요. 주마다 마지막 점수가 위 주간 점수표에 들어가요.</div></div>';
- $('jyDet').innerHTML=h+'</div>';}
-$('jyBox').addEventListener('click',function(e){var b=e.target.closest('[data-jy]');if(!b)return;JY.sel=+b.dataset.jy;jyPaint();});
-window.addEventListener('resize',function(){if(JY.d&&!$('v-mine').hidden)jyPaint();});
+/* 내 국어 여정은 2026-10-31 학생 페이지 「성적 추이」 단추로 옮겼다(노트 19886 남은 할 일 4번) */
 /* ── 시작 ── */
 function reloadMe(){return rpc('gz2_gpath_me',{p_sid:SID,p_k:K}).then(function(r){S.goals=r.goals||[];return r;});}
 function start(){
