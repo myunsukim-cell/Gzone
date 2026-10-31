@@ -3648,6 +3648,7 @@ a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷
       +(r.status==='완료'?' <span class="st ok">끝 ✓</span>':r.status==='건너뜀'?' <span class="st wait">못 함</span>':'')+'</div>';
     if(r.status==='완료'||r.status==='건너뜀')h+='<div class="note">남긴 것: '+esc(res.why||res.line||'')+(res.ok!=null?' · '+res.ok+'/'+res.total+'개 맞음':'')+(res.n?' · '+res.n+'문항':'')+(res.pages?' · '+esc(res.pages)+'쪽':'')+(res.quiz_row?' · 확인 문항을 냈어요':'')+' — 다시 남기면 고쳐져요</div>';
     if(r.detail)h+='<div class="note">'+esc(r.detail)+'</div>';
+    if(r.link)h+='<div class="btns" style="margin-top:8px"><a href="'+esc(r.link)+'" target="_blank" rel="noopener" style="flex:1;text-align:center;font-size:15px;font-weight:800;border-radius:10px;padding:11px;border:1.5px solid #12211a;color:#12211a;text-decoration:none">자료 열기 (PDF)</a></div>';
     if(r.photo)h+='<div class="btns" style="margin-top:8px"><button data-c8="photo" data-ph="'+esc(r.photo)+'">선생님이 붙인 사진 보기</button></div>';
     var f='';
     if(r.kind==='복습테스트'||r.kind==='모의고사'||r.kind==='문항')f='<div class="ev">맞은 수 <input id="c8ok" type="number" min="0" style="width:80px"> / 전체 <input id="c8tot" type="number" min="1" style="width:80px"></div>';
