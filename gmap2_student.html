@@ -3878,7 +3878,7 @@ a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷
   function panel(a){var r=(a.schedule||[]).filter(function(x){return x.day_id===S.sel;})[0];if(!r)return '';var t=today(),res=r.result||{};
     var h='<div class="dp"><div class="dph">'+tag(r.kind)+' <b>'+esc(r.label)+(r.step?' '+esc(r.step)+'단계':'')+'</b> · '+md(r.date)+' · '+Number(r.min)+'분'
       +(r.status==='완료'?' <span class="st ok">끝 ✓</span>':r.status==='건너뜀'?' <span class="st wait">못 함</span>':'')+'</div>';
-    if(r.status==='완료'||r.status==='건너뜀')h+='<div class="note">남긴 것: '+esc(res.why||res.line||'')+(res.ok!=null?' · '+res.ok+'/'+res.total+'개 맞음':'')+(res.n?' · '+res.n+'문항':'')+(res.pages?' · '+esc(res.pages)+'쪽':'')+(res.quiz_row?' · 확인 문항을 냈어요':'')+' — 다시 남기면 고쳐져요</div>';
+    if(r.status==='완료'||r.status==='건너뜀')h+='<div class="note">남긴 것: '+esc(res.why||res.line||'')+(res.ok!=null?' · '+res.ok+'/'+res.total+'개 맞음':'')+(res.n?' · '+res.n+'문항':'')+(res.pages?' · '+esc(res.pages)+'쪽':'')+(res.quiz_row?' · 확인 문항을 냈어요':'')+(res.min?' · '+res.min+'분':'')+(res.grade?' · '+({A:'집중해서 다 했음',B:'집중이 잘 안 됐음',C:'이해가 안 됐음'}[res.grade]||res.grade):'')+' — 다시 남기면 고쳐져요</div>';
     if(r.detail)h+='<div class="note">'+esc(r.detail)+'</div>';
     if(r.link)h+='<div class="btns" style="margin-top:8px"><a href="'+esc(r.link)+'" target="_blank" rel="noopener" style="flex:1;text-align:center;font-size:15px;font-weight:800;border-radius:10px;padding:11px;border:1.5px solid #12211a;color:#12211a;text-decoration:none">자료 열기 (PDF)</a></div>';
     if(r.photo)h+='<div class="btns" style="margin-top:8px"><button data-c8="photo" data-ph="'+esc(r.photo)+'">선생님이 붙인 사진 보기</button></div>';
@@ -3887,6 +3887,9 @@ a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷
     else if(r.kind==='오답 재풀이')f='<div class="ev">다시 푼 문항 수 <input id="c8n" type="number" min="1" style="width:80px"></div>';
     else if(r.kind==='독서')f='<div class="ev">읽은 쪽 <input id="c8pg" placeholder="예) 12~40" style="width:140px"></div>';
     var ph={'강좌':'배운 것 한 줄 (오늘 확인 문항을 냈으면 비워도 돼요)','글쓰기':'어디까지 썼는지 한 줄','독서':'기억에 남는 것 한 줄','자료':'어디까지 했는지 한 줄'}[r.kind]||'한 줄 메모(선택) · 못 했으면 이유';
+    /* [2026-10-31 국존 「이대로 여기서 시행해라」 · 코치방 설계 v1.1] 시간 통장 — 몇 분·어땠어 두 탭 (카드 12045). 등급은 학생이 매기고 선생님은 바꾸지 않는다 */
+    f+='<div class="ev">몇 분 했어? '+[15,30,45,60,90].map(function(m){return '<button type="button" class="chip'+(S.min===m?' on':'')+'" data-c8m="'+m+'">'+m+'</button>';}).join('')+'</div>'
+      +'<div class="ev">어땠어? '+[['A','A 집중해서 다 했음'],['B','B 집중이 잘 안 됐음'],['C','C 이해가 안 됐음']].map(function(g){return '<button type="button" class="chip'+(S.grade===g[0]?' on':'')+'" data-c8g="'+g[0]+'">'+g[1]+'</button>';}).join('')+'</div>';
     h+=f+'<input id="c8line" maxlength="200" placeholder="'+ph+'">'
       +'<div class="btns"><button class="dark" data-c8="done">끝냈어요</button>'+(r.date<=t?'<button data-c8="skip">못 했어요 (이유를 위 칸에)</button>':'')+'</div><div class="msg">'+esc(S.msg)+'</div></div>';
     return h;}
@@ -3922,13 +3925,14 @@ a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷
   function load(){rpc('gz2_agree_my',{p_sid:SID,p_k:K}).then(function(r){S.a=(r&&r.ok&&r.agree)||null;S.mode='view';S.msg='';paint();
     var old=document.getElementById('gzHwCard');old=old&&old.closest('.card');if(old)old.style.display=S.a?'none':'';var me=document.getElementById('gzC8');if(me)me.style.display=S.a?'':'none';});} /* 합의가 없으면 이 카드는 숨기고 옛 표를 그대로 둔다 */
   function act(e){
-    var t=e.target.closest('[data-c8],[data-day],[data-dayid]');if(!t)return;var a=S.a;if(t.dataset.dayid){S.sel=+t.dataset.dayid;S.msg='';paint();return;}
+    var t=e.target.closest('[data-c8],[data-day],[data-dayid],[data-c8m],[data-c8g]');if(!t)return;var a=S.a;if(t.dataset.dayid){S.sel=+t.dataset.dayid;S.min=null;S.grade=null;S.msg='';paint();return;}
+    if(t.dataset.c8m){S.min=(S.min===+t.dataset.c8m)?null:+t.dataset.c8m;paint();return;} if(t.dataset.c8g){S.grade=(S.grade===t.dataset.c8g)?null:t.dataset.c8g;paint();return;}
     if(t.dataset.day){var L=S.adj[t.dataset.it],i=+t.dataset.day,j=L.indexOf(i);if(j>=0)L.splice(j,1);else L.push(i);L.sort();S.why=(document.getElementById('c8why')||{}).value||S.why;paint();return;}
     var c=t.dataset.c8;
     if(c==='photo'){var w=window.open('about:blank','_blank');rpc('gz2_agree_photo_get',{p_sid:SID,p_k:K,p_path:t.dataset.ph}).then(function(r){if(r&&r.ok&&r.url){if(w)w.location=r.url;else location.href=r.url;}else{if(w)w.close();S.msg=(r&&r.reason)||'사진을 열지 못했어요';paint();}});return;}
     if(c==='done'||c==='skip'){var g=function(id){var e=document.getElementById(id);return e?e.value:'';};
-      var p={op:c,line:g('c8line'),ok:g('c8ok'),total:g('c8tot'),n:g('c8n'),pages:g('c8pg')};t.disabled=true;
-      rpc('gz2_agree_done',{p_sid:SID,p_k:K,p_day:S.sel,p:p}).then(function(r){if(r&&r.ok){S.a=r.agree;S.msg='';paint();loadAlerts();}else{t.disabled=false;S.msg=(r&&(r.reason||r.message))||'저장하지 못했어요';paint();}});return;}
+      var p={op:c,line:g('c8line'),ok:g('c8ok'),total:g('c8tot'),n:g('c8n'),pages:g('c8pg')};if(c==='done'){if(S.min)p.minutes=S.min;if(S.grade)p.grade=S.grade;}t.disabled=true;
+      rpc('gz2_agree_done',{p_sid:SID,p_k:K,p_day:S.sel,p:p}).then(function(r){if(r&&r.ok){S.a=r.agree;S.msg='';S.min=null;S.grade=null;paint();loadAlerts();if(window.gzHabitWeek)gzHabitWeek();}else{t.disabled=false;S.msg=(r&&(r.reason||r.message))||'저장하지 못했어요';paint();}});return;}
     if(c==='adj'){S.mode='adjust';S.adj={};a.items.forEach(function(it){S.adj[it.id]=it.days.slice();});S.why='';S.msg='';paint();return;}
     if(c==='cancel'){S.mode='view';S.msg='';paint();return;}
     if(c==='ok'||c==='send'){
@@ -4013,6 +4017,32 @@ a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷
   mount();
 })();
 </script>
+
+<script>/* [2026-10-31 국존 「이대로 여기서 시행해라」 · 코치방 설계 mock_student_habit_v1.1] 「지난 한 주」 상자에 붙는 실행률·날짜 색·시간 통장·막힌 자리 — gz2_habit_week 읽기 전용. 학생 입력 없음(입력은 과제 「끝냈어요」의 두 탭) */
+(function(){var sk=gzSK();if(!sk.sid)return;var K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
+var DN=['월','화','수','목','금','토','일'];
+function e(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function render(w){var box=document.querySelector('#wrBox .wkb');if(!box)return false;
+ var el=document.getElementById('gzHabit');if(!el){el=document.createElement('div');el.id='gzHabit';el.style.cssText='margin-top:10px;padding-top:8px;border-top:1px solid #e5e7eb';box.appendChild(el);}
+ var col={blue:'#2f6fed',yellow:'#f5c84b',red:'#e05252',none:'#ccc'}[w.color]||'#ccc';
+ var days=(w.days||[]).map(function(d){var bg={blue:'#2f6fed',yellow:'#f5c84b',red:'#e05252',plan:'#fff',none:'#f1f1f1'}[d.color]||'#f1f1f1',fg=(d.color==='blue'||d.color==='red')?'#fff':(d.color==='none'?'#aaa':'#333');
+   return '<div style="height:34px;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;background:'+bg+';color:'+fg+(d.color==='plan'?';border:1px dashed #ccc':'')+'"><span>'+DN[d.dow-1]+'</span><span>'+(d.planned?d.done+'/'+d.planned:'')+'</span></div>';}).join('');
+ var b=w.bank||{},pv=w.prev||{};
+ el.innerHTML='<div class="wkr"><span>이번 주 실행</span><div><div style="height:9px;background:#eee;border-radius:999px;overflow:hidden;margin:3px 0"><i style="display:block;height:100%;width:'+(w.rate||0)+'%;background:'+col+'"></i></div>'
+  +(w.rate==null?'아직 계획한 날이 안 왔어요':w.due+'개 중 '+w.done+'개 · <b>'+w.rate+'%</b>'+(w.rate>=70?' 합격':'')+(pv.rate!=null?' <small>(지난주 '+pv.rate+'%)</small>':''))
+  +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:6px">'+days+'</div>'
+  +'<small>파랑 다 했음 · 노랑 70~99% 합격 · 빨강 69% 이하 · 회색 계획 없는 날. 하루 빨강은 쉰 날이에요.</small>'
+  +(w.badge?'<div style="margin-top:4px"><span style="display:inline-block;padding:2px 9px;border-radius:999px;background:#fff6d6;border:1px solid #f5c84b;font-size:12px">🟡 '+w.badge+(w.streak_weeks>1?' · '+w.streak_weeks+'주 연속':'')+'</span></div>':'')+'</div></div>'
+  +'<div class="wkr"><span>내 시간 통장</span><div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;text-align:center;font-size:11px">'
+  +'<div style="background:#e7f6ec;border-radius:8px;padding:6px 2px"><b style="font-size:16px">'+(b.A||0)+'분</b><br>A 집중해서 다 했음</div>'
+  +'<div style="background:#fff6d6;border-radius:8px;padding:6px 2px"><b style="font-size:16px">'+(b.B||0)+'분</b><br>B 집중이 잘 안 됐음</div>'
+  +'<div style="background:#fde8e8;border-radius:8px;padding:6px 2px"><b style="font-size:16px">'+(b.C||0)+'분</b><br>C 이해가 안 됐음</div></div>'
+  +(b.total?'<small>총 '+b.total+'분'+(pv.total?' (지난주 '+pv.total+'분)':'')+' · 집중 비율 <b>'+b.a_ratio+'%</b>'+(pv.a_ratio!=null?' (지난주 '+pv.a_ratio+'%)':'')+'</small>':'<small>과제 「끝냈어요」에서 몇 분·어땠는지를 남기면 여기 쌓여요. 등급은 내가 매겨요.</small>')
+  +(w.blocked||[]).map(function(x){return '<div style="margin-top:5px;padding:5px 8px;border-left:3px solid #e05252;background:#fff7f7;font-size:12px">막힌 자리: <b>'+e(x.label)+'</b> — 이해가 안 됐던 시간 '+x.c_min+'분. 다음 수업에서 여기부터 봐요.</div>';}).join('')+'</div></div>';
+ return true;}
+window.gzHabitWeek=function(){fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_habit_week',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify({p_sid:sk.sid,p_k:sk.k})}).then(function(r){return r.json();}).then(function(w){if(!w||!w.ok)return;var n=0,t=setInterval(function(){if(render(w)||++n>40)clearInterval(t);},250);});};
+gzHabitWeek();
+})();</script>
 </body>
 
 </html>
