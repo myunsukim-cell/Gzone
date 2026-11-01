@@ -2882,6 +2882,27 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 #v13cv .hdet{display:block}#v13cv .hdet summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;cursor:pointer;list-style:none;min-height:32px}#v13cv .hscope{font-size:13px;line-height:1.6;color:#33383A;margin-top:8px;max-height:280px;overflow:auto;background:#F7F6F2;border-radius:8px;padding:10px}
 @media(max-width:599px){#v13cv .cvrow{flex-wrap:wrap}#v13cv .cvrow .cvp{width:100%;order:3}#v13cv .cvhd h2{font-size:19px}#v13cv .cvsb{min-width:88px}}
 
+#v13cv .p7two{display:grid;grid-template-columns:minmax(0,3fr) minmax(320px,2fr);gap:14px;align-items:start}
+#v13cv .p7two>div:last-child{position:sticky;top:64px;max-height:calc(100vh - 72px);overflow:auto}
+#v13cv .p7box{background:#fff;border:1px solid #E2DED4;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+#v13cv .p7sc{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}#v13cv .p7sc b{font-size:17px}#v13cv .p7sc span{font-size:13px;color:#50605a}
+#v13cv .p7s{font-size:13px;color:#50605a;margin:0}
+#v13cv .p7r{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;border-top:1px solid #EFEBE2;padding-top:8px}
+#v13cv .p7n{width:30px;font-weight:800;font-size:15px;text-align:center}
+#v13cv .p7o,#v13cv .p7f{display:flex;gap:4px}
+#v13cv .p7o button{width:44px;height:44px;border:1.5px solid #CFCABD;border-radius:10px;background:#fff;font-size:19px;color:#1F2421;cursor:pointer}
+#v13cv .p7o button.on{border:2px solid #1E4D3B;background:#E4EFE8;color:#1E4D3B;font-weight:800}
+#v13cv .p7f button{min-height:44px;padding:0 10px;border:1px solid #DAD5C8;border-radius:10px;background:#fff;font-size:13px;color:#50605a;cursor:pointer}
+#v13cv .p7f button.on{border:2px solid #1E4D3B;color:#1E4D3B;font-weight:800;background:#F4F8F5}
+#v13cv .p7e{display:flex;align-items:center;gap:8px;font-size:14px;border-top:1px solid #EFEBE2;padding-top:10px}#v13cv .p7e input{width:80px;min-height:44px;font:inherit;font-size:16px;border:1.5px solid #CFCABD;border-radius:10px;padding:0 10px}
+#v13cv .p7go{width:100%}#v13cv .p7go[disabled]{background:#C9CFCB!important;border-color:#C9CFCB!important;cursor:default}
+#v13cv .p7m{font-size:13px;color:#A4472F}
+#v13cv .p7k{background:#F7F6F2;border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;gap:2px;font-size:14px}#v13cv .p7k.r{background:#FBEAE4}#v13cv .p7k b{font-size:13px}
+#v13cv .p7grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
+#v13cv .p7c{border:1px solid #DAD5C8;border-radius:10px;padding:6px 8px;display:grid;grid-template-columns:auto 1fr;gap:0 6px;align-items:center}#v13cv .p7c b{font-size:14px}#v13cv .p7c span{font-size:16px;color:#1E4D3B;font-weight:800}#v13cv .p7c small{grid-column:1/3;font-size:12.5px;color:#50605a}
+#v13cv .p7c.x{border-color:#E3B8AA;background:#FDF4F1}#v13cv .p7c.x span{color:#A4472F}
+#v13cv .p7act{display:flex;gap:8px;flex-wrap:wrap}#v13cv .p7act .cvbtn{flex:1}
+@media (max-width:600px){#v13cv .p7o button{width:40px;height:44px}#v13cv .p7r{gap:6px}#v13cv .p7n{width:24px}}
 #v13cv .s4box{background:#fff;border:1px solid #E2DED4;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
 #v13cv .s4tot{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px}#v13cv .s4tot b{font-size:19px}#v13cv .s4tot span{font-size:13px;color:#4A4F4B}
 #v13cv .s4q{border-top:1px solid #EFEBE2;padding-top:12px;display:flex;flex-direction:column;gap:8px}
@@ -3236,7 +3257,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   function cvOpenStep(n,part){CV.step=+n;CV.part=part||0;CV.vi=0;CV.big=false;var P=cvParts(),it=P[CV.part];
     cvShow(cvStepHead()+'<div class="cvwait">교안 불러오는 중…</div>');
     if(!it){cvShow(cvStepHead()+'<div class="cvempty">이 단계 자료가 아직 없어요.</div>');return;}
-    rpc('gz2_lecture_steps',{p_lecture:CV.lec,p_sid:SK.sid,p_k:SK.k,p_lc:it.lc}).then(function(j){CV.body=(j&&j.ok)?j:null;if(CV.step===4)s4Open();else cvStep();});}
+    rpc('gz2_lecture_steps',{p_lecture:CV.lec,p_sid:SK.sid,p_k:SK.k,p_lc:it.lc}).then(function(j){CV.body=(j&&j.ok)?j:null;if(CV.step===4)s4Open();else if(CV.step>=6)p7Open(it.lc);else cvStep();});}
   function cvStepHead(){var P=cvParts();return '<div class="cvbar"><button type="button" class="cvback" data-cv="lec">‹ '+esc(cvTitle(CV.meta||{}))+' · '+CV.step+'단계 '+STN[CV.step-1]+'</button><span class="cvpos">'+CV.step+'/7단계'+(P.length>1?' · '+(CV.part+1)+'/'+P.length+'쪽':'')+'</span></div>';}
   function cvFrame(html,reflow,side){var w=window.innerWidth,z=side?1.2:(w<600?1.35:1.5);return (html||'').replace(/<\/head>/i,'<style>'+(reflow?REFLOW+'html{zoom:'+z+'}':'')+'</style></head>');}
   function cvStep(){
@@ -3246,12 +3267,14 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     var doc='<iframe id="v13cvf" class="cvdoc" sandbox="allow-same-origin" title="교안"></iframe>';
     var mid;
     if(n===4){var fm='<div class="s4wrap">'+s4Html()+'</div>';mid=wide?'<div class="cvtwo s4"><div>'+fm+'</div><div>'+doc+'</div></div>':'<div class="cvtabs"><button type="button" class="'+(CV.tab!=='d'?'on':'')+'" data-cvtab="v">답 쓰기</button><button type="button" class="'+(CV.tab==='d'?'on':'')+'" data-cvtab="d">워크시트</button></div>'+(CV.tab==='d'?doc:fm);}
+    else if(n>=6&&P7.info){var sh=p7Html(),dl=P7.view==='ans'?'해설지':'문제지';mid=wide?'<div class="p7two"><div>'+doc+'</div><div>'+sh+'</div></div>':'<div class="cvtabs"><button type="button" class="'+(CV.tab==='d'?'on':'')+'" data-cvtab="d">'+dl+'</button><button type="button" class="'+(CV.tab!=='d'?'on':'')+'" data-cvtab="v">답안지</button></div>'+(CV.tab==='d'?doc:sh);}
     else if(!vids.length)mid=doc;
     else if(wide)mid='<div class="cvtwo"><div>'+vid+'</div><div>'+doc+'</div></div>';
     else mid='<div class="cvtabs"><button type="button" class="'+(CV.tab==='v'?'on':'')+'" data-cvtab="v">영상</button><button type="button" class="'+(CV.tab==='d'?'on':'')+'" data-cvtab="d">교안</button></div>'+(CV.tab==='v'?vid:doc);
     var nextLab=!last?'다음 쪽 ('+(CV.part+2)+'/'+P.length+')':n===4?'다 썼어요 · 5단계로':n>=7?'다 했어요 · 강좌 끝':'다 봤어요 · '+(n+1)+'단계로';
-    cvShow(cvStepHead()+mid+'<div class="cvact">'+'<button type="button" class="cvbtn" data-cv="big">'+(n===4?'워크시트 크게 보기':'교안 크게 보기')+'</button>'+'<button type="button" class="cvbtn p" data-cv="next">'+nextLab+'</button></div>');
-    var f=$('v13cvf');if(f){f.srcdoc=cvFrame(j.html,true,wide&&(vids.length>0||n===4));f.onload=function(){try{f.style.height=(f.contentDocument.documentElement.scrollHeight+20)+'px';}catch(e){}};}
+    var p7wait=n>=6&&P7.info&&P7.info.n&&!P7.info.mine;if(n>=6&&last)nextLab=n>=7?'다 했어요 · 강좌 끝':'다 했어요 · 7단계로';
+    cvShow(cvStepHead()+mid+'<div class="cvact">'+'<button type="button" class="cvbtn" data-cv="big">'+(n===4?'워크시트 크게 보기':n>=6?'문제지 크게 보기':'교안 크게 보기')+'</button>'+(p7wait?'<span class="p7s" style="flex:1 1 200px;align-self:center">답안지를 내면 다음으로 갈 수 있어요</span>':'<button type="button" class="cvbtn'+(n>=6&&P7.info&&P7.info.mine?'':' p')+'" data-cv="next">'+nextLab+'</button>')+'</div>');
+    var f=$('v13cvf');if(f){f.srcdoc=cvFrame((n>=6&&P7.view==='ans'&&P7.ahtml)?P7.ahtml:j.html,true,wide&&(vids.length>0||n===4||n>=6));f.onload=function(){try{f.style.height=(f.contentDocument.documentElement.scrollHeight+20)+'px';}catch(e){}};}
     var v=$('v13cvv');if(v&&vids[vi]){var u=vids[vi].url||'';if(/\.m3u8/.test(u)&&!v.canPlayType('application/vnd.apple.mpegurl')){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/hls.js@1';s.onload=function(){try{var hl=new Hls();hl.loadSource(u);hl.attachMedia(v);}catch(e){}};document.head.appendChild(s);}else v.src=u;}}
   function cvNext(){var P=cvParts();if(CV.part<P.length-1){cvOpenStep(CV.step,CV.part+1);return;}
     var n=CV.step;rpc('gz2_my_step_done',{p_sid:SK.sid,p_k:SK.k,p_lecture:CV.lec,p_step:n,p_done:true}).then(function(j){if(j&&j.ok){CV.done=j.done||CV.done;CV.prog[CV.lec]=CV.done.length;}var nx=0;for(var m=n+1;m<=7;m++){if(sOpen(m)){nx=m;break;}}if(nx)cvOpenStep(nx,0);else cvLec();});}
@@ -3290,6 +3313,45 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     if(!(b=t.closest('[data-cv]')))return;var a=b.dataset.cv;
     if(a==='close')cvClose();else if(a==='list')cvList();else if(a==='lec')cvLec();else if(a==='step')cvStep();else if(a==='big')cvBig();else if(a==='next')cvNext();
     else if(a==='find'){if(window.gzOpenSg)gzOpenSg();}else if(a==='req'){cvClose();V.user=true;go(17);}else if(a==='shelf'){cvClose();V.user=true;go(16);}}
+  /* [채팅 63 · 11/01 국존 「진행」] 6·7단계 문제 풀기 — 문제지 옆 답안지(번호 · 답 ①~⑤ · 확신도). 내면 바로 채점(gz2_sheet_submit) → 번호별 ○× · 정답 → 해설지.
+     정답은 낸 뒤에만 내려온다(gz2_paper_sheet). 정답 원천 = 문제지 정답 순서 · 원장 정답(노트 20001, 1,900/1,900 일치) */
+  var P7={};var CONF=['찍음','반쯤','확실'];
+  function p7Key(){return 'p7:'+SK.sid+':'+P7.lc;}
+  function p7Open(lc){CV.tab='d';P7={lc:lc,info:null,pick:{},conf:{},exp:'',view:'sheet',ahtml:null,msg:''};try{var o=JSON.parse(localStorage.getItem(p7Key())||'{}');P7.pick=o.pick||{};P7.conf=o.conf||{};}catch(e){}
+    rpc('gz2_paper_sheet',{p_sid:SK.sid,p_k:SK.k,p_lecture:CV.lec,p_lc:lc}).then(function(d){P7.info=(d&&d.ok)?d:{n:0,msg:(d&&d.reason)||'답안지를 열지 못했어요'};if(P7.info.mine)P7.view='result';cvStep();});}
+  function p7Save(){try{localStorage.setItem(p7Key(),JSON.stringify({pick:P7.pick,conf:P7.conf}));}catch(e){}}
+  function p7Filled(){var n=(P7.info&&P7.info.n)||0,k=0;for(var i=1;i<=n;i++)if(P7.pick[i])k++;return k;}
+  function p7Html(){var I=P7.info;if(!I)return '<div class="cvwait">답안지 불러오는 중…</div>';
+    if(!I.n)return '<div class="p7box"><b>'+esc(I.msg||'이 문제지는 아직 답안지가 없어요.')+'</b><p class="p7s">문제지를 공책에 풀어 다음 수업에 선생님께 보여 주세요.</p></div>';
+    if((P7.view==='result'||P7.view==='ans')&&I.mine){var M=I.mine,it=M.items||[],c=M.correct_n||0,t=it.length;
+      var sw=it.filter(function(x){return !x.ok&&x.conf==='확실';}),hw=it.filter(function(x){return !x.ok&&x.conf!=='확실';}),gr=it.filter(function(x){return x.ok&&x.conf==='찍음';});
+      var nb=function(L){return L.map(function(x){return x.no+'번';}).join(' · ');};
+      return '<div class="p7box"><div class="p7sc"><b>'+t+'문항 중 '+c+'개 맞음</b>'+(M.expected_n!=null?'<span>내가 예상한 것 '+M.expected_n+'개</span>':'')+'</div>'
+        +(sw.length?'<div class="p7k r"><b>확실했는데 틀린 번호 — 먼저 해설을 봐요</b><span>'+nb(sw)+'</span></div>':'')
+        +(hw.length?'<div class="p7k"><b>헷갈려서 틀린 번호</b><span>'+nb(hw)+'</span></div>':'')
+        +(gr.length?'<div class="p7k"><b>찍었는데 맞은 번호 — 왜 맞는지 해설로 확인</b><span>'+nb(gr)+'</span></div>':'')
+        +'<div class="p7grid">'+it.map(function(x){return '<div class="p7c'+(x.ok?'':' x')+'"><b>'+x.no+'</b><span>'+(x.ok?'○':'×')+'</span><small>'+(x.ok?'':'내 답 '+(x.pick||'—')+' · ')+'정답 '+x.key+'</small></div>';}).join('')+'</div>'
+        +'<div class="p7act">'+(P7.view==='ans'?'<button type="button" class="cvbtn p" data-p7="res">문제지 다시 보기</button>':'<button type="button" class="cvbtn p" data-p7="ans">해설 보기</button>')+'<button type="button" class="cvbtn" data-p7="redo">다시 풀기</button></div></div>';}
+    var n=I.n,f=p7Filled(),rows='';
+    for(var i=1;i<=n;i++){var p=P7.pick[i],cf=P7.conf[i]||'';
+      rows+='<div class="p7r"><span class="p7n">'+i+'</span><span class="p7o">'+[1,2,3,4,5].map(function(v){return '<button type="button" class="'+(p==v?'on':'')+'" data-p7q="'+i+'" data-p7v="'+v+'" aria-pressed="'+(p==v)+'">'+'①②③④⑤'.charAt(v-1)+'</button>';}).join('')+'</span>'
+        +'<span class="p7f">'+CONF.map(function(c){return '<button type="button" class="'+(cf===c?'on':'')+'" data-p7q="'+i+'" data-p7c="'+c+'" aria-pressed="'+(cf===c)+'">'+c+'</button>';}).join('')+'</span></div>';}
+    return '<div class="p7box"><div class="p7sc"><b>답안지 · '+n+'문항</b><span>'+f+'/'+n+' 적음 · 확신도를 안 고르면 「반쯤」</span></div>'+rows
+      +'<label class="p7e">몇 개 맞을 것 같아요? <input type="number" min="0" max="'+n+'" inputmode="numeric" data-p7e="1" value="'+esc(P7.exp)+'"></label>'
+      +(P7.msg?'<div class="p7m">'+esc(P7.msg)+'</div>':'')
+      +'<button type="button" class="cvbtn p p7go" data-p7="sub"'+(f<n?' disabled':'')+'>'+(f<n?'모든 번호를 적으면 낼 수 있어요':'답안지 내기 · 바로 채점')+'</button></div>';}
+  function p7Submit(){var I=P7.info,n=I.n,ans=[];for(var i=1;i<=n;i++)ans.push({no:i,pick:+P7.pick[i],conf:P7.conf[i]||'반쯤'});
+    var b=document.querySelector('[data-p7=sub]');if(b){b.disabled=true;b.textContent='채점하는 중…';}
+    rpc('gz2_sheet_submit',{p_sid:SK.sid,p_k:SK.k,p:{review_test_id:I.review_test_id,expected_n:P7.exp===''?null:+P7.exp,answers:ans}}).then(function(d){
+      if(!d||!d.ok){P7.msg=(d&&d.reason)||'내지 못했어요 · 다시 눌러 주세요';cvStep();return;}
+      try{localStorage.removeItem(p7Key());}catch(e){}
+      return rpc('gz2_paper_sheet',{p_sid:SK.sid,p_k:SK.k,p_lecture:CV.lec,p_lc:P7.lc}).then(function(s){if(s&&s.ok)P7.info=s;P7.view='result';P7.msg='';cvStep();});});}
+  function p7Ans(){var I=P7.info;if(P7.ahtml){P7.view='ans';CV.tab='d';cvStep();return;}if(!I||!I.answer_lc){P7.msg='해설지가 아직 없어요';cvStep();return;}
+    rpc('gz2_lecture_steps',{p_lecture:CV.lec,p_sid:SK.sid,p_k:SK.k,p_lc:I.answer_lc}).then(function(j){if(j&&j.ok&&j.html){P7.ahtml=String(j.html).replace(/<\/head>/i,'<style>.two-col{display:block!important}.two-col>.col+.col{margin-top:14px}table.anskey{width:100%!important;table-layout:fixed}table.anskey td,table.anskey th{padding:4px 1px!important}</style></head>');P7.view='ans';CV.tab='d';}else P7.msg='해설지를 열지 못했어요';cvStep();});}
+  document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-p7q],[data-p7]');if(!b||!P7.info)return;
+    if(b.dataset.p7q){var q=b.dataset.p7q,isV=!!b.dataset.p7v;if(isV)P7.pick[q]=+b.dataset.p7v;else P7.conf[q]=b.dataset.p7c;p7Save();[].forEach.call(b.parentNode.children,function(x){var on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on);});var n=P7.info.n,f=p7Filled(),sb=document.querySelector('[data-p7=sub]'),ct=document.querySelector('.p7sc span');if(ct)ct.textContent=f+'/'+n+' 적음 · 확신도를 안 고르면 「반쯤」';if(sb){sb.disabled=f<n;sb.textContent=f<n?'모든 번호를 적으면 낼 수 있어요':'답안지 내기 · 바로 채점';}return;}
+    var a=b.dataset.p7;if(a==='sub')p7Submit();else if(a==='ans')p7Ans();else if(a==='redo'){P7.view='sheet';P7.pick={};P7.conf={};cvStep();}else if(a==='res'){P7.view='result';CV.tab='d';cvStep();}});
+  document.addEventListener('input',function(e){var t=e.target;if(t&&t.dataset&&t.dataset.p7e){P7.exp=t.value;}});
   /* [채팅 63 21:50 국존 「수리」] 4단계 답 쓰기를 학생 화면 안에서 — 수강신청 학생 얼굴과 같은 함수(gz2_step4_sheet · gz2_step4_submit) */
   var S4={};
   function s4lc(){var m=CV.meta||{};if(m.s4&&m.s4.lc)return m.s4.lc;var s=CV.steps[3]||{},it=(s.items||[]).filter(function(x){return x.kind==='워크시트';})[0];return it?it.lc:null;}
