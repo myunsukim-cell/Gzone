@@ -2837,6 +2837,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 #v13home .pr .sn{flex:none;width:20px;height:20px;border-radius:10px;background:#8A5A00;color:#fff;font-size:13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
 #v16.v13blk .v13top,#v16.v13blk #v16info{display:none!important}
 #v13home .blk{background:#fff;border:1px solid #E2DED4;border-radius:14px;padding:24px 16px;display:flex;flex-direction:column;gap:8px;text-align:center}#v13home .blk b{font-size:19px}#v13home .blk span{font-size:16px;color:#4A4F4B}
+#v13gp{position:fixed;inset:0;z-index:9000;background:#F4F2EC;display:flex;flex-direction:column}#v13gp[hidden]{display:none}#v13gp .sgbar{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border-bottom:1px solid #E2DED4;flex:none}#v13gp .sgbar button{min-height:44px;padding:0 14px;border:1.5px solid #1E4D3B;border-radius:10px;background:#fff;color:#1E4D3B;font:inherit;font-size:16px;font-weight:800;cursor:pointer}#v13gp .sgbar b{font-size:16px}#v13gp .sgbar span{font-size:13px;color:#4A4F4B}#v13gp iframe{flex:1;width:100%;border:0}#v13gp .sgload{padding:24px;font-size:16px;color:#4A4F4B}
 #v13sg{position:fixed;inset:0;z-index:9000;background:#F4F2EC;display:flex;flex-direction:column}#v13sg[hidden]{display:none}
 #v13sg .sgbar{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border-bottom:1px solid #E2DED4;flex:none}
 #v13sg .sgbar button{min-height:44px;padding:0 14px;border:1.5px solid #1E4D3B;border-radius:10px;background:#fff;color:#1E4D3B;font:inherit;font-size:16px;font-weight:800;cursor:pointer}
@@ -2982,7 +2983,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 
   /* ── 틀 ── */
   var root=document.createElement('div'); root.id='v16';
-  var h='<div class="vh" id="v16hd"><div class="vtop"><button class="vlogo" id="v16logo" title="국존 공부 지도 다시 보기">국존</button><span class="vname" id="v16name">…</span><span class="vinfo" id="v16info"></span><a id="v16gpath" href="#" title="내 성적으로 갈 수 있는 대학·학과 보기 (2026-10-27)" onclick="window.open(\'gpath.html\'+location.search+(window.__DESK_Q||\'\'),\'_blank\');return false;" style="margin-left:auto;flex:none;font-size:12.5px;font-weight:800;color:#1E4D3B;background:#E8F0EB;border:1px solid #cfe0d5;border-radius:999px;padding:4px 10px;text-decoration:none">진학 조회</a></div><div class="vty" id="v16ty"></div>'
+  var h='<div class="vh" id="v16hd"><div class="vtop"><button class="vlogo" id="v16logo" title="국존 공부 지도 다시 보기">국존</button><span class="vname" id="v16name">…</span><span class="vinfo" id="v16info"></span><a id="v16gpath" href="#" title="내 성적으로 갈 수 있는 대학·학과 보기 (2026-10-27)" onclick="if(window.gzOpenGpath)gzOpenGpath();return false;" style="margin-left:auto;flex:none;font-size:12.5px;font-weight:800;color:#1E4D3B;background:#E8F0EB;border:1px solid #cfe0d5;border-radius:999px;padding:4px 10px;text-decoration:none">진학 조회</a></div><div class="vty" id="v16ty"></div>'
    +'<div class="v13top" id="v13top"><button data-v13="today" style="--c:#1E4D3B">오늘</button><button data-v13="trend" style="--c:#1E4D3B">성적 추이</button><button data-v13="report" style="--c:#1E4D3B"><span class="v13w">이번 달 리포트</span></button><button data-v13="gpath" style="--c:#1E4D3B">진학 조회</button></div>'
    +'<button class="vgoal" id="v16gbar" data-tab="goal" title="목표와 성장 보기"><span class="gq">나 얼마나 늘었지?</span><span class="gt" id="v16gtxt">목표 불러오는 중…</span><span class="ga">›</span></button>'
    +'<div class="vtabs" id="v16tabs">'+ACT.filter(function(a){return !a.hide;}).map(function(a){return '<button data-tab="'+a.id+'" style="--ac:'+a.c+';--abg:'+a.bg+'"><span class="n">'+a.n+'</span></button>';}).join('')+'</div>'
@@ -3199,6 +3200,13 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     }
     return h;}
   /* [채팅 63 19:49] 이번 달 강좌 = 수강신청 Storage 최신판 학생 얼굴(내 강좌 · 강좌 찾기 · 수강 신청)을 학생 페이지 안 겹창으로 — 새 창 없이, 「← 오늘로」로 돌아옴 */
+
+  /* [채팅 63 · 11/01 19:22 국존 「진행」 · 인계 20568 2번] 진학 조회도 새 창 대신 화면 안 겹창(이번 달 강좌 겹창과 같은 모양) */
+  window.gzOpenGpath=function(){var L=$('v13gp');if(!L){L=document.createElement('div');L.id='v13gp';L.className='v13lay';L.innerHTML='<div class="sgbar"><button type="button" id="v13gpx">← 오늘로</button></div><div class="sgload" id="v13gpl">불러오는 중…</div><iframe id="v13gpf" title="진학 조회"></iframe>';document.body.appendChild(L);
+      $('v13gpx').onclick=function(){L.hidden=true;document.body.style.overflow='';};}
+    L.hidden=false;document.body.style.overflow='hidden';var f=$('v13gpf');if(f.dataset.ok)return;
+    var q=String(location.search||'');var dq=String(window.__DESK_Q||'');if(dq&&q.indexOf('sid=')<0)q=(q?q+'&':'?')+dq.replace(/^[?&]/,'');
+    f.onload=function(){var l=$('v13gpl');if(l)l.hidden=true;};f.src=new URL('gpath.html'+q,location.href).href;f.dataset.ok='1';};
   window.gzOpenSg=function(){var L=$('v13sg');if(!L){L=document.createElement('div');L.id='v13sg';L.innerHTML='<div class="sgbar"><button type="button" id="v13sgx">← 오늘로</button><b>이번 달 강좌</b><span>내 강좌 보기 · 새 강좌 신청</span></div><div class="sgload" id="v13sgl">강좌 불러오는 중…</div><iframe id="v13sgf" title="이번 달 강좌"></iframe>';document.body.appendChild(L);$('v13sgx').onclick=function(){L.hidden=true;document.body.style.overflow='';};}
     L.hidden=false;document.body.style.overflow='hidden';visit(14);var f=$('v13sgf');if(f.dataset.ok)return;
     fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/apps/sugang.html?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){
@@ -3417,7 +3425,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   function goToday(){V.home=true;render();v13paint();window.scrollTo(0,0);visit(null);}
   function v13top(k){
     if(k==='today'){goToday();return;}
-    if(k==='gpath'){window.open('gpath.html'+location.search+(window.__DESK_Q||''),'_blank');return;}
+    if(k==='gpath'){if(window.gzOpenGpath)gzOpenGpath();return;}
     if(k==='trend'){V.home=false;V.rep=false;V.trend=true;render();jyLoad();window.scrollTo(0,0);visit(8);return;}
     if(k==='report'){V.home=false;V.trend=false;V.rep=true;render();repLoad();window.scrollTo(0,0);visit(9);return;}}
   $('v13home').addEventListener('click',function(e){
