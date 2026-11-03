@@ -117,13 +117,13 @@ function branchOf(g){const m=A.branch_map||{};return m[g]||m[g[0]]||(g==='중3'|
 function reserve(){if(A.place_url){location.href=A.place_url}else{alert('예약 페이지 준비 중입니다. 학원으로 전화해 주세요.')}}
 async function boot(){
  try{
-  const ac=await get('academies?select=slug,region_prefix,site_title,head,sub,brands,place_url,branch_map&is_active=eq.true&slug=eq.'+encodeURIComponent(A.slug));
+  const ac=await get('v_public_academy?select=slug,region_prefix,site_title,head,sub,brands,place_url,branch_map&slug=eq.'+encodeURIComponent(A.slug));
   if(ac[0]){Object.assign(A,ac[0]);
     if(A.site_title){document.title=A.site_title+' — '+(A.head||'');document.getElementById('brand').textContent=A.site_title}
     if(A.head){document.getElementById('head').innerHTML=esc(A.head).replace('가르치는 ','가르치는<br>')}
     if(A.sub){document.getElementById('sub').textContent=A.sub}
     document.getElementById('brands').innerHTML=(A.brands||[]).map(b=>'<div><small>'+esc(b.band)+'</small><b>'+esc(b.name)+'</b><em>since '+esc(b.since)+'</em></div>').join('');
-    document.querySelectorAll('a[href="#reserve" onclick="if(!A.place_url){event.preventDefault();reserve()}"]').forEach(a=>{if(A.place_url)a.href=A.place_url;else{a.href='#';a.onclick=e=>{e.preventDefault();reserve()}}});
+    document.querySelectorAll('a[href="#reserve"]').forEach(a=>{if(A.place_url)a.href=A.place_url;else{a.href='#';a.onclick=e=>{e.preventDefault();reserve()}}});
   }
   const [sc,cs,tm,ex,lc,gp]=await Promise.all([
    get('schools?select=name&is_active=eq.true&region=like.'+encodeURIComponent(A.region_prefix)+'*&order=name'),
