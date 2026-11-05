@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- gmap2_student_dev.html — 2026-11-05 개발 서버(gmap2-dev, hbsbrhgmofxvzgrvkkpg) 전용 사본. 운영 gmap2_student.html에서 Supabase 주소·공개키만 바꿈. -->
 <html lang="ko">
 <head><script>/* [2026-10-21 MAP(DB방)] 로그인으로 열기 — 학생 링크(sid·k)가 없으면 로그인 정보로 학생을 찾아 연다(노트 15193 후속).
    로그인 정보 받는 곳: ① window.__GZ_JWT ② 바깥 사이트(웹헤즈 칸)가 postMessage로 보내는 {gz:'auth', access_token}.
@@ -7,7 +6,7 @@
 (function(){
 var q=location.search+(window.__DESK_Q||'');
 if(/[?&]sid=\d+/.test(q)&&/[?&]k=[a-f0-9]{32}/.test(q))return;
-var SB='https://hbsbrhgmofxvzgrvkkpg.supabase.co',PK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH',TOK=null,done=false;
+var SB='https://qcnsadcpsonuxnjyrlez.supabase.co',PK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',TOK=null,done=false;
 try{window.stop();}catch(e){}
 var css='body{margin:0;font-family:Pretendard,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:#F4F7F5;color:#17261F}.w{max-width:440px;margin:0 auto;padding:28px 18px}h1{font-size:19px;margin:0 0 6px}p{font-size:14.5px;line-height:1.6;color:#4d5a53}.b{display:block;width:100%;min-height:46px;margin:8px 0;border:0;border-radius:12px;background:#1E4D3B;color:#fff;font:700 15px inherit;cursor:pointer}.b.g{background:#fff;color:#1E4D3B;border:1px solid #cfd8d2}input,select{width:100%;box-sizing:border-box;min-height:44px;margin:5px 0;padding:8px 12px;border:1px solid #cfd8d2;border-radius:10px;font:15px inherit}.m{font-size:13px;color:#b42318;min-height:18px}';
 function page(h){document.documentElement.innerHTML='<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>G-MAP 학생</title><style>'+css+'</style></head><body><div class="w">'+h+'</div></body>';}
@@ -45,14 +44,14 @@ window.GZ_TERM={'범주 섞음':['종류 헷갈림'],'핵심어 바꿈':['핵심
 window.gzTerm=function(s,narrow){s=String(s==null?'':s).trim();var t=window.GZ_TERM[s];return t?((narrow&&t[1])?t[1]:t[0]):s;};
 window.gzFirstSent=function(s){s=String(s==null?'':s).trim();var m=s.match(/^[\s\S]*?[.!?。](?=\s|$)/);return m?m[0]:s;};</script><script>/* [2026-10-02] 학생 링크 토큰 공통 — 학습 기록은 gz2_plan_day_add(토큰·계획 소유·날짜 검사) 경유 */
 window.gzSK=function(){var s=(location.search||'')+(window.__DESK_Q||'');return {sid:+((s.match(/[?&]sid=(\d+)/)||[])[1]||0),k:((s.match(/[?&]k=([a-f0-9]{32})/)||[])[1]||'')};};
-window.gzPlanAdd=function(row){var t=gzSK(),PK0='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';return fetch('https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/gz2_plan_day_add',{method:'POST',headers:{apikey:PK0,Authorization:'Bearer '+PK0,'Content-Type':'application/json'},body:JSON.stringify({p_sid:t.sid,p_k:t.k,p_row:row})}).then(function(r){return r.json();}).then(function(j){return new Response(JSON.stringify(j),{status:(j&&j.ok)?201:400});});};
+window.gzPlanAdd=function(row){var t=gzSK(),PK0='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';return fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_plan_day_add',{method:'POST',headers:{apikey:PK0,Authorization:'Bearer '+PK0,'Content-Type':'application/json'},body:JSON.stringify({p_sid:t.sid,p_k:t.k,p_row:row})}).then(function(r){return r.json();}).then(function(j){return new Response(JSON.stringify(j),{status:(j&&j.ok)?201:400});});};
 </script><script>
 /* ═══ [2026-10-19 국존 지시 19:12] 카드 넘기기 부품 gzCardDeck — 「오늘의 오답 5장」(src 'wrong').
    일반 이름으로 둔다: 나중에 암기카드(gmap_deliverable 58)가 GZ_CARD_SRC에 자기 src만 더해 같은 부품을 쓴다.
    채점은 서버(gz2_wrong_card_answer) — 정답은 답을 고른 뒤에만 내려온다. 카드 순서는 서버가 날짜+학생으로 섞어 보냄(같은 날 같은 순서), 선지 순서는 그대로.
    틀린 카드는 판 끝에 한 번 더(두 번째는 기록 안 함 — 하루 1번). 빨강 없음: 정답 초록 테두리 · 내 답 점선 */
 (function(){
-  var RB='https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/', PK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+  var RB='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/', PK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
   function rpc(fn,b){return fetch(RB+fn,{method:'POST',headers:{apikey:PK,Authorization:'Bearer '+PK,'Content-Type':'application/json'},body:JSON.stringify(b)})
     .then(function(r){return r.json();}).catch(function(){return {ok:false,reason:'연결이 잠깐 끊겼어요 · 다시 눌러 주세요'};});}
   function es(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -193,8 +192,8 @@ var GZFOCUS={work_id:null,title:'',genre:'',area:null,area_src:'',plan_id:null};
   try{
     var qs=(location.search||'')+'&'+(window.__DESK_Q||'');
     var sd=(qs.match(/sid=(\d+)/)||[])[1]||'0', kk=(qs.match(/k=([a-f0-9]{32})/)||[])[1]||'';
-    var U='https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/gz2_student_read';
-    var K='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+    var U='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_student_read';
+    var K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
     var x=new XMLHttpRequest(); x.open('POST',U,false);
     x.setRequestHeader('apikey',K); x.setRequestHeader('Authorization','Bearer '+K);
     x.setRequestHeader('Content-Type','application/json');
@@ -214,7 +213,7 @@ function GZAREANAME(){return GZAREANM[GZFOCUS.area]||'영역 확인 중';}
 <script>/* 2.0 진입 게이트 — sid+k(md5 토큰) 서버 검증. 실패 시 본문 비표시 (2026-09-04) */
 (function(){var m=(location.search||'').match(/[?&]sid=(\d+)/),k=(location.search||'').match(/[?&]k=([a-f0-9]{32})/);
  if(!m||!k){document.addEventListener('DOMContentLoaded',function(){document.body.innerHTML='<div style="font-family:sans-serif;padding:40px;text-align:center;color:#555"><h2>국존 학생 페이지</h2><p>이 페이지는 학원에서 보내드린 링크로만 열립니다.<br>링크가 만료되었거나 잘못되었으면 담당 선생님께 문의해 주세요.</p></div>';});return;}
- fetch('https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/gz2_entry_check',{method:'POST',headers:{'apikey':'sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH','Authorization':'Bearer sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH','Content-Type':'application/json'},body:JSON.stringify({p_sid:+m[1],p_k:k[1]})}).then(function(r){return r.json();}).then(function(ok){if(ok!==true){document.body.innerHTML='<div style="font-family:sans-serif;padding:40px;text-align:center;color:#555"><h2>국존 학생 페이지</h2><p>링크가 맞지 않아요. 담당 선생님께 문의해 주세요.</p></div>';}}).catch(function(){});})();
+ fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_entry_check',{method:'POST',headers:{'apikey':'sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0','Authorization':'Bearer sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0','Content-Type':'application/json'},body:JSON.stringify({p_sid:+m[1],p_k:k[1]})}).then(function(r){return r.json();}).then(function(ok){if(ok!==true){document.body.innerHTML='<div style="font-family:sans-serif;padding:40px;text-align:center;color:#555"><h2>국존 학생 페이지</h2><p>링크가 맞지 않아요. 담당 선생님께 문의해 주세요.</p></div>';}}).catch(function(){});})();
 </script>
 <!-- gzx-f158-student-page · 국존 학생 페이지 결선본 -->
 <meta charset="UTF-8">
@@ -506,7 +505,7 @@ function gzOrder(){
 </div>
 <div class="pmcard" id="wrCard"><div id="wrBox"><div class="wkh"><b>지난 한 주</b></div><div class="wks">불러오는 중…</div></div></div>
 </div>
-<script>(function(){var B='https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/',K='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};var m=(location.search||'').match(/[?&]sid=(\d+)/);var sid=m?+m[1]:0;if(!sid)return;
+<script>(function(){var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};var m=(location.search||'').match(/[?&]sid=(\d+)/);var sid=m?+m[1]:0;if(!sid)return;
 function g(i){return document.getElementById(i).value;}
 /* [⑧] 누르는 단추 줄 → 숨은 select에 같은 값(option value) 넣기 */
 document.querySelectorAll('#premeta .pseg').forEach(function(sg){sg.addEventListener('click',function(e){var b=e.target.closest('button[data-v]');if(!b)return;var sel=document.getElementById(sg.dataset.for);var on=b.getAttribute('aria-pressed')==='true';
@@ -523,10 +522,10 @@ fetch(B+'gz2_line_save',{method:'POST',headers:H,body:JSON.stringify({p:{student
 var wk=g('pm3'),aq=(document.getElementById('pm5seg').hidden?(document.getElementById('pm5q').value||'').trim():'');if(aq)wk=(wk?wk+' / ':'')+'물어볼 것: '+aq;
 fetch(B+'gz2_pre_meta_save',{method:'POST',headers:H,body:JSON.stringify({p:{student_id:sid,k:gzSK().k,hw_done_pct:g('pm1'),amount:g('pm2a'),difficulty:g('pm2b'),weakness:wk,today_goal:g('pm4'),confidence:g('pm5'),by:'학생 페이지'}})}).then(function(r){return r.json();}).then(function(r){document.getElementById('pmR').textContent=r.ok?'':'보내지 못했어요. 다시 눌러 주세요. '+(r.reason||'');if(r.ok){document.getElementById('pmForm').style.display='none';var d=document.getElementById('pmDone');d.style.display='block';d.innerHTML='보냈어요. 선생님이 1교시에 읽고 답해요. <a href="javascript:void(0)" onclick="window.v16go&&v16go(5)">수업 1·2·3교시로 →</a>';}});};})();</script></section>
 <script>/* seq 274 「지난 한 주」 상자 — gz2_week_review(토큰) 읽기 전용 */
-(function(){var sk=gzSK();if(!sk.sid)return;var K='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+(function(){var sk=gzSK();if(!sk.sid)return;var K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
 function e(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function md(d){return d?String(d).slice(5).replace('-','/'):'';}
-fetch('https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/gz2_week_review',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify({p_sid:sk.sid,p_k:sk.k})}).then(function(r){return r.json();}).then(function(w){
+fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_week_review',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify({p_sid:sk.sid,p_k:sk.k})}).then(function(r){return r.json();}).then(function(w){
  var box=document.getElementById('wrBox');if(!box||!w||!w.ok)return;
  /* [seq 277] 과제 기한 — 고정 글자 8/14(금) 대신 최근 수업의 과제 기한 */
  (function(){var d=(w.lesson||{}).due,el=document.getElementById('gzHwDueSub');if(!el)return;if(!d){el.textContent='기한 미정';return;}var D=new Date(d+'T00:00:00+09:00');el.textContent='기한 '+(D.getMonth()+1)+'/'+D.getDate()+'('+'일월화수목금토'[D.getDay()]+')';})();
@@ -552,8 +551,8 @@ fetch('https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/gz2_week_review',{me
  box.innerHTML='<div class="wkh"><b>지난 한 주, 내가 쓴 말과 받은 답</b><button type="button" class="wkt" onclick="var c=document.getElementById(\'wrCard\');c.classList.toggle(\'open\');this.textContent=c.classList.contains(\'open\')?\'접기\':\'펼치기\';">펼치기</button></div>'
   +'<div class="wks">'+(sum.length?sum.join(' · '):'최근 기록 없음')+'</div><div class="wkb"><div id="gzPairBox"></div>'+rows.join('')+'</div>';
  /* [2026-10-29 국존 승인 6행] 내가 쓴 말 → 선생님의 답 → 상태. 코치의 글은 학생의 글 아래에만 놓인다 */
- fetch('https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/gz2_pair_get',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify({p_sid:sk.sid,p_k:sk.k})}).then(function(r){return r.json();}).then(function(pr){var pm=document.getElementById('pm4');if(pm&&pr&&pr.next_line_default&&!pm.value&&!(pr.pairs||[]).some(function(p){return String(p.date)===new Date(Date.now()+9*36e5).toISOString().slice(0,10);})){pm.value=pr.next_line_default;pm.dataset.prefill='1';if(window.pmGate)pmGate();}var pb=document.getElementById('gzPairBox');if(!pb||!pr||!pr.ok)return;
- fetch('https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/gz2_stage_get',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify({p_sid:sk.sid,p_k:sk.k})}).then(function(r){return r.json();}).then(function(g){if(!g||!g.ok)return;var d=document.createElement('div');d.style.cssText='border:1px solid #b9d3e6;background:#f3f8fc;border-radius:10px;padding:8px 12px;margin-bottom:8px;font-size:13px;line-height:1.5';d.innerHTML='<b>지금은 '+g.stage_no+'단계예요: '+String(g.label||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];})+'</b><br>'+(g.stage_no<4?'정한 분량을 잘 지키면 선생님이 다음 단계로 올려 줘요.':'혼자 정하고 결과만 알려 주면 돼요.');pb.parentNode.insertBefore(d,pb);}).catch(function(){});var ps=(pr.pairs||[]).slice(0,3);if(!ps.length){pb.innerHTML='<div class="gzPair"><div class="gzPairMe"><small>아직 쓴 말이 없어요</small><div>수업 전에 한 줄을 쓰면 선생님의 답이 여기 아래에 붙어요.</div></div></div>';return;}
+ fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_pair_get',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify({p_sid:sk.sid,p_k:sk.k})}).then(function(r){return r.json();}).then(function(pr){var pm=document.getElementById('pm4');if(pm&&pr&&pr.next_line_default&&!pm.value&&!(pr.pairs||[]).some(function(p){return String(p.date)===new Date(Date.now()+9*36e5).toISOString().slice(0,10);})){pm.value=pr.next_line_default;pm.dataset.prefill='1';if(window.pmGate)pmGate();}var pb=document.getElementById('gzPairBox');if(!pb||!pr||!pr.ok)return;
+ fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_stage_get',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify({p_sid:sk.sid,p_k:sk.k})}).then(function(r){return r.json();}).then(function(g){if(!g||!g.ok)return;var d=document.createElement('div');d.style.cssText='border:1px solid #b9d3e6;background:#f3f8fc;border-radius:10px;padding:8px 12px;margin-bottom:8px;font-size:13px;line-height:1.5';d.innerHTML='<b>지금은 '+g.stage_no+'단계예요: '+String(g.label||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];})+'</b><br>'+(g.stage_no<4?'정한 분량을 잘 지키면 선생님이 다음 단계로 올려 줘요.':'혼자 정하고 결과만 알려 주면 돼요.');pb.parentNode.insertBefore(d,pb);}).catch(function(){});var ps=(pr.pairs||[]).slice(0,3);if(!ps.length){pb.innerHTML='<div class="gzPair"><div class="gzPairMe"><small>아직 쓴 말이 없어요</small><div>수업 전에 한 줄을 쓰면 선생님의 답이 여기 아래에 붙어요.</div></div></div>';return;}
   pb.innerHTML=ps.map(function(p){var st=p.state||'아직 답 전';return '<div class="gzPair"><div class="gzPairMe"><small>'+e(md(p.date))+'에 내가 쓴 말</small><div>'+e(p.line)+'</div></div>'+(p.reply?'<div class="gzPairLn"></div><div class="gzPairT"><small>선생님의 답</small><div>'+e(p.reply)+'</div></div>':'<div class="gzPairLn"></div><div class="gzPairT wait"><small>선생님의 답</small><div>아직 답 전이에요. 1교시에 읽고 답해요.</div></div>')+'<div class="gzPairSt '+(st==='계획이 됐어요'?'done':(st==='답을 받았어요'?'mid':''))+'">'+e(st)+'</div></div>';}).join('');}).catch(function(){});
  /* [⑧] 지난 과제 「해옴」이면 「다 했음」 미리 선택(학생이 이미 고른 뒤면 건드리지 않음) */
  var sg=document.querySelector('#premeta .pseg[data-for="pm1"]');
@@ -600,7 +599,7 @@ fetch('https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/gz2_week_review',{me
 </div>
 <script>
 (function(){
-var SB='https://hbsbrhgmofxvzgrvkkpg.supabase.co',PK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+var SB='https://qcnsadcpsonuxnjyrlez.supabase.co',PK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
 var QS=(location.search||'')+'&'+String(window.__DESK_Q||'');
 var SID=+((QS.match(/[?&]sid=(\d+)/)||[])[1]||0),K=(QS.match(/[?&]k=([a-f0-9]{32})/)||[])[1]||'';
 var box=document.getElementById('gzQ'); if(!box)return; if(!SID||!K){box.style.display='none';return;}
@@ -680,7 +679,7 @@ load();
   <div id="sheetR" style="font-size:13px;line-height:1.55;margin-top:8px"></div>
   <div style="font-size:12px;color:#5b6472;margin-top:6px">문제는 종이로 풀고, 화면에는 답만 적어요. 한 문항에 두 번 누르는 것이 전부예요.</div>
 </section>
-<script>(function(){var sk=gzSK();if(!sk.sid)return;var B='https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/',K='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};
+<script>(function(){var sk=gzSK();if(!sk.sid)return;var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};
 function e(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 var CONF=['찍음','반쯤','확실'],state={};
 function rows(n){var h='<div style="display:grid;grid-template-columns:36px 1fr 150px;background:#f5f6f8;padding:6px 10px;color:#5b6472;font-size:12px"><span>번호</span><span>내 답</span><span>얼마나 확신해요?</span></div>';
@@ -700,7 +699,7 @@ document.getElementById('sheetBtn').onclick=function(){var rt=chosen&&chosen.id,
  var exp=document.getElementById('sheetExp').value;this.disabled=true;
  fetch(B+'gz2_sheet_submit',{method:'POST',headers:H,body:JSON.stringify({p_sid:sk.sid,p_k:sk.k,p:{review_test_id:+rt,expected_n:exp===''?null:+exp,answers:ans}})}).then(function(r){return r.json();}).then(function(r){document.getElementById('sheetBtn').disabled=false;if(!r||!r.ok){R.textContent='내지 못했어요. '+((r&&r.reason)||'')+' 다시 눌러 주세요.';return;}
   var sw=(r.sure_wrong||[]),gr=(r.guess_right||[]);R.innerHTML='<div style="border:1px solid #b9d3e6;background:#f3f8fc;border-radius:10px;padding:10px 12px">'+(r.scored?('<b>'+r.total_n+'문항 중 '+r.correct_n+'개 맞았어요.</b>'+(r.expected_n!=null?' 예상은 '+r.expected_n+'개였어요.':'')+'<br>'+(sw.length?'<b>확실했는데 틀린 문항 '+sw.length+'개</b>('+sw.join(', ')+'번)':'확실했는데 틀린 문항은 없어요')+', '+(gr.length?'찍었는데 맞은 문항 '+gr.length+'개('+gr.join(', ')+'번)':'찍었는데 맞은 문항은 없어요')+'.<br>선생님은 확실했는데 틀린 것부터 같이 봐요.'):'답안지를 냈어요. 정답지가 들어오면 채점돼요.')+'</div>';}).catch(function(){document.getElementById('sheetBtn').disabled=false;R.textContent='내지 못했어요. 다시 눌러 주세요.';});};})();</script>
-<script>(function(){var sk=gzSK();if(!sk.sid)return;var B='https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/',K='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};
+<script>(function(){var sk=gzSK();if(!sk.sid)return;var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};
 function $(i){return document.getElementById(i);}function e(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 var AREAS=['문학','문법','독서','화법·작문·매체'],M={n:20,wrong:{},work:null,other:false,area:null,examId:null,works:[]};
 function chip(on){return on?'border:2px solid #1E3A2F;background:#E4EFE8;color:#1E3A2F;font-weight:700;':'border:1px solid #c9d0d9;background:#fff;color:#1f2430;';}
@@ -801,13 +800,13 @@ $('shMBtn').onclick=function(){var R=$('shMR');var wr=Object.keys(M.wrong).filte
 <label>14. 오늘 잘한 점 <input id="qm14" style="width:100%;padding:5px"></label>
 <label>15. 다음 수업 동기 <select id="qm15"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select> /5</label>
 <div><button id="qmBtn" type="button" style="padding:6px 12px;background:#1E4D3B;color:#fff;border:0;border-radius:6px;font-weight:700">보내기</button> <span id="qmR" style="font-size:12px;color:#8a8577"></span></div></div></details>
-<script>(function(){var sk=gzSK();if(!sk.sid)return;var B='https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/',K='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};
+<script>(function(){var sk=gzSK();if(!sk.sid)return;var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};
 function g(i){var e=document.getElementById(i);return e?e.value.trim():'';}
 document.getElementById('wrBtn').onclick=function(){var R=document.getElementById('wrR');if(g('wr1').length<2&&g('wr3').length<2){R.textContent='알게 된 것이나 아직 모르는 것 중 하나는 써 주세요.';return;}this.disabled=true;
  fetch(B+'gz2_wrap_save',{method:'POST',headers:H,body:JSON.stringify({p_sid:sk.sid,p_k:sk.k,p:{learned:g('wr1'),why:g('wr2'),unknown:g('wr3')}})}).then(function(r){return r.json();}).then(function(r){document.getElementById('wrBtn').disabled=false;if(!r||!r.ok){R.textContent='저장하지 못했어요. '+((r&&r.reason)||'')+' 다시 눌러 주세요.';return;}
   R.innerHTML='<div style="border:1px solid #b9d3e6;background:#f3f8fc;border-radius:10px;padding:9px 12px">정리했어요. 선생님 카드에 바로 보여요.'+(r.next_line?'<br>다음 수업 전 한 줄에 「'+String(r.next_line).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];})+'」가 미리 들어가 있어요.':'')+'</div>';
   var pm=document.getElementById('pm4');if(pm&&r.next_line&&!pm.value){pm.value=r.next_line;if(window.pmGate)pmGate();}}).catch(function(){document.getElementById('wrBtn').disabled=false;R.textContent='저장하지 못했어요. 다시 눌러 주세요.';});};})();</script>
-<script>(function(){var B='https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/',K='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};var m=(location.search||'').match(/[?&]sid=(\d+)/),km=(location.search||'').match(/[?&]k=([a-f0-9]{32})/);var sid=m?+m[1]:0;if(!sid)return;
+<script>(function(){var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};var m=(location.search||'').match(/[?&]sid=(\d+)/),km=(location.search||'').match(/[?&]k=([a-f0-9]{32})/);var sid=m?+m[1]:0;if(!sid)return;
 function g(i){var e=document.getElementById(i);return e?e.value.trim():'';}
 fetch(B+'gz2_card_context',{method:'POST',headers:H,body:JSON.stringify({p_sid:sid,p_k:gzSK().k})}).then(function(r){return r.json();}).then(function(c){var p=c&&c.post;var today=new Date(Date.now()+9*36e5).toISOString().slice(0,10);if(p&&String(p.created_at).slice(0,10)===today){var sc=p.scores||{},st=p.strategy||{},ch=p.challenge||{};document.getElementById('qmDone').style.display='block';document.getElementById('qmDone').textContent='오늘 답 완료 ✓ — 만족도 '+(sc.satisfaction||'—')+'/5 · 집중 '+(sc.focus||'—')+'/5 · 어려웠던 것 '+(st.hard||'—')+' · 다음 주 목표 '+((ch.goals||[]).filter(Boolean).join(', ')||'—')+' · 잘한 점 '+(p.strengths||'—');}}).catch(function(){});
 document.getElementById('qmBtn').onclick=function(){if(!g('qm1')||!g('qm5')||!g('qm10a')){document.getElementById('qmR').textContent='1·5·10번은 꼭 적어 주세요';return;}var habits=[].slice.call(document.querySelectorAll('.qm6:checked')).map(function(x){return x.value;});var p={student_id:sid,k:km?km[1]:null,q1:g('qm1'),q2:g('qm2'),q3:g('qm3'),q4:g('qm4'),q5:g('qm5'),q6:habits,q7:g('qm7'),q8:g('qm8'),q9:g('qm9'),q10:[g('qm10a'),g('qm10b'),g('qm10c')].filter(Boolean),q11:g('qm11'),q12:g('qm12'),q13:g('qm13'),q14:g('qm14'),q15:g('qm15'),by:'학생'};
@@ -817,7 +816,7 @@ fetch(B+'gz2_post_meta_save',{method:'POST',headers:H,body:JSON.stringify({p:p})
 <section id="lessonflow" data-move="gzRec" style="display:none;margin:10px 12px;padding:12px 14px;border:1px solid #d8d4c8;border-radius:10px;background:#fff;font-size:13px">
 <b style="font-size:14px">최근 수업 기록</b> <span style="font-size:11px;color:#8a8577">선생님이 적은 수업 내용</span>
 <div id="lfBody" style="margin-top:8px;color:#8a8577">불러오는 중…</div>
-<script>(function(){var B='https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/',K='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};var m=(location.search||'').match(/[?&]sid=(\d+)/),k=(location.search||'').match(/[?&]k=([a-f0-9]{32})/);if(!m||!k)return;
+<script>(function(){var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',H={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};var m=(location.search||'').match(/[?&]sid=(\d+)/),k=(location.search||'').match(/[?&]k=([a-f0-9]{32})/);if(!m||!k)return;
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function actLine(a){return (a.act||'')+(a.min?' '+a.min+'분':'')+(a.pages?' · '+a.pages+'쪽':'')+(a.test?' · 시험지: '+a.test:'')+(a.name?' '+a.name:'');}
 function render(rows){var el=document.getElementById('lfBody');if(!rows.length){el.textContent='최근 3주 수업 기록이 아직 없어요';return;}el.style.color='#1f2a24';el.innerHTML=rows.map(function(r){var p=r.acts||{};var lines=[];['p1','p2','p3'].forEach(function(k,i){var arr=p[k]||[];if(arr.length)lines.push('<div><b>'+(i+1)+'교시</b> '+arr.map(function(a){return typeof a==='string'?a:actLine(a);}).join(' · ')+'</div>');});return '<div style="padding:6px 0;border-top:1px solid #f0ede4"><div style="font-size:12px;color:#8a8577">'+String(r.date).slice(5)+(r.session&&r.session!=='REG'?' · '+r.session:'')+(r.hw?' · 지난 과제 '+esc(r.hw):'')+'</div>'+(lines.join('')||'<div style="color:#8a8577">활동 기록 없음</div>')+(r.praise?'<div style="color:#1E4D3B">👍 '+esc(r.praise)+'</div>':'')+(r.next?'<div>다음 과제: '+esc(r.next)+(r.due?' (~'+String(r.due).slice(5)+')':'')+'</div>':'')+'</div>';}).join('');}
@@ -1010,8 +1009,8 @@ function setHw(k, btn){
    식별: window.__DESK_Q('sid=NN') 또는 주소의 ?sid=NN
    조회: gz2_student_read(sid+k 토큰·허용 형태만, 2026-09-05 결재①) — 없는 값은 지어내지 않고 「기록 없음」으로 둔다. */
 (function(){
-  var BASE='https://hbsbrhgmofxvzgrvkkpg.supabase.co';
-  var AK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+  var BASE='https://qcnsadcpsonuxnjyrlez.supabase.co';
+  var AK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
   function sid(){
     var m=(window.__DESK_Q||'').match(/sid=(\d+)/); if(m)return m[1];
     m=(location.search||'').match(/[?&]sid=(\d+)/); return m?m[1]:'';
@@ -1806,8 +1805,8 @@ gzLoadFill();
    원천 실측: student_tests(177행: LT 수업 중 테스트·RT 복습·MK 모의고사·AT 분석 단답·PE 기출·CL CLEAR·SE 내신·KED 진단),
              v_wrong_note(오답 상세·acl_kr·cause·is_overcome), coaching_logs(주별 기록·교사 평가) */
 (function(){
-  var BASE='https://hbsbrhgmofxvzgrvkkpg.supabase.co';
-  var AK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+  var BASE='https://qcnsadcpsonuxnjyrlez.supabase.co';
+  var AK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
   function sid(){ var m=(window.__DESK_Q||'').match(/sid=(\d+)/); if(m)return m[1];
     m=(location.search||'').match(/[?&]sid=(\d+)/); return m?m[1]:''; }
   function q(sql){ return fetch(BASE+'/rest/v1/rpc/gz2_student_read',{method:'POST',
@@ -1896,8 +1895,8 @@ gzLoadFill();
    진도 기록 테이블(course_completions·enroll_steps·progress_snapshots)은 0행 → 격자는 자리를 유지하고
    「진도 기록 없음」으로 표기한다. 수치 창작 없음. 데이터가 들어오면 같은 자리에 그대로 채워진다. */
 (function(){
-  var BASE='https://hbsbrhgmofxvzgrvkkpg.supabase.co';
-  var AK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+  var BASE='https://qcnsadcpsonuxnjyrlez.supabase.co';
+  var AK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
   function sid(){ var m=(window.__DESK_Q||'').match(/sid=(\d+)/); if(m)return m[1];
     m=(location.search||'').match(/[?&]sid=(\d+)/); return m?m[1]:''; }
   function q(sql){ return fetch(BASE+'/rest/v1/rpc/gz2_student_read',{method:'POST',
@@ -1972,8 +1971,8 @@ gzLoadFill();
    원천: coaching_logs · assignments · schedule · school_exams · student_events · students
    원칙: 없는 값은 지어내지 않고 「기록 없음」으로 둔다. 읽기 전용. */
 (function(){
-  var BASE='https://hbsbrhgmofxvzgrvkkpg.supabase.co';
-  var AK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+  var BASE='https://qcnsadcpsonuxnjyrlez.supabase.co';
+  var AK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
   function sid(){ var m=(window.__DESK_Q||'').match(/sid=(\d+)/); if(m)return m[1];
     m=(location.search||'').match(/[?&]sid=(\d+)/); return m?m[1]:''; }
   function q(sql){ return fetch(BASE+'/rest/v1/rpc/gz2_student_read',{method:'POST',
@@ -2205,7 +2204,7 @@ gzLoadFill();
 <script>/* [v2 첫수업 과정(학생) · 2026-09-11 계획 #22 · 목업 22 v1 승인] 내가 할 일 4(⑤ 사용법·⑦ 계획표 확인·⑧ 1차 실습·⑩ 소감) + 선생님 몫 6 칩 · 판정 gz2_first_flow · 쓰기 gz2_student_write(ot_page·ack·hw_report·ot_review) */
 (function(){try{
  var m=(location.search||'').match(/[?&]sid=(\d+)/),km=(location.search||'').match(/[?&]k=([a-f0-9]{32})/);if(!m||!km)return;
- var SID=+m[1],K=km[1],RB='https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/',PK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+ var SID=+m[1],K=km[1],RB='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/',PK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
  function call(fn,b){return fetch(RB+fn,{method:'POST',headers:{'apikey':PK,'Authorization':'Bearer '+PK,'Content-Type':'application/json'},body:JSON.stringify(b)}).then(function(r){return r.json();});}
  function w(kind,p){return call('gz2_student_write',{p_sid:SID,p_k:K,p_kind:kind,p_payload:p||{}});}
  function e(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -2250,7 +2249,7 @@ gzLoadFill();
 <script>
 /* [오리엔테이션 v1 · 2026-09-10 · 계획 #17] 학생이 한 면씩 넘긴다. 면=lecture_contents(work 9747, content_type 오리엔테이션, variant_no 1~7), 읽음=newcomer_checkpoints OT1~OT7(gz2_student_write ot_page) */
 (function(){
-  var OB='https://hbsbrhgmofxvzgrvkkpg.supabase.co',OK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+  var OB='https://qcnsadcpsonuxnjyrlez.supabase.co',OK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
   var ORI={list:[],done:{},cur:0,cache:{}};
   function sk(){var s=location.search||'',d=window.__DESK_Q||'';return {sid:Number((s.match(/[?&]sid=(\d+)/)||[])[1]||(d.match(/sid=(\d+)/)||[])[1]||0),k:((s.match(/[?&]k=([a-f0-9]{32})/)||[])[1]||(d.match(/k=([a-f0-9]{32})/)||[])[1]||'')};}
   function rd(sql){var a=sk();return fetch(OB+'/rest/v1/rpc/gz2_student_read',{method:'POST',headers:{'apikey':OK,'Authorization':'Bearer '+OK,'Content-Type':'application/json'},body:JSON.stringify({p_sid:a.sid,p_k:a.k,p_sql:sql})}).then(function(r){return r.json();});}
@@ -2287,7 +2286,7 @@ gzLoadFill();
 (function(){
   var qs=(location.search||'')+'&'+(window.__DESK_Q||'');
   var SID=+((qs.match(/sid=(\d+)/)||[])[1]||0), KK=(qs.match(/k=([a-f0-9]{32})/)||[])[1]||'';
-  var B='https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/', PK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+  var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/', PK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function d(s){s=String(s||'');return s?(+s.slice(5,7))+'/'+(+s.slice(8,10)):'';}
   function rpc(fn,body){return fetch(B+fn,{method:'POST',headers:{'apikey':PK,'Authorization':'Bearer '+PK,'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();});}
@@ -2321,7 +2320,7 @@ gzLoadFill();
   var qs=(location.search||'')+'&'+(window.__DESK_Q||'');
   var SID=+((qs.match(/sid=(\d+)/)||[])[1]||0), KK=(qs.match(/k=([a-f0-9]{32})/)||[])[1]||'';
   if(!SID||!KK)return;
-  var B='https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/', PK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+  var B='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/', PK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
   function rpc(fn,body){return fetch(B+fn,{method:'POST',headers:{'apikey':PK,'Authorization':'Bearer '+PK,'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();});}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   var ST={suggest:'추천',todo:'읽을 예정',reading:'읽는 중',done:'다 읽음'};
@@ -2914,7 +2913,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 (function(){
   var SK=(window.gzSK?gzSK():{sid:0,k:''}); if(!SK.sid||!SK.k) return;      /* 링크 없으면 기존 안내문 그대로 */
   window.gzOrder=function(){};                                            /* 종전 자리 재배치(1초마다 20회) 정지 — 자리는 v16이 정한다 */
-  var RB='https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/', PK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+  var RB='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/', PK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
   function rpc(fn,b){return fetch(RB+fn,{method:'POST',headers:{apikey:PK,Authorization:'Bearer '+PK,'Content-Type':'application/json'},body:JSON.stringify(b)}).then(function(r){return r.json();}).catch(function(){return null;});}
   function tok(x){var o={p_sid:SK.sid,p_k:SK.k};if(x)for(var k in x)o[k]=x[k];return o;}
   function rd(sql){return rpc('gz2_student_read',tok({p_sql:sql})).then(function(d){return Array.isArray(d)?d:[];});}
@@ -3210,7 +3209,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     f.onload=function(){var l=$('v13gpl');if(l)l.hidden=true;};f.src=new URL('gpath.html'+q,location.href).href;f.dataset.ok='1';};
   window.gzOpenSg=function(){var L=$('v13sg');if(!L){L=document.createElement('div');L.id='v13sg';L.innerHTML='<div class="sgbar"><button type="button" id="v13sgx">← 오늘로</button><b>이번 달 강좌</b><span>내 강좌 보기 · 새 강좌 신청</span></div><div class="sgload" id="v13sgl">강좌 불러오는 중…</div><iframe id="v13sgf" title="이번 달 강좌"></iframe>';document.body.appendChild(L);$('v13sgx').onclick=function(){L.hidden=true;document.body.style.overflow='';};}
     L.hidden=false;document.body.style.overflow='hidden';visit(14);var f=$('v13sgf');if(f.dataset.ok)return;
-    fetch('https://hbsbrhgmofxvzgrvkkpg.supabase.co/storage/v1/object/public/apps/sugang.html?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){
+    fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/apps/sugang.html?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){
       var qs='?mode=student&sid='+SK.sid+'&k='+SK.k; t=t.replace(/<head[^>]*>/i,function(x){return x+'<script>window.__SG_QS='+JSON.stringify(qs)+';<\/script><style>.app-header,.big-stats{display:none!important}</style>';});
       f.srcdoc=t;f.dataset.ok='1';f.onload=function(){var l=$('v13sgl');if(l)l.hidden=true;};
     }).catch(function(){var l=$('v13sgl');if(l)l.textContent='강좌를 불러오지 못했어요. 「← 오늘로」를 누르고 다시 열어 주세요.';});};
@@ -3953,8 +3952,8 @@ $('jyBox').addEventListener('click',function(e){var b=e.target.closest('[data-jy
 })();
 </script>
 <script>/* [2026-10-21 MAP(DB방)] 「내 글이 맞게 읽혔나요?」 — 손글씨 원고에 헷갈린 글자가 남아 있으면 맨 위에 한 줄 안내(노트 15190). 실패해도 페이지에 영향 없음. */
-(function(){try{var t=(window.gzSK&&gzSK())||{};if(!t.sid||!t.k)return;var PK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
-fetch('https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/gz2_stu_hw_items',{method:'POST',headers:{apikey:PK,Authorization:'Bearer '+PK,'Content-Type':'application/json'},body:JSON.stringify({p_sid:t.sid,p_k:t.k})})
+(function(){try{var t=(window.gzSK&&gzSK())||{};if(!t.sid||!t.k)return;var PK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
+fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_stu_hw_items',{method:'POST',headers:{apikey:PK,Authorization:'Bearer '+PK,'Content-Type':'application/json'},body:JSON.stringify({p_sid:t.sid,p_k:t.k})})
 .then(function(r){return r.json();}).then(function(d){if(!d||!d.ok)return;var n=0;(d.essays||[]).forEach(function(e){(e.items||[]).forEach(function(x){if(!x.pick)n++;});});if(!n)return;
 var a=document.createElement('a');a.href='hw_check.html?sid='+t.sid+'&k='+t.k;a.id='gzHwBar';
 a.style.cssText='display:block;margin:0;padding:12px 16px;background:#FFF5E3;color:#5a3d06;border-bottom:2px solid #E8A33D;font:600 15px Pretendard,sans-serif;text-decoration:none';
@@ -3965,7 +3964,7 @@ a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷
    - 원천: gz2_agree_my(내 합의) · gz2_agree_reply(승인 ok / 조정 adjust). 둘 다 학생 열쇠 함수.
    - 상태: 제안(승인·조정 고르기) → 조정요청(선생님 답 기다림) → 합의(요일별 단계 = study_plan_day). */
 (function(){
-  var BASE='https://hbsbrhgmofxvzgrvkkpg.supabase.co', AK='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+  var BASE='https://qcnsadcpsonuxnjyrlez.supabase.co', AK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
   var QS=(location.search||'')+'&'+(window.__DESK_Q||'');
   var SID=Number((QS.match(/sid=(\d+)/)||[])[1]||0), K=(QS.match(/k=([a-f0-9]{32})/)||[])[1]||'';
   if(!SID||!K) return;
@@ -4150,7 +4149,7 @@ a.textContent='✏️ 내 글이 맞게 읽혔는지 확인해 주세요 — 헷
 </script>
 
 <script>/* [2026-10-31 국존 「이대로 여기서 시행해라」 · 코치방 설계 mock_student_habit_v1.1] 「지난 한 주」 상자에 붙는 실행률·날짜 색·시간 통장·막힌 자리 — gz2_habit_week 읽기 전용. 학생 입력 없음(입력은 과제 「끝냈어요」의 두 탭) */
-(function(){var sk=gzSK();if(!sk.sid)return;var K='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH';
+(function(){var sk=gzSK();if(!sk.sid)return;var K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
 var DN=['월','화','수','목','금','토','일'];
 function e(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function render(w){var box=document.querySelector('#wrBox .wkb');if(!box)return false;
@@ -4171,7 +4170,7 @@ function render(w){var box=document.querySelector('#wrBox .wkb');if(!box)return 
   +(b.total?'<small>총 '+b.total+'분'+(pv.total?' (지난주 '+pv.total+'분)':'')+' · 집중 비율 <b>'+b.a_ratio+'%</b>'+(pv.a_ratio!=null?' (지난주 '+pv.a_ratio+'%)':'')+'</small>':'<small>과제 「끝냈어요」에서 몇 분·어땠는지를 남기면 여기 쌓여요. 등급은 내가 매겨요.</small>')
   +(w.blocked||[]).map(function(x){return '<div style="margin-top:5px;padding:5px 8px;border-left:3px solid #e05252;background:#fff7f7;font-size:12px">막힌 자리: <b>'+e(x.label)+'</b> — 이해가 안 됐던 시간 '+x.c_min+'분. 다음 수업에서 여기부터 봐요.</div>';}).join('')+'</div></div>';
  return true;}
-window.gzHabitWeek=function(){fetch('https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/gz2_habit_week',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify({p_sid:sk.sid,p_k:sk.k})}).then(function(r){return r.json();}).then(function(w){if(!w||!w.ok)return;var n=0,t=setInterval(function(){if(render(w)||++n>40)clearInterval(t);},250);});};
+window.gzHabitWeek=function(){fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_habit_week',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify({p_sid:sk.sid,p_k:sk.k})}).then(function(r){return r.json();}).then(function(w){if(!w||!w.ok)return;var n=0,t=setInterval(function(){if(render(w)||++n>40)clearInterval(t);},250);});};
 gzHabitWeek();
 })();</script>
 </body>
