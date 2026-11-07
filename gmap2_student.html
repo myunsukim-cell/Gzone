@@ -520,7 +520,11 @@ document.getElementById('pmBtn').onclick=function(){if(g('pm4').trim().length<2)
 fetch(B+'gz2_line_save',{method:'POST',headers:H,body:JSON.stringify({p:{student_id:sid,k:gzSK().k,line:g('pm4').trim(),by:'학생 페이지'}})}).catch(function(){});
 /* [⑧ 추정] 작품을 못 찾아 「물어볼 것」 입력칸이 뜬 날은 그 글을 어려웠던 것(weakness) 칸 뒤에 붙여 보낸다 — 새 칸을 만들지 않기 위해 */
 var wk=g('pm3'),aq=(document.getElementById('pm5seg').hidden?(document.getElementById('pm5q').value||'').trim():'');if(aq)wk=(wk?wk+' / ':'')+'물어볼 것: '+aq;
-fetch(B+'gz2_pre_meta_save',{method:'POST',headers:H,body:JSON.stringify({p:{student_id:sid,k:gzSK().k,hw_done_pct:g('pm1'),amount:g('pm2a'),difficulty:g('pm2b'),weakness:wk,today_goal:g('pm4'),confidence:g('pm5'),by:'학생 페이지'}})}).then(function(r){return r.json();}).then(function(r){document.getElementById('pmR').textContent=r.ok?'':'보내지 못했어요. 다시 눌러 주세요. '+(r.reason||'');if(r.ok){document.getElementById('pmForm').style.display='none';var d=document.getElementById('pmDone');d.style.display='block';d.innerHTML='보냈어요. 선생님이 1교시에 읽고 답해요. <a href="javascript:void(0)" onclick="window.v16go&&v16go(5)">수업 1·2·3교시로 →</a>';}});};})();</script></section>
+fetch(B+'gz2_pre_meta_save',{method:'POST',headers:H,body:JSON.stringify({p:{student_id:sid,k:gzSK().k,hw_done_pct:g('pm1'),amount:g('pm2a'),difficulty:g('pm2b'),weakness:wk,today_goal:g('pm4'),confidence:g('pm5'),by:'학생 페이지'}})}).then(function(r){return r.json();}).then(function(r){document.getElementById('pmR').textContent=r.ok?'':'보내지 못했어요. 다시 눌러 주세요. '+(r.reason||'');if(r.ok){document.getElementById('pmForm').style.display='none';var d=document.getElementById('pmDone');d.style.display='block';d.innerHTML='보냈어요. 선생님이 1교시에 읽고 답해요. <a href="javascript:void(0)" onclick="window.v16go&&v16go(5)">수업 1·2·3교시로 →</a>';}});};})();</script></section><script>/* [채팅 121 · seq 396 · 국존 2026-11-07 16:47] 수업 전 카드의 첫 입력 = 등원(도착 시각). 수업 시간 밖이면 서버가 기록하지 않는다. 학부모 알림은 오늘 목표를 보낼 때 */
+(function(){var sk=(typeof gzSK==='function')?gzSK():null;if(!sk||!sk.sid||!sk.k)return;var box=document.getElementById('premeta');if(!box)return;var done=false;
+var U='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_att_student',PK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
+function hit(){if(done)return;done=true;fetch(U,{method:'POST',headers:{apikey:PK,Authorization:'Bearer '+PK,'Content-Type':'application/json'},body:JSON.stringify({p_sid:sk.sid,p_k:sk.k,p:{op:'in'}})}).catch(function(){done=false;});}
+box.addEventListener('focusin',hit);box.addEventListener('click',hit);})();</script>
 <script>/* seq 274 「지난 한 주」 상자 — gz2_week_review(토큰) 읽기 전용 */
 (function(){var sk=gzSK();if(!sk.sid)return;var K='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0';
 function e(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -2865,7 +2869,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
 #v13cv .cvfoot,#v13cv .cvact{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 #v13cv .cvact{position:sticky;bottom:0;z-index:2;margin:12px -14px 0;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #E2DED4}
 #v13cv .cvbtn{flex:1 1 200px;min-height:48px;border:1.5px solid #1E4D3B;border-radius:12px;background:#fff;color:#1E4D3B;font:inherit;font-size:16px;font-weight:800;cursor:pointer}
-#v13cv .cvbtn.p{background:#1E4D3B;color:#fff}
+#v13cv .cvbtn.p{background:#1E4D3B;color:#fff}#v13cv .hwp{align-items:center;flex-wrap:nowrap;background:#FAF8F2}#v13cv .hwpt{flex:1;min-width:0}#v13cv .hwpt small{display:block}#v13cv .hnew{font-style:normal;margin-left:8px;font-size:12px;font-weight:800;color:#A4472F;border:1.5px solid #A4472F;border-radius:6px;padding:0 6px}#v13cv .hget{flex:0 0 auto;min-height:44px;padding:0 22px}
 #v13cv .cvst{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #EFEBE2}#v13cv .cvst:first-child{border-top:0}#v13cv .cvst.now{background:#E8F1EC}
 #v13cv .cvn{flex:none;width:32px;height:32px;border-radius:16px;border:1.5px solid #CFCABD;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#6B6F6B}
 #v13cv .cvn.d{background:#1E4D3B;border-color:#1E4D3B;color:#fff}#v13cv .cvn.c{border-color:#1E4D3B;color:#1E4D3B}
@@ -3282,7 +3286,8 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   /* ② 지난 것 보기 — 이번 달 시작 칸 */
   var HSN={goal:['목표와 성장','이번 달 목표 · 계획표',0],wrong:['오답 노트','이번 달 오답',2],exam:['시험 범위','이번 시험 범위',8]};
   window.gzOpenHist=function(row){var H=HSN[row];visit(H[2]);cvShow(bar('← 오늘로','close')+'<div class="cvwait">불러오는 중…</div>');
-    rpc('gz2_my_history',tok({p_row:row})).then(function(j){if(!j||!j.ok){cvShow(bar('← 오늘로','close')+'<div class="cvempty">불러오지 못했어요.</div>');return;}cvShow(bar('← 오늘로','close')+histHtml(row,j)+'<div class="cvfoot"><button type="button" class="cvbtn p" data-cvgo="'+H[2]+'">'+H[1]+' 화면으로</button></div>');});};
+    /* [2026-11-03 채팅 67 · 노트 21513·21521] 오답 노트 칸: 달마다 오답 시험지 받기(gz2_my_wrong_papers → gz2_wrong_paper_url, 10분 링크) */
+    Promise.all([rpc('gz2_my_history',tok({p_row:row})),row==='wrong'?rpc('gz2_my_wrong_papers',tok()):Promise.resolve(null)]).then(function(z){var j=z[0];if(j&&z[1]&&z[1].ok)j.wp=z[1].rows||[];if(!j||!j.ok){cvShow(bar('← 오늘로','close')+'<div class="cvempty">불러오지 못했어요.</div>');return;}cvShow(bar('← 오늘로','close')+histHtml(row,j)+'<div class="cvfoot"><button type="button" class="cvbtn p" data-cvgo="'+H[2]+'">'+H[1]+' 화면으로</button></div>');});};
   function ym(s){s=String(s||'');return s?(+s.slice(5,7))+'월':'';}
   function md2(s){s=String(s||'');return s?(+s.slice(5,7))+'/'+(+s.slice(8,10)):'';}
   function histHtml(row,j){var mf=String(j.month_from||''),h='';
@@ -3294,7 +3299,8 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
       h='<div class="cvhd"><div class="cvk">목표와 성장</div><h2>이번 달 목표 · 계획표</h2></div><div class="hbox">'+(op.length?op.map(gl).join(''):'<div class="cvempty">이번 목표가 아직 없어요 — 선생님과 목표부터 정해요</div>')+(now.length?now.map(pl).join(''):'<div class="cvempty">이번 달 계획표 기록이 아직 없어요</div>')+'</div>'
         +'<div class="cvsec">지난 목표 · 계획표</div><div class="hbox">'+(cl.length||past.length?cl.map(gl).join('')+past.map(pl).join(''):'<div class="cvempty">지난 기록이 아직 없어요</div>')+'</div>';}
     else if(row==='wrong'){var M=j.months||[],cm=mf.slice(0,7),c=M.filter(function(m){return m.month===cm;})[0],ps=M.filter(function(m){return m.month!==cm;});
-      var ml=function(m){return '<div class="hrow"><b>'+ym(m.month+'-01')+' 오답 '+m.n+'개</b><span>잡은 것 '+m.caught+'개</span><small>'+(m.top?'많이 걸린 유형: '+esc(m.top):'')+'</small></div>';};
+      var WP=j.wp||[],pl=function(p){return '<div class="hrow hwp"><div class="hwpt"><b>'+esc(p.book||'시험지')+'</b>'+(p.is_new?'<em class="hnew">새로 나옴</em>':'')+'<small>'+esc(p.category||'')+' · '+p.n+'문항'+(p.pages?' · '+p.pages+'쪽':'')+'</small></div><button type="button" class="cvbtn hget" data-wpget="'+p.id+'">받기</button></div>';};
+      var ml=function(m){var mp=WP.filter(function(p){return p.ym===m.month;});return '<div class="hrow"><b>'+ym(m.month+'-01')+' 오답 '+m.n+'개</b><span>잡은 것 '+m.caught+'개</span><small>'+(m.top?'많이 걸린 유형: '+esc(m.top):'')+'</small></div>'+mp.map(pl).join('');};
       h='<div class="cvhd"><div class="cvk">오답 노트</div><h2>이번 달 오답</h2></div><div class="hbox">'+(c?ml(c):'<div class="cvempty">이번 달 오답이 아직 없어요</div>')+'</div><div class="cvsec">지난 오답</div><div class="hbox">'+(ps.length?ps.map(ml).join(''):'<div class="cvempty">지난 기록이 아직 없어요</div>')+'</div>';}
     else {var E=j.exams||[],fu=E.filter(function(e){return !e.past;}).reverse(),pa=E.filter(function(e){return e.past;});
       var el=function(e,open){return '<details class="hrow hdet"'+(open?' open':'')+'><summary><b>'+esc(e.year)+' '+esc(e.name)+'</b><span>'+md2(e.date)+'</span><small>'+(e.past?(e.score!=null?'내 점수 '+esc(e.score)+'점':'점수 아직 · 복기 아직'):'D-'+Math.round((new Date(e.date)-new Date(j.today))/864e5))+'</small></summary><div class="hscope">'+(e.scope?esc(e.scope).replace(/\n/g,'<br>'):'범위가 아직 나오지 않았어요')+'</div></details>';};
@@ -3309,6 +3315,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     if((b=t.closest('[data-cvvi]'))){CV.vi=+b.dataset.cvvi;cvStep();return;}
     if((b=t.closest('[data-cvsec]'))){var v=$('v13cvv');if(v){try{v.currentTime=+b.dataset.cvsec;v.play();}catch(_){}}return;}
     if((b=t.closest('[data-cvgo]'))){cvClose();V.user=true;go(+b.dataset.cvgo);return;}
+    if((b=t.closest('[data-wpget]'))){var w=window.open('','_blank');b.disabled=true;b.textContent='여는 중…';rpc('gz2_wrong_paper_url',tok({p_rid:+b.dataset.wpget})).then(function(r){b.disabled=false;b.textContent='받기';if(r&&r.ok&&r.url){if(w)w.location=r.url;else location.href=r.url;var e=b.parentNode.querySelector('.hnew');if(e)e.remove();}else{if(w)w.close();b.textContent='다시 받기';}});return;}
     if(!(b=t.closest('[data-cv]')))return;var a=b.dataset.cv;
     if(a==='close')cvClose();else if(a==='list')cvList();else if(a==='lec')cvLec();else if(a==='step')cvStep();else if(a==='big')cvBig();else if(a==='next')cvNext();
     else if(a==='find'){if(window.gzOpenSg)gzOpenSg();}else if(a==='req'){cvClose();V.user=true;go(17);}else if(a==='shelf'){cvClose();V.user=true;go(16);}}
