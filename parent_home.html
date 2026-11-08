@@ -55,4 +55,25 @@ app.innerHTML=html;
   try{var x=await (await fetch(U+'gz2_parent_cheer',{method:'POST',headers:H,body:JSON.stringify({p_sid:sid,p_k:k,p_text:t})})).json();r.textContent=x&&x.ok?'보냄 ✓ 아이 화면에 떠요':'보내지 못했어요';}catch(e){r.textContent='보내지 못했어요';}this.disabled=false;};
 }catch(e){}})();
 var ib=document.getElementById('inqB');if(ib)ib.onclick=async function(){var t=document.getElementById('inqT').value.trim();var r=document.getElementById('inqR');if(t.length<2){r.textContent='내용을 적어 주세요';return;}ib.disabled=true;try{var x=await fetch(U+'gz2_parent_inquiry',{method:'POST',headers:H,body:JSON.stringify({p_sid:sid,p_k:k,p_text:t})});var j=await x.json();if(j&&j.ok){r.textContent='보냈습니다 ✓ 담당 선생님이 확인 후 답변드립니다';document.getElementById('inqT').value='';}else{r.textContent='전송 실패: '+((j&&j.reason)||'');ib.disabled=false;}}catch(e){r.textContent='오류';ib.disabled=false;}};})();
+</script><script>
+/* [2026-11-08 채팅 123 · 국존 18:46] 수업 시간 변동은 학부모만 승인 — 학부모 전용 열쇠(pk)가 있는 링크에서만 승인·거절 단추가 나온다 */
+(function(){var Q=new URLSearchParams(location.search),sid=+Q.get('sid'),pk=Q.get('pk');if(!sid||!pk)return;
+ function E(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+ async function call(fn,body){return (await fetch(U+fn,{method:'POST',headers:H,body:JSON.stringify(body)})).json();}
+ async function draw(){var r;try{r=await call('gz2_sar_parent_list',{p_sid:sid,p_pk:pk});}catch(e){return;}
+  var box=document.getElementById('req');if(!box){box=document.createElement('div');box.id='req';box.className='card';var app=document.getElementById('app');app.parentNode.insertBefore(box,app);}
+  if(!r||!r.ok){box.innerHTML='<h2>수업 일정 변경 요청</h2><div class="row" style="color:#8a8577">'+E((r&&r.reason)||'불러오지 못했습니다')+'</div>';return;}
+  var rows=r.rows||[],w=rows.filter(function(x){return x.status==='대기';});
+  box.innerHTML='<h2>수업 일정 변경 요청'+(w.length?' <span class="tag" style="background:#fff3cd;color:#8a5a00">승인 대기 '+w.length+'</span>':'')+'</h2>'
+   +'<div class="row" style="color:#555;font-size:13px;line-height:1.5">수업 시간은 학부모님만 바꾸실 수 있습니다. 승인하지 않으시면 원래 시간에 수업합니다.</div>'
+   +(rows.length?rows.map(function(x){var on=x.status==='대기';return '<div style="border:'+(on?'2px solid #B8892E':'1px solid #e3dfd3')+';border-radius:10px;padding:12px;margin-top:10px">'
+     +'<div style="font-weight:700">'+E(x.kind)+' <span style="font-size:12px;font-weight:400;color:#8a8577">'+E(x.status)+' · 요청 '+E(x.requested)+'</span></div>'
+     +'<div style="margin:6px 0;line-height:1.5">'+E(x.summary)+'</div>'
+     +(on?'<div style="font-size:12px;color:#8a8577">답이 없으면 '+E(x.deadline)+'에 원래 시간'+(x.orig?'('+E(x.orig)+')':'')+'으로 확정됩니다.</div><div style="display:flex;gap:8px;margin-top:10px"><button type="button" data-rq="'+x.id+'" data-ok="1" style="flex:1;min-height:48px;border:0;border-radius:8px;background:#1E4D3B;color:#fff;font-size:16px;font-weight:800">승인</button><button type="button" data-rq="'+x.id+'" data-ok="0" style="flex:1;min-height:48px;border:1px solid #b42318;border-radius:8px;background:#fff;color:#b42318;font-size:16px;font-weight:800">거절 — 원래 시간</button></div>':'')+'<div class="rqr" style="font-size:13px;margin-top:6px;color:#1E4D3B"></div></div>';}).join(''):'<div class="row" style="color:#8a8577">지금 들어온 요청이 없습니다.</div>');
+  if(location.hash==='#req')box.scrollIntoView({block:'start'});}
+ document.addEventListener('click',async function(e){var b=e.target.closest&&e.target.closest('[data-rq]');if(!b)return;var ok=b.dataset.ok==='1';
+  if(!confirm(ok?'이 일정 변경을 승인하시겠어요? 승인하면 바로 시간표가 바뀝니다.':'거절하시겠어요? 원래 시간에 수업합니다.'))return;
+  b.disabled=true;var res=b.parentNode.parentNode.querySelector('.rqr');var r;try{r=await call('gz2_sar_parent_decide',{p_sid:sid,p_pk:pk,p_id:+b.dataset.rq,p_ok:ok});}catch(x){r={ok:false,reason:x.message};}
+  if(res)res.textContent=r&&r.ok?(r.status==='승인'?'승인되었습니다. 바뀐 시간으로 수업합니다.':'거절되었습니다. 원래 시간에 수업합니다.'):((r&&r.reason)||'처리하지 못했습니다');setTimeout(draw,1200);});
+ draw();})();
 </script></body></html>
