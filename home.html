@@ -258,7 +258,7 @@ async function boot(){
   D.schools=[...names].sort((a,b)=>{const k=s=>s.endsWith('초')?0:s.endsWith('중')?1:2;return k(a)-k(b)||a.localeCompare(b,'ko')});
   cs.forEach(x=>D.cs[x.school+'|'+x.grade]=x.status);
   D.T['국존']=timeline(tm.filter(t=>t.branch==='국존'));D.T['시원']=timeline(tm.filter(t=>t.branch==='시원'));
-  const today=new Date().toISOString().slice(0,10);
+  const today=new Date(Date.now()+9*3600e3).toISOString().slice(0,10);/* [2026-11-21 학원 첫화면 7번] 오늘 날짜를 한국 시각으로 */
   ex.forEach(e=>{const k=e.school+'|'+e.grade;const ek=k+'|'+e.exam_name+'|'+(e.exam_date||'');
    if(!D.exams[k])D.exams[k]={};if(!D.exams[k][ek])D.exams[k][ek]={name:e.exam_name,date:e.exam_date,items:0,works:[]};
    const o=D.exams[k][ek];o.items++;if(e.work_title&&!o.works.includes(e.work_title)&&o.works.length<3)o.works.push(e.work_title);
@@ -310,7 +310,7 @@ sch.addEventListener('change',()=>{
  const br=branchOf(g),gz=(br==='국존');const bname=((A.brands||[]).find(b=>b.branch===br)||{}).name||br;const q="'"+s+"','"+g+"'";let h='';
  if(gz){
    h+='<p><b>'+s+' '+gl+'</b>은 '+esc(bname)+'에서 이렇게 공부합니다.</p>';
-   if(e){h+='<p>KLEA가 '+s+' 이번 시험 범위를 분석해 두었습니다. <b>'+e.name+'</b> '+fmtd(e.date)+'</p>'}
+   if(e){h+='<p>국존이 '+s+' 이번 시험 범위를 분석해 두었습니다. <b>'+e.name+'</b> '+fmtd(e.date)+'</p>'}
    h+='<p>아이마다 다른 자리를 짚어 주고, 매주 확인합니다.</p><p class="meta"><b>수업 시간</b> '+(D.T[br]||'')+'</p>';
    if(st!=='C'){h+='<p class="meta">같은 학교 친구가 다니고 있습니다.</p>'}
    const cur=(g==='고3')?'수능':'내신';
