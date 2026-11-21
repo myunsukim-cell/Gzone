@@ -1553,7 +1553,7 @@ function v8wk(){try{const top=document.getElementById('gz74Bar')||document.getEl
  const p=window.CARD_PROG||{},ex=p.exam,lp=p.last_prog;const first=s=>String(s||'').split(/\n|,/)[0].trim();
  const old=lp&&lp.date&&(Date.now()-new Date(String(lp.date).slice(0,10)+'T00:00:00').getTime())>14*864e5;
  const title=old&&!ex?'최근 2주 진도 기록이 없어요':ex?E(ex.name||'다음 시험')+(ex.dd!=null&&ex.dd!==''?' <span style="font-size:16px;color:#5c6660">· D-'+E(ex.dd)+'</span>':''):(lp&&(lp.textbook||lp.school))?E(first(lp.textbook||lp.school)):'이번 주 공부 기록이 아직 없어요';
- const sub=old&&!ex?'마지막 진도 '+E(String(lp.date).slice(5).replace('-','/'))+' · '+E(first(lp.textbook||lp.school)):lp&&lp.date?'지난 진도 '+E(String(lp.date).slice(5).replace('-','/'))+(lp.textbook&&lp.school?' · 학교 '+E(first(lp.school)):''):'';
+ const sub=old&&!ex?'마지막 진도 '+E(String(lp.date).slice(5).replace('-','/'))+' · '+E(first(lp.textbook||lp.school)):old?'<span style="color:#b42318;font-weight:700">마지막 진도 '+E(String(lp.date).slice(5).replace('-','/'))+' · 2주 넘게 진도 기록이 없어요</span>'+(lp.textbook&&lp.school?' · 학교 '+E(first(lp.school)):''):/* [2026-11-21 MAP 채팅 199 · 계획 426] 시험이 다가오면 2주 규칙이 안 걸려 몇 달 전 날짜가 「지난 진도」로 나오던 것 */lp&&lp.date?'지난 진도 '+E(String(lp.date).slice(5).replace('-','/'))+(lp.textbook&&lp.school?' · 학교 '+E(first(lp.school)):''):'';
  const okP=!!(typeof P1!=='undefined'&&P1),okL=!!((document.getElementById('lesson')||{value:''}).value.trim()),okH=!!((document.getElementById('hw')||{value:''}).value.trim());
  let N=!okP?['지난 과제를 확인해 주세요','과제 확인하기','p1']:!okL?['수업한 내용을 적어 주세요','수업 칸 열기','lesson']:!okH?['다음 과제를 정해 주세요','다음 과제 칸 열기','hw']:['관찰을 적고 카드를 저장해요','관찰 칸 열기','v7obs'];let FK='';
  const sbx=[...document.querySelectorAll('#gzSteps [data-fk]')];if(sbx.length){const c=sbx.find(x=>!x.classList.contains('done'))||sbx[sbx.length-1];const nm=c.textContent.replace(/^[✓\s\d]+/,'').trim();FK=c.dataset.fk;N=[c.classList.contains('done')?'오늘 카드를 다 채웠어요. 저장해 주세요':nm+' 차례예요',nm.split(' — ')[0]+' 열기',''];}
@@ -4811,7 +4811,9 @@ body.gz74 #slide #gzflow #gzOut>details[open]>summary{font-weight:700!important;
       +[''].concat(grs).map(function(g){return '<button type="button" data-fg="'+g+'" class="'+(F.gr===g?'on':'')+'">'+(g||'전체')+'</button>';}).join('')
       +'<span class="lb">선생님</span>'+(tf?'<button type="button" class="on" disabled>'+E(tf)+' (위 칩)</button>':['' ].concat(Object.keys(ts).sort()).map(function(t){return '<button type="button" data-ft="'+E(t)+'" class="'+(F.t===t?'on':'')+'">'+(t?E(t)+'T':'전체')+'</button>';}).join(''))+'</div>'
       +'<div class="lg"><i style="background:#b7791f"></i>준비 안 됨 <i style="background:#b42318"></i>입력 안 됨 <i style="background:#2b6cb0"></i>마감 안 함 · 학생 이름을 누르면 코칭 카드, 줄을 누르면 그 입력 칸으로</div>'+(L.length?'<div class="grid">'+L.map(function(o,i){return card(o,i,ST.k,I);}).join('')+'</div>':'<div class="empty">'+(TODO?'이 조건에 남은 일이 없어요.':'불러오는 중…')+'</div>');
-    sec.onclick=function(ev){var t=ev.target;var kb=t.closest('[data-k]');if(kb){ST.k=kb.dataset.k;ST.kSet=true;draw();return;}
+    /* [2026-11-21 MAP 채팅 199 · 계획 424] 처음에는 접어 둔다 — 숫자를 누르면 펼치고, 같은 숫자를 다시 누르면 접는다 */
+    if(!ST.open){[].slice.call(sec.children).forEach(function(c,i){if(i>0)c.style.display='none';});[].slice.call(sec.querySelectorAll('.h button.on')).forEach(function(x){x.classList.remove('on');});var _hn=document.createElement('div');_hn.className='lg';_hn.textContent='숫자를 누르면 그 학생들이 펼쳐져요. 같은 숫자를 다시 누르면 접혀요.';sec.appendChild(_hn);}
+    sec.onclick=function(ev){var t=ev.target;var kb=t.closest('[data-k]');if(kb){if(ST.open&&ST.k===kb.dataset.k){ST.open=false;}else{ST.open=true;ST.k=kb.dataset.k;ST.kSet=true;}draw();return;}
       var fb=t.closest('[data-f]');if(fb){F.today=!F.today;draw();return;}
       var gb=t.closest('[data-fg]');if(gb){F.gr=gb.dataset.fg;draw();return;}
       var tb=t.closest('[data-ft]');if(tb){F.t=tb.dataset.ft;draw();return;}
