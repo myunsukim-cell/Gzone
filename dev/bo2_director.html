@@ -1,0 +1,214 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>1 경영 — 2.0 실판 v0.7 (원1~원7)</title>
+<!-- v0.7.2 2026-10-22 원5 월례평가 회차 안내(규칙 65·66·67, gz_bo2_scores.monthly) / v0.7.1 2026-10-08 원7 진입 유형·기대치 보정 / v0.7 원7 커리큘럼 여정(gz_bo2_curriculum, seq 365) · 2.0 경영판 파일럿 v0.1 · 2026-09-05 · 계획표 8 · 근거 e6 배치도(recon_L4_e6_layout)·brief_L45_management·#5705 · 회선 gz_bo2_home / gz_bo2_waitlist_add · 산식 금지(모든 수치 = DB 실측 + 근거 N=) -->
+<style>
+:root{--ink:#1f2a24;--mid:#555;--dim:#8a8577;--line:#d8d4c8;--bg:#f7f6f2;--card:#fff;--green:#1E4D3B;--gold:#e8b93c;--red:#A4472F;--soft:#eef5f1}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--bg);color:var(--ink);font-size:13px}
+.bar{display:flex;gap:10px;align-items:center;padding:8px 14px;background:#fff;border-bottom:2px solid var(--ink);flex-wrap:wrap}
+.bar h1{font-size:15px;font-weight:900}.bar .m{color:var(--dim);font-size:11.5px}
+.sw{border:1.5px solid var(--green);border-radius:16px;overflow:hidden;display:flex}.sw button{border:0;background:#fff;color:var(--green);padding:5px 12px;font-weight:800;cursor:pointer;font-family:inherit}.sw button.on{background:var(--green);color:#fff}
+.bar a{margin-left:auto;color:var(--green);font-weight:700;text-decoration:none;border:1px solid var(--green);border-radius:6px;padding:4px 10px;font-size:12px}
+.wrap{padding:12px 14px;display:grid;grid-template-columns:1fr;gap:12px;max-width:1500px}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.sec>.h{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}.sec>.h b{font-size:14px}.sec>.h .m{color:var(--dim);font-size:11.5px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.card{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff}.card .t{font-size:12px;color:var(--mid);font-weight:700}.card .v{font-size:26px;font-weight:900;margin:2px 0}.card .s{font-size:12px;color:var(--mid)}.card .e{font-size:11px;color:var(--dim);margin-top:4px;border-top:1px dashed var(--line);padding-top:4px}
+.card.warn .v{color:var(--red)}
+.tiles{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:10px}
+.tile{border:1px solid var(--line);border-radius:10px;padding:9px 10px;cursor:pointer;background:#fff}.tile b{display:block;font-size:13px}.tile span{font-size:11.5px;color:var(--dim)}.tile.on{border-color:var(--green);background:var(--soft)}.tile.soon{opacity:.6;cursor:default}
+table{width:100%;border-collapse:collapse;font-size:12.5px}th{font-size:11.5px;color:var(--mid);text-align:left;padding:5px 6px;border-bottom:1px solid var(--line);background:#fafaf7}td{padding:5px 6px;border-bottom:1px solid #eee}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.two{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+.ev{font-size:11px;color:var(--dim);margin-top:6px}
+.tag{display:inline-block;border:1px solid var(--line);border-radius:3px;padding:0 6px;font-size:11px;color:var(--mid)}
+.tag.red{color:var(--red);border-color:var(--red)}.tag.green{color:var(--green);border-color:var(--green)}
+.heat{display:grid;grid-template-columns:70px repeat(7,1fr);gap:3px;font-size:11.5px}.heat div{padding:5px 4px;text-align:center;border-radius:4px;background:#f4f4f0}.heat .h{background:none;color:var(--dim)}.heat .r{background:none;text-align:left;color:var(--mid)}
+.form{display:grid;grid-template-columns:repeat(7,auto) 1fr;gap:6px;align-items:center;margin-top:8px}.form input,.form select{padding:5px 6px;border:1px solid var(--line);border-radius:4px;font-family:inherit;font-size:12.5px}.form button{padding:6px 12px;background:var(--green);color:#fff;border:0;border-radius:6px;font-weight:700;cursor:pointer;font-family:inherit}
+.cjflow{margin:10px 0;padding:8px 10px;background:var(--soft);border-radius:8px;font-size:12.5px;line-height:1.7}
+.cjlad{display:grid;grid-template-columns:repeat(6,minmax(190px,1fr));gap:8px;overflow-x:auto}
+.cjg{border:1px solid var(--line);border-radius:8px;padding:8px}.cjg h4{font-size:14px;color:var(--green);border-bottom:2px solid var(--green);padding-bottom:3px;margin-bottom:4px}
+.cjg .hf{font-size:11px;color:var(--dim);margin-top:6px;font-weight:700}.cjr{display:grid;grid-template-columns:1fr 44px 32px;gap:4px;align-items:center;font-size:12px;margin-top:3px}
+.cjb{height:7px;background:#eceae3;border-radius:2px;overflow:hidden}.cjb i{display:block;height:100%;background:var(--green)}.cjb.r i{background:var(--red)}
+.cjr .p{text-align:right;font-variant-numeric:tabular-nums;color:var(--mid)}.cjh{font-size:13px}
+.cjc{display:grid;grid-template-columns:70px 1fr 50px 70px;gap:8px;align-items:center;font-size:12.5px;margin-top:5px}.cjc .p{text-align:right;font-variant-numeric:tabular-nums}
+details summary{cursor:pointer;color:var(--mid);font-size:12px}
+@media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}.tiles{grid-template-columns:repeat(3,1fr)}.two{grid-template-columns:1fr}.form{grid-template-columns:1fr 1fr}}
+</style></head><body>
+<div class="bar"><h1>1 경영 <span style="color:var(--dim);font-weight:400">2.0 실판 v0.7</span></h1>
+<div class="sw"><button class="on" data-b="">전체</button><button data-b="국존">국존</button><button data-b="시원초중관">시원초중관</button></div>
+<span class="m" id="asof">적재 중…</span>
+<a href="#" id="legacy">1.0 경영판 펼치기</a></div>
+<div class="wrap">
+ <div class="sec"><div class="h"><b>원1 홈 — 오늘</b><span class="m">재원 · 출결 · 수납 · 운영 신호 — 산식 없음, 아래 근거 행이 원천</span></div>
+  <div class="cards" id="cards"></div>
+  <div class="tiles" id="tiles"></div></div>
+ <div class="sec" id="p2"><div class="h"><b>원2 수납·재원</b><span class="m">월별 수납(완납·예정) · 재원 추이(입·퇴) · 대기·거절 입력구 + 히트맵</span></div>
+  <div class="two">
+   <div><table id="payT"></table><div class="ev" id="payE"></div>
+    <details style="margin-top:8px"><summary id="dueS">이번 달 예정(미완납) 명단</summary><table id="dueT" style="margin-top:6px"></table></details></div>
+   <div><table id="trT"></table><div class="ev">원천 students.enrolled_at(입) · withdrawn_on(퇴), 월 단위 12개월 · 재원 = enrollment_status active</div></div>
+  </div>
+  <div style="margin-top:12px;border-top:1px dashed var(--line);padding-top:10px"><b style="font-size:13px">대기·거절 — 등록 못 받은 수요</b> <span class="m" style="color:var(--dim);font-size:11.5px">e3: 임계 초과 셀 = 강사를 뽑아야 할 자리 · 원4 모집 신호등과 같은 그릇(waitlist_logs)</span>
+   <div class="form"><select id="wB"><option value="">지점</option><option>국존</option><option>시원초중관</option></select><select id="wD"><option value="">요일</option><option value="1">일</option><option value="2">월</option><option value="3">화</option><option value="4">수</option><option value="5">목</option><option value="6">금</option><option value="7">토</option></select><input id="wS" placeholder="시간대 예: 18:00" style="width:110px"><input id="wG" placeholder="학년" style="width:70px"><select id="wR"><option value="">사유</option><option>대기</option><option>거절</option></select><input id="wNote" placeholder="세부(정원·시간·교사 등)" style="width:130px"><input id="wN" placeholder="학생·문의자" style="width:110px"><button id="wBtn">기록</button><span class="m" id="wMsg" style="font-size:11.5px;color:var(--dim)"></span></div>
+   <div class="two" style="margin-top:10px"><div class="heat" id="heat"></div><div><table id="wlT"></table></div></div></div>
+ </div>
+
+ <div class="sec" id="p5"><div class="h"><b>원5 성적·적중률</b><span class="m">자동 4분류(서버 VIEW, 3회 이동평균) · 분원 추이 · 적중률 병치 · 점수 입력구(S5-05)</span></div>
+  <div class="cards" id="clsCards" style="grid-template-columns:repeat(5,1fr)"></div>
+  <div class="ev" id="clsE"></div>
+  <div class="two" style="margin-top:10px">
+   <div><table id="clsT"></table></div>
+   <div><table id="trendT"></table><div class="ev">원천 exam_results 월별(재원생) · 등급 평균은 등급 기재분만</div>
+    <details style="margin-top:8px" open><summary>적중률 — gz_hit_pipe(시험별 우리 교안 범위 작품 대비 실제 출제 적중)</summary><table id="hitT" style="margin-top:6px"></table></details></div>
+  </div>
+  <div style="margin-top:12px;border-top:1px dashed var(--line);padding-top:10px"><b style="font-size:13px">월례평가 회차 — 1·2·3·8월</b> <span class="m" style="color:var(--dim);font-size:11.5px">직전 회차보다 오른 학생 비율 · 목표 60%</span><div id="mrBox" style="margin-top:6px"></div></div>
+  <div style="margin-top:12px;border-top:1px dashed var(--line);padding-top:10px"><b style="font-size:13px">점수 입력 — 내신·모의</b> <span class="m" style="color:var(--dim);font-size:11.5px">3회 이상 쌓이면 자동 분류 시작 · 저장 후 되읽기 확인</span>
+   <div class="form" style="grid-template-columns:200px 180px 140px 90px 70px 80px auto 1fr"><select id="sS"><option value="">학생</option></select><select id="sT"><option value="">시험</option></select><input id="sD" type="date"><input id="sR" type="number" placeholder="원점수" min="0" max="100"><input id="sG" placeholder="등급"><input id="sP" type="number" placeholder="백분위"><button id="sBtn">저장</button><span class="m" id="sMsg" style="font-size:11.5px;color:var(--dim)"></span></div></div>
+ </div>
+ <div class="sec" id="p3"><div class="h"><b>원3 예산·결산</b><span class="m">연 예산표(항목×12월·집행·집행률·잔액) · 집행 원장 · 월 결산 6칸 확정(마감 후 수정 금지, 정정은 별도 행) · 원칙: 분원 단위·근거 행·집행 이력 · 스코프 = 위 스위처 분원(전체 선택 시 국존)</span></div>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span class="m" id="bY"></span><span class="m" style="color:var(--dim);font-size:11.5px" id="bE"></span></div>
+  <table id="bT"></table>
+  <div class="form" style="grid-template-columns:150px 120px 1fr repeat(12,60px) auto;margin-top:8px"><input id="bItem" placeholder="항목" list="bItems"><datalist id="bItems"></datalist><input id="bAnn" type="number" placeholder="연 예산"><input id="bBasis" placeholder="근거(어느 실측·표본 N=) 필수"><span id="bLines" style="display:contents"></span><button id="bSave">예산 저장</button></div><div class="m" id="bMsg" style="font-size:11.5px;color:var(--dim)"></div>
+  <div class="two" style="margin-top:12px;border-top:1px dashed var(--line);padding-top:10px">
+   <div><b style="font-size:13px">집행 원장</b> <span class="m" style="color:var(--dim);font-size:11.5px">월별 집행 행 = 원장 · 근거 링크 칼럼 필수</span>
+    <div class="form" style="grid-template-columns:120px 140px 110px 1fr auto;margin-top:6px"><input id="eDate" type="date"><input id="eItem" placeholder="항목" list="bItems"><input id="eAmt" type="number" placeholder="금액"><input id="eBasis" placeholder="근거(영수증·계약·급여대장 #)"><button id="eSave">집행 기록</button></div><div class="m" id="eMsg" style="font-size:11.5px;color:var(--dim)"></div>
+    <table id="eT" style="margin-top:6px"></table></div>
+   <div><b style="font-size:13px">월 결산 6칸</b> <span class="m" style="color:var(--dim);font-size:11.5px">수입(수납) − 지출(집행) = 손익 · 재원수 · 학생당 원가 · 전월비 — 매월 1행 확정</span>
+    <div class="form" style="grid-template-columns:90px 100px 100px 100px 70px 90px 1fr auto;margin-top:6px"><input id="cYm" placeholder="YYYY-MM"><input id="cInc" type="number" placeholder="수입"><input id="cExp" type="number" placeholder="지출"><input id="cPro" type="number" placeholder="손익"><input id="cHc" type="number" placeholder="재원"><input id="cCps" type="number" placeholder="학생당"><input id="cNote" placeholder="전월비·메모"><button id="cSave">확정 저장</button></div><div class="m" id="cMsg" style="font-size:11.5px;color:var(--dim)"></div>
+    <table id="cT" style="margin-top:6px"></table></div>
+  </div>
+ </div>
+ <div class="sec" id="p4"><div class="h"><b>원4 자원 배분·강사</b><span class="m">모집 신호등(대기·거절 8주, 임계 5) · 강사 부하·분배 큐 · 사다리 L1~L3(15h/5인 경계) · 성적 환류는 보수와 절연</span></div>
+  <div class="two">
+   <div><b style="font-size:13px">구획① 모집 신호등</b> <span class="m" style="color:var(--dim);font-size:11.5px">원2 대기·거절 입력구와 같은 그릇</span><div id="sigBox" style="margin-top:6px"></div></div>
+   <div><b style="font-size:13px">구획② 강사 부하 · 분배 큐</b><table id="tT" style="margin-top:6px"></table>
+    <div style="margin-top:8px"><span class="m" style="color:var(--dim);font-size:11.5px">분배 큐 = 최근 14일 입회·교재만 학생 → [배정] = students.teacher_name 갱신 + assign_logs</span><table id="qT" style="margin-top:4px"></table></div></div>
+  </div>
+  <div style="margin-top:12px;border-top:1px dashed var(--line);padding-top:10px"><b style="font-size:13px">구획③ 강사 사다리</b>
+   <div class="cards" id="ladCards" style="grid-template-columns:repeat(3,1fr);margin-top:6px"></div>
+   <div class="form" style="grid-template-columns:160px 90px 130px 90px 1fr auto;margin-top:8px"><select id="lT"><option value="">교사</option></select><select id="lL"><option value="">단계</option><option>L1</option><option>L2</option><option>L3</option></select><input id="lD" type="date"><input id="lH" type="number" step="0.5" placeholder="주 h"><input id="lN" placeholder="전환 조건 메모(채점 정확도·기록 충실도·코칭 관찰)"><button id="lSave">단계 기록</button></div><div class="m" id="lMsg" style="font-size:11.5px;color:var(--dim)"></div>
+   <div class="ev" id="rE"></div></div>
+ </div>
+ <div class="sec" id="p7"><div class="h"><b>원7 커리큘럼 여정</b><span class="m">학생별 신청 순서 → 학년별 과정 · 다음 학년 이어짐 · 진입·이탈 · 단행본별 병목 — 원천 1.0 수강 기록(cj_enroll), 모든 수치 N= 병기</span></div>
+  <div class="cards" id="cjCards"></div>
+  <div class="cjflow">중1 2학기 내신 · 겨울방학 문법 특강 → 중2 내신 → 중2 2학기 「미리보는 고등문학」 → 중3 내신 + 고등 문법 기본편 · 독서 독해법 기초편 → 고1 내신 + 문법 심화 · 고전시 심화 · 소설독해법 → 고2 문학 내신 + EBS → 고3 EBS · 모의고사</div>
+  <div class="cjlad" id="cjLad"></div>
+  <div class="two" style="margin-top:12px"><div><b class="cjh">다음 학년으로 이어진 비율</b><div id="cjCont"></div><div class="ev">지금 그 학년인 학생은 분모에서 뺌. 내신만 = 수능 과정을 한 번도 듣지 않은 학생(내신 특강 진입).</div></div>
+   <div><b class="cjh">들어온 학년 · 마지막 학년</b><table><thead><tr><th>학년</th><th class="n">진입</th><th class="n">마지막(종료)</th></tr></thead><tbody id="cjEx"></tbody></table><div class="ev" id="cjYrs"></div></div></div>
+  <div style="margin-top:12px"><b class="cjh">병목 — 수능 단행본별 다음 학년 이어짐</b> <span class="m" style="color:var(--dim);font-size:11.5px">기대치 = 같은 학년 수능 과정 학생의 이어짐(내신만 학생 제외) · 낮으면 빨강 · 수강생 30명 이상</span>
+   <div style="overflow-x:auto"><table><thead><tr><th>단행본·시리즈</th><th>분류</th><th>주 학년</th><th class="n">수강생</th><th class="n">다음 학년 이어짐</th><th class="n">기대치</th><th class="n">차이</th><th class="n">여기서 끝남</th></tr></thead><tbody id="cjBot"></tbody></table></div></div>
+  <details style="margin-top:10px"><summary>신청 순서에서 많이 나온 다음 단계 15</summary><table><thead><tr><th>앞 단계</th><th>다음 단계</th><th class="n">학생</th></tr></thead><tbody id="cjTr"></tbody></table></details>
+  <div class="ev" id="cjE"></div></div>
+</div>
+<script>
+const U='https://hbsbrhgmofxvzgrvkkpg.supabase.co/rest/v1/rpc/',K='sb_publishable_t34zB9x3B7wkm4SqVGpJng_VJfZ3BdH',ME=window.__GZ_ME||null,H={apikey:K,Authorization:'Bearer '+(window.__GZ_JWT||K),'Content-Type':'application/json'};
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const won=n=>(n==null?'—':Number(n).toLocaleString('ko-KR'));
+const DOW=['','일','월','화','수','목','금','토'];
+let BR='',D=null;
+async function rpc(f,b){const r=await fetch(U+f,{method:'POST',headers:H,body:JSON.stringify(b||{})});if(!r.ok)throw new Error(f+' '+r.status);return r.json();}
+document.getElementById('legacy').onclick=async(e)=>{e.preventDefault();let f=document.getElementById('legacyFr');if(f){f.remove();document.getElementById('legacy').textContent='1.0 경영판 펼치기';return;}const r=await fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/apps/bo_live.html',{headers:{apikey:K,Authorization:'Bearer '+K}});let html=await r.text();html=html.replace(/<head[^>]*>/i,m=>m+'<script>window.__GZ_ME='+JSON.stringify(window.__GZ_ME||null)+';window.__GZ_JWT='+JSON.stringify(window.__GZ_JWT||null)+';<\/script>');f=document.createElement('iframe');f.id='legacyFr';f.style.cssText='width:100%;height:900px;border:1px solid var(--line);border-radius:10px;background:#fff;margin:0 14px 14px;max-width:1500px;display:block';f.sandbox='allow-scripts allow-same-origin allow-forms allow-popups allow-modals';f.srcdoc=html;document.body.appendChild(f);document.getElementById('legacy').textContent='1.0 경영판 접기';f.scrollIntoView({behavior:'smooth'});};
+document.querySelectorAll('.sw button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.sw button').forEach(x=>x.classList.remove('on'));b.classList.add('on');BR=b.dataset.b;load();document.getElementById('sS').innerHTML='<option value="">학생</option>';loadScores();document.getElementById('cYm').value='';loadBudget();document.getElementById('lT').innerHTML='<option value="">교사</option>';loadRes();});
+async function load(){try{D=await rpc('gz_bo2_home',{p_branch:BR||null});render();}catch(e){document.getElementById('asof').textContent='적재 실패 '+e.message;}}
+function render(){const d=D;document.getElementById('asof').textContent='라이브 '+String(d.asof).slice(11,19)+' · '+d.branch+' · '+d.today;
+ const ce=d.card_enroll||{},ca=d.card_att||{},cp=d.card_pay||{},co=d.card_ops||{};
+ const pmLatest=(d.pay_months||[]).map(x=>x.ym).sort().pop();const pmRows=(d.pay_months||[]).filter(x=>x.ym===pmLatest);const pmN=pmRows.reduce((t,x)=>t+x.n,0),pmPaid=pmRows.reduce((t,x)=>t+x.paid,0),pmAmt=pmRows.reduce((t,x)=>t+x.amt,0);
+ const payCard=cp.n>0?{v:cp.paid+'/'+cp.n,s:'완납/건 · '+won(cp.amt_paid)+' / '+won(cp.amt)+'원 · '+d.ym,e:'student_payments pay_month='+d.ym}:{v:pmPaid+'/'+pmN,s:'완납/건 · '+won(pmAmt)+'원 · '+(pmLatest||'—')+' (이번 달 '+d.ym+' 행 0 — 최근 수납 월 표시)',e:'student_payments pay_month='+pmLatest};
+ const opsWarn=(co.scope_missing||0)+(co.inquiry_wait||0)+(co.actions_overdue||0);
+ document.getElementById('cards').innerHTML=[
+  {t:'재원',v:ce.active,s:Object.entries(ce.by_div||{}).map(([k,v])=>k+' '+v).join(' · ')+' · 이달 입 '+(ce.new_m||0)+' 퇴 '+(ce.out_m||0)+' · 휴원 '+(ce.paused||0),e:'students enrollment_status=active · withdrawn_on 없음'},
+  {t:'출결 (오늘)',v:(ca.present||0)+'/'+(ca.sched||0),s:'출석/수업 예정 · 지각 '+(ca.late||0)+' 결석 '+(ca.absent||0)+(ca.n?'':' · 오늘 출결 기록 아직 0'),e:'attendance date=오늘 · schedule 활성 요일'},
+  {t:'수납',v:payCard.v,s:payCard.s,e:payCard.e,warn:false},
+  {t:'운영 신호',v:opsWarn,s:'시험범위 미등록 '+(co.scope_missing||0)+' · 학부모 문의 대기 '+(co.inquiry_wait||0)+' · 기한 경과 과업 '+(co.actions_overdue||0)+' · 알림 대기 '+(co.notify_wait||0)+' · 부모HP 없음 '+(co.parent_phone_missing||0)+' · 리포트 계획 '+(co.report_plan||0),e:'school_exams×exam_scope_items · notifications · meeting_actions · students',warn:opsWarn>0}
+ ].map(c=>'<div class="card'+(c.warn?' warn':'')+'"><div class="t">'+c.t+'</div><div class="v">'+esc(c.v)+'</div><div class="s">'+esc(c.s)+'</div><div class="e">근거 '+esc(c.e)+'</div></div>').join('');
+ document.getElementById('tiles').innerHTML=[['원1','홈','오늘 4카드',true],['원2','수납·재원','실판 v0.1',true],['원3','예산·결산','틀 v0.1 · 예산표·집행·월 결산',true],['원4','자원 배분·강사','틀 v0.1 · 신호등·부하·사다리',true],['원5','성적·적중률','실판 v0.1 · 입력구',true],['원6','일정·운영','5 오거나이저 열기',true],['원7','커리큘럼 여정','실판 v0.1 · 1.0 수강 순서',true]].map(t=>'<div class="tile'+(t[3]?' on':' soon')+'"'+(t[0]==='원2'?' onclick="document.getElementById(\'p2\').scrollIntoView({behavior:\'smooth\'})"':t[0]==='원5'?' onclick="document.getElementById(\'p5\').scrollIntoView({behavior:\'smooth\'})"':t[0]==='원3'?' onclick="document.getElementById(\'p3\').scrollIntoView({behavior:\'smooth\'})"':t[0]==='원4'?' onclick="document.getElementById(\'p4\').scrollIntoView({behavior:\'smooth\'})"':t[0]==='원7'?' onclick="document.getElementById(\'p7\').scrollIntoView({behavior:\'smooth\'})"':t[0]==='원6'?' onclick="parent.postMessage({gmap2:\'open\',f:\'orp2_director.html\'},\'*\')"':'')+'><b>'+t[0]+' '+t[1]+'</b><span>'+t[2]+'</span></div>').join('');
+ // 원2 월별 수납
+ const months=[...new Set((d.pay_months||[]).map(x=>x.ym))].sort().reverse();const divs=[...new Set((d.pay_months||[]).map(x=>x.div))].sort();
+ document.getElementById('payT').innerHTML='<thead><tr><th>월</th>'+divs.map(v=>'<th class="n">'+esc(v)+' 완납/건</th><th class="n">금액(완납/청구)</th>').join('')+'</tr></thead><tbody>'+months.map(m=>'<tr><td><b>'+m+'</b></td>'+divs.map(v=>{const x=(d.pay_months||[]).find(y=>y.ym===m&&y.div===v)||{};return '<td class="n">'+(x.n?x.paid+'/'+x.n+(x.due?' <span class="tag red">예정 '+x.due+'</span>':''):'—')+'</td><td class="n">'+(x.n?won(x.amt_paid)+' / '+won(x.amt):'—')+'</td>';}).join('')+'</tr>').join('')+'</tbody>';
+ document.getElementById('payE').textContent='원천 '+((d.evidence||{}).payments||'')+' · 완납=status 완납, 예정=status 예정 · 최근 12개월';
+ const due=d.pay_due_list||[];document.getElementById('dueS').textContent='이번 달('+d.ym+') 예정(미완납) 명단 '+due.length+'명'+(due.length?'':' — 이번 달 청구 행 없음');
+ document.getElementById('dueT').innerHTML=due.length?'<thead><tr><th>지점</th><th>담당</th><th>학생</th><th>학년</th><th>구분</th><th class="n">금액</th></tr></thead><tbody>'+due.map(x=>'<tr><td>'+esc(x.div)+'</td><td>'+esc(x.teacher||'')+'</td><td><b>'+esc(x.name)+'</b></td><td>'+esc(x.grade||'')+'</td><td>'+esc(x.fee||'')+'</td><td class="n">'+won(x.amount)+'</td></tr>').join('')+'</tbody>':'';
+ // 재원 추이
+ const tm=[...new Set((d.enroll_trend||[]).map(x=>x.ym))].sort().reverse();const tdv=[...new Set((d.enroll_trend||[]).map(x=>x.div))];
+ document.getElementById('trT').innerHTML='<thead><tr><th>월</th>'+tdv.map(v=>'<th class="n">'+esc(v)+' 입/퇴</th>').join('')+'</tr></thead><tbody>'+tm.map(m=>'<tr><td>'+m+'</td>'+tdv.map(v=>{const x=(d.enroll_trend||[]).find(y=>y.ym===m&&y.div===v)||{};return '<td class="n">'+(x.in||0)+' / '+(x.out||0)+'</td>';}).join('')+'</tr>').join('')+'</tbody>';
+ // 대기 히트맵
+ const w=d.waitlist||{};const slots=[...new Set((w.heat||[]).map(x=>x.slot))].sort();const mx=Math.max(1,...(w.heat||[]).map(x=>x.n));
+ let hh='<div class="h"></div>'+[1,2,3,4,5,6,7].map(k=>'<div class="h">'+DOW[k]+'</div>').join('');
+ if(!slots.length)hh+='<div class="r" style="grid-column:1/-1">최근 90일 기록 0건 — 위 입력구에 대기·거절이 생길 때마다 기록하면 여기에 셀이 쌓입니다</div>';
+ slots.forEach(s=>{hh+='<div class="r">'+esc(s)+'</div>'+[1,2,3,4,5,6,7].map(k=>{const x=(w.heat||[]).find(y=>y.slot===s&&y.dow===k);const n=x?x.n:0;return '<div style="background:'+(n?'rgba(164,71,47,'+(0.15+0.75*n/mx)+')':'#f4f4f0')+';color:'+(n/mx>0.5?'#fff':'inherit')+'">'+(n||'')+'</div>';}).join('');});
+ document.getElementById('heat').innerHTML=hh;
+ document.getElementById('wlT').innerHTML='<thead><tr><th>날짜</th><th>지점</th><th>요일·시간</th><th>학년</th><th>사유</th><th>세부</th><th>이름</th></tr></thead><tbody>'+((w.recent||[]).map(x=>'<tr><td>'+String(x.date).slice(5)+'</td><td>'+esc(x.branch||'')+'</td><td>'+(DOW[x.dow]||'')+' '+esc(x.slot||'')+'</td><td>'+esc(x.grade||'')+'</td><td>'+esc(x.reason||'')+'</td><td>'+esc(x.note||'')+'</td><td>'+esc(x.name||'')+'</td></tr>').join('')||'<tr><td colspan="7" style="color:var(--dim)">기록 없음 (최근 90일 '+(w.n90||0)+'건)</td></tr>')+'</tbody>';
+}
+document.getElementById('wBtn').onclick=async()=>{const g=i=>document.getElementById(i).value.trim();const m=document.getElementById('wMsg');const p={branch:g('wB'),dow:g('wD'),slot:g('wS'),grade:g('wG'),reason:g('wR'),name:g('wN'),note:g('wNote')};if(!p.branch||!p.reason){m.textContent='지점·사유 필수';return;}try{const r=await rpc('gz_bo2_waitlist_add',{p});if(r&&r.ok&&r.readback){m.textContent='기록 ✓ #'+r.id+' (되읽기 확인)';['wS','wG','wN','wNote'].forEach(i=>document.getElementById(i).value='');load();}else m.textContent='실패 '+((r||{}).reason||'');}catch(e){m.textContent='오류 '+e.message;}};
+let S=null;
+async function loadScores(){try{S=await rpc('gz_bo2_scores',{p_branch:BR||null});renderScores();}catch(e){document.getElementById('clsE').textContent='원5 적재 실패 '+e.message;}}
+function renderScores(){const s=S;const c=s.classes||{};const order=[['하락','📉',true],['지체','⏸',false],['향상','📈',false],['우수 유지','🏆',false],['자료 부족','·',false]];
+ document.getElementById('clsCards').innerHTML=order.map(o=>'<div class="card'+(o[2]&&c[o[0]]?' warn':'')+'"><div class="t">'+o[1]+' '+o[0]+'</div><div class="v">'+(c[o[0]]||0)+'</div><div class="s">'+(o[0]==='자료 부족'?'내신·모의 기록 3회 미만 (기록 0 '+s.no_data+'명)':o[0]==='하락'?'이동평균 악화 — 최우선 개입 · 코칭 카드 배지 대상':o[0]==='우수 유지'?'최근 3회 평균 2등급 이내':o[0]==='향상'?'직전 3회 대비 개선':'3회 이상 변화 없음')+'</div></div>').join('');
+ const ev=s.evidence||{};document.getElementById('clsE').textContent='근거 '+ev.source+' · 규칙 '+ev.rule;
+ const L=(s.list||[]);document.getElementById('clsT').innerHTML='<thead><tr><th>분류</th><th>학생</th><th>학교·학년</th><th>담당</th><th class="n">회차</th><th>최근</th><th class="n">최근3 등급/원점수</th><th class="n">직전3</th></tr></thead><tbody>'+(L.map(x=>'<tr><td><span class="tag'+(x.cls==='하락'?' red':x.cls==='우수 유지'||x.cls==='향상'?' green':'')+'">'+esc(x.cls)+'</span></td><td><b>'+esc(x.name)+'</b></td><td>'+esc(x.school||'')+' '+esc(x.grade||'')+'</td><td>'+esc(x.teacher||'')+'</td><td class="n">'+x.exams+'</td><td>'+String(x.last||'').slice(2)+'</td><td class="n">'+(x.g3!=null?x.g3+'등급':'')+(x.r3!=null?' '+x.r3+'점':'')+'</td><td class="n">'+(x.g3p!=null?x.g3p+'등급':'')+(x.r3p!=null?' '+x.r3p+'점':(x.g3p==null?'—':''))+'</td></tr>').join('')||'<tr><td colspan="8" style="color:var(--dim)">기록 있는 재원생 없음</td></tr>')+'</tbody>';
+ document.getElementById('trendT').innerHTML='<thead><tr><th>월</th><th class="n">기록</th><th class="n">학생</th><th class="n">평균 원점수</th><th class="n">평균 등급</th></tr></thead><tbody>'+((s.trend||[]).slice().reverse().map(t=>'<tr><td>'+t.ym+'</td><td class="n">'+t.n+'</td><td class="n">'+t.students+'</td><td class="n">'+(t.avg_raw==null?'—':t.avg_raw)+'</td><td class="n">'+(t.avg_grade==null?'—':t.avg_grade)+'</td></tr>').join('')||'<tr><td colspan="5" style="color:var(--dim)">24개월 기록 없음</td></tr>')+'</tbody>';
+ const hit=Array.isArray(s.hit)?s.hit:[];document.getElementById('hitT').innerHTML='<thead><tr><th>시험</th><th class="n">범위 작품</th><th class="n">출제 문항</th><th class="n">적중</th><th class="n">적중률</th></tr></thead><tbody>'+(hit.slice(0,20).map(h=>'<tr><td>'+esc(h.exam_name||(h.school+' '+h.grade+' '+h.exam_type))+'</td><td class="n">'+(h.scope_n||0)+'</td><td class="n">'+(h.gi_n||0)+'</td><td class="n">'+(h.hit||0)+'</td><td class="n"><b>'+(h.gi_n?Math.round(100*(h.hit||0)/h.gi_n)+'%':'—')+'</b></td></tr>').join('')||'<tr><td colspan="5" style="color:var(--dim)">적중 파이프 0건</td></tr>')+'</tbody>';
+ renderMonthly(s.monthly||{});
+ const sel=document.getElementById('sS');if(sel.options.length<=1){sel.innerHTML='<option value="">학생</option>'+(s.roster||[]).map(r=>'<option value="'+r.sid+'">'+esc(r.name)+' · '+esc(r.school||'')+' '+esc(r.grade||'')+' · '+esc(r.teacher||'')+(r.exams?' ('+r.exams+')':'')+'</option>').join('');document.getElementById('sT').innerHTML='<option value="">시험</option>'+(s.types||[]).map(t=>'<option value="'+t.id+'">'+esc(t.cat)+' · '+esc(t.name)+'</option>').join('');}}
+function renderMonthly(M){const box=document.getElementById('mrBox');if(!box)return;const nx=M.next||{},R=M.rounds||[];
+ const nxt=nx.month?(nx.year+'년 '+nx.month+'월'):'';
+ let h='<div class="card" style="max-width:560px;border-color:'+(nx.registered?'var(--line)':'var(--gold)')+'"><div class="t">다음 회차 · '+esc(nxt)+'</div><div class="s" style="font-size:13px;color:var(--ink);margin-top:2px">'+(nx.registered?'등록됨 — 아래 표에서 기간·상태 확인':'아직 등록 안 됨 — '+nx.month+'월 시험 날짜가 정해지면 등록합니다')+'</div></div>';
+ h+='<div class="ev" style="font-size:12px;line-height:1.7;color:var(--mid)">회차 등록 = 그 달 시험을 언제, 어떤 시험지로 보는지 한 줄 적어 두는 일 · 이 줄이 있어야 점수가 그 회차로 묶이고 직전 회차와 비교됨(학생 목표 막대 · 이 비율)<br>시험지 — 초·중: 입학진단지 · 고1·고2: 최근 모의고사 + 내신 시험 분석 · 겨울방학(1·2월) 입학진단지: 다음 1학기 내신 범위 · 등록은 날짜와 학년별 시험지를 정해 DB방에 전달</div>';
+ h+='<table style="margin-top:6px"><thead><tr><th>회차</th><th>보는 기간</th><th>상태</th><th class="n">응시</th><th class="n">비교 가능</th><th class="n">오른 학생</th><th class="n">목표</th></tr></thead><tbody>'+(R.map(r=>{const y=(r.month<=2?r.sy+1:r.sy);return '<tr><td><b>'+y+'년 '+r.month+'월</b></td><td>'+String(r.from||'').slice(5)+' ~ '+String(r.to||'').slice(5)+'</td><td><span class="tag">'+esc(r.status||'')+'</span></td><td class="n">'+(r.tested||0)+'</td><td class="n">'+(r.compared||0)+'</td><td class="n"><b>'+(r.pct==null?'—':r.pct+'%')+'</b></td><td class="n">'+(r.target||60)+'%</td></tr>';}).join('')||'<tr><td colspan="7" style="color:var(--dim)">등록된 회차 없음</td></tr>')+'</tbody></table>';
+ box.innerHTML=h;}
+document.getElementById('sBtn').onclick=async()=>{const g=i=>document.getElementById(i).value.trim();const m=document.getElementById('sMsg');const p={student_id:g('sS'),exam_type_id:g('sT'),exam_date:g('sD'),raw_score:g('sR'),grade:g('sG'),percentile:g('sP')};if(!p.student_id||!p.exam_type_id||!p.exam_date||(!p.raw_score&&!p.grade)){m.textContent='학생·시험·날짜·점수(원점수 또는 등급) 필수';return;}try{const r=await rpc('gz_bo2_score_add',{p});if(r&&r.ok&&r.readback){m.textContent='저장 ✓ #'+r.id+' (되읽기 확인) · 분류 '+r.cls;['sR','sG','sP'].forEach(i=>document.getElementById(i).value='');loadScores();}else m.textContent='실패 '+((r||{}).reason||'');}catch(e){m.textContent='오류 '+e.message;}};
+
+let B3=null,R4=null;const bBr=()=>BR||'국존';
+async function loadBudget(){try{B3=await rpc('gz_bo2_budget',{p_branch:bBr(),p_year:null});renderBudget();}catch(e){document.getElementById('bE').textContent='원3 적재 실패 '+e.message;}}
+function renderBudget(){const d=B3;document.getElementById('bY').textContent=d.branch+' · '+d.year+'년';document.getElementById('bE').textContent='근거 '+d.evidence;
+ const M=[...Array(12)].map((_,i)=>i+1);const P=d.plans||[];
+ document.getElementById('bT').innerHTML='<thead><tr><th>항목</th><th class="n">연 예산</th>'+M.map(m=>'<th class="n">'+m+'월</th>').join('')+'<th class="n">집행</th><th class="n">집행률</th><th class="n">잔액</th><th>근거</th></tr></thead><tbody>'+(P.map(p=>{const rate=p.annual>0?Math.round(100*p.exec_total/p.annual):null;return '<tr><td><b>'+esc(p.item)+'</b></td><td class="n">'+won(p.annual)+'</td>'+M.map(m=>'<td class="n" title="예산 '+won(p.lines[m]||0)+'">'+(p.execs[m]!=null?'<b>'+won(p.execs[m])+'</b>':'')+(p.lines[m]?'<div style="font-size:10.5px;color:var(--dim)">'+won(p.lines[m])+'</div>':'')+'</td>').join('')+'<td class="n">'+won(p.exec_total)+'</td><td class="n">'+(rate==null?'—':'<b style="'+(rate>100?'color:var(--red)':'')+'">'+rate+'%'+(rate>100?' ⚠':'')+'</b>')+'</td><td class="n">'+(p.annual>0?won(p.annual-p.exec_total):'—')+'</td><td class="m" style="font-size:11px">'+esc(p.basis||'')+'</td></tr>';}).join('')||'<tr><td colspan="18" style="color:var(--dim)">예산 행 없음 — 아래 입력구로 항목·연 예산·근거를 넣으면 표가 생깁니다</td></tr>')+'</tbody>';
+ document.getElementById('bItems').innerHTML=(d.items_default||[]).map(i=>'<option value="'+esc(i)+'">').join('');
+ if(!document.getElementById('bl1'))document.getElementById('bLines').innerHTML=M.map(m=>'<input id="bl'+m+'" type="number" placeholder="'+m+'월" style="width:60px">').join('');
+ document.getElementById('eT').innerHTML='<thead><tr><th>일자</th><th>항목</th><th class="n">금액</th><th>근거</th></tr></thead><tbody>'+((d.execs_recent||[]).map(e=>'<tr><td>'+String(e.date).slice(2)+'</td><td>'+esc(e.item)+'</td><td class="n">'+won(e.amount)+'</td><td class="m" style="font-size:11px">'+esc(e.basis||'')+'</td></tr>').join('')||'<tr><td colspan="4" style="color:var(--dim)">집행 기록 없음</td></tr>')+'</tbody>';
+ const sg=d.suggest||{};if(!document.getElementById('cYm').value){document.getElementById('cYm').value=sg.ym||'';document.getElementById('cInc').placeholder='수입 (수납 완납 '+won(sg.income_paid)+')';document.getElementById('cExp').placeholder='지출 (집행 '+won(sg.expense_exec)+')';document.getElementById('cHc').placeholder='재원 '+(sg.headcount||'');}
+ document.getElementById('cT').innerHTML='<thead><tr><th>월</th><th class="n">수입</th><th class="n">지출</th><th class="n">손익</th><th class="n">재원</th><th class="n">학생당</th><th>메모</th><th>확정</th></tr></thead><tbody>'+((d.closes||[]).map(c=>'<tr'+(c.correction_of?' style="color:var(--mid)"':'')+'><td><b>'+c.ym+'</b>'+(c.correction_of?' <span class="tag">정정 #'+c.correction_of+'</span>':'')+'</td><td class="n">'+won(c.income)+'</td><td class="n">'+won(c.expense)+'</td><td class="n">'+won(c.profit)+'</td><td class="n">'+(c.headcount==null?'—':c.headcount)+'</td><td class="n">'+won(c.cps)+'</td><td class="m" style="font-size:11px">'+esc(c.note||'')+'</td><td class="m" style="font-size:11px">'+String(c.closed_at||'').slice(0,10)+'</td></tr>').join('')||'<tr><td colspan="8" style="color:var(--dim)">확정된 월 없음</td></tr>')+'</tbody>';}
+document.getElementById('bSave').onclick=async()=>{const g=i=>document.getElementById(i).value.trim();const m=document.getElementById('bMsg');const lines={};for(let i=1;i<=12;i++){const v=g('bl'+i);if(v)lines[i]=+v;}const p={branch:bBr(),year:B3?B3.year:new Date().getFullYear(),item:g('bItem'),annual:g('bAnn')||0,basis:g('bBasis'),lines};if(!p.item||!p.basis){m.textContent='항목·근거 필수';return;}try{const r=await rpc('gz_bo2_budget_plan_upsert',{p});m.textContent=r&&r.ok?'저장 ✓ #'+r.id+' (되읽기 확인)':'실패 '+((r||{}).reason||'');if(r&&r.ok)loadBudget();}catch(e){m.textContent='오류 '+e.message;}};
+document.getElementById('eSave').onclick=async()=>{const g=i=>document.getElementById(i).value.trim();const m=document.getElementById('eMsg');const p={branch:bBr(),date:g('eDate'),item:g('eItem'),amount:g('eAmt'),basis:g('eBasis')};if(!p.item||!p.amount||!p.basis){m.textContent='항목·금액·근거 필수';return;}try{const r=await rpc('gz_bo2_exec_add',{p});m.textContent=r&&r.ok?'기록 ✓ #'+r.id:'실패 '+((r||{}).reason||'');if(r&&r.ok){['eAmt','eBasis'].forEach(i=>document.getElementById(i).value='');loadBudget();}}catch(e){m.textContent='오류 '+e.message;}};
+document.getElementById('cSave').onclick=async()=>{const g=i=>document.getElementById(i).value.trim();const m=document.getElementById('cMsg');const p={branch:bBr(),ym:g('cYm'),income:g('cInc'),expense:g('cExp'),profit:g('cPro'),headcount:g('cHc'),cps:g('cCps'),note:g('cNote')};try{let r=await rpc('gz_bo2_close_save',{p});if(r&&!r.ok&&/이미 마감/.test(r.reason||'')){if(confirm(p.ym+' 이미 확정됨 — 정정 행으로 저장할까요?'))r=await rpc('gz_bo2_close_save',{p:Object.assign({correction:true},p)});}m.textContent=r&&r.ok?'확정 ✓ #'+r.id+' (되읽기 확인)':'실패 '+((r||{}).reason||'');if(r&&r.ok)loadBudget();}catch(e){m.textContent='오류 '+e.message;}};
+async function loadRes(){try{R4=await rpc('gz_bo2_resource',{p_branch:bBr()});renderRes();}catch(e){document.getElementById('rE').textContent='원4 적재 실패 '+e.message;}}
+function renderRes(){const d=R4;const sig=d.signal||[];const slots=[...new Set(sig.map(x=>x.slot))].sort();const mx=Math.max(1,...sig.map(x=>x.n));
+ let hh='<div class="heat"><div class="h"></div>'+[1,2,3,4,5,6,7].map(k=>'<div class="h">'+DOW[k]+'</div>').join('');
+ slots.forEach(s=>{hh+='<div class="r">'+esc(s)+'</div>'+[1,2,3,4,5,6,7].map(k=>{const x=sig.find(y=>y.slot===s&&y.dow===k);const n=x?x.n:0;return '<div style="background:'+(n?'rgba(164,71,47,'+(0.15+0.75*n/mx)+')':'#f4f4f0')+';color:'+(n/mx>0.5?'#fff':'inherit')+'">'+(n||'')+(x&&x.alert?' ⚠':'')+'</div>';}).join('');});
+ hh+='</div>';if(!slots.length)hh+='<div class="m" style="color:var(--dim)">8주 대기·거절 기록 0 — 원2 입력구에 기록되면 여기서 임계 '+d.threshold+' 초과 셀이 ⚠ 점등</div>';
+ hh+=(d.proposals||[]).map(p=>'<div style="margin-top:6px;border:1px solid var(--red);border-radius:8px;padding:6px 8px;color:var(--red);font-weight:700">채용 제안 · '+esc(p.card)+'</div>').join('');
+ document.getElementById('sigBox').innerHTML=hh;
+ const T=d.teachers||[];document.getElementById('tT').innerHTML='<thead><tr><th>강사</th><th>사다리</th><th class="n">담당</th><th class="n">주간 h</th><th class="n">슬롯</th><th>15h 경계</th></tr></thead><tbody>'+T.map(t=>'<tr><td><b>'+esc(t.nick)+'</b><span class="m"> '+esc(t.branch||'')+'</span></td><td>'+(t.ladder?'<span class="tag green">'+esc(t.ladder.level)+'</span>':'<span class="m">—</span>')+'</td><td class="n">'+t.students+'</td><td class="n">'+t.weekly_h+'</td><td class="n">'+t.slots+'</td><td>'+(t.over15?'<span class="tag red">15h+</span>':'<span class="tag">'+Math.round(100*Math.min(1,t.weekly_h/15))+'%</span>')+'</td></tr>').join('')+'</tbody>';
+ const Q=d.queue||[];document.getElementById('qT').innerHTML='<thead><tr><th>학생</th><th>학교·학년</th><th>상태</th><th>담당</th><th>배정</th></tr></thead><tbody>'+(Q.map(x=>'<tr><td><b>'+esc(x.name)+'</b></td><td>'+esc(x.school||'')+' '+esc(x.grade||'')+'</td><td><span class="tag">'+esc(x.status)+'</span></td><td>'+esc(x.teacher||'—')+'</td><td><select id="qa'+x.sid+'" style="font-size:12px"><option value="">교사</option>'+T.map(t=>'<option>'+esc(t.nick)+'</option>').join('')+'</select> <button onclick="doAssign('+x.sid+')" style="font-size:11.5px">배정</button></td></tr>').join('')||'<tr><td colspan="5" style="color:var(--dim)">큐 비어 있음</td></tr>')+'</tbody>';
+ const L=d.ladder_def||[];document.getElementById('ladCards').innerHTML=L.map(l=>{const who=T.filter(t=>t.ladder&&t.ladder.level===l.level);return '<div class="card"><div class="t">'+l.level+' '+esc(l.title)+'</div><div class="v" style="font-size:20px">'+who.length+'명</div><div class="s">'+esc(l.terms)+'</div><div class="e">'+(who.map(w=>esc(w.nick)+'('+String(w.ladder.started_on||'').slice(0,7)+')').join(' · ')||'기록 없음')+'</div></div>';}).join('');
+ const sel=document.getElementById('lT');if(sel.options.length<=1)sel.innerHTML='<option value="">교사</option>'+T.map(t=>'<option value="'+t.id+'">'+esc(t.nick)+'</option>').join('');
+ document.getElementById('rE').textContent='근거 '+d.evidence;}
+async function doAssign(sid){if(!(ME&&ME.role==='원장')){alert('원장만 배정할 수 있습니다');return;}const t=document.getElementById('qa'+sid).value;if(!t)return;try{const r=await rpc('gz_bo2_assign',{p:{student_id:sid,teacher:t,reason:'원4 분배 큐',by:'2.0 경영 원4'}});if(r&&r.ok)loadRes();else alert('실패 '+((r||{}).reason||''));}catch(e){alert('오류 '+e.message);}}
+document.getElementById('lSave').onclick=async()=>{const g=i=>document.getElementById(i).value.trim();const m=document.getElementById('lMsg');const p={teacher_id:g('lT'),level:g('lL'),started_on:g('lD'),weekly_hours:g('lH'),note:g('lN')};if(!p.teacher_id||!p.level){m.textContent='교사·단계 필수';return;}try{const r=await rpc('gz_bo2_ladder_upsert',{p});m.textContent=r&&r.ok?'기록 ✓ #'+r.id:'실패 '+((r||{}).reason||'');if(r&&r.ok)loadRes();}catch(e){m.textContent='오류 '+e.message;}};
+
+/* 원7 커리큘럼 여정 — gz_bo2_curriculum (2026-10-08 seq 365) */
+async function loadCJ(){try{const C=await rpc('gz_bo2_curriculum',{p_branch:BR||null});renderCJ(C);}catch(e){document.getElementById('cjE').textContent='원7 적재 실패 '+e.message;}}
+function renderCJ(C){const m=C.meta||{};const pct=(a,b)=>b?Math.round(1000*a/b)/10:0;
+ const T=C.entry_type||{};
+ document.getElementById('cjCards').innerHTML=[
+  ['학생',won(m.students)+'명','수강 '+won(m.rows)+'건 · '+m.from+'~'+m.to,'1.0 공부의지존(국존·시원 합산)'],
+  ['수능 과정 들음',won(T.sat_n)+'명','N='+m.students+' 중 '+pct(T.sat_n,m.students)+'% · 1년 안에 끝 '+T.sat_one_year+'명','수능 단행본·특강을 한 번이라도 들음'],
+  ['내신만 듣고 끝',won(T.school_only_n)+'명','N='+m.students+' 중 '+pct(T.school_only_n,m.students)+'% · 1년 안에 끝 '+T.school_only_one_year+'명','내신 특강으로 들어와 수능 과정으로 안 감'],
+  ['내신 진입 → 수능 전환',pct(T.school_first_to_sat,T.school_first)+'%',T.school_first_to_sat+'/'+T.school_first+'명','첫 신청이 내신인 학생 중 수능 과정으로 넘어간 비율']
+ ].map(c=>'<div class="card"><div class="t">'+c[0]+'</div><div class="v">'+c[1]+'</div><div class="s">'+esc(c[2])+'</div><div class="e">'+esc(c[3])+'</div></div>').join('');
+ const G=['중1','중2','중3','고1','고2','고3'];const gn={};(C.grade_n||[]).forEach(x=>gn[x.g]=x.n);
+ document.getElementById('cjLad').innerHTML=G.map(g=>{const hs=(C.ladder||[]).filter(x=>x.g===g);const ser=(C.series||{})[g]||[];
+  return '<div class="cjg"><h4>'+g+' <span style="font-size:11px;color:var(--dim);font-weight:400">N='+(gn[g]||0)+'</span></h4>'+hs.map(h=>'<div class="hf">'+h.half+' N='+h.n+'</div>'+(h.n<8?'<div class="ev">기록 거의 없음</div>':h.items.slice(0,5).map(i=>'<div class="cjr"><span>'+esc(i.stage)+'</span><span class="cjb"><i style="width:'+i.pct+'%"></i></span><span class="p">'+i.pct+'%</span></div>').join(''))).join('')+(ser.length?'<div class="hf">많이 들은 단행본</div>'+ser.slice(0,3).map(s=>'<div style="font-size:11.5px;margin-top:2px">'+esc(s.series)+' <span style="color:var(--dim)">'+s.n+'명</span></div>').join(''):'')+'</div>';}).join('');
+  const CT=C.cont_type||[];const row=(lab,c,cls)=>'<div class="cjc"><span>'+lab+'</span><span class="cjb '+cls+'"><i style="width:'+(c?c.pct:0)+'%"></i></span><span class="p">'+(c?c.pct+'%':'—')+'</span><span class="p" style="color:var(--dim)">'+(c?c.next+'/'+c.elig+'명':'')+'</span></div>';
+ document.getElementById('cjCont').innerHTML=(C.cont||[]).map(c=>{const s1=CT.find(x=>x.from===c.from&&x.type==='수능 과정'),s0=CT.find(x=>x.from===c.from&&x.type==='내신만');
+  return '<div style="margin-top:6px;font-size:12px;font-weight:700">'+c.from+' → '+c.to+'</div>'+row('전체',c,'r')+row('수능 과정',s1,'')+row('내신만',s0,'r');}).join('');
+ const en={},ex={};(C.entry||[]).forEach(x=>en[x.g]=x.n);(C.exit||[]).forEach(x=>ex[x.g]=x.n);
+ document.getElementById('cjEx').innerHTML=G.map(g=>'<tr><td>'+g+'</td><td class="n">'+(en[g]||0)+'</td><td class="n">'+(ex[g]||0)+'</td></tr>').join('');
+ document.getElementById('cjYrs').textContent='머문 학년도 수: '+(C.years||[]).map(x=>(x.years>=5?'5+':x.years)+'년 '+x.n+'명').join(' · ')+' (N='+m.students+')';
+ document.getElementById('cjBot').innerHTML=(C.bottleneck||[]).slice(0,40).map(b=>{const d=(b.cont_pct!=null&&b.exp_pct!=null)?Math.round((b.cont_pct-b.exp_pct)*10)/10:null;
+  return '<tr><td>'+esc(b.series)+'</td><td>'+esc(b.stage)+'</td><td>'+esc(b.grade||'')+'</td><td class="n">'+b.n+'</td><td class="n">'+(b.cont_pct==null?'—':b.cont_pct+'% <span style="color:var(--dim)">('+b.next+'/'+b.elig+')</span>')+'</td><td class="n">'+(b.exp_pct==null?'—':b.exp_pct+'%')+'</td><td class="n">'+(d==null?'—':'<span class="tag '+(d<0?'red':'green')+'">'+(d>0?'+':'')+d+'p</span>')+'</td><td class="n">'+b.ended_here+'</td></tr>';}).join('');
+ document.getElementById('cjTr').innerHTML=(C.transitions||[]).map(t=>'<tr><td>'+esc(t.from)+'</td><td>'+esc(t.to)+'</td><td class="n">'+t.n+'</td></tr>').join('');
+ document.getElementById('cjE').textContent='근거: gz_bo2_curriculum · cj_enroll '+won(m.rows)+'행 · 집계 '+m.asof+(m.branch_note?' · '+m.branch_note:'');}
+
+load();loadScores();loadBudget();loadRes();loadCJ();
+/* 역할 게이트(서버 gz_require_role이 정본, 화면은 안내) */
+(function(){const isDir=ME&&ME.role==='원장';const asof=document.getElementById('asof');if(ME&&ME.teacher_id)asof.insertAdjacentHTML('afterend','<span class="m" style="color:var(--green);font-weight:700">'+ME.name+' · '+ME.role+'</span>');else asof.insertAdjacentHTML('afterend','<span class="m" style="color:var(--red)">로그인 없음 — 원3·원4 저장 불가(조회만)</span>');if(!isDir){['bSave','eSave','cSave','lSave'].forEach(i=>{const e=document.getElementById(i);if(e){e.disabled=true;e.title='원장만 저장';e.style.opacity=.5;}});}if(!(ME&&ME.teacher_id)){const e=document.getElementById('sBtn');if(e){e.disabled=true;e.title='로그인 필요';e.style.opacity=.5;}}})();
+</script><div id="gzDevBanner" style="position:fixed;right:8px;bottom:8px;z-index:99999;background:#b42318;color:#fff;font:12px sans-serif;padding:4px 8px;border-radius:4px;opacity:.85">개발 DB 판</div></body></html>
