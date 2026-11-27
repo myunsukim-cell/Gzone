@@ -245,13 +245,80 @@ footer{margin:56px -22px 0;padding:28px 22px 32px;background:#16241D;color:#C9D3
 footer a{color:#fff}
 footer b,footer strong{color:#fff}
 @media (min-width:960px){footer{margin:56px calc(50% - 50vw) 0;padding:36px calc((100vw - 1024px)/2) 40px}}
+</style><style>
+.hcta{display:none}
+@media (min-width:960px){
+.top{align-items:center;row-gap:0;padding-bottom:64px!important}
+.top h1{grid-row:2;align-self:end;padding:0 0 20px;font-size:clamp(28px,2.75vw,38px)}
+.hcta{display:block;grid-column:1;grid-row:3;align-self:start;color:#fff}
+.hcta ul{list-style:none;margin:0 0 26px;padding:0;font-size:16px;line-height:2;color:rgba(255,255,255,.9)}
+.hcta li:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#9FD3B5;margin:0 12px 3px 0}
+.hb{display:flex;gap:10px}
+.hbtn,.hbtn2{display:inline-block;padding:14px 24px;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none}
+.hbtn{background:#fff;color:var(--g)!important}
+.hbtn2{border:1.5px solid rgba(255,255,255,.7);color:#fff!important}
+.top .hero{grid-row:2/4;align-self:center}
+.top .hero img{height:360px}
+}
+</style><style>
+.ev{margin:26px 0 8px}
+.evh{font-size:20px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em}
+.evp{font-size:14px;color:var(--dim);margin:0 0 14px;word-break:keep-all}
+.evg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.evg figure{margin:0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.evg img{display:block;width:100%;height:132px;object-fit:cover}
+.evg figcaption{padding:8px 9px 10px;font-size:11.5px;line-height:1.45;color:var(--dim);word-break:keep-all}
+.evg figcaption b{display:block;font-size:13.5px;color:var(--g);margin-bottom:2px}
+@media (min-width:960px){
+.ev{margin:56px 0 24px}
+.evh{font-size:28px}.evp{font-size:16px;margin-bottom:22px}
+.evg{gap:20px}
+.evg img{height:300px}
+.evg figcaption{padding:14px 16px 16px;font-size:14px}
+.evg figcaption b{font-size:17px}
+}
+</style><style>
+.apg{display:grid;grid-template-columns:1fr;gap:10px}
+.apg figure{margin:0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);border:1px solid #E6EAE7}
+.apg img{display:block;width:100%;height:auto;border-bottom:1px solid #EEF1EF}
+.apg figcaption{padding:10px 12px 12px;font-size:13px;line-height:1.5;color:var(--dim);word-break:keep-all}
+.apg figcaption b{display:block;font-size:15px;color:var(--g);margin-bottom:2px}
+.evs{font-size:12px;color:var(--dim);margin:8px 0 0}
+@media (min-width:960px){.apg{grid-template-columns:1fr 1fr;gap:20px;align-items:start}.apg figcaption{padding:14px 16px 16px;font-size:14px}.apg figcaption b{font-size:17px}}
+</style><style>
+.pair{margin:30px 0 10px}
+.prow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;background:#fff;border:1px solid #E3E8E5;border-radius:14px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.pk{grid-column:1/3}
+.pk span{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--g);color:#fff;font-size:13px;font-weight:800;margin-right:8px}
+.pk b{font-size:18px;color:var(--g);vertical-align:middle}
+.pk p{margin:6px 0 4px;font-size:14px;line-height:1.6;word-break:keep-all}
+.prow figure{margin:0;border-radius:10px;overflow:hidden;background:#F4F6F5;border:1px solid #E6EAE7}
+.prow img{display:block;width:100%;height:150px;object-fit:cover}
+.prow .scr img{object-fit:contain;background:#fff;object-position:center;padding:6px;box-sizing:border-box}
+.prow figcaption{font-size:12px;font-weight:700;color:var(--dim);padding:6px 9px}
+.prow .hand figcaption{color:#8A5A2B}.prow .scr figcaption{color:var(--g)}
+.lead2{font-size:14.5px;margin:16px 0 0;word-break:keep-all;font-weight:600}
+@media (min-width:960px){
+.pair{margin:64px 0 24px}
+.prow{grid-template-columns:300px 1fr 1.25fr;gap:22px;padding:22px;align-items:center}
+.pk{grid-column:auto}.pk b{font-size:22px}.pk p{font-size:15.5px}
+.prow img{height:230px}
+.lead2{font-size:16px}
+}
+</style><style>
+@media (max-width:959px){
+.prow{grid-template-columns:1fr}.pk{grid-column:auto}
+.prow .hand img{height:190px}
+.prow .scr img{height:auto;padding:0}
+}
 </style></head><body>
 <main class="wrap">
 <div class="top"><div class="brand" id="brand">송도 국어·독서논술 국존</div>
 <h1 id="head">국어 점수는 자기주도력에서 옵니다.<br>국존은 그 힘을 훈련합니다.</h1>
+<div class="hcta"><ul><li>빈틈해결 수업시간 주 1회 3시간</li><li>자기주도학습 보완 시간 주 2~4시간</li><li>한 반 최대 7명 · 매 수업 리포트</li></ul><div class="hb"><a class="hbtn" href="#reserve" onclick="if(!A.place_url){event.preventDefault();reserve()}">입학 진단 예약</a><a class="hbtn2" href="tel:032-816-7566">032-816-7566</a></div></div>
 <p class="sub" id="sub">강의를 아무리 들어도 시험장의 지문은 처음 보는 글입니다. 혼자 읽어내는 힘을 매주 확인하며 만드는 곳, 국존입니다.</p>
 
-<div class="hero"><img src="https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/brand-assets/homepage/20261127/hero_study.jpg" alt="학원에서 혼자 공부하는 학생"><span>자기주도학습 보완 시간 · 국존 송도</span></div>
+<div class="hero"><img src="https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/brand-assets/homepage/20261127/ev_hero.jpg" alt="학생이 직접 필기한 고등문학 교재"><span>학생이 직접 필기한 교재 · 국존 송도</span></div>
 </div>
 <div class="brands" id="brands"></div>
 <div class="ask">
@@ -264,12 +331,28 @@ footer b,footer strong{color:#fff}
 </div>
 
 
+<div class="pair">
+<h2 class="evh">아이가 손으로 한 공부를, 국존 2.0이 이어 받습니다</h2>
+<p class="evp">계획 · 정리 · 오답. 세 가지를 아이가 직접 하고, 국존 2.0 학생 화면이 기록하고 다시 꺼내 줍니다.</p>
+<div class="prow"><div class="pk"><span>1</span><b>계획</b><p>플래너에 손으로 계획을 쓰고, 한 만큼은 「이번 주 채우기」 화면에 기록합니다. 얼마나 할지는 아이가 정합니다.</p></div>
+<figure class="hand"><img src="https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/brand-assets/homepage/20261127/ev_plan.jpg" alt="학생이 쓴 60일 플래너"><figcaption>손 · 60일 플래너</figcaption></figure>
+<figure class="scr"><img src="https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/brand-assets/homepage/20261127/app_week.jpg" alt="이번 주 채우기 화면"><figcaption>화면 · 이번 주 채우기</figcaption></figure></div>
+<div class="prow"><div class="pk"><span>2</span><b>정리</b><p>지문은 분석지에 직접 근거를 표시하며 읽고, 화면에서는 내 약점과 시험일까지의 진도를 확인합니다.</p></div>
+<figure class="hand"><img src="https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/brand-assets/homepage/20261127/ev_step3.jpg" alt="근거를 표시한 분석지"><figcaption>손 · 분석지 필기</figcaption></figure>
+<figure class="scr"><img src="https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/brand-assets/homepage/20261127/app_weak.jpg" alt="내 약점과 전체 진행 화면"><figcaption>화면 · 내 약점과 진도</figcaption></figure></div>
+<div class="prow"><div class="pk"><span>3</span><b>오답</b><p>틀린 문제는 단권노트에 다시 정리합니다. 화면은 자주 틀리는 문제를 매일 1개씩 왜 틀렸는지와 함께 다시 꺼내 줍니다.</p></div>
+<figure class="hand"><img src="https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/brand-assets/homepage/20261127/ev_note.jpg" alt="빨강·파랑으로 정리한 단권노트"><figcaption>손 · 단권노트</figcaption></figure>
+<figure class="scr"><img src="https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/brand-assets/homepage/20261127/app_wrong.jpg" alt="오늘의 문제 화면"><figcaption>화면 · 오늘의 오답</figcaption></figure></div>
+<p class="evs">사진은 국존 학생들이 실제로 쓴 노트와 플래너, 화면은 국존 2.0 학생 화면(내 공부)입니다.</p>
+</div>
+
 <section>
-<h2 data-k="01 · 국존의 강점">이런 학생이라면, 서점 교재 대신 두 권을 받습니다</h2>
+<h2 data-k="01 · 국존의 강점">혼자 하는 국어 공부가 막힌 아이를 위한 곳입니다</h2>
 <div class="who">
 <div><b>중학생</b><ul><li>학원은 다니는데 집에서는 국어 공부를 안 한다</li><li>열심히 하는데 어디서 틀리는지 모른다</li><li>고등학교 전에 국어 공부 순서를 잡아야 한다</li></ul></div>
 <div><b>고등학생</b><ul><li>수업은 듣는데 시험장에서는 내 것이 아니다</li><li>지문이 길어지고 작품이 낯설어져 점수가 흔들린다</li><li>내신과 수능을 따로따로 준비하기 벅차다</li></ul></div>
 </div>
+<p class="lead2">그래서 아이에게는 자료가 두 가지 주어집니다. 우리 학교 시험에 맞춘 것, 그리고 내가 틀린 것만 모은 것입니다.</p>
 <div class="two" style="margin-top:12px">
 <div><b>학교별 자료집</b><p>우리 학교 이번 시험 범위의 작품과 단원만. 그 학교 지난 시험에서 자주 나온 방식에 맞춰 문제를 넣습니다.</p></div>
 <div><b>개인별 자료집</b><p>진단과 매주 확인에서 틀린 것만 모읍니다. 한 자리가 고쳐지면 다음 약점으로 바뀝니다.</p></div>
