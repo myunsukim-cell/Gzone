@@ -925,7 +925,7 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
     <div>
       <p class="axcap">다음으로</p>
       <div class="newlec" id="gzReqBox"><!-- v0.43 신청·알림·이번 주 새 강좌 (#6951 · gz_stu_req_list/submit, 학생 링크 sid+k) -->
-        <h3 style="font-family:'Noto Serif KR';font-weight:900;font-size:18.1px">새 강좌 (최근 7일)<span class="sub" style="font-size:13.8px;color:var(--plan)" id="gzNewSub">내 학년 먼저</span></h3>
+        <h3 style="font-family:'Noto Serif KR';font-weight:900;font-size:18.1px">새 소식 (최근 14일)<span class="sub" style="font-size:13.8px;color:var(--plan)" id="gzNewSub">내 시험 범위 · 내 학년 먼저</span></h3>
         <table class="tb" style="margin-top:6px" id="gzNewTb"><tr><td class="mini">불러오는 중…</td></tr></table>
         <h3 style="font-family:'Noto Serif KR';font-weight:900;font-size:17px;margin-top:14px">강의·자료 신청하기<span class="sub" style="font-size:13.4px;color:var(--plan)">선생님이 확인하고 만들어 드려요</span></h3>
         <table class="tb" style="margin-top:4px">
@@ -935,7 +935,7 @@ fetch(B+'gz2_student_acts',{method:'POST',headers:H,body:JSON.stringify({p_sid:+
         </table>
         <div id="gzReqMine" style="margin-top:8px"></div>
         <div id="gzReqNoti" style="margin-top:6px"></div>
-        <p class="wire">최근 7일 새 강좌와 신청 결과가 저절로 바뀌어요</p>
+        <p class="wire">최근 14일 새 교재 · 강좌 · 영상 · 확인 문제와 신청 결과가 저절로 바뀌어요</p>
       </div>
       <div class="card" style="margin-top:12px" id="gzShelfCard"><!-- [2026-09-18 내 책장] 선생님 지정·추천 도서 + 내가 담은 책 · 상태/쪽 기록/느낀 점 · gz2_book_shelf / gz2_book_save (sid+k) -->
         <h3>내 책장<span class="sub">선생님이 고른 책 · 추천 책 · 내가 담은 책</span></h3>
@@ -2303,6 +2303,13 @@ gzLoadFill();
     if(!nl.length) tb.innerHTML='<tr><td class="mini">이번 주에 우리 학교 · 내 학년 새 강좌는 아직 없어요. 필요한 강의는 아래에서 신청하세요.</td></tr>';
     else tb.innerHTML=nl.slice(0,8).map(function(l){return '<tr><td><span class="mini" style="background:var(--plan);color:#fff;border-radius:4px;padding:0 5px">새로</span>'+(l.mine?' <span class="mini" style="border:1px solid var(--plan);color:var(--plan);border-radius:4px;padding:0 5px">내 신청이 반영됐어요</span>':'')+' <b>'+esc(l.title)+'</b> <span class="mini">'+d(l.published_at)+' 공개'+(l.subject?' · '+esc(l.subject):'')+(l.grade?' · '+esc(l.grade):'')+'</span></td><td><button class="btn'+(l.mine?'':' ghost')+' sm" onclick="gzOpenLecture('+l.id+')">'+(l.mine?'바로 수강':'보기')+'</button></td></tr>';}).join('');
     document.getElementById('gzNewSub').textContent=nl.length?nl.length+'개 · 우리 학교 · 내 학년':'';
+    /* [국존 2026-11-26 23:07 「오케이 좋음」 채팅 236] 새 소식 — 교재(완성) · 강좌 · 영상 · 확인 문제, 내 시험 범위 → 내 학년 → 공통 (gz_stu_news) */
+    if(j.__news&&j.__news.ok){var NW=(j.__news.rows||[]).filter(function(r){if(r.kind!=='강좌')return true;var m=String(r.title||'').match(/^\[([^\]]+)\]/),sc=m?m[1]:'';return !sc||/22개정/.test(sc)||!ME.sch||ME.sch.indexOf(sc)===0||sc.indexOf(ME.sch)===0;});
+      var WD={'교안':'교재가 새로 준비됐어요','강좌':'새 강의가 올라왔어요','영상':'새 영상이 올라왔어요','문항':'확인 문제가 생겼어요'},KN={'교안':'교재','강좌':'강좌','영상':'영상','문항':'확인 문제'};
+      if(!NW.length) tb.innerHTML='<tr><td class="mini">최근 14일에 내 학년 새 소식은 아직 없어요. 필요한 강의는 아래에서 신청하세요.</td></tr>';
+      else tb.innerHTML=NW.slice(0,8).map(function(r){return '<tr><td><span class="mini" style="background:var(--plan);color:#fff;border-radius:4px;padding:0 5px">'+esc(KN[r.kind]||r.kind)+'</span>'+(r.scope?' <span class="mini" style="border:1px solid var(--plan);color:var(--plan);border-radius:4px;padding:0 5px">내 시험 범위</span>':'')+' <b>'+esc(r.title)+'</b> <span class="mini">'+esc(r.at)+' · '+esc(WD[r.kind]||'')+(r.pub?' · '+esc(r.pub):'')+'</span></td></tr>';}).join('');
+      document.getElementById('gzNewSub').textContent=NW.length?NW.length+'개 · 내 시험 범위 · 내 학년 먼저':'';
+      window.__STU_NW=NW; var sn=document.getElementById('stuNews'); if(sn) sn.innerHTML=window.stuNewsHtml();}
     var rows=j.rows||[], M=document.getElementById('gzReqMine');
     M.innerHTML=rows.length?'<p class="mini" style="font-weight:700;margin-bottom:3px">내 신청</p>'+rows.slice(0,5).map(function(r){return '<p class="mini" style="margin:2px 0"><b>'+esc(r.title)+'</b> — '+(ST[r.stage]||r.stage)+(r.due&&r.stage==='진행'?' (예정 '+d(r.due)+')':'')+(r.feedback&&r.feedback.length?'<br>선생님 답: 「'+esc(r.feedback[r.feedback.length-1])+'」':'')+'</p>';}).join(''):'';
     var noti=j.noti||[], N=document.getElementById('gzReqNoti');
@@ -2310,8 +2317,11 @@ gzLoadFill();
   }
   var NL={};
   window.gzOpenLecture=function(id){ var l=NL[id]; if(!l) return; if(l.video_url){ window.open(l.video_url,'_blank'); return; } alert(l.title+'\n\n'+(l.description||'')+'\n\n영상은 국존 사이트 강좌 목록에서 수강해요.'); };
+  window.stuNewsHtml=function(){var NW=window.__STU_NW;if(!NW)return '';var KN={'교안':'교재','강좌':'강좌','영상':'영상','문항':'확인 문제'},WD={'교안':'교재가 새로 준비됐어요','강좌':'새 강의가 올라왔어요','영상':'새 영상이 올라왔어요','문항':'확인 문제가 생겼어요'},op=window.__STU_NW_OPEN;
+    if(!NW.length)return '<div class="snw"><b class="snh">새 소식</b><p class="sne">최근 14일에 내 학년 새 소식은 아직 없어요</p></div>';
+    return '<style>.snw{border:1px solid #e3ddcf;border-radius:14px;background:#fff;padding:14px 16px;margin:12px 0}.snh{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:4px}.snh b{font-size:17px}.snh span{color:#7a7a7a;font-size:13px}.sne{color:#7a7a7a;font-size:14px;margin:4px 0}.sni{display:flex;gap:10px;border-top:1px solid #eee;padding:9px 0;align-items:flex-start}.snk{flex:none;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700;background:#e6efe9;color:#1f4d3a}.snk.k-강좌{background:#fff1d6;color:#8a5a00}.snk.k-영상{background:#e8eefb;color:#2c4f9e}.snk.k-문항{background:#f3e8f6;color:#7a3b8c}.snt{flex:1;min-width:0}.snt b{display:block;font-size:14.5px}.snt b em{font-style:normal;font-size:11.5px;color:#fff;background:#8a5a00;border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:1px}.snt span{color:#7a7a7a;font-size:12.5px}.snm{margin-top:6px;border:1.5px solid #1f4d3a;background:#fff;color:#1f4d3a;border-radius:8px;padding:7px 14px;font-weight:600;cursor:pointer;min-height:40px}</style><div class="snw"><div class="snh"><b>새 소식</b><span>최근 14일 · 내 시험 범위 · 내 학년 먼저 · '+NW.length+'개</span></div>'+NW.slice(0,op?20:4).map(function(r){return '<div class="sni"><span class="snk k-'+esc(r.kind)+'">'+esc(KN[r.kind]||r.kind)+'</span><div class="snt"><b>'+esc(r.title)+(r.scope?' <em>내 시험 범위</em>':'')+'</b><span>'+esc(r.at)+' · '+esc(WD[r.kind]||'')+(r.pub?' · '+esc(r.pub):'')+'</span></div></div>';}).join('')+(NW.length>4?'<button type="button" class="snm" onclick="window.__STU_NW_OPEN=!window.__STU_NW_OPEN;document.getElementById(\'stuNews\').innerHTML=window.stuNewsHtml()">'+(op?'접기 ▲':'더 보기 ('+(Math.min(20,NW.length)-4)+'개) ▼')+'</button>':'')+'</div>';};
   window.gzReqLoad=function(){ if(!SID||!KK){document.getElementById('gzNewTb').innerHTML='<tr><td class="mini">학생 링크로 열면 보여요</td></tr>';return;}
-    Promise.all([rpc('gz_stu_req_list',{p_sid:SID,p_k:KK}),rpc('gz2_student_read',{p_sid:SID,p_k:KK,p_sql:"SELECT name AS nm, coalesce(school,'') AS sch, coalesce(grade,'') AS gr, coalesce(teacher_name,'') AS tch, to_char(enrolled_at,'YYYY-MM-DD') AS en FROM students WHERE id="+SID}).catch(function(){return [];})]).then(function(A){ var j=A[0]; if(j&&j.ok){j.__me=(Array.isArray(A[1])&&A[1][0])||{}; render(j);} else document.getElementById('gzNewTb').innerHTML='<tr><td class="mini">'+esc((j&&j.reason)||'불러오지 못했어요')+'</td></tr>'; }).catch(function(){ document.getElementById('gzNewTb').innerHTML='<tr><td class="mini">불러오지 못했어요</td></tr>'; }); };
+    Promise.all([rpc('gz_stu_req_list',{p_sid:SID,p_k:KK}),rpc('gz_stu_news',{p_sid:SID,p_k:KK,p_days:14}).catch(function(){return null;}),rpc('gz2_student_read',{p_sid:SID,p_k:KK,p_sql:"SELECT name AS nm, coalesce(school,'') AS sch, coalesce(grade,'') AS gr, coalesce(teacher_name,'') AS tch, to_char(enrolled_at,'YYYY-MM-DD') AS en FROM students WHERE id="+SID}).catch(function(){return [];})]).then(function(A){ var j=A[0]; if(j&&j.ok){j.__news=A[1]; j.__me=(Array.isArray(A[2])&&A[2][0])||{}; render(j);} else document.getElementById('gzNewTb').innerHTML='<tr><td class="mini">'+esc((j&&j.reason)||'불러오지 못했어요')+'</td></tr>'; }).catch(function(){ document.getElementById('gzNewTb').innerHTML='<tr><td class="mini">불러오지 못했어요</td></tr>'; }); };
   window.gzReqSend=function(){ var b=document.getElementById('gzReqBtn'), m=document.getElementById('gzReqMsg'), subj=(document.getElementById('gzReqSubj').value||'').trim();
     if(!subj){m.textContent='내용을 적어 주세요';return;} b.disabled=true; m.textContent='신청 중…';
     rpc('gz_stu_req_submit',{p_sid:SID,p_k:KK,p:{kind:document.getElementById('gzReqKind').value,subject:subj,need_by:document.getElementById('gzReqNeed').value||''}}).then(function(j){ b.disabled=false;
@@ -3184,7 +3194,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     var dl=V13.done?'<span>이번 주 '+(V13.done.goal?'<em>'+V13.done.goal+'개 중 '+V13.done.w+'개</em>':'<em>'+V13.done.w+'개</em>')+' 끝 · 어제 '+V13.done.y+'개</span>':'';
     var big=NUM.map(function(p,i){var x=C[p[0]][p[1]],s=st13(p[0],p[1]);if(!s&&x[3]&&nx)s=[nx+'부터','l'];
       return '<button type="button" class="bc" data-go13="'+x[2]+'"><span class="hd"><span class="num">'+(i+1)+'</span><span class="wh">'+['이번 달','집에서','학원에서'][p[1]]+'</span></span><span class="t">'+esc(x[0])+'</span><span class="s">'+esc(x[1])+'</span><span class="ft">'+(s?'<span class="st '+s[1]+'">'+esc(s[0])+'</span>':'<span></span>')+'<span class="go'+(i?' ol':'')+'">시작</span></span></button>';}).join('');
-    var h=band+'<div class="todo"><b>오늘 이것만 하면 돼요</b>'+dl+'</div><div class="big">'+big+'</div>'
+    var h=band+'<div class="todo"><b>오늘 이것만 하면 돼요</b>'+dl+'</div><div class="big">'+big+'</div>'+'<div id="stuNews">'+(window.stuNewsHtml?window.stuNewsHtml():'')+'</div>'
       +'<button type="button" class="tog" data-tog13="1" aria-expanded="'+(V13.open?'true':'false')+'">'+(V13.open?'공부 지도 접기 ▲':'공부 지도 전체 보기 ▼')+'</button>';
     if(V13.open){
       h+='<h1>국어 점수는 자기주도력에서 옵니다. 국존은 그 힘을 훈련합니다.</h1><div class="lg"><b class="d">✓ 끝</b> · <b class="p">하는 중</b> · <b>아직</b></div>';
@@ -3229,7 +3239,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   window.gzOpenCourses=function(){CV.lec=null;CV.step=null;cvShow(bar('← 오늘로','close')+'<div class="cvwait">강좌 불러오는 중…</div>');
     Promise.all([rpc('gz2_my_courses',tok()),rpc('gz2_my_course_progress',tok())]).then(function(R){var a=R[0]||{},b=R[1]||{};CV.list=a.ok?(a.courses||[]):[];CV.prog=b.ok?(b.done||{}):{};CV.open=b.ok?(b.open||{}):{};cvList();});};
   function cvTitle(c){var wt=c.work_title,dup=wt&&(CV.list||[]).filter(function(x){return x.work_title===wt;}).length>1;return String((!dup&&wt)||String(c.title||'').replace(/^세플\s*G독\s*/,'')||'').replace(/\s*\([^)]*\d-\d+\)\s*$/,'').replace(/^\[[^\]]+\]\s*/,'');}
-  function cvList(){
+  function cvList(){if(window.gzCvList2)return window.gzCvList2({CV:CV,cvShow:cvShow,bar:bar,esc:esc,cvTitle:cvTitle,rpc:rpc,SK:SK});
     var now=CV.list.filter(function(c){return c.linked;}),old=CV.list.filter(function(c){return !c.linked;});
     var fin=now.filter(function(c){return (CV.prog[c.id]||0)>=7;}),cur=now.filter(function(c){return (CV.prog[c.id]||0)<7;});
     var G=['전체','내신','수능','기타'].filter(function(g){return g==='전체'||cur.some(function(c){return (c.group==='내신'||c.group==='수능'?c.group:'기타')===g;});});
@@ -3343,8 +3353,9 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
   function p7Top(){var I=P7.info;if(!I)return '<div class="cvwait">불러오는 중…</div>';
     if(!I.n)return '<div class="p7top"><b>'+esc(I.msg||'이 문제지는 아직 채점이 안 돼요.')+'</b><span>공책에 풀어 다음 수업에 선생님께 보여 주세요.</span></div>';
     if(!I.mine)return P7.mode==='paper'
-      ?'<div class="p7top"><b>화면으로 문제 보기</b><span>선지를 눌러 고르고, 그 문제 아래에서 확신도도 눌러요</span><div class="p7tb"><button type="button" class="cvbtn" data-p7="sheet">답안지로 돌아가기</button></div></div>'
-      :'<div class="p7top"><b>문제지는 종이로 풀고, 답만 여기 적어요</b><span>지문에 밑줄 · 선지에 표시하며 실전처럼 풀어요 · 채점하면 틀린 문제를 지문과 함께 해설로 보여 줘요</span><div class="p7tb"><button type="button" class="cvbtn p" data-p7="print">문제지 인쇄</button><button type="button" class="cvbtn" data-p7="paper">인쇄가 어려우면 화면으로 문제 보기</button></div></div>';
+      ?'<div class="p7top"><div class="p7tb"><button type="button" class="cvbtn" data-p7="sheet">답안지로 돌아가기</button></div></div>'
+      :/* [2026-11-27 16:44 MAP 채팅236 · 국존 「진행」 — 노트 32721 Q3 · 16:52 「종이가 없으면~ 등등 설명도 삭제」] 설명 문장을 빼고 단추만 둔다. 학생이 집에서 문제지를 인쇄하던 「문제지 인쇄」 단추를 뺀다(노트 7475: 종이는 국존 인쇄 · 이름 인쇄). 종이는 학원에서 받은 것으로 푼다. */
+      '<div class="p7top"><div class="p7tb"><button type="button" class="cvbtn" data-p7="paper">화면으로 문제 보기</button></div></div>';
     var M=I.mine,it=M.items||[],c=M.correct_n||0,t=it.length,wn=it.filter(function(x){return !x.ok;}),z=wn.filter(function(x){return x.note;}).length;
     var sw=wn.filter(function(x){return x.conf==='확실';}),hw=wn.filter(function(x){return x.conf!=='확실';}),gr=it.filter(function(x){return x.ok&&x.conf==='찍음';});
     var ch=function(L,cl){return L.map(function(x){return '<button type="button" class="p7chip '+cl+'" data-p7go="'+x.no+'">'+x.no+'번</button>';}).join('');};
@@ -3398,7 +3409,7 @@ body.v16>header.id,body.v16>#gzRitual,body.v16>.toptabs,body.v16>.phasebar,body.
     if(b.dataset.p7go){p7Go(+b.dataset.p7go);return;}
     if(b.dataset.p7q){var q=+b.dataset.p7q;if(b.dataset.p7v)P7.pick[q]=+b.dataset.p7v;else P7.conf[q]=b.dataset.p7c;p7Save();
       [].forEach.call(b.parentNode.children,function(x){var on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on);});if(b.dataset.p7v)b.closest('.p7r').classList.add('on');p7Count();return;}
-    var a=b.dataset.p7;if(a==='print'){p7Print();return;}if(a==='paper'||a==='sheet'){P7.mode=a;cvStep();var sc=$('v13cv');if(sc)sc.scrollTop=0;return;}if(a==='sub')p7Submit();else if(a==='redo'){P7.info.mine=null;P7.pick={};P7.conf={};P7.mode='sheet';cvStep();}});
+    var a=b.dataset.p7;if(a==='print'){return;}if(a==='paper'||a==='sheet'){P7.mode=a;cvStep();var sc=$('v13cv');if(sc)sc.scrollTop=0;return;}if(a==='sub')p7Submit();else if(a==='redo'){P7.info.mine=null;P7.pick={};P7.conf={};P7.mode='sheet';cvStep();}});
   /* [채팅 63 21:50 국존 「수리」] 4단계 답 쓰기를 학생 화면 안에서 — 수강신청 학생 얼굴과 같은 함수(gz2_step4_sheet · gz2_step4_submit) */
   var S4={};
   function s4lc(){var m=CV.meta||{};if(m.s4&&m.s4.lc)return m.s4.lc;var s=CV.steps[3]||{},it=(s.items||[]).filter(function(x){return x.kind==='워크시트';})[0];return it?it.lc:null;}
@@ -4180,6 +4191,107 @@ function render(w){var box=document.querySelector('#wrBox .wkb');if(!box)return 
 window.gzHabitWeek=function(){fetch('https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/rpc/gz2_habit_week',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify({p_sid:sk.sid,p_k:sk.k})}).then(function(r){return r.json();}).then(function(w){if(!w||!w.ok)return;var n=0,t=setInterval(function(){if(render(w)||++n>40)clearInterval(t);},250);});};
 gzHabitWeek();
 })();</script>
+
+<style>
+#v13cv .sg2sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 4px}
+#v13cv .sg2sum div{background:#F4F1EA;border-radius:12px;padding:10px 12px}
+#v13cv .sg2sum b{display:block;font-size:24px;color:#1E4D3B}#v13cv .sg2sum small{font-size:14px;color:#5F5E5A}
+#v13cv .sg2sum .y b{color:#B7791F}
+#v13cv .sg2tabs{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:2px solid #E2DED4;margin:14px 0 12px}
+#v13cv .sg2tabs button{min-height:52px;border:0;background:none;font:inherit;font-size:16px;cursor:pointer;color:#5F5E5A;border-bottom:3px solid transparent;margin-bottom:-2px}
+#v13cv .sg2tabs button.on{color:#1E4D3B;font-weight:800;border-bottom-color:#1E4D3B}
+#v13cv .sg2tabs i{font-style:normal;font-size:13px;display:block;color:#8A8578;font-weight:400}
+#v13cv .sg2ask{min-height:40px;padding:0 14px;border-radius:9px;border:1.5px solid #1E4D3B;background:#fff;color:#1E4D3B;font:inherit;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap}
+#v13cv .sg2have{font-size:13.5px;padding:3px 10px;border-radius:999px;background:#E6EEE9;color:#1E4D3B;white-space:nowrap}
+#v13cv .sg2grp{display:flex;align-items:center;gap:10px;width:100%;padding:13px 16px;border:0;border-top:1px solid #EFEBE2;background:#FBFAF6;font:inherit;text-align:left;cursor:pointer}
+#v13cv .sg2grp b{flex:1;font-size:16px}#v13cv .sg2grp small{font-size:14px;color:#5F5E5A}
+#v13cv .sg2hint{font-size:14.5px;color:#5F5E5A;margin:0 2px 10px}
+
+#v13cv .gapwrap{border:2px solid #1E4D3B;border-radius:14px;background:#fff;padding:14px 16px;margin:12px 0 6px}
+#v13cv .gapwrap h3{margin:0 0 2px;font-size:19px;color:#1E4D3B}#v13cv .gapwrap .sub{font-size:14.5px;color:#5F5E5A;margin:0 0 8px}
+#v13cv .gapc{border-top:1px solid #EFEBE2;padding:10px 0 4px}
+#v13cv .gapc .k{font-weight:800;font-size:16px}#v13cv .gapc .s{font-size:13.5px;color:#8A8578;margin-left:6px}
+#v13cv .gapr{display:flex;align-items:center;gap:10px;padding:7px 0}
+#v13cv .gapr .t{flex:1;font-size:15.5px}#v13cv .gapr .t small{display:block;font-size:13.5px;color:#5F5E5A}
+#v13cv .gapr .bar{width:90px;height:7px;border-radius:4px;background:#EEE9DE;overflow:hidden}#v13cv .gapr .bar em{display:block;height:100%;background:#1E4D3B}
+#v13cv .gapsee{min-height:38px;padding:0 12px;border-radius:9px;border:1.5px solid #1E4D3B;background:#1E4D3B;color:#fff;font:inherit;font-size:14.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+#v13cv .gapsee.o{background:#fff;color:#1E4D3B}
+#v13cv .gaplist{margin:2px 0 8px;border:1px solid #E2DED4;border-radius:10px;overflow:hidden}
+#v13cv .sg2plain{font-size:14.5px;color:#5F5E5A;margin:8px 2px 0}
+</style>
+<script>
+(function(){
+var U='https://qcnsadcpsonuxnjyrlez.supabase.co/rest/v1/',PK='sb_publishable_stx8spRryf_4OWMFsW29Rw_XiDNfyb0',D=null,ST={tab:'now',open:{}},A=null;
+
+var GAP=[] /* [2026-11-26 국존 「업로드 할 것」] 내 빈틈은 학생별 계산 함수가 생기면 그 학생 것만 채운다. 시안의 학생 1명 자료는 넣지 않는다 */;
+var SUN=['모의고사 기출','수능국어 입문','문학 공부법','비문학 공부법','문법 공부법','EBS 수능특강/완성'];
+function get(p){return fetch(U+p,{headers:{apikey:PK,Authorization:'Bearer '+PK}}).then(function(r){return r.json();}).catch(function(){return [];});}
+function load(){return A.rpc('gz2_sg_me',{p_sid:A.SK.sid,p_k:A.SK.k}).then(function(me){me=me||{};
+  var f='or=('+encodeURIComponent('and(l1_name.eq."'+me.school+'",grade.eq.'+me.grade+'),l1_name.in.('+SUN.map(function(x){return '"'+x+'"';}).join(',')+')')+')';
+  return get('lecture_categories?select=id,l1_name,l2_name,l3_name,grade&'+f).then(function(cs){var C={};(cs||[]).forEach(function(c){C[c.id]=c;});var ids=Object.keys(C);
+    return get('lectures?select=id,title,category_id&is_published=eq.true&category_id=in.('+ids.join(',')+')').then(function(ls){
+      var L=(ls||[]).map(function(l){var c=C[l.category_id]||{};return {id:l.id,title:l.title,l1:c.l1_name||'',l2:c.l2_name||'',l3:c.l3_name||'',grade:c.grade||''};});
+      D={school:me.school||'',grade:me.grade||'',mine:L.filter(function(l){return l.l1===me.school;}),sun:L.filter(function(l){return SUN.indexOf(l.l1)>=0;})};});});});}
+function short(s){return String(s||'').replace(/^\[[^\]]*\]\s*/,'');}
+function rowAsk(l,have){var e=A.esc;return '<div class="cvrow"><span class="cvt"><b>'+e(short(l.title))+'</b><small>'+e([l.l1,l.l2,l.l3].filter(Boolean).join(' · '))+'</small></span>'+(have?'<span class="sg2have">듣는 중</span>':'<button type="button" class="sg2ask" data-sg2ask="'+l.id+'">수강 신청</button>')+'</div>';}
+
+function gapHtml(own){var e=A.esc,h='<div class="gapwrap"><h3>내 빈틈 — 더 들어야 할 곳</h3><p class="sub">공부한 기록에서 찾았어요. 필요한 강좌를 골라 신청해요.</p>';
+  GAP.forEach(function(g,gi){h+='<div class="gapc"><span class="k">'+e(g.k)+'</span><span class="s">'+e(g.s)+'</span>';
+    g.rows.forEach(function(r,ri){var id=gi+'_'+ri,L=r.rec?D.sun.filter(function(l){return l.l1===r.rec[0]&&l.l3===r.rec[1];}):[];
+      var btn=r.rec?'<button type="button" class="gapsee'+(ST.open['g'+id]?' o':'')+'" data-gap="'+id+'">'+e(r.lab)+' '+L.length+'개 '+(ST.open['g'+id]?'▴':'▾')+'</button>':(r.scope?'<button type="button" class="gapsee" data-sg2req="'+e('범위 강좌 신청: 2학기 기말 '+r.scope)+'">범위 강좌 신청</button>':'<button type="button" class="gapsee o" data-sg2req="'+e('강좌 요청: '+r.t)+'">강좌 요청</button>');
+      h+='<div class="gapr"><span class="t">'+e(r.t)+'<small>'+e(r.m)+(r.none?' · 맞는 강좌가 아직 없어요':'')+'</small></span>'+(r.p!=null?'<span class="bar"><em style="width:'+r.p+'%"></em></span><b style="min-width:42px;text-align:right">'+r.p+'%</b>':'')+btn+'</div>';
+      if(r.rec&&ST.open['g'+id])h+='<div class="gaplist">'+L.map(function(l){return rowAsk(l,own[l.id]);}).join('')+'</div>';});
+    h+='</div>';});
+  return h+'</div>';}
+function paint(){
+  /* [2026-11-27 16:12 MAP 채팅236 · 국존 「아예 하단에 강좌 찾기, 새 강좌 신청, 필요한 것 요청하기 등 버튼처리하지 말고 항상 나오게 할 것. 내 책장 같은 비유적 표현 말고, 그동안 신청한 강좌라고 이름붙일 것」]
+     탭(듣는 중 · 내 학교 강좌 · 수능 · 공부법)과 아래 단추 3개를 없애고, 한 화면에 차례로 늘 보이게 한다:
+     ① 지금 공부하는 강좌 ② 그동안 신청한 강좌(gz_stu_req_list) ③ 강좌 찾기 · 새 강좌 신청(내 학교 강좌 → 수능 · 공부법 묶음) ④ 필요한 것 요청하기(바로 쓰는 칸) */
+  var CV=A.CV,e=A.esc,now=CV.list.filter(function(c){return c.linked;}),own={};now.forEach(function(c){own[c.id]=1;});
+  var cur=now.filter(function(c){return (CV.prog[c.id]||0)<7;}),fin=now.filter(function(c){return (CV.prog[c.id]||0)>=7;});
+  var mN=D.mine.filter(function(l){return !own[l.id];}),sN=D.sun.filter(function(l){return !own[l.id];});
+  if(!D.reqAsked){D.reqAsked=1;A.rpc('gz_stu_req_list',{p_sid:A.SK.sid,p_k:A.SK.k}).then(function(r){D.req=(r&&r.ok&&r.rows)||[];paint();}).catch(function(){D.req=[];paint();});}
+  function row(c){var k=CV.prog[c.id]||0;return '<button type="button" class="cvrow" data-cvlec="'+c.id+'"><span class="cvt"><b>'+e(A.cvTitle(c))+'</b><small>'+e(c.path||'')+'</small></span><span class="cvp"><small>7단계 중 '+k+'개 끝</small><i><em style="width:'+Math.round(k/7*100)+'%"></em></i></span><span class="cvgo">›</span></button>';}
+  function md(d){if(!d)return '';var x=new Date(d);return (x.getMonth()+1)+'/'+x.getDate();}
+  var h=A.bar('← 오늘로','close')+'<div class="cvhd"><div class="cvk">이번 달 강좌 · 수강신청</div><h2>'+e(D.school+' '+D.grade)+' · 내 강좌와 수강 신청</h2>'
+   +'<p class="sg2plain">지금 듣는 강좌 '+now.length+'개 · 내 학교 강좌 '+D.mine.length+'개 · 수능·공부법 강좌 '+D.sun.length+'개</p></div>'
+   +(GAP.length?gapHtml(own):'');
+  /* ① */
+  h+='<div class="cvsec">지금 공부하는 강좌 '+cur.length+'개</div><p class="sg2hint">강좌를 누르면 1~7단계가 나와요.</p><div class="cvlist">'+(cur.length?cur.map(row).join(''):'<div class="cvempty">아직 강좌가 없어요. 아래 「강좌 찾기 · 새 강좌 신청」에서 신청해요.</div>')+'</div>'
+    +(fin.length?'<div class="cvsec">다 끝낸 강좌</div><div class="cvlist">'+fin.map(row).join('')+'</div>':'');
+  /* ② */
+  var RQ=D.req;
+  h+='<div class="cvsec">그동안 신청한 강좌</div><div class="cvlist">'+(RQ==null?'<div class="cvempty">불러오는 중…</div>':(RQ.length?RQ.map(function(r){return '<div class="cvrow"><span class="cvt"><b>'+e(String(r.title||'').replace(/^수강 신청:\s*/,''))+'</b><small>'+e(md(r.created_at)+' 신청'+(r.due?' · '+md(r.due)+'까지':''))+'</small></span><span class="sg2have">'+e(r.lecture_id?'강좌 열림':(r.stage||'접수'))+'</span></div>';}).join(''):'<div class="cvempty">아직 신청한 강좌가 없어요. 아래에서 「수강 신청」을 누르면 여기에 쌓여요.</div>'))+'</div>';
+  /* ③ */
+  var L=D.mine.slice().sort(function(a,b){return (own[a.id]?1:0)-(own[b.id]?1:0);});
+  h+='<div class="cvsec">강좌 찾기 · 새 강좌 신청</div><p class="cvnote">「수강 신청」을 누르면 선생님이 확인하고 내 강좌에 넣어 줘요.</p>'
+    +'<div class="cvsec" style="font-size:15px;margin-top:10px">'+e(D.school+' '+D.grade)+' 교과서 강좌 '+D.mine.length+'개 · 안 들은 것 '+mN.length+'개</div><div class="cvlist">'+(L.length?L.map(function(l){return rowAsk(l,own[l.id]);}).join(''):'<div class="cvempty">내 학교 · 학년 강좌가 아직 없어요. 아래 「필요한 것 요청하기」에 적어 주세요.</div>')+'</div>';
+  var G={},O=[];D.sun.forEach(function(l){var k=l.l1+' › '+l.l2;if(!G[k]){G[k]=[];O.push(k);}G[k].push(l);});
+  O.sort(function(a,b){var fa=(a.indexOf(D.grade)>=0)?0:1,fb=(b.indexOf(D.grade)>=0)?0:1;return (fa-fb)||(SUN.indexOf(a.split(' › ')[0])-SUN.indexOf(b.split(' › ')[0]));});
+  h+='<div class="cvsec" style="font-size:15px;margin-top:14px">수능 · 공부법 강좌 '+D.sun.length+'개 · 안 들은 것 '+sN.length+'개</div><p class="sg2hint">묶음을 누르면 강좌가 펼쳐져요.</p><div class="cvlist">'+O.map(function(k){var g=G[k],hv=g.filter(function(l){return own[l.id];}).length,op=ST.open[k];
+      return '<button type="button" class="sg2grp" data-sg2grp="'+e(k)+'"><b>'+e(k)+'</b><small>'+g.length+'개'+(hv?' · 듣는 중 '+hv:'')+'</small><span class="cvgo">'+(op?'▴':'▾')+'</span></button>'+(op?g.map(function(l){return rowAsk(l,own[l.id]);}).join(''):'');}).join('')+'</div>';
+  /* ④ */
+  var RF=ST.rf||{kind:'강좌',subj:'',msg:''};
+  h+='<div class="cvsec">필요한 것 요청하기</div><p class="cvnote">찾는 강좌가 없거나 자료 · 질문이 있으면 적어 보내요. 선생님이 확인하고 답해 줘요.</p>'
+    +'<div class="cvlist" style="padding:12px 14px;display:grid;gap:8px">'
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap">'+['강좌','자료','질문'].map(function(k){return '<button type="button" class="cvchip'+(RF.kind===k?' on':'')+'" data-sg2rk="'+k+'">'+k+'</button>';}).join('')+'</div>'
+    +'<textarea id="sg2rq" rows="3" style="font:inherit;font-size:15px;padding:8px 10px;border:1px solid #D9D4C7;border-radius:10px;width:100%;box-sizing:border-box" placeholder="예: 연송고 1학년 2학기 기말 문학 3단원 강의가 필요해요">'+e(RF.subj)+'</textarea>'
+    +'<div style="display:flex;gap:10px;align-items:center"><button type="button" class="sg2ask" data-sg2send="1">선생님께 보내기</button><span class="cvnote" id="sg2rqm">'+e(RF.msg)+'</span></div></div>';
+  A.cvShow(h);}
+window.gzCvList2=function(a){A=a;if(D){paint();return;}a.cvShow(a.bar('← 오늘로','close')+'<div class="cvwait">강좌 불러오는 중…</div>');load().then(paint);};
+document.addEventListener('click',function(ev){var b;
+  if(b=ev.target.closest('[data-sg2rk]')){ST.rf=ST.rf||{kind:'강좌',subj:'',msg:''};var t=document.getElementById('sg2rq');if(t)ST.rf.subj=t.value;ST.rf.kind=b.dataset.sg2rk;paint();return;}
+  if(b=ev.target.closest('[data-sg2send]')){ST.rf=ST.rf||{kind:'강좌',subj:'',msg:''};var t=document.getElementById('sg2rq'),v=((t&&t.value)||'').trim(),m=document.getElementById('sg2rqm');if(!v){if(m)m.textContent='내용을 적어 주세요';return;}
+    b.disabled=true;if(m)m.textContent='보내는 중…';A.rpc('gz_stu_req_submit',{p_sid:A.SK.sid,p_k:A.SK.k,p:{kind:ST.rf.kind,subject:v,detail:'학생 페이지 이번 달 강좌 · 필요한 것 요청하기'}}).then(function(r){if(r&&r.ok){ST.rf={kind:ST.rf.kind,subj:'',msg:'보냈어요 — 선생님이 확인하면 「그동안 신청한 강좌」에 답이 와요'};D.reqAsked=0;paint();}else{b.disabled=false;if(m)m.textContent=(r&&r.reason)||'보내지 못했어요. 다시 눌러 주세요.';}}).catch(function(){b.disabled=false;if(m)m.textContent='보내지 못했어요. 다시 눌러 주세요.';});return;}
+  if(b=ev.target.closest('[data-sg2tab]')){ST.tab=b.dataset.sg2tab;paint();return;}
+  if(b=ev.target.closest('[data-gap]')){var k='g'+b.dataset.gap;ST.open[k]=!ST.open[k];paint();return;}
+  if(b=ev.target.closest('[data-sg2req]')){b.disabled=true;A.rpc('gz_stu_req_submit',{p_sid:A.SK.sid,p_k:A.SK.k,p:{kind:'강좌',subject:b.dataset.sg2req,detail:'학생 페이지 내 빈틈에서 신청'}}).then(function(r){b.textContent=(r&&r.ok)?'신청됨 ✓':'다시 신청';b.disabled=!!(r&&r.ok);});return;}
+  if(b=ev.target.closest('[data-sg2grp]')){var k=b.dataset.sg2grp;ST.open[k]=!ST.open[k];paint();return;}
+  if(b=ev.target.closest('[data-sg2ask]')){var id=+b.dataset.sg2ask,l=D.mine.concat(D.sun).filter(function(x){return x.id===id;})[0]||{};b.disabled=true;
+    A.rpc('gz_stu_req_submit',{p_sid:A.SK.sid,p_k:A.SK.k,p:{kind:'강좌',subject:'수강 신청: '+short(l.title)+' (#'+id+')',detail:'학생 페이지 이번 달 강좌에서 신청'}}).then(function(r){if(r&&r.ok){b.textContent='신청됨 ✓';D.reqAsked=0;setTimeout(paint,600);}else{b.disabled=false;b.textContent='다시 신청';}});}
+},true);
+})();
+</script>
 </body>
 
 </html>
