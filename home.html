@@ -512,4 +512,13 @@ ${sp?`<figure><img src="https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/obje
 (function(){const bar=document.querySelector('.bar');if(!bar||!('IntersectionObserver' in window))return;const seen=new Set();
 const io=new IntersectionObserver(es=>{es.forEach(e=>{e.isIntersecting?seen.add(e.target):seen.delete(e.target)});bar.style.transform=seen.size?'translateY(110%)':'';},{threshold:0.01});
 bar.style.transition='transform .2s';document.querySelectorAll('main .btn.primary').forEach(b=>io.observe(b));})();
+</script><script>
+/* 홈페이지 전환 세기 — 채팅 238 2026-11-27: 방문 · 학교 고르기 · 예약 단추 · 전화 단추만 센다. 이름·전화번호 등 개인 정보는 남기지 않는다. */
+(function(){var sid;try{sid=sessionStorage.gzh||(sessionStorage.gzh=Math.random().toString(36).slice(2,10))}catch(e){sid='x'}
+function L(t,d){try{d=d||{};d.sid=sid;d.w=innerWidth;fetch(SB_URL+'rpc/gz_log',{method:'POST',keepalive:true,headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_tag:t,p_detail:d})})}catch(e){}}
+L('home:view',{ref:(document.referrer||'').split('/')[2]||'',q:location.search.slice(0,80)});
+var s=document.getElementById('sch');if(s)s.addEventListener('change',function(){var g=document.getElementById('grd');L('home:school',{g:g?g.value:'',s:(s.selectedOptions[0]||{}).textContent||''})});
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a');if(!a)return;var h=a.getAttribute('href')||'';
+if(h.indexOf('tel:')===0){L('home:call',{})}else if(/예약/.test(a.textContent)){var b=a.closest('section');L('home:reserve',{at:b&&b.querySelector('h2')?b.querySelector('h2').textContent.slice(0,16):'bar'})}},true);
+})();
 </script></body></html>
