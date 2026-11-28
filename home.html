@@ -643,7 +643,7 @@ async function boot(){
  try{
   const ac=await get('v_public_academy?select=slug,region_prefix,site_title,head,sub,brands,place_url,branch_map&slug=eq.'+encodeURIComponent(A.slug));
   if(ac[0]){Object.assign(A,ac[0]);
-    if(A.slug!=='songdo'){const tn=(A.site_title?A.site_title+' × ':'')+'국존';document.getElementById('brand').textContent=tn;if(!A.head){A.head='국어 점수는 자기주도력에서 옵니다. 국존의 자료로 그 공부의 빈틈을 메워 더 좋은 결과로 이어지게 합니다.'}document.title=tn+' — '+A.head;const md=document.querySelector('meta[name=description]');if(md)md.content=tn+'. '+A.head;const ft=document.getElementById('ftenant');if(ft)ft.textContent=tn}else if(A.site_title){document.title=A.site_title+' — '+(A.head||'')}
+    if(A.slug!=='songdo'){const tn=A.site_title?A.site_title+' × 국어의 지존':'';document.getElementById('brand').textContent=tn;if(!A.head){A.head='국어 점수는 자기주도력에서 옵니다. 국존의 자료로 그 공부의 빈틈을 메워 더 좋은 결과로 이어지게 합니다.'}document.title=(tn?tn+' — ':'')+A.head;const md=document.querySelector('meta[name=description]');if(md)md.content=(tn?tn+'. ':'')+A.head;const ft=document.getElementById('ftenant');if(ft)ft.textContent=tn}else if(A.site_title){document.title=A.site_title+' — '+(A.head||'')}
     if(A.head){document.getElementById('head').innerHTML=esc(A.head).replace(/\. /,'.<br>')}
     if(A.slug==='songdo'){document.querySelectorAll('.only-songdo').forEach(e=>e.style.display='block')}
     if(A.sub){document.getElementById('sub').textContent=A.sub}
