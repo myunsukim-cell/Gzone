@@ -443,7 +443,16 @@ details.fold3p[open]>summary:after{content:" ▴"}
 .pcv,.plab{grid-column:1/3}
 .pcv li{padding:7px 0;font-size:13.5px}
 }
-</style><style>.dd{color:#C0392B!important}</style></head><body>
+</style><style>.dd{color:#C0392B!important}</style><style>/* 2026-11-28 국존 2.0 화면 그림 확대(읽히게) */
+.prow .scr{grid-column:1/-1}
+.prow .scr img{height:auto!important;object-fit:contain!important;object-position:center!important;padding:0!important;background:#fff}
+@media (max-width:959px){.prow .hand{grid-column:1/-1}.prow .hand img{height:170px}}
+@media (min-width:960px){.prow{grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;align-items:start}.pk{grid-column:1;grid-row:1}.prow .hand{grid-column:1;grid-row:2}.prow .hand img{height:210px}.prow .scr{grid-column:2;grid-row:1/3}}
+@media (max-width:959px){.prow .scr figcaption:after{content:" · 눌러서 크게 보기";font-weight:600;color:var(--dim)}}
+.prow .scr img{cursor:zoom-in}
+</style>
+<script>document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.prow .scr img').forEach(function(i){i.addEventListener('click',function(){window.open(i.src,'_blank')})})});</script>
+</head><body>
 <main class="wrap">
 <div class="top"><div class="brand" id="brand"><img class="tlogo" src="https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/brand-assets/homepage/20261127/logo_gz_white.png" alt="국어의 지존"><div class="tbrands" id="tbrands"></div></div>
 <p class="where"><b>인천 송도 국어·독서논술 학원</b><span>초등부터 고3까지 · 연수구 컨벤시아대로 69, 6층</span></p>
