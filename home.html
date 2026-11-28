@@ -336,6 +336,16 @@ footer b,footer strong{color:#fff}
 .tlogo{margin-top:14px}
 @media (max-width:959px){.tbrands{justify-content:center}.tbrands div{flex:none;padding-left:0}.tbrands div+div{padding-left:12px;margin-left:12px}.tbrands em{display:none}.tbrands b{font-size:12px}}
 @media (min-width:960px){.tlogo{margin-top:22px}}
+
+.tbrands .tparent{border:0!important;margin:0 auto 0 0!important;padding:0!important;gap:8px}
+.tbrands .tparent b{font-size:13px;font-weight:800;letter-spacing:.14em;color:#F2B544}
+.tbrands .tparent em{display:inline!important;font-size:10.5px;letter-spacing:.04em;color:rgba(255,255,255,.55)}
+.tbrands.wp div:not(.tparent) em{display:none}
+.tbrands .tparent+div{border-left:0!important;margin-left:0!important}
+@media (max-width:959px){.tbrands.wp{flex-wrap:wrap;row-gap:5px;padding:8px 0 7px}.tbrands .tparent{width:100%;justify-content:center;margin:0!important}
+.tbrands .tparent:before,.tbrands .tparent:after{content:"";height:1px;width:28px;background:rgba(242,181,68,.45)}
+.tbrands .tparent b{font-size:12px}.tbrands .tparent em{font-size:10px}}
+.ftop .fpar{display:block;font-size:12px;font-weight:800;letter-spacing:.14em;color:#F2B544;margin-bottom:4px}
 </style><script>if((new URLSearchParams(location.search).get('a')||'songdo')!=='songdo')document.documentElement.classList.add('t-other')</script><style>
 .t-other .hcta,.t-other .pair,.t-other .top .hero,.t-other .tlogo,.t-other .where{display:none!important}
 .where{grid-column:1;margin:0 -22px;padding:16px 22px 0;background:var(--g);color:#fff}
@@ -623,7 +633,7 @@ details.fold3p[open]>summary:after{content:" ▴"}
 </section>
 <footer class="ft">
 <p class="ften"><b id="ftenant"></b><br>교재·강의·진단 개발 국존 주식회사</p>
-<div class="ftop fsong"><img src="https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/brand-assets/homepage/20261127/logo_gz_white.png" alt="국어의 지존" class="flogo only-songdo-i"><p><b>중고등관</b> 국어의 지존 송도 본원 · <b>초중관</b> 시원 씨앤에이 · 인천 송도</p></div>
+<div class="ftop fsong"><img src="https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/brand-assets/homepage/20261127/logo_gz_white.png" alt="국어의 지존" class="flogo only-songdo-i"><p><span class="fpar">시원국어교육</span><b>중고등관</b> 국어의 지존 송도 본원 · <b>초중관</b> 시원 씨앤에이<br><span style="font-size:12px;opacity:.7">인천 송도 · 연수구 컨벤시아대로 69, 6층</span></p></div>
 <p class="fsm fsong">국어의지존 국어학원 · 인천동부교육지원청 등록 제2446호 · 교습과목 국어<br>교재·강의·진단 개발 국존 주식회사 · 분석 김면수(문학박사, 전 유웨이교육 수능 국어 분석위원)</p>
 </footer>
 </main>
@@ -647,7 +657,7 @@ async function boot(){
     if(A.head){document.getElementById('head').innerHTML=esc(A.head).replace(/\. /,'.<br>')}
     if(A.slug==='songdo'){document.querySelectorAll('.only-songdo').forEach(e=>e.style.display='block')}
     if(A.sub){document.getElementById('sub').textContent=A.sub}
-    document.getElementById('brands').innerHTML=(A.brands||[]).map(b=>'<div><small>'+esc(b.band)+'</small><b>'+esc(b.name)+'</b><em>since '+esc(b.since)+'</em></div>').join('');var tb=document.getElementById('tbrands');if(tb)tb.innerHTML=document.getElementById('brands').innerHTML;
+    document.getElementById('brands').innerHTML=(A.brands||[]).map(b=>'<div><small>'+esc(b.band)+'</small><b>'+esc(b.name)+'</b><em>since '+esc(b.since)+'</em></div>').join('');var tb=document.getElementById('tbrands');if(tb){tb.innerHTML=document.getElementById('brands').innerHTML;if(A.slug==='songdo'){tb.insertAdjacentHTML('afterbegin','<div class="tparent"><b>시원국어교육</b><em>since 2006</em></div>');tb.classList.add('wp')}}
     document.querySelectorAll('a[href="#reserve"]').forEach(a=>{if(A.place_url)a.href=A.place_url;else{a.href='#';a.onclick=e=>{e.preventDefault();reserve()}}});
   }
   const [sc,cs,tm,ex,lc,gp]=await Promise.all([
