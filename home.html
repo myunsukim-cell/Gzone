@@ -367,7 +367,7 @@ footer.ft{margin:0 -22px!important;padding:26px 22px 110px!important;background:
 .ftop p{margin:0;color:rgba(255,255,255,.85);font-size:13px}.ftop b{color:#F2B544;font-weight:700}
 .flogo{height:30px;width:auto}
 .fsm{margin:0}
-.t-other .flogo{display:none}
+.t-other .flogo,.t-other .fsong{display:none!important}.ften{display:none}.t-other .ften{display:block;font-size:13px;line-height:1.7;opacity:.85}
 @media (min-width:960px){
 .cgrid{grid-template-columns:1.05fr 1fr;gap:56px;align-items:start}
 .clead{font-size:17px}
@@ -622,8 +622,9 @@ details.fold3p[open]>summary:after{content:" ▴"}
 </div>
 </section>
 <footer class="ft">
-<div class="ftop"><img src="https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/brand-assets/homepage/20261127/logo_gz_white.png" alt="국어의 지존" class="flogo only-songdo-i"><p><b>고등관</b> 국어의 지존 · <b>초중관</b> 시원 씨앤에이 · 인천 송도</p></div>
-<p class="fsm">국어의지존 국어학원 · 인천동부교육지원청 등록 제2446호 · 교습과목 국어<br>교재·강의·진단 개발 국존 주식회사 · 분석 김면수(문학박사, 전 유웨이교육 수능 국어 분석위원)</p>
+<p class="ften"><b id="ftenant"></b><br>교재·강의·진단 개발 국존 주식회사</p>
+<div class="ftop fsong"><img src="https://qcnsadcpsonuxnjyrlez.supabase.co/storage/v1/object/public/brand-assets/homepage/20261127/logo_gz_white.png" alt="국어의 지존" class="flogo only-songdo-i"><p><b>고등관</b> 국어의 지존 · <b>초중관</b> 시원 씨앤에이 · 인천 송도</p></div>
+<p class="fsm fsong">국어의지존 국어학원 · 인천동부교육지원청 등록 제2446호 · 교습과목 국어<br>교재·강의·진단 개발 국존 주식회사 · 분석 김면수(문학박사, 전 유웨이교육 수능 국어 분석위원)</p>
 </footer>
 </main>
 <div class="bar"><div class="in"><a class="btn seal" href="#reserve" onclick="if(!A.place_url){event.preventDefault();reserve()}">입학 진단 예약</a></div></div>
@@ -642,7 +643,7 @@ async function boot(){
  try{
   const ac=await get('v_public_academy?select=slug,region_prefix,site_title,head,sub,brands,place_url,branch_map&slug=eq.'+encodeURIComponent(A.slug));
   if(ac[0]){Object.assign(A,ac[0]);
-    if(A.site_title){document.title=A.site_title+' — '+(A.head||'');if(A.slug!=='songdo'){document.getElementById('brand').textContent=A.site_title}}
+    if(A.slug!=='songdo'){const tn=(A.site_title?A.site_title+' × ':'')+'국존';document.getElementById('brand').textContent=tn;if(!A.head){A.head='국어 점수는 자기주도력에서 옵니다. 국존의 자료로 그 공부의 빈틈을 메워 더 좋은 결과로 이어지게 합니다.'}document.title=tn+' — '+A.head;const md=document.querySelector('meta[name=description]');if(md)md.content=tn+'. '+A.head;const ft=document.getElementById('ftenant');if(ft)ft.textContent=tn}else if(A.site_title){document.title=A.site_title+' — '+(A.head||'')}
     if(A.head){document.getElementById('head').innerHTML=esc(A.head).replace(/\. /,'.<br>')}
     if(A.slug==='songdo'){document.querySelectorAll('.only-songdo').forEach(e=>e.style.display='block')}
     if(A.sub){document.getElementById('sub').textContent=A.sub}
@@ -651,8 +652,8 @@ async function boot(){
   }
   const [sc,cs,tm,ex,lc,gp]=await Promise.all([
    get('schools?select=name&is_active=eq.true&region=like.'+encodeURIComponent(A.region_prefix)+'*&order=name'),
-   get('v_public_class_status?select=school,grade,band,status'),
-   get('v_public_times?select=branch,day_of_week,start_time,n&n=gte.5'),
+   get('v_public_class_status?select=school,grade,band,status&academy=eq.'+encodeURIComponent(A.slug)),
+   get('v_public_times?select=branch,day_of_week,start_time,n&n=gte.5&academy=eq.'+encodeURIComponent(A.slug)),
    get('v_public_exam_prep?select=school,grade,exam_name,exam_date,seq,work_title&order=exam_date.desc.nullslast,seq'),
    get('lecture_categories?select=l1_name,grade,work_count,curriculum&is_active=eq.true&curriculum=in.(내신,수능)'),
    get('v_public_school_gpat_v2?select=school,exams,items,domains,top_kla,group_name,group_desc,profile,killers,solution,gpat_url,traps')]);
@@ -661,7 +662,7 @@ async function boot(){
   const names=new Set(sc.map(x=>x.name));cs.forEach(x=>names.add(x.school));
   D.schools=[...names].sort((a,b)=>{const k=s=>s.endsWith('초')?0:s.endsWith('중')?1:2;return k(a)-k(b)||a.localeCompare(b,'ko')});
   cs.forEach(x=>D.cs[x.school+'|'+x.grade]=x.status);
-  D.T['국존']=timeline(tm.filter(t=>t.branch==='국존'));D.T['시원']=timeline(tm.filter(t=>t.branch==='시원'));
+  D.T['국존']=timeline(tm.filter(t=>t.branch==='국존'));D.T['시원']=timeline(tm.filter(t=>t.branch==='시원'));if(A.slug!=='songdo'){D.T['국존']=D.T['시원']=timeline(tm)}
   const today=new Date(Date.now()+9*3600e3).toISOString().slice(0,10);/* [2026-11-21 학원 첫화면 7번] 오늘 날짜를 한국 시각으로 */
   ex.forEach(e=>{const k=e.school+'|'+e.grade;const ek=k+'|'+e.exam_name+'|'+(e.exam_date||'');
    if(!D.exams[k])D.exams[k]={};if(!D.exams[k][ek])D.exams[k][ek]={name:e.exam_name,date:e.exam_date,items:0,works:[]};
@@ -711,7 +712,7 @@ window.openSchool=function(s,g){
 }
 sch.addEventListener('change',()=>{
  const s=sch.value,g=grd.value;if(!s||!g)return;const k=s+'|'+g,st=D.cs[k]||'C',e=D.ex[k];const gl=g.replace(/^[초중고]/,'')+'학년';
- const br=branchOf(g),gz=(br==='국존');const bname=((A.brands||[]).find(b=>b.branch===br)||{}).name||br;const q="'"+s+"','"+g+"'";let h='';
+ const br=branchOf(g),gz=(br==='국존');const bname=A.slug!=='songdo'?(A.site_title||'우리 학원'):(((A.brands||[]).find(b=>b.branch===br)||{}).name||br);const q="'"+s+"','"+g+"'";let h='';
  if(gz){
    h+='<p><b>'+s+' '+gl+'</b>은 '+esc(bname)+'에서 이렇게 공부합니다.</p>';
    if(e){h+='<p>국존이 '+s+' 이번 시험 범위를 분석해 두었습니다. <b>'+e.name+'</b> '+fmtd(e.date)+'</p>'}
